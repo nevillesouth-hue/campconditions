@@ -1,4 +1,4 @@
-import os,re,json,sys,html
+import os,re,json,sys,html,subprocess
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];n=0;ldn=0
 for r,_,fs in os.walk(D):
   for f in fs:
@@ -97,4 +97,42 @@ for r, _, fs in os.walk(D):
         bad.append((p[len(D):], "external tab"))
         break
 if 'rel="noopener noreferrer"' not in mj: bad.append(("map.js", "osm link"))
+notice = "We'll only use your email to send the CampConditions digest. We never sell or share it."
+if notice not in home or '<a href="/privacy/">Unsubscribe any time</a>' not in home:
+  bad.append(("/", "privacy notice"))
+if "/privacy/" not in sm: bad.append(("sitemap", "/privacy/"))
+priv_path = os.path.join(D, "privacy", "index.html")
+if not os.path.isfile(priv_path):
+  bad.append(("/privacy/", "missing"))
+else:
+  priv = open(priv_path, encoding="utf-8").read()
+  for bit in ("Last updated 16 October 2026", "campconditions@outlook.com", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
+    if bit not in priv: bad.append(("/privacy/", bit))
+for r, _, fs in os.walk(D):
+  for f in fs:
+    if not f.endswith(".html"): continue
+    p = os.path.join(r, f)
+    blob = open(p, encoding="utf-8").read()
+    if 'href="/privacy/"' not in blob and "href='/privacy/'" not in blob:
+      bad.append((p[len(D):] or "/", "privacy link"))
+root = os.path.dirname(D)
+digest = subprocess.run([sys.executable, os.path.join(root, "scripts", "digest.py")], cwd=root, capture_output=True, text=True)
+if digest.returncode != 0:
+  bad.append(("digest", (digest.stderr or digest.stdout)[-240:]))
+else:
+  for name in ("digest.html", "digest.txt"):
+    blob = open(os.path.join(D, "digest", name), encoding="utf-8").read()
+    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe"):
+      if bit not in blob: bad.append((name, bit))
+confirm = subprocess.run(["node", "--input-type=module", "-e", """
+import { confirmationMessage } from "./functions/api/subscribe.js";
+const m = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc");
+const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe", "mailto:campconditions@outlook.com"];
+for (const blob of [m.html, m.text]) {
+  for (const bit of need) if (!blob.includes(bit)) { console.error("missing " + bit); process.exit(1); }
+}
+if (m.html.includes("api.resend.com")) process.exit(1);
+"""], cwd=root, capture_output=True, text=True)
+if confirm.returncode != 0:
+  bad.append(("confirm email", (confirm.stderr or confirm.stdout)[-240:]))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)

@@ -124,7 +124,7 @@ def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure
 SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> This site does not republish VicEmergency warnings. Always check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href="tel:000">000</a>. VicEmergency hotline <a href="tel:1800226226">1800 226 226</a>.</div>'
 def footer():
     return f"""<footer><p><strong>Data and attribution.</strong> Campground details: <a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a>, Department of Energy, Environment and Climate Action (DEECA), via DataVic, licensed under CC BY 4.0. Closures: Parks Victoria / DEECA MapShare. Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
-<p>Site built {STAMP}. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>"""
+<p>Site built {STAMP}. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>"""
 def vicemergency_url(lat, lon):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
     pad = 0.2
@@ -234,6 +234,7 @@ def badge(s): return f'<span class="badge {s}">{ {"open":"No known issues","clos
 def crumbs(items): return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i+1, "name": n, "item": SITE+u} for i, (n, u) in enumerate(items)]}
 NEWS = """<section class="box" id="newsletter"><h2>Get the free weekly Victoria digest</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region. We'll email a confirmation link first; you're not on the list until you click it.</p>
 <form id="digest-form" action="/api/subscribe" method="post"><input type="email" name="email" required placeholder="you@example.com" aria-label="Email address" autocomplete="email"> <button>Subscribe</button><p id="digest-note" class="muted" hidden></p></form>
+<p class="muted">We'll only use your email to send the CampConditions digest. We never sell or share it. <a href="/privacy/">Unsubscribe any time</a>.</p>
 <script>
 document.getElementById("digest-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
@@ -315,6 +316,17 @@ page("/report/", "Report campground conditions | CampConditions.au", "Tell other
 page("/about/", "About CampConditions.au", "Who we are and where our data comes from.",
  f"""<h1>About</h1><p>CampConditions.au is a free digest of Victorian campground conditions, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href="https://www.youtube.com/@OptimumQuestforBigThings">Optimum Quest for Big Things</a>.</p>{SAFETY}
 <h2>Sources</h2><ul><li>DEECA Recreation Sites via DataVic (CC BY 4.0)</li><li>Parks Victoria / DEECA MapShare closures</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers.</p>""")
+page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
+ """<h1>Privacy</h1><p>Last updated 16 October 2026.</p>
+<h2>Who we are</h2><p>CampConditions.au publishes a free weekly digest of Victorian campground conditions. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>
+<h2>What we collect</h2><p>If you sign up, we collect your email address and the date and time of your sign-up and confirmation. We don't use tracking cookies. Cloudflare, which hosts this site, may log basic technical data such as your IP address for security.</p>
+<h2>Why we collect it</h2><p>We use your email only to send the digest and service emails about your subscription, such as the confirmation message.</p>
+<h2>Sharing</h2><p>We never sell, rent or share your email, except with service providers who process it for us: Resend (email delivery) and Cloudflare (hosting). Your data may be stored or processed outside Australia.</p>
+<h2>Double opt-in</h2><p>Signing up is double opt-in. We email you a confirmation link, and you are not on the list until you click it.</p>
+<h2>Unsubscribe, access, correction and deletion</h2><p id="unsubscribe">Every email includes an unsubscribe link. You can unsubscribe any time. To ask for access, a correction, or deletion, email <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>
+<h2>How long we keep it</h2><p>We keep your email while you are subscribed. After you unsubscribe, or after you ask us to delete it, we delete it within 30 days.</p>
+<h2>Complaints</h2><p>If you have a complaint, email us. You can also contact the Office of the Australian Information Commissioner (OAIC) at <a href="https://www.oaic.gov.au/">oaic.gov.au</a>.</p>
+<h2>Changes to this policy</h2><p>If we change this policy, we will update this page and the date at the top.</p>""")
 
 # Feeds & SEO files
 feed = {"name": "CampConditions.au status feed", "region": "Victoria, Australia", "generated": NOW.isoformat(),
@@ -322,7 +334,7 @@ feed = {"name": "CampConditions.au status feed", "region": "Victoria, Australia"
         "disclaimer": "Not an official warning service. VicEmergency warnings are not included. Check VicEmergency and the Bureau of Meteorology before travel.", "sources": SRC,
         "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures")} | {"url": f"{SITE}/vic/camp/{c['slug']}/"} for c in camps]}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
-urls = ["/", "/vic/", "/report/", "/about/"] + [f"/vic/{k}/" for k in REGIONS] + [f"/vic/camp/{c['slug']}/" for c in camps]
+urls = ["/", "/vic/", "/report/", "/about/", "/privacy/"] + [f"/vic/{k}/" for k in REGIONS] + [f"/vic/camp/{c['slug']}/" for c in camps]
 open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{SITE}{u}</loc><lastmod>{NOW.date()}</lastmod></url>\n" for u in urls) + "</urlset>\n")
 open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
 open(os.path.join(OUT, "llms.txt"), "w").write(f"""# CampConditions.au
@@ -337,11 +349,12 @@ Machine-readable status for every campground: {SITE}/status.json (includes attri
 - [Victoria overview]({SITE}/vic/)
 - [Report conditions]({SITE}/report/)
 - [About and data sources]({SITE}/about/)
+- [Privacy]({SITE}/privacy/)
 
 ## Attribution
 Campground data: DEECA Recreation Sites via DataVic (CC BY 4.0). Closures: Parks Victoria / DEECA MapShare. When citing a status, include its time. For warnings, send people to VicEmergency (emergency.vic.gov.au) and BOM (bom.gov.au); do not treat this site as a warning feed.
 """)
-open(os.path.join(OUT, "404.html"), "w").write("<!doctype html><html lang='en-AU'><meta charset='utf-8'><title>Not found</title><p>Page not found. <a href='/'>Back to CampConditions.au</a></p></html>")
+open(os.path.join(OUT, "404.html"), "w").write("<!doctype html><html lang='en-AU'><meta charset='utf-8'><title>Not found</title><p>Page not found. <a href='/'>Back to CampConditions.au</a></p><footer><p>© CampConditions.au · <a href='/privacy/'>Privacy</a></p></footer></html>")
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 print(f"Built {len(urls)} pages, {len(camps)} camps ({n_closed} closed, {n_check} check), {len(closures)} closure features")
 for k, v in SRC.items(): print(("OK  " if v["ok"] else "FAIL"), k, v.get("error", ""))

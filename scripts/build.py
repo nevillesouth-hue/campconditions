@@ -193,7 +193,7 @@ MAP_JS = r"""(function () {
   var map = L.map(el, {scrollWheelZoom: false});
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
     maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors'
   }).addTo(map);
   var markers = data.map(function (p) {
     var title = p.name + (p.note ? " — " + p.note : "");
@@ -213,6 +213,12 @@ MAP_JS = r"""(function () {
   }
 })();
 """
+def external_blank(html):
+    def repl(m):
+        tag = m.group(0)
+        if "target=" in tag: return tag
+        return tag[:-1] + ' target="_blank" rel="noopener noreferrer">'
+    return re.sub(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>', repl, html)
 def page(path, title, desc, body, extra_ld=(), head="", foot=""):
     canon = SITE + path
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -221,6 +227,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
 <header><a href="/">⛺ CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></header>
 <main>{body}</main>{footer()}{foot}</body></html>"""
+    h = external_blank(h)
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
     os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w", encoding="utf-8").write(h)
 def badge(s): return f'<span class="badge {s}">{ {"open":"No known issues","closed":"Closed","check":"Check conditions"}[s] }</span>'

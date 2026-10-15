@@ -85,4 +85,14 @@ for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_rece
   if key in feed: bad.append(("status.json", key))
 if any("nearby_emergency" in c for c in feed["camps"]): bad.append(("status.json", "camp nearby_emergency"))
 if "emv.vic.gov.au" in json.dumps(feed).lower() or "osom" in json.dumps(feed).lower(): bad.append(("status.json", "vicemergency data"))
+ext_a = re.compile(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>')
+for r, _, fs in os.walk(D):
+  for f in fs:
+    if not f.endswith(".html"): continue
+    p = os.path.join(r, f)
+    for tag in ext_a.findall(open(p, encoding="utf-8").read()):
+      if 'target="_blank"' not in tag or 'rel="noopener noreferrer"' not in tag:
+        bad.append((p[len(D):], "external tab"))
+        break
+if 'rel="noopener noreferrer"' not in mj: bad.append(("map.js", "osm link"))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)

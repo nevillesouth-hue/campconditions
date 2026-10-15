@@ -1,6 +1,9 @@
-import os,re,json,sys,html,subprocess
+import os,re,json,sys,html,subprocess,tempfile
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];n=0;ldn=0
+def draft_dir(path):
+  return "digest" in path.replace("\\", "/").split("/")
 for r,_,fs in os.walk(D):
+  if draft_dir(r): continue
   for f in fs:
     if not f.endswith(".html"): continue
     p=os.path.join(r,f);t=open(p).read();n+=1
@@ -77,6 +80,7 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "emergency hotline"))
 banned = ("emergency.vic.gov.au/public", "osom", "emv.vic.gov.au", "nearby_emergency", "fire_danger", "fire danger", "CC BY 3.0", "Emergency data last received", "Current VicEmergency warnings", "within 25 km")
 for r, _, fs in os.walk(D):
+  if draft_dir(r): continue
   for f in fs:
     if not f.endswith((".html", ".json", ".txt", ".js")): continue
     blob = open(os.path.join(r, f), encoding="utf-8").read().lower()
@@ -89,6 +93,7 @@ if any("nearby_emergency" in c for c in feed["camps"]): bad.append(("status.json
 if "emv.vic.gov.au" in json.dumps(feed).lower() or "osom" in json.dumps(feed).lower(): bad.append(("status.json", "vicemergency data"))
 ext_a = re.compile(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>')
 for r, _, fs in os.walk(D):
+  if draft_dir(r): continue
   for f in fs:
     if not f.endswith(".html"): continue
     p = os.path.join(r, f)
@@ -109,6 +114,7 @@ else:
   for bit in ("Last updated 16 October 2026", "campconditions@outlook.com", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
     if bit not in priv: bad.append(("/privacy/", bit))
 for r, _, fs in os.walk(D):
+  if draft_dir(r): continue
   for f in fs:
     if not f.endswith(".html"): continue
     p = os.path.join(r, f)
@@ -116,12 +122,19 @@ for r, _, fs in os.walk(D):
     if 'href="/privacy/"' not in blob and "href='/privacy/'" not in blob:
       bad.append((p[len(D):] or "/", "privacy link"))
 root = os.path.dirname(D)
-digest = subprocess.run([sys.executable, os.path.join(root, "scripts", "digest.py")], cwd=root, capture_output=True, text=True)
+dsrc = open(os.path.join(root, "scripts", "digest.py"), encoding="utf-8").read()
+for bit in ("api.resend.com", "smtplib", "sendmail", "urllib", "requests"):
+  if bit in dsrc: bad.append(("digest.py", "must only write drafts, found " + bit))
+wf = open(os.path.join(root, ".github", "workflows", "build-deploy.yml"), encoding="utf-8").read()
+for bit in ("api.resend.com", "digest.py", "scripts/digest"):
+  if bit in wf: bad.append(("build-deploy.yml", "scheduled deploy must not send the digest: " + bit))
+draft = tempfile.mkdtemp(prefix="campconditions-digest-")
+digest = subprocess.run([sys.executable, os.path.join(root, "scripts", "digest.py"), "--out", draft], cwd=root, capture_output=True, text=True)
 if digest.returncode != 0:
   bad.append(("digest", (digest.stderr or digest.stdout)[-240:]))
 else:
   for name in ("digest.html", "digest.txt"):
-    blob = open(os.path.join(D, "digest", name), encoding="utf-8").read()
+    blob = open(os.path.join(draft, name), encoding="utf-8").read()
     for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe"):
       if bit not in blob: bad.append((name, bit))
 confirm = subprocess.run(["node", "--input-type=module", "-e", """

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Weekly Victoria digest from status.json. Closures only — VicEmergency data is not read or listed."""
+"""Weekly Victoria digest from status.json. Closures only — VicEmergency data is not read or listed.
+
+Writes draft files only (digest.html, digest.txt, meta.json). Nothing here sends email.
+The scheduled site rebuild must not call a mail API; sending is a separate, manual step.
+"""
 import argparse, datetime as dt, html, json, os, re
 
 REG = {

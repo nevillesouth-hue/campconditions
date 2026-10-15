@@ -126,7 +126,13 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
 .card a{color:var(--g);font-weight:600}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
 .box{background:#fff;border:2px dashed var(--o);border-radius:10px;padding:1rem;margin:1rem 0}input,textarea,select,button{font:inherit;padding:.45rem;border:1px solid #bbb;border-radius:6px}button{background:var(--o);color:#fff;border:0;cursor:pointer}
-.warn{background:#fff4e5;border-left:4px solid var(--o);padding:.6rem .8rem;margin:1rem 0}footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
+.warn{background:#fff4e5;border-left:4px solid var(--o);padding:.6rem .8rem;margin:1rem 0}
+.map{height:440px;margin:1rem 0;border:1px solid #e3e0d6;border-radius:10px;background:#e7e4da}
+.map-sm{height:240px}.legend{margin:-.2rem 0 1rem;font-size:.9rem}.legend .badge{margin-right:.35rem}
+.pin{background:transparent;border:none}.pin span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+a.btn{display:inline-block;background:var(--o);color:#fff;text-decoration:none;font-weight:600;padding:.45rem .8rem;border-radius:6px}
+.leaflet-popup-content a{color:var(--g);font-weight:600}
+footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> Always check <a href="https://emergency.vic.gov.au/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call 000.</div>'
@@ -136,16 +142,97 @@ def footer():
 def fmt(iso):
     try: return dt.datetime.fromisoformat(iso.replace("Z", "+00:00")).astimezone(TZ).strftime("%-d %b %Y, %-I:%M %p AEDT")
     except Exception: return iso
-def page(path, title, desc, body, extra_ld=()):
+def cdn(kind, href, integrity):
+    if kind == "css":
+        return f'<link rel="stylesheet" href="{href}" integrity="{integrity}" crossorigin="anonymous">'
+    return f'<script src="{href}" defer integrity="{integrity}" crossorigin="anonymous"></script>'
+LEAFLET_CSS = cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css", "sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb")
+LEAFLET_JS = cdn("js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js", "sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO")
+CLUSTER_CSS = (
+    cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css", "sha384-uIZNAcoEHVWMk8LrCSX95DJk6FQzH6zG00LQC9BykRY1UKKpkDzDhbDLYQ1HoRdVx8nYU4LQ5eGzI")
+    + cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css", "sha384-NyCa0nBOjmCqS9HwLKpE7yqy2HVG6PN/cDyAAIdPijDlUH6jCfqX6ydzXFTA/L/l")
+)
+CLUSTER_JS = cdn("js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js", "sha384-SIh+qcEBNMda8tT+rx66aCBuWtVYMVzRABqhK4eeQh4pjDHoRdVx8nYU4LQ5eGzI")
+def leaflet_head(cluster=False):
+    return LEAFLET_CSS + (CLUSTER_CSS if cluster else "")
+def leaflet_foot(cluster=False):
+    return LEAFLET_JS + (CLUSTER_JS if cluster else "") + '<script src="/map.js" defer></script>'
+def map_points(items):
+    pts = []
+    for c in items:
+        cl = c.get("closure") or {}
+        pts.append({"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": f"/vic/camp/{c['slug']}/",
+                    "note": "Closure record may be outdated" if cl.get("outdated") else ""})
+    return json.dumps(pts, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+LEGEND = '<p class="legend"><span class="badge open">No known issues</span> <span class="badge check">Check conditions</span> <span class="badge closed">Closed</span> <span class="muted">A red pin stays red when the closure record may be outdated; the note is on the marker.</span></p>'
+def map_block(items, label, small=False):
+    cls = "map map-sm" if small else "map"
+    legend = "" if small else LEGEND
+    return f'<div id="camp-map" class="{cls}" role="region" aria-label="{e(label)}"></div>{legend}<script type="application/json" id="camp-map-data">{map_points(items)}</script>'
+def directions(c):
+    url = f"https://www.google.com/maps/dir/?api=1&destination={c['lat']},{c['lon']}"
+    return f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a></p>'
+MAP_JS = r"""(function () {
+  var el = document.getElementById("camp-map");
+  var raw = document.getElementById("camp-map-data");
+  if (!el || !raw || typeof L === "undefined") return;
+  var data = JSON.parse(raw.textContent);
+  var labels = {open: "No known issues", check: "Check conditions", closed: "Closed"};
+  var colours = {open: "#2e7d32", check: "#e08a00", closed: "#b71c1c"};
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (ch) {
+      return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[ch];
+    });
+  }
+  function icon(status) {
+    return L.divIcon({
+      className: "pin",
+      html: '<span style="background:' + (colours[status] || "#666") + '"></span>',
+      iconSize: [16, 16],
+      iconAnchor: [8, 8],
+      popupAnchor: [0, -8]
+    });
+  }
+  function popup(p) {
+    var html = "<strong>" + esc(p.name) + "</strong><br>" + esc(labels[p.status] || p.status);
+    if (p.note) html += '<br><span class="muted">' + esc(p.note) + "</span>";
+    html += '<br><a href="' + esc(p.url) + '">Campground page</a>';
+    return html;
+  }
+  var small = el.classList.contains("map-sm");
+  var map = L.map(el, {scrollWheelZoom: false});
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  var markers = data.map(function (p) {
+    var title = p.name + (p.note ? " — " + p.note : "");
+    return L.marker([p.lat, p.lon], {icon: icon(p.status), title: title}).bindPopup(popup(p));
+  });
+  if (!small && typeof L.markerClusterGroup === "function") {
+    var group = L.markerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 42});
+    markers.forEach(function (m) { group.addLayer(m); });
+    map.addLayer(group);
+    if (markers.length) map.fitBounds(group.getBounds().pad(0.08));
+    else map.setView([-36.8, 144.5], 6);
+  } else {
+    markers.forEach(function (m) { m.addTo(map); });
+    if (markers.length === 1) map.setView([data[0].lat, data[0].lon], 13);
+    else if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.08));
+    else map.setView([-36.8, 144.5], 6);
+  }
+})();
+"""
+def page(path, title, desc, body, extra_ld=(), head="", foot=""):
     canon = SITE + path
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
-<link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{''.join(ld(x) for x in extra_ld)}</head><body>
+<link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
 <header><a href="/">⛺ CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></header>
-<main>{body}</main>{footer()}</body></html>"""
+<main>{body}</main>{footer()}{foot}</body></html>"""
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
-    os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w").write(h)
+    os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w", encoding="utf-8").write(h)
 def badge(s): return f'<span class="badge {s}">{ {"open":"No known issues","closed":"Closed","check":"Check conditions"}[s] }</span>'
 def crumbs(items): return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i+1, "name": n, "item": SITE+u} for i, (n, u) in enumerate(items)]}
 NEWS = """<section class="box" id="newsletter"><h2>Get the free weekly Victoria digest</h2><p>Every Thursday: what's closed, what's flooded or burning, and what campers are reporting — region by region.</p>
@@ -153,6 +240,7 @@ NEWS = """<section class="box" id="newsletter"><h2>Get the free weekly Victoria 
 <p class="muted">Coming soon: a paid daily digest with instant alerts for camps you've saved (about $5 a month).</p></section>"""
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
+open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(MAP_JS)
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
 n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"] == "check" for c in camps)
 
@@ -167,21 +255,21 @@ home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampC
              {"@type": "Question", "name": "How often is CampConditions.au updated?", "acceptedAnswer": {"@type": "Answer", "text": "The site rebuilds from official sources several times a day. Each page shows when emergency data was last received."}}]}]
 page("/", "Victorian free camp conditions — closures, fire, flood | CampConditions.au", f"Is your free camp open tonight? Closures, fire and flood warnings for {len(camps)} Victorian campgrounds, updated daily.",
  f"""<h1>Is your Victorian free camp good tonight?</h1><p>Closures, fire and flood warnings and camper reports for <strong>{len(camps)}</strong> campgrounds across Victoria, pulled from official sources. Right now <span class="badge closed">{n_closed} closed</span> <span class="badge check">{n_check} to check</span>.</p>
-{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
+{map_block(camps, "Map of Victorian campgrounds")}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
 <h2>Current VicEmergency warnings and incidents</h2><ul>{emerg_html}</ul><p class="muted">Emergency data last received {e(fmt(emv_updated)) if emv_updated else 'unavailable'}. Source: State of Victoria, Australia.</p>
 <h2>Today's fire danger ratings</h2><table><tr><th>District</th><th>Rating</th></tr>{fdr_rows or '<tr><td colspan=2>Unavailable</td></tr>'}</table>
-<p>Weather warnings: <a href="https://www.bom.gov.au/vic/warnings/">check BOM's Victorian warnings</a>.</p>{NEWS}""", home_ld)
+<p>Weather warnings: <a href="https://www.bom.gov.au/vic/warnings/">check BOM's Victorian warnings</a>.</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
 
 page("/vic/", "Victoria campground conditions by region | CampConditions.au", "Browse Victorian campgrounds by region with current closures and warnings.",
-     f"<h1>Victoria</h1>{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), ("Victoria", "/vic/")])])
+     f"<h1>Victoria</h1>{map_block(camps, 'Map of Victorian campgrounds')}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), ("Victoria", "/vic/")])], head=leaflet_head(True), foot=leaflet_foot(True))
 
 for k, (n, d) in REGIONS.items():
     lst = by_reg[k]
     rows = "".join(f'<tr><td><a href="/vic/camp/{c["slug"]}/">{e(c["name"])}</a></td><td>{badge(c["status"])}</td><td>{e((c["closure"] or {}).get("desc") or (str(len(c["nearby_emergency"]))+" warnings nearby" if c["nearby_emergency"] else "") or (str(len(c["nearby_closures"]))+" road closures nearby" if c["nearby_closures"] else ""))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
     il = {"@context": "https://schema.org", "@type": "ItemList", "name": f"Campgrounds in {n}, Victoria", "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}/vic/camp/{c['slug']}/", "name": c["name"]} for i, c in enumerate(lst)]}
     page(f"/vic/{k}/", f"{n} free camps and campgrounds — conditions today | CampConditions.au", f"{len(lst)} campgrounds in {n}, Victoria: closures, fire and flood warnings. {d}",
-         f"<h1>{e(n)} campgrounds</h1><p>{e(d)}</p>{SAFETY}<table><tr><th>Campground</th><th>Status</th><th>Notes</th></tr>{rows or '<tr><td colspan=3>No campgrounds listed.</td></tr>'}</table>{NEWS}",
-         [crumbs([("Home", "/"), ("Victoria", "/vic/"), (n, f"/vic/{k}/")]), il])
+         f"<h1>{e(n)} campgrounds</h1><p>{e(d)}</p>{map_block(lst, f'Map of {n} campgrounds')}{SAFETY}<table><tr><th>Campground</th><th>Status</th><th>Notes</th></tr>{rows or '<tr><td colspan=3>No campgrounds listed.</td></tr>'}</table>{NEWS}",
+         [crumbs([("Home", "/"), ("Victoria", "/vic/"), (n, f"/vic/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
 
 for c in camps:
     rn = REGIONS[c["region"]][0]
@@ -201,9 +289,10 @@ for c in camps:
         lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Conditions alert: {c['name']}", "text": (cl or {}).get("desc") or "Emergency warning or incident nearby — check VicEmergency.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}/vic/camp/{c['slug']}/"})
     page(f"/vic/camp/{c['slug']}/", f"{c['name']} campground — is it open? Conditions today | CampConditions.au", desc,
      f"""<p class="muted"><a href="/vic/">Victoria</a> › <a href="/vic/{c['region']}/">{e(rn)}</a></p><h1>{e(c['name'])}</h1><p>{badge(c['status'])} <span class="muted">Checked {STAMP}</span></p>
+{map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {''.join(parts) or '<p>No closures or emergency warnings found nearby in official data.</p>'}{SAFETY}{info}
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="https://www.bom.gov.au/vic/forecasts/">BOM forecast</a> · Campground data dated {e((c['data_date'] or '')[:10])}</p>
-<div class="box"><h2>Been here recently?</h2><p><a href="/report/?camp={c['slug']}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{NEWS}""", lds)
+<div class="box"><h2>Been here recently?</h2><p><a href="/report/?camp={c['slug']}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{NEWS}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 
 page("/report/", "Report campground conditions | CampConditions.au", "Tell other campers what it's really like: how full, access, water, coverage.",
  """<h1>Report conditions</h1><p>Your report helps the next camper. Reports are checked before they're published.</p>

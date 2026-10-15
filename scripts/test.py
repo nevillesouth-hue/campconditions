@@ -66,4 +66,23 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
   if len(pts)!=1 or pts[0]["url"]!=f"/vic/camp/{slug}/": bad.append((slug, "camp map"))
   elif f"destination={pts[0]['lat']},{pts[0]['lon']}" not in html_page or "Directions in Google Maps" not in html_page or "map-sm" not in html_page:
     bad.append((slug, "directions"))
+  else:
+    lat, lon = pts[0]["lat"], pts[0]["lon"]; pad = 0.2
+    bbox = f"https://emergency.vic.gov.au/respond/?bbox={lon-pad:.5f},{lat-pad:.5f},{lon+pad:.5f},{lat+pad:.5f}"
+    if "Check VicEmergency for warnings near this camp" not in html_page or bbox not in html_page:
+      bad.append((slug, "vicemergency link"))
+    if "1800 226 226" not in html_page or ">000<" not in html_page:
+      bad.append((slug, "emergency hotline"))
+banned = ("emergency.vic.gov.au/public", "osom", "emv.vic.gov.au", "nearby_emergency", "fire_danger", "fire danger", "CC BY 3.0", "Emergency data last received", "Current VicEmergency warnings", "within 25 km")
+for r, _, fs in os.walk(D):
+  for f in fs:
+    if not f.endswith((".html", ".json", ".txt", ".js")): continue
+    blob = open(os.path.join(r, f), encoding="utf-8").read().lower()
+    for needle in banned:
+      if needle.lower() in blob:
+        bad.append((os.path.join(r, f)[len(D):], needle))
+for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
+  if key in feed: bad.append(("status.json", key))
+if any("nearby_emergency" in c for c in feed["camps"]): bad.append(("status.json", "camp nearby_emergency"))
+if "emv.vic.gov.au" in json.dumps(feed).lower() or "osom" in json.dumps(feed).lower(): bad.append(("status.json", "vicemergency data"))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)

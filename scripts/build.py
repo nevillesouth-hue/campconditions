@@ -232,8 +232,25 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
     os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w", encoding="utf-8").write(h)
 def badge(s): return f'<span class="badge {s}">{ {"open":"No known issues","closed":"Closed","check":"Check conditions"}[s] }</span>'
 def crumbs(items): return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i+1, "name": n, "item": SITE+u} for i, (n, u) in enumerate(items)]}
-NEWS = """<section class="box" id="newsletter"><h2>Get the free weekly Victoria digest</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region.</p>
-<form onsubmit="event.preventDefault();this.querySelector('p').hidden=false"><input type="email" required placeholder="you@example.com" aria-label="Email address"> <button>Subscribe</button><p hidden class="muted">Thanks! Sign-ups open at launch — this form is a placeholder and nothing was sent.</p></form>
+NEWS = """<section class="box" id="newsletter"><h2>Get the free weekly Victoria digest</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region. We'll email a confirmation link first; you're not on the list until you click it.</p>
+<form id="digest-form" action="/api/subscribe" method="post"><input type="email" name="email" required placeholder="you@example.com" aria-label="Email address" autocomplete="email"> <button>Subscribe</button><p id="digest-note" class="muted" hidden></p></form>
+<script>
+document.getElementById("digest-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const note = document.getElementById("digest-note");
+  note.hidden = false;
+  note.textContent = "One moment…";
+  try {
+    const res = await fetch("/api/subscribe", { method: "POST", body: new FormData(ev.target), headers: { accept: "text/plain" } });
+    const text = (await res.text()).replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
+    if (res.status === 503) note.textContent = "Sign-ups open soon.";
+    else if (res.ok) note.textContent = "Check your email and click the confirmation link. You won't be added until you do.";
+    else note.textContent = text.slice(0, 240) || "Something went wrong. Please try again.";
+  } catch (err) {
+    note.textContent = "Something went wrong. Please try again.";
+  }
+});
+</script>
 <p class="muted">Coming soon: a paid daily digest with instant alerts for camps you've saved (about $5 a month).</p></section>"""
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)

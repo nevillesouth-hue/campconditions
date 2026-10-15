@@ -148,4 +148,39 @@ if (m.html.includes("api.resend.com")) process.exit(1);
 """], cwd=root, capture_output=True, text=True)
 if confirm.returncode != 0:
   bad.append(("confirm email", (confirm.stderr or confirm.stdout)[-240:]))
+confirm_api = subprocess.run(["node", "--input-type=module", "-e", """
+import { readFileSync } from "node:fs";
+import { confirmSubscription, failureMessage, segmentPath } from "./functions/api/confirm.js";
+const segment = "b9096e2d-485b-487e-90db-467e44eaf6cc";
+const email = "reader@example.com";
+const env = { RESEND_API_KEY: "test", RESEND_SEGMENT_ID: segment };
+if (segmentPath(email, segment) !== "/contacts/reader%40example.com/segments/" + segment) {
+  console.error("segment path"); process.exit(1);
+}
+const calls = [];
+const mock = async (url, init) => {
+  calls.push({ url, method: init.method, body: init.body });
+  if (url.endsWith("/contacts")) return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
+  if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  return new Response("no", { status: 500 });
+};
+const ok = await confirmSubscription(env, email, mock);
+if (!ok.ok || calls.length !== 2 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
+if (calls[1].method !== "POST" || calls[1].body !== undefined) process.exit(1);
+if (!calls[1].url.endsWith(segmentPath(email, segment))) process.exit(1);
+calls.length = 0;
+const again = async (url) => {
+  calls.push(url);
+  return new Response(JSON.stringify({ name: "already_exists" }), { status: 409 });
+};
+const dup = await confirmSubscription(env, email, again);
+if (!dup.ok || calls.length !== 2) process.exit(1);
+const restricted = { ok: false, status: 401, data: { name: "restricted_api_key", message: "This API key is restricted to only send emails." } };
+const msg = failureMessage(restricted);
+if (!msg.includes("can send mail but cannot save contacts") || msg.includes("502")) process.exit(1);
+const src = readFileSync("./functions/api/confirm.js", "utf8");
+if (src.includes(", 502)") || src.includes("status: 502")) { console.error("still returns 502"); process.exit(1); }
+"""], cwd=root, capture_output=True, text=True)
+if confirm_api.returncode != 0:
+  bad.append(("confirm api", (confirm_api.stderr or confirm_api.stdout)[-400:]))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)

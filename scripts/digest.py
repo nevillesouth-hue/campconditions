@@ -46,6 +46,7 @@ rows.append(para('Been somewhere lately? <a href="https://campconditions.au/repo
 foot = (f'Not an official warning service — always check <a href="https://emergency.vic.gov.au/" style="color:#666666;">VicEmergency</a> and the '
         f'<a href="https://www.bom.gov.au/vic/warnings/" style="color:#666666;">BOM</a> before you travel. In an emergency call 000.<br>'
         f'Campground data: DEECA Recreation Sites via DataVic (CC BY 4.0).<br>You’re getting this because you confirmed your subscription at campconditions.au. '
+        f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
         f'<a href="{{{{{{RESEND_UNSUBSCRIBE_URL}}}}}}" style="color:#666666;">Unsubscribe</a>')
 body = "".join(rows) + f'<tr><td style="{F}font-size:12px;line-height:18px;color:#666666;padding-top:24px;">{foot}</td></tr>'
 doc = f"""<!DOCTYPE html><html lang="en-AU"><head><meta charset="utf-8"><title>{e(subject)}</title></head>

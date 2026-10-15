@@ -13,6 +13,15 @@ const page = (title, msg, status = 200) =>
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
 
+const UNSUBSCRIBE = "mailto:campconditions@outlook.com?subject=Unsubscribe%20from%20CampConditions.au";
+
+export function confirmationMessage(site, link) {
+  const privacy = `${String(site || "").replace(/\/$/, "")}/privacy/`;
+  const html = `<p>Confirm you want the free weekly Victoria digest from CampConditions.au.</p><p><a href="${link}">Confirm my subscription</a></p><p>This link expires in 48 hours. If you didn't ask for this, you can ignore it — you won't be added until you click.</p><p>CampConditions.au<br><a href="${privacy}">Privacy</a><br><a href="${UNSUBSCRIBE}">Unsubscribe</a></p>`;
+  const text = `Confirm you want the free weekly Victoria digest from CampConditions.au.\n\n${link}\n\nThis link expires in 48 hours. If you didn't ask for this, ignore this email.\n\nCampConditions.au\nPrivacy: ${privacy}\nUnsubscribe: ${UNSUBSCRIBE}\n`;
+  return { html, text };
+}
+
 async function readEmail(request) {
   const type = request.headers.get("content-type") || "";
   if (type.includes("application/json")) {
@@ -29,6 +38,7 @@ export async function onRequestPost({ request, env }) {
   if (!EMAIL_RE.test(email)) return page("Check that address", "That doesn't look like an email address.", 400);
   const token = await makeToken(email, env.CONFIRM_SECRET);
   const link = `${String(env.SITE_URL).replace(/\/$/, "")}/api/confirm?token=${encodeURIComponent(token)}`;
+  const message = confirmationMessage(env.SITE_URL, link);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -40,8 +50,8 @@ export async function onRequestPost({ request, env }) {
       from: env.FROM_EMAIL,
       to: [email],
       subject: "Confirm your CampConditions.au digest",
-      html: `<p>Confirm you want the free weekly Victoria digest from CampConditions.au.</p><p><a href="${link}">Confirm my subscription</a></p><p>This link expires in 48 hours. If you didn't ask for this, you can ignore it — you won't be added until you click.</p>`,
-      text: `Confirm you want the free weekly Victoria digest from CampConditions.au.\n\n${link}\n\nThis link expires in 48 hours. If you didn't ask for this, ignore this email.`,
+      html: message.html,
+      text: message.text,
     }),
   });
   if (!res.ok) return page("Could not send", "We couldn't send the confirmation email. Please try again later.", 502);

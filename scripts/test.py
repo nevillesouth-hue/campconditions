@@ -47,6 +47,8 @@ if "tile.openstreetmap.org" not in mj or "openstreetmap.org/copyright" not in mj
 for colour in ("#2e7d32","#e08a00","#b71c1c"):
   if colour not in mj: bad.append(("map.js", colour))
 home=open(os.path.join(D,"index.html"), encoding="utf-8").read()
+if 'action="/api/subscribe"' not in home or "nothing was sent" in home or 'id="newsletter"' not in home:
+  bad.append(("/", "newsletter form"))
 vic=open(os.path.join(D,"vic","index.html"), encoding="utf-8").read()
 home_pts, vic_pts=expect_map("/", home, True), expect_map("/vic/", vic, True)
 if len(home_pts)!=len(feed["camps"]) or len(vic_pts)!=len(feed["camps"]): bad.append(("overview", "map count"))

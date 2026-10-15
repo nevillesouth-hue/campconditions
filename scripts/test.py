@@ -1,6 +1,9 @@
-import os,re,json,sys,html
+import os,re,json,sys,html,subprocess,tempfile
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];n=0;ldn=0
+def draft_dir(path):
+  return "digest" in path.replace("\\", "/").split("/")
 for r,_,fs in os.walk(D):
+  if draft_dir(r): continue
   for f in fs:
     if not f.endswith(".html"): continue
     p=os.path.join(r,f);t=open(p).read();n+=1
@@ -47,6 +50,8 @@ if "tile.openstreetmap.org" not in mj or "openstreetmap.org/copyright" not in mj
 for colour in ("#2e7d32","#e08a00","#b71c1c"):
   if colour not in mj: bad.append(("map.js", colour))
 home=open(os.path.join(D,"index.html"), encoding="utf-8").read()
+if 'action="/api/subscribe"' not in home or "nothing was sent" in home or 'id="newsletter"' not in home:
+  bad.append(("/", "newsletter form"))
 vic=open(os.path.join(D,"vic","index.html"), encoding="utf-8").read()
 home_pts, vic_pts=expect_map("/", home, True), expect_map("/vic/", vic, True)
 if len(home_pts)!=len(feed["camps"]) or len(vic_pts)!=len(feed["camps"]): bad.append(("overview", "map count"))
@@ -75,6 +80,7 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "emergency hotline"))
 banned = ("emergency.vic.gov.au/public", "osom", "emv.vic.gov.au", "nearby_emergency", "fire_danger", "fire danger", "CC BY 3.0", "Emergency data last received", "Current VicEmergency warnings", "within 25 km")
 for r, _, fs in os.walk(D):
+  if draft_dir(r): continue
   for f in fs:
     if not f.endswith((".html", ".json", ".txt", ".js")): continue
     blob = open(os.path.join(r, f), encoding="utf-8").read().lower()
@@ -87,6 +93,7 @@ if any("nearby_emergency" in c for c in feed["camps"]): bad.append(("status.json
 if "emv.vic.gov.au" in json.dumps(feed).lower() or "osom" in json.dumps(feed).lower(): bad.append(("status.json", "vicemergency data"))
 ext_a = re.compile(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>')
 for r, _, fs in os.walk(D):
+  if draft_dir(r): continue
   for f in fs:
     if not f.endswith(".html"): continue
     p = os.path.join(r, f)
@@ -95,4 +102,50 @@ for r, _, fs in os.walk(D):
         bad.append((p[len(D):], "external tab"))
         break
 if 'rel="noopener noreferrer"' not in mj: bad.append(("map.js", "osm link"))
+notice = "We'll only use your email to send the CampConditions digest. We never sell or share it."
+if notice not in home or '<a href="/privacy/">Unsubscribe any time</a>' not in home:
+  bad.append(("/", "privacy notice"))
+if "/privacy/" not in sm: bad.append(("sitemap", "/privacy/"))
+priv_path = os.path.join(D, "privacy", "index.html")
+if not os.path.isfile(priv_path):
+  bad.append(("/privacy/", "missing"))
+else:
+  priv = open(priv_path, encoding="utf-8").read()
+  for bit in ("Last updated 16 October 2026", "campconditions@outlook.com", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
+    if bit not in priv: bad.append(("/privacy/", bit))
+for r, _, fs in os.walk(D):
+  if draft_dir(r): continue
+  for f in fs:
+    if not f.endswith(".html"): continue
+    p = os.path.join(r, f)
+    blob = open(p, encoding="utf-8").read()
+    if 'href="/privacy/"' not in blob and "href='/privacy/'" not in blob:
+      bad.append((p[len(D):] or "/", "privacy link"))
+root = os.path.dirname(D)
+dsrc = open(os.path.join(root, "scripts", "digest.py"), encoding="utf-8").read()
+for bit in ("api.resend.com", "smtplib", "sendmail", "urllib", "requests"):
+  if bit in dsrc: bad.append(("digest.py", "must only write drafts, found " + bit))
+wf = open(os.path.join(root, ".github", "workflows", "build-deploy.yml"), encoding="utf-8").read()
+for bit in ("api.resend.com", "digest.py", "scripts/digest"):
+  if bit in wf: bad.append(("build-deploy.yml", "scheduled deploy must not send the digest: " + bit))
+draft = tempfile.mkdtemp(prefix="campconditions-digest-")
+digest = subprocess.run([sys.executable, os.path.join(root, "scripts", "digest.py"), "--out", draft], cwd=root, capture_output=True, text=True)
+if digest.returncode != 0:
+  bad.append(("digest", (digest.stderr or digest.stdout)[-240:]))
+else:
+  for name in ("digest.html", "digest.txt"):
+    blob = open(os.path.join(draft, name), encoding="utf-8").read()
+    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe"):
+      if bit not in blob: bad.append((name, bit))
+confirm = subprocess.run(["node", "--input-type=module", "-e", """
+import { confirmationMessage } from "./functions/api/subscribe.js";
+const m = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc");
+const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe", "mailto:campconditions@outlook.com"];
+for (const blob of [m.html, m.text]) {
+  for (const bit of need) if (!blob.includes(bit)) { console.error("missing " + bit); process.exit(1); }
+}
+if (m.html.includes("api.resend.com")) process.exit(1);
+"""], cwd=root, capture_output=True, text=True)
+if confirm.returncode != 0:
+  bad.append(("confirm email", (confirm.stderr or confirm.stdout)[-240:]))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)

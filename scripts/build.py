@@ -10,8 +10,9 @@ VicEmergency warnings are not fetched or republished. Camp pages link to emergen
 import json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as dt
 SITE = "https://campconditions.au"
 CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0)"
-OSM_CATEGORIES = ["Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area"]
-CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area"}
+PV_LABEL = "Paid – Parks Victoria (book ahead)"
+OSM_CATEGORIES = ["Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
+CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "dist")
 TZ = dt.timezone(dt.timedelta(hours=11))  # AEDT; good enough for display stamp
@@ -126,12 +127,38 @@ def nights_from(value):
     number = int(match.group(1))
     if "hour" in raw.lower(): return max(1, int(round(number / 24.0)))
     return number if 0 < number <= 365 else None
+def checked_phrase(value):
+    raw = str(value or "").strip()
+    if not raw: return ""
+    try:
+        day = dt.date.fromisoformat(raw[:10])
+        shown = day.strftime("%-d %B %Y")
+    except Exception:
+        shown = raw[:10]
+    return f"Checked against official source, {shown}"
+def dogs_fields(value):
+    text = str(value or "").strip()
+    low = text.lower()
+    if not text or low == "unknown": return "", None
+    if low == "yes": return "", True
+    if low == "no": return "", False
+    if low.startswith("no"): return text, False
+    if low.startswith("yes") or low == "on lead" or "leash" in low or "on lead" in low: return text, True
+    return text, None
+def yes_no_label(value):
+    text = str(value or "").strip().lower()
+    if text in ("yes", "true"): return "Yes"
+    if text in ("no", "false"): return "No"
+    return str(value or "").strip()
 def load_osm(seen):
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import build_osm
     path = os.path.join(ROOT, "data", "osm-camps-vic.json")
     with open(path, encoding="utf-8") as handle:
         doc = json.load(handle)
     if isinstance(doc, dict): rows = doc.get("sites") or doc.get("camps") or []
     else: rows = doc
+    rows = build_osm.apply_corrections(rows, build_osm.load_corrections())
     extra = []
     allowed = set(CAT_LABEL) | set(CAT_LABEL.values())
     for row in rows:
@@ -151,14 +178,27 @@ def load_osm(seen):
         tents, vans, homes = suit_flags(row.get("suits"))
         website = (row.get("website") or "").strip()
         if website and not website.startswith(("http://", "https://")): website = "https://" + website
+        source_url = (row.get("source_url") or "").strip()
+        if source_url and not source_url.startswith(("http://", "https://")): source_url = "https://" + source_url
+        dogs_text, dogs_flag = dogs_fields(row.get("dogs"))
+        if dogs_flag is None and not dogs_text: dogs_flag = yn_flag(row.get("dogs"))
+        stay = str(row.get("max_nights") or "").strip()
+        if stay.lower() == "unknown": stay = ""
+        road = str(row.get("access") or "").strip()
+        if road.lower() in ("", "unknown", "yes", "no"): road = ""
+        water = yes_no_label(row.get("water_tap"))
         extra.append({"slug": s, "id": row.get("osm_id") or s, "osm_id": row.get("osm_id") or "", "name": name,
             "lat": row["lat"], "lon": row["lon"], "region": region(row["lon"], row["lat"]),
             "status": "check", "closure": None, "access": "", "about": "", "camping": "", "caravans": "",
             "site_class": cat, "dis_access": None, "managed_by": (row.get("operator") or "").strip(), "data_date": "",
             "nearby_closures": [], "source": "osm", "category": cat, "needs_review": bool(row.get("needs_review")),
-            "phone": (row.get("phone") or "").strip(), "email": (row.get("email") or "").strip(), "website": website,
-            "max_nights": nights_from(row.get("max_nights")),
-            "fac_dogs": yn_flag(row.get("dogs")), "fac_dump": yn_flag(row.get("dump_point", row.get("dump"))),
+            "phone": (row.get("phone") or "").strip() or ("13 1963" if cat == PV_LABEL else ""),
+            "email": (row.get("email") or "").strip(), "website": website,
+            "max_nights": nights_from(stay), "max_stay": stay,
+            "description": str(row.get("description") or "").strip(),
+            "source_url": source_url, "checked_line": checked_phrase(row.get("checked_date")),
+            "water_tap": water, "road_access": road, "dogs_text": dogs_text,
+            "fac_dogs": dogs_flag, "fac_dump": yn_flag(row.get("dump_point", row.get("dump"))),
             "fac_showers": yn_flag(row.get("showers")), "fac_tents": tents, "fac_caravans": vans, "fac_motorhomes": homes,
             "fac_self": yn_flag(row.get("self_contained_only", row.get("self_contained")))})
     return extra
@@ -519,6 +559,7 @@ def badge(c):
     else:
         status = c["status"]
         if c.get("source") == "osm" and c.get("category") == "Showground": text = "Call first"
+        elif c.get("source") == "osm" and c.get("category") == PV_LABEL: text = "Book ahead"
         elif c.get("source") == "osm": text = "Check with operator"
         else: text = {"open": "No known issues", "closed": "Closed", "check": "Check conditions"}[status]
     return f'<span class="badge {status}">{text}</span>'
@@ -552,7 +593,10 @@ n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"
 
 def list_note(c):
     if c.get("source") == "osm":
-        return "Call first" if c.get("category") == "Showground" else "Conditions: check with operator"
+        if c.get("category") == "Showground": return "Call first"
+        if c.get("category") == PV_LABEL: return "Book ahead — Parks Victoria"
+        if c.get("category") == "Pub stay": return "Pub stay — check with the pub"
+        return "Conditions: check with operator"
     desc = (c.get("closure") or {}).get("desc") or ""
     if desc: return desc
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
@@ -570,9 +614,23 @@ def tel_href(phone):
     keep = re.sub(r"[^\d+]", "", phone or "")
     return f"tel:{keep}" if keep else ""
 def osm_blocks(c):
-    bits = ["<p><strong>Call first.</strong></p>" if c.get("category") == "Showground" else "<p><strong>Conditions: check with operator.</strong></p>"]
+    if c.get("category") == "Showground":
+        bits = ["<p><strong>Call first.</strong></p>"]
+    elif c.get("category") == PV_LABEL:
+        phone = c.get("phone") or "13 1963"
+        bits = [f'<p><strong>{e(PV_LABEL)}.</strong> Book ahead with Parks Victoria on <a href="{e(tel_href(phone))}">{e(phone)}</a>.</p>']
+    elif c.get("category") == "Pub stay":
+        bits = ["<p><strong>Pub stay.</strong> Conditions: check with operator.</p>"]
+    else:
+        bits = ["<p><strong>Conditions: check with operator.</strong></p>"]
     if c.get("needs_review"):
         bits.append(f'<p class="warn"><strong>Unverified, help us confirm</strong> — <a href="/report/?camp={e(c["slug"])}">send a correction</a>.</p>')
+    desc = c.get("description") or ""
+    unknown_overnight = c.get("category") == "Rest area" and not c.get("max_stay")
+    if "follow signs on site" in desc.lower() or unknown_overnight:
+        bits.append("<p><strong>Follow signs on site.</strong> Overnight stays are not confirmed.</p>")
+    if desc: bits.append(f"<p>{e(desc)}</p>")
+    if c.get("road_access"): bits.append(f"<p><strong>Access: {e(c['road_access'])}</strong></p>")
     buttons = []
     if c.get("phone") and tel_href(c["phone"]):
         buttons.append(f'<a class="btn" href="{e(tel_href(c["phone"]))}">Call {e(c["phone"])}</a>')
@@ -581,10 +639,15 @@ def osm_blocks(c):
     if (c.get("website") or "").startswith("http"):
         buttons.append(f'<a class="btn" href="{e(c["website"])}">Website</a>')
     if buttons: bits.append("<p>" + " ".join(buttons) + "</p>")
-    if isinstance(c.get("max_nights"), int): bits.append(f"<p><strong>Max nights: {c['max_nights']}</strong></p>")
+    if c.get("max_stay"): bits.append(f"<p><strong>Max stay: {e(c['max_stay'])}</strong></p>")
     else: bits.append("<p><strong>Max stay: ask operator</strong></p>")
-    fac = (("Dogs", "fac_dogs"), ("Dump point", "fac_dump"), ("Showers", "fac_showers"), ("Tents", "fac_tents"), ("Caravans", "fac_caravans"), ("Motorhomes", "fac_motorhomes"), ("Self-contained only", "fac_self"))
-    bits.append("<h2>Facilities</h2><ul>" + "".join(f"<li>{label}: {yn(c.get(key))}</li>" for label, key in fac) + "</ul>")
+    fac = [("Dogs", c["dogs_text"] if c.get("dogs_text") else yn(c.get("fac_dogs")))]
+    fac += [("Dump point", yn(c.get("fac_dump"))), ("Showers", yn(c.get("fac_showers"))), ("Tents", yn(c.get("fac_tents"))), ("Caravans", yn(c.get("fac_caravans"))), ("Motorhomes", yn(c.get("fac_motorhomes"))), ("Self-contained only", yn(c.get("fac_self")))]
+    if c.get("water_tap"): fac.append(("Water tap", c["water_tap"]))
+    bits.append("<h2>Facilities</h2><ul>" + "".join(f"<li>{label}: {e(value)}</li>" for label, value in fac) + "</ul>")
+    if c.get("checked_line"): bits.append(f"<p>{e(c['checked_line'])}</p>")
+    if (c.get("source_url") or "").startswith("http"):
+        bits.append(f'<p>Source: <a href="{e(c["source_url"])}">official source</a></p>')
     if c.get("category"): bits.append(f"<p>Type: {e(c['category'])}</p>")
     if c.get("managed_by"): bits.append(f"<p>Operator: {e(c['managed_by'])}</p>")
     return "".join(bits)
@@ -634,7 +697,7 @@ for c in camps:
         title = f"{c['name']} campground — is it open? Conditions today | CampConditions.au"
         desc = f"Is {c['name']} campground open? Current closure status and nearby road closures for {c['name']} in {rn}, Victoria."
         dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
-    camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}/vic/camp/{c['slug']}/", "description": (c["about"] or desc)[:300],
+    camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}/vic/camp/{c['slug']}/", "description": (c.get("description") or c["about"] or desc)[:300],
                "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": "VIC", "addressCountry": "AU"},
                "containedInPlace": {"@type": "AdministrativeArea", "name": f"{rn}, Victoria"}, "publicAccess": c["status"] != "closed", "identifier": str(c["id"])}
     lds = [camp_ld, crumbs([("Home", "/"), ("Victoria", "/vic/"), (rn, f"/vic/{c['region']}/"), (c["name"], f"/vic/camp/{c['slug']}/")])]

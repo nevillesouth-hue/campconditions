@@ -89,6 +89,9 @@ for r, _, fs in os.walk(D):
       if needle == "osom":
         if re.search(r"\bosom\b", blob): bad.append((os.path.join(r, f)[len(D):], needle))
       elif needle.lower() in blob:
+        # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
+        if needle == "fire danger" and f"{os.sep}vic{os.sep}camp{os.sep}" in os.path.join(r, f):
+          continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
   if key in feed: bad.append(("status.json", key))
@@ -195,7 +198,7 @@ if "Covering Victoria now" not in home or "Other states coming soon" not in home
 if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or 'justify-content:flex-end' not in home:
   bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
-for bit in ("Search by town", 'id="town-search"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"'):
+for bit in ("Search by town", 'id="town-search"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"', 'value="Pub stay"', 'value="Paid – Parks Victoria (book ahead)"'):
   if bit not in home: bad.append(("/", "missing " + bit))
 if "vic-towns.json" in home: bad.append(("/", "towns JSON should be lazy-loaded, not inlined"))
 towns_path = os.path.join(D, "vic-towns.json")
@@ -216,7 +219,8 @@ if not osm or not dv: bad.append(("status.json", "both sources"))
 if any(c.get("nearby_closures") for c in osm) or any(c.get("status") != "check" for c in osm) or any(c.get("closure") for c in osm):
   bad.append(("status.json", "osm must not get parks vic closures"))
 if str(len(feed["camps"])) not in home: bad.append(("/", "home count"))
-shown = {"call": False, "operator": False, "review": False, "max": False, "unknown": False, "tel": False, "https": False}
+shown = {"call": False, "operator": False, "review": False, "confirmed": False, "max": False, "unknown": False, "tel": False, "https": False, "pub": False, "park": False, "water": False, "checked": False, "source": False, "access": False, "follow": False, "dogs": False}
+PV = "Paid – Parks Victoria (book ahead)"
 for camp in osm:
   page = os.path.join(D, "vic", "camp", camp["slug"], "index.html")
   if not os.path.isfile(page):
@@ -226,20 +230,37 @@ for camp in osm:
   if camp.get("category") == "Showground":
     if "Call first" not in html_page: bad.append((camp["slug"], "call first"))
     else: shown["call"] = True
+  elif camp.get("category") == PV:
+    if "Book ahead with Parks Victoria" not in html_page or "13 1963" not in html_page or f"Type: {PV}" not in html_page:
+      bad.append((camp["slug"], "parks victoria label"))
+    else: shown["park"] = True
   elif "Conditions: check with operator" not in html_page:
     bad.append((camp["slug"], "operator conditions"))
   else:
     shown["operator"] = True
+  if camp.get("category") == "Pub stay":
+    if "Pub stay" not in html_page: bad.append((camp["slug"], "pub stay"))
+    else: shown["pub"] = True
   if camp.get("needs_review"):
     if "Unverified, help us confirm" not in html_page or f'/report/?camp={camp["slug"]}' not in html_page:
       bad.append((camp["slug"], "unverified"))
     else:
       shown["review"] = True
-  if "Max nights:" in html_page or "Max stay: ask operator" in html_page: shown["max"] = True
-  else: bad.append((camp["slug"], "max stay"))
+  elif "Unverified, help us confirm" in html_page:
+    bad.append((camp["slug"], "confirmed still unverified"))
+  else:
+    shown["confirmed"] = True
+  if "Max stay:" not in html_page: bad.append((camp["slug"], "max stay"))
+  else: shown["max"] = True
   if "Dogs: Unknown" in html_page or "Dump point: Unknown" in html_page or "Showers: Unknown" in html_page: shown["unknown"] = True
   if 'href="tel:' in html_page: shown["tel"] = True
   if ">Website</a>" in html_page: shown["https"] = True
+  if "Water tap:" in html_page: shown["water"] = True
+  if "Checked against official source," in html_page: shown["checked"] = True
+  if ">official source</a>" in html_page: shown["source"] = True
+  if "4WD (dry weather)" in html_page: shown["access"] = True
+  if "Follow signs on site" in html_page: shown["follow"] = True
+  if "Dogs: on lead" in html_page or "Dogs: yes (on lead)" in html_page: shown["dogs"] = True
 for key in shown:
   if not shown[key]: bad.append(("osm pages", "missing example of " + key))
 for r, _, fs in os.walk(D):
@@ -250,11 +271,18 @@ import classify, towns as townmod, build_osm
 allowed = {"free", "donation", "showground", "council_park", "council_park_leased", "rest_area"}
 curated = json.load(open(os.path.join(root, "data", "osm-camps-vic.json"), encoding="utf-8"))
 curated_sites = curated["sites"] if isinstance(curated, dict) else curated
-if len(curated_sites) != len(osm): bad.append(("osm", "built count differs from data file"))
+corr_path = os.path.join(root, "data", "manual-corrections.json")
 if set(s.get("category") for s in curated_sites) - allowed: bad.append(("osm data", "category outside the six"))
-if sum(bool(s.get("needs_review")) for s in curated_sites) != sum(bool(c.get("needs_review")) for c in osm): bad.append(("osm", "review count"))
+merged = build_osm.apply_corrections(curated_sites, build_osm.load_corrections(corr_path))
+if len(merged) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(merged)}"))
 labels = {c.get("category") for c in osm}
-if labels - {"Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area"}: bad.append(("osm", labels))
+if labels - {"Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
+expect_counts = {"Free": 931, "Council park": 68, "Showground": 40, "Paid – Parks Victoria (book ahead)": 37, "Rest area": 24, "Donation": 11, "Pub stay": 5, "Council park (leased)": 3}
+got_counts = {}
+for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
+if got_counts != expect_counts: bad.append(("osm", got_counts))
+if sum(1 for c in osm if c.get("needs_review")) != sum(1 for c in osm if c.get("needs_review") is True): bad.append(("osm", "review flag"))
+if not any(c.get("needs_review") is False for c in osm): bad.append(("osm", "no confirmed sites"))
 if any(classify.CHAIN.search(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "chain name kept"))
 if any(classify.EXCL.search(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "hiker or group name kept"))
 show = classify.decide({"name": "Echuca Showgrounds"})
@@ -283,10 +311,23 @@ if not unknown or unknown["category"] != "free" or not unknown["needs_review"] o
 if classify.decide({"tourism": "camp_site", "name": "Paid Camp", "fee": "yes"}): bad.append(("classify", "paid other"))
 if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.place_rank({"place": "locality", "name": "X"}) != 1: bad.append(("towns", "rank"))
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
-corr_path = os.path.join(root, "data", "manual-corrections.json")
 before = os.path.getmtime(corr_path)
+corrections = json.load(open(corr_path, encoding="utf-8"))
+if not isinstance(corrections, dict) or len(corrections) != 644 or "drop" in corrections or "overrides" in corrections:
+  bad.append(("corrections", "shape"))
+if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 68: bad.append(("corrections", "exclusions"))
+if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 240:
+  bad.append(("corrections", "new sites"))
 kept = build_osm.apply_corrections([{"osm_id": "node/1", "name": "A"}, {"osm_id": "node/2", "name": "B"}], {"drop": ["node/1"], "overrides": {"node/2": {"category": "Free"}}})
-if [c["osm_id"] for c in kept] != ["node/2"] or kept[0]["category"] != "Free": bad.append(("corrections", "apply"))
+if [c["osm_id"] for c in kept] != ["node/2"] or kept[0]["category"] != "Free": bad.append(("corrections", "legacy apply"))
+overlay = build_osm.apply_corrections(
+  [{"osm_id": "n1", "name": "Stop", "category": "free", "needs_review": True}, {"osm_id": "n2", "name": "Old", "category": "free", "needs_review": True}],
+  {"n1": {"exclude": "bus stop", "checked_date": "2026-10-16"}, "n2": {"category": "pub_stay", "needs_review": False, "phone": "13 1963"},
+   "new:pub": {"name": "Pub Camp", "lat": -37.1, "lon": 144.2, "category": "pub_stay", "new": True, "needs_review": False}})
+if [c["osm_id"] for c in overlay] != ["n2", "new:pub"] or overlay[0]["category"] != "pub_stay" or overlay[0]["needs_review"] is not False or overlay[1]["lat"] != -37.1:
+  bad.append(("corrections", "overlay apply"))
+again = build_osm.apply_corrections(overlay, {"n1": {"exclude": "bus stop"}, "n2": {"category": "pub_stay", "needs_review": False}, "new:pub": {"name": "Pub Camp", "lat": -37.1, "lon": 144.2, "category": "pub_stay", "new": True}})
+if [c["osm_id"] for c in again] != ["n2", "new:pub"]: bad.append(("corrections", "overlay twice"))
 if os.path.getmtime(corr_path) != before: bad.append(("corrections", "file overwritten"))
 osm_src = open(os.path.join(root, "scripts", "build_osm.py"), encoding="utf-8").read()
 if "manual-corrections.json" not in osm_src or re.search(r"open\(\s*CORRECTIONS\s*,\s*[\"']w", osm_src): bad.append(("build_osm.py", "corrections write"))

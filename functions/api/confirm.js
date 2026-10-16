@@ -4,7 +4,7 @@
 //   POST /contacts                         { email, unsubscribed: false }
 //   POST /contacts/{email}/segments/{id}   no body
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
-import { readToken, signupsReady } from "../_lib/token.js";
+import { readToken, signupsReady, makeUnsubscribeToken } from "../_lib/token.js";
 
 const page = (title, msg, status = 200) =>
   new Response(
@@ -41,8 +41,17 @@ async function resend(env, path, method, body, doFetch) {
 
 // Create the contact, then add them to the segment. 409 means that step already happened.
 export async function confirmSubscription(env, email, doFetch = fetch) {
-  const created = await resend(env, "/contacts", "POST", { email, unsubscribed: false }, doFetch);
+  const token = env.CONFIRM_SECRET ? await makeUnsubscribeToken(email, env.CONFIRM_SECRET) : "";
+  const contact = { email, unsubscribed: false };
+  if (token) contact.properties = { unsubscribe_token: token };
+  let created = await resend(env, "/contacts", "POST", contact, doFetch);
+  if (!created.ok && created.status === 422 && token) {
+    created = await resend(env, "/contacts", "POST", { email, unsubscribed: false }, doFetch);
+  }
   if (!created.ok && created.status !== 409) return created;
+  if (created.status === 409 && token) {
+    await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { unsubscribe_token: token } }, doFetch);
+  }
   const added = await resend(env, segmentPath(email, env.RESEND_SEGMENT_ID), "POST", undefined, doFetch);
   if (!added.ok && added.status !== 409) return added;
   return { ok: true, status: added.status, data: added.data };

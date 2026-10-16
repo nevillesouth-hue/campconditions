@@ -1,0 +1,5 @@
+{
+  "note": "Hand edits applied after every OpenStreetMap refresh. The weekly job reads this file and never writes it. drop is a list of osm_id values (node/123 or way/456). overrides is an object keyed by osm_id whose fields replace the extracted camp.",
+  "drop": [],
+  "overrides": {}
+}

@@ -1,242 +1,147 @@
 #!/usr/bin/env python3
-"""Classify an OpenStreetMap camping feature. No I/O.
+"""Classify one OpenStreetMap camping feature using the curated rules.
 
-Categories, in priority order:
-  Showground, Rest area (overnight), Council park (leased), Council park,
-  Free, Donation, Caravan park, Campground.
+Kept categories: free, donation, showground, council_park, council_park_leased, rest_area.
+Dropped: unnamed sites, commercial caravan parks with no council or committee operator,
+big chains, hiker/group/scout/school camps, rest areas with no overnight indication,
+and private or disused sites.
 
-Facilities are tri-state: True, False, or None (unknown). Unknown must stay
-unknown — callers show "Unknown" and must not treat it as a yes.
+decide(tags) returns a site dict, or None when the feature is dropped.
 """
+import json
 import re
 
-YES = {"yes", "designated", "permissive", "allowed", "leashed", "on", "true", "hot", "cold", "only", "required"}
-NO = {"no", "none", "prohibited", "forbidden", "false", "off"}
-GENERIC_NAMES = {
-    "campground", "campsite", "camp site", "camping", "camping ground", "camping area",
-    "free camp", "free camping", "rest area", "caravan park", "showgrounds", "showground", "park",
+CHAIN = re.compile(
+    r"discovery|big ?4|nrma|ingenia|tasman holiday|g'?day|top parks?|holiday haven|aspen|reflections|"
+    r"hampshire|breakfree|nature'?s? edge|family parks|lifestyle|resort|retirement|village|manufactured|over ?50",
+    re.I,
+)
+EXCL = re.compile(
+    r"hiker|walk-?in|group camp|group camping|scout|guide|school|youth|church|christian|campus|"
+    r"outdoor education|education|ywca|ymca|lodge|cabin|hut$|retreat|bush ?walk|day visitor|picnic",
+    re.I,
+)
+COUNCIL = re.compile(r"council|shire|city of|rural city|borough|committee|com\b|trust|foreshore|reserve|crown", re.I)
+LEASED = {
+    "marlo caravan park",
+    "orbost caravan park",
+    "bemm river caravan park",
+    "eagle point caravan park",
+    "omeo holiday park",
+    "eastern beach holiday park",
+    "bairnsdale riverside holiday park",
 }
-COUNCIL_RE = re.compile(r"\b(shire|borough|council|rural city|city of)\b", re.I)
-HOURS_RE = re.compile(r"(\d+)")
+CATEGORIES = ("free", "donation", "showground", "council_park", "council_park_leased", "rest_area")
+YES = ("yes", "designated", "leashed", "permissive")
 
 
-def _norm(value):
-    return re.sub(r"[^a-z0-9]+", " ", (value or "").lower()).strip()
+def yn(value):
+    if value is None or value == "":
+        return "unknown"
+    text = str(value).lower()
+    if text in YES:
+        return "yes"
+    if text == "no":
+        return "no"
+    return text
 
 
-def _tri(tags, keys):
-    for key in keys:
-        raw = (tags.get(key) or "").strip().lower()
-        if not raw:
-            continue
-        head = raw.split(";", 1)[0].strip()
-        if head in YES or head.startswith("yes"):
-            return True
-        if head in NO or head.startswith("no"):
-            return False
-    return None
-
-
-def _blob(tags, keys):
-    return " ".join(str(tags.get(k) or "") for k in keys).lower()
-
-
-def councilish(*values):
-    return any(COUNCIL_RE.search(v or "") for v in values)
-
-
-def has_overnight(tags):
-    if tags.get("tourism") in ("camp_site", "caravan_site"):
+def is_candidate(tags):
+    """Raw features worth considering: camps, caravan sites, rest areas, showgrounds."""
+    tourism = tags.get("tourism")
+    name = (tags.get("name") or "").lower()
+    if tourism in ("camp_site", "caravan_site"):
         return True
-    for key in ("camping", "tents", "caravans", "caravan", "motorhome", "motorhomes", "motorcaravan"):
-        head = (tags.get(key) or "").strip().lower().split(";", 1)[0]
-        if head in YES or head.startswith("yes"):
-            return True
-    return False
-
-
-def is_showground(tags, name):
-    if (tags.get("amenity") or "") == "showground":
+    if tags.get("highway") == "rest_area" or tags.get("amenity") == "rest_area":
         return True
-    low = (name or "").lower()
-    return "showground" in low
-
-
-def is_rest_area(tags, name):
-    named = (tags.get("highway") == "rest_area") or ("rest area" in (name or "").lower())
-    return named and has_overnight(tags)
-
-
-def is_leased(tags):
-    owner = tags.get("owner") or ""
-    operator = tags.get("operator") or ""
-    lease_blob = _blob(tags, ("operator:type", "ownership", "owner:type"))
-    if "lease" in lease_blob and councilish(owner, operator):
-        return True
-    if councilish(owner) and operator and _norm(operator) != _norm(owner) and not councilish(operator):
+    if "showground" in name or "show ground" in name:
         return True
     return False
 
 
-def is_donation(tags):
-    if (tags.get("payment:donation") or "").lower() in ("yes", "only"):
+def _overnight(tags):
+    if any(tags.get(key) == "yes" for key in ("overnight", "camping", "caravans", "motorhome", "tents")):
         return True
-    return "donation" in _blob(tags, ("fee", "charge", "fee:conditional"))
+    return "maxstay" in tags
 
 
-def is_free(tags, name):
-    fee = (tags.get("fee") or "").strip().lower()
-    if fee in ("no", "none", "free", "0", "$0"):
-        return True
-    if fee in ("", "no", "none", "free") and re.search(r"\bfree\b", (name or "").lower()):
-        return True
-    return False
-
-
-def category_for(tags, name):
-    """One category. Earlier rules win so a free showground stays a showground."""
-    if is_showground(tags, name):
-        return "Showground"
-    if is_rest_area(tags, name) and (tags.get("tourism") not in ("camp_site", "caravan_site") or tags.get("highway") == "rest_area" or "rest area" in (name or "").lower()):
-        # Camp sites whose name or highway tag says rest area are rest areas.
-        # A normal camp_site is not a rest area just because overnight is true.
-        if tags.get("highway") == "rest_area" or "rest area" in (name or "").lower():
-            return "Rest area (overnight)"
-    if is_leased(tags):
-        return "Council park (leased)"
-    if councilish(tags.get("owner"), tags.get("operator"), tags.get("operator:type")):
-        return "Council park"
-    if is_free(tags, name):
-        return "Free"
-    if is_donation(tags):
-        return "Donation"
-    if tags.get("tourism") == "caravan_site":
-        return "Caravan park"
-    return "Campground"
-
-
-def max_nights(tags):
-    raw = (tags.get("maxstay") or tags.get("max_stay") or "").strip()
-    match = HOURS_RE.search(raw)
-    if not match:
-        return None
-    number = int(match.group(1))
-    low = raw.lower()
-    if "hour" in low:
-        return max(1, int(round(number / 24.0))) or 1
-    if "week" in low:
-        return number * 7
-    if number <= 0 or number > 365:
-        return None
-    return number
-
-
-def _contact(tags, keys):
-    for key in keys:
-        value = (tags.get(key) or "").strip()
-        if value:
-            return value.split(";", 1)[0].strip()
-    return ""
-
-
-def website(tags):
-    raw = _contact(tags, ("website", "contact:website", "url"))
-    if not raw or raw.lower().startswith(("javascript:", "data:")):
-        return ""
-    if raw.startswith("//"):
-        raw = "https:" + raw
-    if not re.match(r"https?://", raw, re.I):
-        raw = "https://" + raw
-    return raw
-
-
-def needs_review(tags, name, category, inferred_free=False):
-    """Flag uncertain records. A named camp or caravan site is kept without this flag."""
-    if any(k == "fixme" or k.startswith("fixme:") for k in tags):
-        return True
-    low = _norm(name)
-    if low in GENERIC_NAMES:
-        return True
-    if inferred_free and not (tags.get("fee") or "").strip():
-        return True
-    if category == "Showground" and not has_overnight(tags):
-        return True
-    if category == "Rest area (overnight)" and tags.get("highway") != "rest_area" and tags.get("tourism") not in ("camp_site", "caravan_site"):
-        return True
-    return False
-
-
-def facilities(tags):
-    self_contained = _tri(tags, ("self_contained",))
-    if self_contained is None:
-        sanitation = (tags.get("sanitation") or "").lower()
-        if "self" in sanitation and "contain" in sanitation:
-            self_contained = True
-    return {
-        "dogs": _tri(tags, ("dog", "dogs")),
-        "dump": _tri(tags, ("sanitary_dump_station", "sanitary_dump", "dump_station")),
-        "showers": _tri(tags, ("shower", "showers")),
-        "tents": _tri(tags, ("tents", "tent")),
-        "caravans": _tri(tags, ("caravans", "caravan")),
-        "motorhomes": _tri(tags, ("motorhome", "motorhomes", "motorcaravan")),
-        "self_contained": self_contained,
-    }
-
-
-def classify(tags, name=None):
-    """Return a plain dict for one feature. tags is a str->str mapping."""
+def decide(tags, name=None):
+    """Return the curated site fields, or None if this feature is excluded."""
+    tags = dict(tags or {})
     name = (name if name is not None else tags.get("name") or "").strip()
-    fee = (tags.get("fee") or "").strip()
-    inferred_free = is_free(tags, name) and not fee
-    category = category_for(tags, name)
-    fac = facilities(tags)
+    if not name or not re.search(r"[A-Za-z0-9]", name):
+        return None
+    low = name.lower()
+    tourism = tags.get("tourism")
+    operator = tags.get("operator") or ""
+    if tags.get("access") in ("private", "no") or tags.get("disused") or tags.get("abandoned"):
+        return None
+    # "and" binds tighter than "or", matching the curated script.
+    if (tags.get("backcountry") == "yes" or tags.get("group_only") == "yes"
+            or (tags.get("camp_site") == "basic" and "hike" in low)
+            or EXCL.search(name) or tags.get("scout") == "yes"):
+        return None
+    if CHAIN.search(name) or CHAIN.search(tags.get("brand") or "") or CHAIN.search(operator):
+        return None
+    rest = tags.get("highway") == "rest_area" or tags.get("amenity") == "rest_area"
+    show = "showground" in low or "show ground" in low
+    if rest and not show and tourism not in ("camp_site", "caravan_site"):
+        if not _overnight(tags):
+            return None
+    fee = (tags.get("fee") or "").lower()
+    donation = "donation" in json.dumps(tags).lower()
+    review = False
+    if show:
+        category = "showground"
+        review = tourism is None
+    elif rest and tourism is None:
+        category = "rest_area"
+    elif low in LEASED:
+        category = "council_park_leased"
+    elif tourism == "caravan_site":
+        if COUNCIL.search(operator) or re.search(r"foreshore|reserve|recreation|showground", low):
+            category = "council_park"
+            review = not bool(COUNCIL.search(operator))
+        else:
+            return None
+    else:
+        if donation:
+            category = "donation"
+        elif fee in ("no",):
+            category = "free"
+        elif fee in ("yes",) or fee.startswith("$") or fee.startswith("aud"):
+            if COUNCIL.search(operator) or re.search(r"foreshore|reserve|recreation", low):
+                category = "council_park"
+            else:
+                return None
+        else:
+            category = "free"
+            review = True
+    suits = [label for label, key in (("tent", "tents"), ("caravan", "caravans"), ("motorhome", "motorhome")) if tags.get(key) == "yes"]
+    if category == "showground" and not suits:
+        suits = ["tent", "caravan", "motorhome"]
+    blob = json.dumps(tags).lower().replace("-", " ")
+    self_contained = (tags.get("self_contained") or tags.get("self-contained") or "").lower()
+    if self_contained in ("yes", "only") or "self contained" in blob:
+        contained = "yes"
+    elif tags.get("toilets") == "yes":
+        contained = "no"
+    else:
+        contained = "unknown"
     return {
         "name": name,
         "category": category,
-        "max_nights": max_nights(tags),
-        "phone": _contact(tags, ("phone", "contact:phone", "mobile", "contact:mobile")),
-        "email": _contact(tags, ("email", "contact:email")),
-        "website": website(tags),
-        "operator": (tags.get("operator") or tags.get("owner") or "").strip(),
-        "needs_review": needs_review(tags, name, category, inferred_free=inferred_free),
-        **fac,
+        "suits": "|".join(suits) if suits else "unknown",
+        "self_contained_only": contained,
+        "max_nights": tags.get("maxstay") or "",
+        "dogs": yn(tags.get("dog")),
+        "dump_point": yn(tags.get("sanitary_dump_station")),
+        "showers": yn(tags.get("shower")),
+        "toilets": yn(tags.get("toilets")),
+        "phone": tags.get("phone") or tags.get("contact:phone") or "",
+        "email": tags.get("email") or tags.get("contact:email") or "",
+        "website": tags.get("website") or tags.get("contact:website") or "",
+        "operator": operator,
+        "label": "call first" if category == "showground" else "check with operator",
+        "needs_review": bool(review or category == "council_park_leased"),
     }
-
-
-def _showground_feature(tags, name):
-    if (tags.get("amenity") or "") == "showground":
-        return True
-    if "showground" not in (name or "").lower():
-        return False
-    # A named showground that is a park, ground or camping feature — not a road name.
-    if tags.get("leisure") in ("recreation_ground", "park", "sports_centre", "pitch", "stadium"):
-        return True
-    if tags.get("landuse") in ("recreation_ground", "commercial"):
-        return True
-    return has_overnight(tags)
-
-
-def accept_feature(tags):
-    """True for camping features worth listing. Day-use rest areas are not."""
-    if (tags.get("disused") or "") == "yes" or (tags.get("abandoned") or "") == "yes":
-        return False
-    if (tags.get("ruins") or "") == "yes":
-        return False
-    if tags.get("boundary") or tags.get("place") or tags.get("natural"):
-        return False
-    amenity = tags.get("amenity") or ""
-    tourism = tags.get("tourism") or ""
-    if amenity in ("toilets", "fuel", "restaurant", "fast_food", "cafe", "parking", "shelter", "school"):
-        return False
-    if tourism in ("hotel", "motel", "guest_house", "hostel", "chalet", "apartment", "attraction", "viewpoint", "museum"):
-        return False
-    name = tags.get("name") or ""
-    if tourism in ("camp_site", "caravan_site"):
-        return True
-    if _showground_feature(tags, name):
-        return True
-    if tags.get("highway") == "rest_area" and has_overnight(tags):
-        return True
-    if tourism == "picnic_site" and has_overnight(tags):
-        return True
-    return False

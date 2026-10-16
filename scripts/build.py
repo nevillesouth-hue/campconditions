@@ -10,7 +10,8 @@ VicEmergency warnings are not fetched or republished. Camp pages link to emergen
 import json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as dt
 SITE = "https://campconditions.au"
 CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0)"
-OSM_CATEGORIES = ["Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area (overnight)"]
+OSM_CATEGORIES = ["Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area"]
+CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area"}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "dist")
 TZ = dt.timezone(dt.timedelta(hours=11))  # AEDT; good enough for display stamp
@@ -106,18 +107,37 @@ for f in (rec or {}).get("features", []):
         "nearby_closures": nearby_c[:10], "source": "datavic", "category": "Park campground",
         "needs_review": False})
 
-def tri_or_none(value):
+def yn_flag(value):
     if value is True or value is False: return value
+    text = str(value or "").strip().lower()
+    if text == "yes": return True
+    if text == "no": return False
     return None
+def suit_flags(suits):
+    raw = str(suits or "").strip().lower()
+    if not raw or raw == "unknown": return None, None, None
+    parts = set(raw.split("|"))
+    return (True if "tent" in parts else None, True if "caravan" in parts else None, True if "motorhome" in parts else None)
+def nights_from(value):
+    if isinstance(value, int): return value if 0 < value <= 365 else None
+    raw = str(value or "").strip()
+    match = re.search(r"(\d+)", raw)
+    if not match: return None
+    number = int(match.group(1))
+    if "hour" in raw.lower(): return max(1, int(round(number / 24.0)))
+    return number if 0 < number <= 365 else None
 def load_osm(seen):
     path = os.path.join(ROOT, "data", "osm-camps-vic.json")
     with open(path, encoding="utf-8") as handle:
         doc = json.load(handle)
-    rows = doc["camps"] if isinstance(doc, dict) else doc
+    if isinstance(doc, dict): rows = doc.get("sites") or doc.get("camps") or []
+    else: rows = doc
     extra = []
+    allowed = set(CAT_LABEL) | set(CAT_LABEL.values())
     for row in rows:
         name = (row.get("name") or "").strip()
-        if not name: continue
+        raw_cat = (row.get("category") or "").strip()
+        if not name or raw_cat not in allowed: continue
         s = slug(name)
         if s in seen:
             tail = slug(str(row.get("osm_id") or "osm")) or "osm"
@@ -127,17 +147,20 @@ def load_osm(seen):
         while s in seen:
             s = f"{base}-{n}"; n += 1
         seen.add(s)
-        cat = (row.get("category") or "").strip() or "Campground"
+        cat = CAT_LABEL.get(raw_cat, raw_cat)
+        tents, vans, homes = suit_flags(row.get("suits"))
+        website = (row.get("website") or "").strip()
+        if website and not website.startswith(("http://", "https://")): website = "https://" + website
         extra.append({"slug": s, "id": row.get("osm_id") or s, "osm_id": row.get("osm_id") or "", "name": name,
             "lat": row["lat"], "lon": row["lon"], "region": region(row["lon"], row["lat"]),
             "status": "check", "closure": None, "access": "", "about": "", "camping": "", "caravans": "",
             "site_class": cat, "dis_access": None, "managed_by": (row.get("operator") or "").strip(), "data_date": "",
             "nearby_closures": [], "source": "osm", "category": cat, "needs_review": bool(row.get("needs_review")),
-            "phone": (row.get("phone") or "").strip(), "email": (row.get("email") or "").strip(), "website": (row.get("website") or "").strip(),
-            "max_nights": row.get("max_nights") if isinstance(row.get("max_nights"), int) else None,
-            "fac_dogs": tri_or_none(row.get("dogs")), "fac_dump": tri_or_none(row.get("dump")), "fac_showers": tri_or_none(row.get("showers")),
-            "fac_tents": tri_or_none(row.get("tents")), "fac_caravans": tri_or_none(row.get("caravans")),
-            "fac_motorhomes": tri_or_none(row.get("motorhomes")), "fac_self": tri_or_none(row.get("self_contained"))})
+            "phone": (row.get("phone") or "").strip(), "email": (row.get("email") or "").strip(), "website": website,
+            "max_nights": nights_from(row.get("max_nights")),
+            "fac_dogs": yn_flag(row.get("dogs")), "fac_dump": yn_flag(row.get("dump_point", row.get("dump"))),
+            "fac_showers": yn_flag(row.get("showers")), "fac_tents": tents, "fac_caravans": vans, "fac_motorhomes": homes,
+            "fac_self": yn_flag(row.get("self_contained_only", row.get("self_contained")))})
     return extra
 camps.extend(load_osm(seen))
 camps.sort(key=lambda c: c["name"].lower())

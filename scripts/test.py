@@ -103,9 +103,20 @@ for r, _, fs in os.walk(D):
         break
 if 'rel="noopener noreferrer"' not in mj: bad.append(("map.js", "osm link"))
 notice = "We'll only use your email to send the CampConditions digest. We never sell or share it."
-if notice not in home or '<a href="/privacy/">Unsubscribe any time</a>' not in home:
+if notice not in home or '<a href="/unsubscribe/">Unsubscribe any time</a>' not in home:
   bad.append(("/", "privacy notice"))
-if "/privacy/" not in sm: bad.append(("sitemap", "/privacy/"))
+for bit in ('for="digest-email"', "Your email", 'id="digest-note"', 'class="notice"', "scrollIntoView", "note.focus()", "el.disabled = true", "min-height:48px", "notice.ok", "notice.err"):
+  if bit not in home: bad.append(("/", "signup " + bit))
+if '<a href="/privacy/">Unsubscribe any time</a>' in home: bad.append(("/", "unsubscribe still points at privacy"))
+if "/privacy/" not in sm or "/unsubscribe/" not in sm: bad.append(("sitemap", "privacy or unsubscribe"))
+unsub_path = os.path.join(D, "unsubscribe", "index.html")
+if not os.path.isfile(unsub_path):
+  bad.append(("/unsubscribe/", "missing"))
+else:
+  unsub = open(unsub_path, encoding="utf-8").read()
+  for bit in ("one-click unsubscribe link", 'for="unsub-email"', "Your email", 'action="/api/unsubscribe-request"', "Email me an unsubscribe link", "scrollIntoView", "min-height:48px", 'href="/privacy/"'):
+    if bit not in unsub: bad.append(("/unsubscribe/", bit))
+  if "color:#0000ee" in unsub.lower() or "color:blue" in unsub.lower(): bad.append(("/unsubscribe/", "default blue"))
 priv_path = os.path.join(D, "privacy", "index.html")
 if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
@@ -135,16 +146,28 @@ if digest.returncode != 0:
 else:
   for name in ("digest.html", "digest.txt"):
     blob = open(os.path.join(draft, name), encoding="utf-8").read()
-    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe"):
+    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}", "Unsubscribe"):
       if bit not in blob: bad.append((name, bit))
+    if "mailto:campconditions@outlook.com?subject=Unsubscribe" in blob or "{{{RESEND_UNSUBSCRIBE_URL}}}" in blob:
+      bad.append((name, "old unsubscribe link"))
+  meta = json.load(open(os.path.join(draft, "meta.json"), encoding="utf-8"))
+  headers = meta.get("headers") or {}
+  if headers.get("List-Unsubscribe") != "<https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}>":
+    bad.append(("digest meta", "List-Unsubscribe"))
+  if headers.get("List-Unsubscribe-Post") != "List-Unsubscribe=One-Click":
+    bad.append(("digest meta", "List-Unsubscribe-Post"))
 confirm = subprocess.run(["node", "--input-type=module", "-e", """
 import { confirmationMessage } from "./functions/api/subscribe.js";
-const m = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc");
-const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe", "mailto:campconditions@outlook.com"];
+const unsub = "https://campconditions.au/api/unsubscribe?e=reader%40example.com&t=abc";
+const m = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc", unsub);
+const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe", unsub];
 for (const blob of [m.html, m.text]) {
   for (const bit of need) if (!blob.includes(bit)) { console.error("missing " + bit); process.exit(1); }
+  if (blob.includes("mailto:campconditions@outlook.com?subject=Unsubscribe")) process.exit(1);
 }
 if (m.html.includes("api.resend.com")) process.exit(1);
+if (m.headers["List-Unsubscribe"] !== "<" + unsub + ">") process.exit(1);
+if (m.headers["List-Unsubscribe-Post"] !== "List-Unsubscribe=One-Click") process.exit(1);
 """], cwd=root, capture_output=True, text=True)
 if confirm.returncode != 0:
   bad.append(("confirm email", (confirm.stderr or confirm.stdout)[-240:]))
@@ -180,7 +203,60 @@ const msg = failureMessage(restricted);
 if (!msg.includes("can send mail but cannot save contacts") || msg.includes("502")) process.exit(1);
 const src = readFileSync("./functions/api/confirm.js", "utf8");
 if (src.includes(", 502)") || src.includes("status: 502")) { console.error("still returns 502"); process.exit(1); }
+const envWithSecret = { ...env, CONFIRM_SECRET: "test-secret", FROM_EMAIL: "CampConditions.au <digest@mail.campconditions.au>", SITE_URL: "https://campconditions.au" };
+const calls2 = [];
+let contactPosts = 0;
+const mock2 = async (url, init) => {
+  calls2.push({ url, method: init.method, body: init.body });
+  if (url.endsWith("/contacts") && init.method === "POST") {
+    contactPosts += 1;
+    if (contactPosts === 1) return new Response(JSON.stringify({ name: "validation_error" }), { status: 422 });
+    return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
+  }
+  if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  return new Response("no", { status: 500 });
+};
+const retried = await confirmSubscription(envWithSecret, email, mock2);
+if (!retried.ok || calls2.length !== 3 || !calls2[0].body.includes("unsubscribe_token") || calls2[1].body.includes("unsubscribe_token")) process.exit(1);
 """], cwd=root, capture_output=True, text=True)
 if confirm_api.returncode != 0:
   bad.append(("confirm api", (confirm_api.stderr or confirm_api.stdout)[-400:]))
+unsub_api = subprocess.run(["node", "--input-type=module", "-e", """
+import { makeUnsubscribeToken, unsubscribeTokenMatches, listUnsubscribeHeaders } from "./functions/_lib/token.js";
+import { onRequestGet, onRequestPost, unsubscribeContact } from "./functions/api/unsubscribe.js";
+const segment = "b9096e2d-485b-487e-90db-467e44eaf6cc";
+const secret = "test-secret";
+const email = "reader@example.com";
+const token = await makeUnsubscribeToken(email, secret);
+if (token.length !== 64 || !(await unsubscribeTokenMatches(email, token, secret))) process.exit(1);
+if (await unsubscribeTokenMatches("other@example.com", token, secret)) process.exit(1);
+if (await unsubscribeTokenMatches(email, "0".repeat(64), secret)) process.exit(1);
+const env = {
+  RESEND_API_KEY: "test", CONFIRM_SECRET: secret, FROM_EMAIL: "CampConditions.au <digest@mail.campconditions.au>",
+  SITE_URL: "https://campconditions.au", RESEND_SEGMENT_ID: segment,
+};
+const calls = [];
+globalThis.fetch = async (url, init) => {
+  calls.push({ url, method: init.method, body: init.body });
+  return new Response("{}", { status: 200 });
+};
+const url = "https://campconditions.au/api/unsubscribe?e=" + encodeURIComponent(email) + "&t=" + token;
+const got = await onRequestGet({ request: new Request(url), env });
+const html = await got.text();
+if (got.status !== 200 || !html.includes("You're unsubscribed") || !html.includes("/privacy/")) process.exit(1);
+if (calls.length !== 2 || calls[0].method !== "PATCH" || !calls[0].body.includes('"unsubscribed":true')) process.exit(1);
+if (calls[1].method !== "DELETE" || !calls[1].url.endsWith("/contacts/reader%40example.com/segments/" + segment)) process.exit(1);
+calls.length = 0;
+const posted = await onRequestPost({ request: new Request(url, { method: "POST", body: "List-Unsubscribe=One-Click" }), env });
+if (posted.status !== 200 || !(await posted.text()).includes("You're unsubscribed") || calls.length !== 2) process.exit(1);
+calls.length = 0;
+const badToken = await onRequestGet({ request: new Request(url + "nope"), env });
+if (badToken.status !== 400 || calls.length !== 0) process.exit(1);
+const headers = listUnsubscribeHeaders(url);
+if (!headers["List-Unsubscribe"].startsWith("<https://") || headers["List-Unsubscribe-Post"] !== "List-Unsubscribe=One-Click") process.exit(1);
+const gone = await unsubscribeContact(env, email, async () => new Response("{}", { status: 404 }));
+if (!gone.ok) process.exit(1);
+"""], cwd=root, capture_output=True, text=True)
+if unsub_api.returncode != 0:
+  bad.append(("unsubscribe api", (unsub_api.stderr or unsub_api.stdout)[-400:]))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)

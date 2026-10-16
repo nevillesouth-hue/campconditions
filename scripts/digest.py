@@ -47,11 +47,12 @@ for k, n in REG.items():
     rows.append(para(f"<strong>{e(n)}</strong><br>" + ("<br>".join(link(c) + (" *" if (c.get("closure") or {}).get("outdated") else "") for c in sorted(cs, key=lambda c: c["name"].lower())) or "None.")))
 rows.append(para('<span style="font-size:13px;color:#666666;">* Reopening date has passed — the closure record may be outdated.</span>'))
 rows.append(para('Been somewhere lately? <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'))
+UNSUB = "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}"
 foot = (f'Not an official warning service — always check <a href="https://emergency.vic.gov.au/" style="color:#666666;">VicEmergency</a> and the '
         f'<a href="https://www.bom.gov.au/vic/warnings/" style="color:#666666;">BOM</a> before you travel. In an emergency call 000.<br>'
         f'Campground data: DEECA Recreation Sites via DataVic (CC BY 4.0).<br>You’re getting this because you confirmed your subscription at campconditions.au. '
         f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
-        f'<a href="{{{{{{RESEND_UNSUBSCRIBE_URL}}}}}}" style="color:#666666;">Unsubscribe</a>')
+        f'<a href="{UNSUB}" style="color:#666666;">Unsubscribe</a>')
 body = "".join(rows) + f'<tr><td style="{F}font-size:12px;line-height:18px;color:#666666;padding-top:24px;">{foot}</td></tr>'
 doc = f"""<!DOCTYPE html><html lang="en-AU"><head><meta charset="utf-8"><title>{e(subject)}</title></head>
 <body style="margin:0;background:#fbfaf6;"><div style="display:none;max-height:0;overflow:hidden;">{e(preview)}</div>
@@ -63,5 +64,11 @@ txt = re.sub(r"<br>", "\n", doc[doc.index("<body"):]); txt = re.sub(r'<a href="(
 txt = re.sub(r"</tr>", "\n", txt); txt = html.unescape(re.sub(r"<[^>]+>", "", txt)); txt = re.sub(r"\n\s*\n+", "\n\n", txt).strip()
 os.makedirs(a.out, exist_ok=True)
 open(os.path.join(a.out, "digest.html"), "w", encoding="utf-8").write(doc); open(os.path.join(a.out, "digest.txt"), "w", encoding="utf-8").write(txt)
-json.dump({"subject": subject, "previewText": preview, "generated": cur["generated"], "closed": len(closed)}, open(os.path.join(a.out, "meta.json"), "w"), indent=1)
+json.dump({
+    "subject": subject, "previewText": preview, "generated": cur["generated"], "closed": len(closed),
+    "headers": {
+        "List-Unsubscribe": f"<{UNSUB}>",
+        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
+}, open(os.path.join(a.out, "meta.json"), "w"), indent=1)
 print(subject)

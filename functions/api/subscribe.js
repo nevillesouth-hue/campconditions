@@ -3,7 +3,7 @@
 //   RESEND_API_KEY (secret), CONFIRM_SECRET (secret, long random string),
 //   FROM_EMAIL = "CampConditions.au <digest@mail.campconditions.au>", SITE_URL e.g. https://campconditions.au,
 //   RESEND_SEGMENT_ID
-import { makeToken, EMAIL_RE, signupsReady } from "../_lib/token.js";
+import { makeToken, makeUnsubscribeToken, EMAIL_RE, signupsReady, unsubscribeLink, listUnsubscribeHeaders } from "../_lib/token.js";
 
 const page = (title, msg, status = 200) =>
   new Response(
@@ -13,13 +13,12 @@ const page = (title, msg, status = 200) =>
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
 
-const UNSUBSCRIBE = "mailto:campconditions@outlook.com?subject=Unsubscribe%20from%20CampConditions.au";
-
-export function confirmationMessage(site, link) {
+export function confirmationMessage(site, link, unsubscribeUrl) {
   const privacy = `${String(site || "").replace(/\/$/, "")}/privacy/`;
-  const html = `<p>Confirm you want the free weekly Victoria digest from CampConditions.au.</p><p><a href="${link}">Confirm my subscription</a></p><p>This link expires in 48 hours. If you didn't ask for this, you can ignore it — you won't be added until you click.</p><p>CampConditions.au<br><a href="${privacy}">Privacy</a><br><a href="${UNSUBSCRIBE}">Unsubscribe</a></p>`;
-  const text = `Confirm you want the free weekly Victoria digest from CampConditions.au.\n\n${link}\n\nThis link expires in 48 hours. If you didn't ask for this, ignore this email.\n\nCampConditions.au\nPrivacy: ${privacy}\nUnsubscribe: ${UNSUBSCRIBE}\n`;
-  return { html, text };
+  const unsub = unsubscribeUrl || `${String(site || "").replace(/\/$/, "")}/unsubscribe/`;
+  const html = `<p>Confirm you want the free weekly Victoria digest from CampConditions.au.</p><p><a href="${link}">Confirm my subscription</a></p><p>This link expires in 48 hours. If you didn't ask for this, you can ignore it — you won't be added until you click.</p><p>CampConditions.au<br><a href="${privacy}">Privacy</a><br><a href="${unsub}">Unsubscribe</a></p>`;
+  const text = `Confirm you want the free weekly Victoria digest from CampConditions.au.\n\n${link}\n\nThis link expires in 48 hours. If you didn't ask for this, ignore this email.\n\nCampConditions.au\nPrivacy: ${privacy}\nUnsubscribe: ${unsub}\n`;
+  return { html, text, headers: listUnsubscribeHeaders(unsub) };
 }
 
 async function readEmail(request) {
@@ -37,8 +36,10 @@ export async function onRequestPost({ request, env }) {
   const email = (await readEmail(request)).toLowerCase();
   if (!EMAIL_RE.test(email)) return page("Check that address", "That doesn't look like an email address.", 400);
   const token = await makeToken(email, env.CONFIRM_SECRET);
-  const link = `${String(env.SITE_URL).replace(/\/$/, "")}/api/confirm?token=${encodeURIComponent(token)}`;
-  const message = confirmationMessage(env.SITE_URL, link);
+  const site = String(env.SITE_URL).replace(/\/$/, "");
+  const link = `${site}/api/confirm?token=${encodeURIComponent(token)}`;
+  const unsub = unsubscribeLink(site, email, await makeUnsubscribeToken(email, env.CONFIRM_SECRET));
+  const message = confirmationMessage(env.SITE_URL, link, unsub);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -52,6 +53,7 @@ export async function onRequestPost({ request, env }) {
       subject: "Confirm your CampConditions.au digest",
       html: message.html,
       text: message.text,
+      headers: message.headers,
     }),
   });
   if (!res.ok) return page("Could not send", "We couldn't send the confirmation email. Please try again later.", 502);

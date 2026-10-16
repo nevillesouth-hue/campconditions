@@ -36,6 +36,28 @@ export async function makeToken(email, secret, ttlSec = 60 * 60 * 48) {
   return `${b64url(payload)}.${await hmacHex(secret, payload)}`;
 }
 
+export async function makeUnsubscribeToken(email, secret) {
+  return hmacHex(secret, `unsubscribe\n${String(email || "").trim().toLowerCase()}`);
+}
+
+export function unsubscribeLink(site, email, token) {
+  const base = String(site || "").replace(/\/$/, "");
+  return `${base}/api/unsubscribe?e=${encodeURIComponent(String(email || "").trim().toLowerCase())}&t=${token}`;
+}
+
+export async function unsubscribeTokenMatches(email, token, secret) {
+  const normal = String(email || "").trim().toLowerCase();
+  if (!EMAIL_RE.test(normal) || typeof token !== "string" || !token || !secret) return false;
+  return sameHex(await makeUnsubscribeToken(normal, secret), token.trim());
+}
+
+export function listUnsubscribeHeaders(url) {
+  return {
+    "List-Unsubscribe": `<${url}>`,
+    "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+  };
+}
+
 export async function readToken(token, secret) {
   if (!token || !token.includes(".")) return null;
   const [body, sig] = token.split(".");

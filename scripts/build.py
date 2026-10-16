@@ -221,6 +221,15 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
 .card a{color:var(--g);font-weight:600}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
 .box{background:#fff;border:2px dashed var(--o);border-radius:10px;padding:1rem;margin:1rem 0}input,textarea,select,button{font:inherit;padding:.45rem;border:1px solid #bbb;border-radius:6px}button{background:var(--o);color:#fff;border:0;cursor:pointer}
+a{color:var(--g)}
+.signup label{display:block;font-weight:700;margin:0 0 .35rem}
+.signup-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.signup-row input[type=email]{flex:1 1 auto;min-width:0;font-size:1.05rem;padding:.85rem .9rem;min-height:48px}
+.signup-row button{font-size:1.05rem;font-weight:700;padding:.85rem 1.25rem;min-height:48px}
+@media (max-width:640px){.signup-row{flex-direction:column;align-items:stretch}.signup-row input[type=email],.signup-row button{width:100%;flex:0 0 auto}}
+.notice{margin:1rem 0;padding:1.15rem 1.2rem;border-radius:10px;font-size:1.35rem;font-weight:700;line-height:1.35}
+.notice.ok{background:#e7f2e4;color:#1e4620;border:3px solid var(--g)}
+.notice.err{background:#fde8e4;color:#7f1d1d;border:3px solid #9a3412}
 .warn{background:#fff4e5;border-left:4px solid var(--o);padding:.6rem .8rem;margin:1rem 0}
 .map{height:440px;margin:1rem 0;border:1px solid #e3e0d6;border-radius:10px;background:#e7e4da}
 .map-sm{height:240px}.legend{margin:-.2rem 0 1rem;font-size:.9rem}.legend .badge{margin-right:.35rem}
@@ -565,22 +574,40 @@ def badge(c):
     return f'<span class="badge {status}">{text}</span>'
 def crumbs(items): return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i+1, "name": n, "item": SITE+u} for i, (n, u) in enumerate(items)]}
 NEWS = """<section class="box" id="newsletter"><h2>Get the free weekly Victoria digest</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region. We'll email a confirmation link first; you're not on the list until you click it.</p>
-<form id="digest-form" action="/api/subscribe" method="post"><input type="email" name="email" required placeholder="you@example.com" aria-label="Email address" autocomplete="email"> <button>Subscribe</button><p id="digest-note" class="muted" hidden></p></form>
-<p class="muted">We'll only use your email to send the CampConditions digest. We never sell or share it. <a href="/privacy/">Unsubscribe any time</a>.</p>
+<form id="digest-form" class="signup" action="/api/subscribe" method="post"><label for="digest-email">Your email</label><div class="signup-row"><input id="digest-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"> <button type="submit">Subscribe</button></div></form>
+<div id="digest-note" class="notice" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
+<p class="muted">We'll only use your email to send the CampConditions digest. We never sell or share it. <a href="/unsubscribe/">Unsubscribe any time</a>.</p>
 <script>
 document.getElementById("digest-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
+  const form = ev.target;
   const note = document.getElementById("digest-note");
+  const button = form.querySelector("button");
   note.hidden = false;
+  note.className = "notice";
   note.textContent = "One moment…";
+  button.disabled = true;
+  const show = (kind, message) => {
+    note.hidden = false;
+    note.className = "notice " + kind;
+    note.textContent = message;
+    note.focus();
+    note.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
   try {
-    const res = await fetch("/api/subscribe", { method: "POST", body: new FormData(ev.target), headers: { accept: "text/plain" } });
+    const res = await fetch("/api/subscribe", { method: "POST", body: new FormData(form), headers: { accept: "text/plain" } });
     const text = (await res.text()).replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
-    if (res.status === 503) note.textContent = "Sign-ups open soon.";
-    else if (res.ok) note.textContent = "Check your email and click the confirmation link. You won't be added until you do.";
-    else note.textContent = text.slice(0, 240) || "Something went wrong. Please try again.";
+    if (res.ok) {
+      show("ok", "Check your email and click the confirmation link. You won't be added until you do.");
+      form.reset();
+      Array.from(form.elements).forEach((el) => { el.disabled = true; });
+      return;
+    }
+    button.disabled = false;
+    show("err", res.status === 503 ? "Sign-ups open soon." : (text.slice(0, 240) || "Something went wrong. Please try again."));
   } catch (err) {
-    note.textContent = "Something went wrong. Please try again.";
+    button.disabled = false;
+    show("err", "Something went wrong. Please try again.");
   }
 });
 </script>
@@ -711,6 +738,45 @@ for c in camps:
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="https://www.bom.gov.au/vic/forecasts/">BOM forecast</a> · {dated}</p>
 <div class="box"><h2>Been here recently?</h2><p><a href="/report/?camp={c['slug']}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{NEWS}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 
+page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",
+ """<h1>Unsubscribe</h1>
+<p>Every CampConditions email has a one-click unsubscribe link. It works without an account, and you don't need to log in. Open the link in the email and you're off the list.</p>
+<p>Can't find that email? Enter your address and we'll send a fresh one-click link. You stay subscribed until you open it.</p>
+<form id="unsub-form" class="signup box" action="/api/unsubscribe-request" method="post"><label for="unsub-email">Your email</label><div class="signup-row"><input id="unsub-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"> <button type="submit">Email me an unsubscribe link</button></div></form>
+<div id="unsub-note" class="notice" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
+<script>
+const preset = new URLSearchParams(location.search).get("e");
+if (preset) document.getElementById("unsub-email").value = preset;
+document.getElementById("unsub-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const form = ev.target;
+  const note = document.getElementById("unsub-note");
+  const button = form.querySelector("button");
+  button.disabled = true;
+  const show = (kind, message) => {
+    note.hidden = false;
+    note.className = "notice " + kind;
+    note.textContent = message;
+    note.focus();
+    note.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+  try {
+    const res = await fetch("/api/unsubscribe-request", { method: "POST", body: new FormData(form), headers: { accept: "text/html" } });
+    const text = (await res.text()).replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
+    if (res.ok) {
+      show("ok", "Check your email for a one-click unsubscribe link. You stay on the list until you open it.");
+      form.reset();
+      Array.from(form.elements).forEach((el) => { el.disabled = true; });
+      return;
+    }
+    button.disabled = false;
+    show("err", text.slice(0, 240) || "Something went wrong. Please try again.");
+  } catch (err) {
+    button.disabled = false;
+    show("err", "Something went wrong. Please try again.");
+  }
+});
+</script>""")
 page("/report/", "Report campground conditions | CampConditions.au", "Tell other campers what it's really like: how full, access, water, coverage.",
  """<h1>Report conditions</h1><p>Your report helps the next camper. Reports are checked before they're published.</p>
 <form class="box" onsubmit="event.preventDefault();document.getElementById('ok').hidden=false"><p><label>Campground<br><input name="camp" id="camp" required size="40"></label></p>
@@ -729,7 +795,7 @@ page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles 
 <h2>Why we collect it</h2><p>We use your email only to send the digest and service emails about your subscription, such as the confirmation message.</p>
 <h2>Sharing</h2><p>We never sell, rent or share your email, except with service providers who process it for us: Resend (email delivery) and Cloudflare (hosting). Your data may be stored or processed outside Australia.</p>
 <h2>Double opt-in</h2><p>Signing up is double opt-in. We email you a confirmation link, and you are not on the list until you click it.</p>
-<h2>Unsubscribe, access, correction and deletion</h2><p id="unsubscribe">Every email includes an unsubscribe link. You can unsubscribe any time. To ask for access, a correction, or deletion, email <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>
+<h2>Unsubscribe, access, correction and deletion</h2><p id="unsubscribe">Every email includes an unsubscribe link. You can unsubscribe any time on the <a href="/unsubscribe/">unsubscribe page</a>. To ask for access, a correction, or deletion, email <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>
 <h2>How long we keep it</h2><p>We keep your email while you are subscribed. After you unsubscribe, or after you ask us to delete it, we delete it within 30 days.</p>
 <h2>Complaints</h2><p>If you have a complaint, email us. You can also contact the Office of the Australian Information Commissioner (OAIC) at <a href="https://www.oaic.gov.au/">oaic.gov.au</a>.</p>
 <h2>Changes to this policy</h2><p>If we change this policy, we will update this page and the date at the top.</p>""")
@@ -740,7 +806,7 @@ feed = {"name": "CampConditions.au status feed", "region": "Victoria, Australia"
         "disclaimer": "Not an official warning service. VicEmergency warnings are not included. Check VicEmergency and the Bureau of Meteorology before travel. OpenStreetMap sites have no Parks Victoria closure data.", "sources": SRC,
         "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")} | {"url": f"{SITE}/vic/camp/{c['slug']}/"} for c in camps]}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
-urls = ["/", "/vic/", "/report/", "/about/", "/privacy/"] + [f"/vic/{k}/" for k in REGIONS] + [f"/vic/camp/{c['slug']}/" for c in camps]
+urls = ["/", "/vic/", "/report/", "/about/", "/privacy/", "/unsubscribe/"] + [f"/vic/{k}/" for k in REGIONS] + [f"/vic/camp/{c['slug']}/" for c in camps]
 open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{SITE}{u}</loc><lastmod>{NOW.date()}</lastmod></url>\n" for u in urls) + "</urlset>\n")
 open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
 open(os.path.join(OUT, "llms.txt"), "w").write(f"""# CampConditions.au
@@ -756,6 +822,7 @@ Machine-readable status for every campground: {SITE}/status.json (includes attri
 - [Report conditions]({SITE}/report/)
 - [About and data sources]({SITE}/about/)
 - [Privacy]({SITE}/privacy/)
+- [Unsubscribe]({SITE}/unsubscribe/)
 
 ## Attribution
 {CREDIT}

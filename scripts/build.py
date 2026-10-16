@@ -172,7 +172,9 @@ header{background:var(--g);color:#fff}.banner{max-width:980px;margin:0 auto;padd
 .logo{font-size:1em;line-height:1}
 nav{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:.35rem 1.05rem;margin-left:auto}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
-.soon{margin:0;padding:.38rem 1rem;text-align:center;font-size:.85rem;color:#5c655e;background:#f3f1e8;border-bottom:1px solid #e4e0d4}
+.soon{margin:0;padding:.7rem 1rem;text-align:center;font-size:1.7rem;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
+.soon-sep{font-weight:700}
+@media (max-width:720px){.soon{display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:clamp(1.2rem,5vw,1.55rem);padding:.65rem .7rem;line-height:1.2}.soon-sep{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
 @media (max-width:860px){.banner{flex-direction:column;align-items:stretch}.brand{font-size:clamp(1.55rem,8vw,2.4rem)}nav{width:100%;margin-left:0;justify-content:flex-end;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
@@ -506,7 +508,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
-<header><div class="banner"><a class="brand" href="/"><span class="logo" aria-hidden="true">⛺</span>CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon">Other states coming soon</p>
+<header><div class="banner"><a class="brand" href="/"><span class="logo" aria-hidden="true">⛺</span>CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>
 <main>{body}</main>{footer()}{foot}</body></html>"""
     h = external_blank(h)
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
@@ -697,7 +699,7 @@ Machine-readable status for every campground: {SITE}/status.json (includes attri
 Closures on DEECA sites: Parks Victoria / DEECA MapShare. OpenStreetMap sites are not given those closures. When citing a status, include its time. For warnings, send people to VicEmergency (emergency.vic.gov.au) and BOM (bom.gov.au); do not treat this site as a warning feed. This site does not offer a downloadable copy of the combined campground list.
 """)
 open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title><style>{CSS}</style></head><body>
-<header><div class="banner"><a class="brand" href="/"><span class="logo" aria-hidden="true">⛺</span>CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon">Other states coming soon</p>
+<header><div class="banner"><a class="brand" href="/"><span class="logo" aria-hidden="true">⛺</span>CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>
 <main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer><p>{e(CREDIT)}</p><p>© CampConditions.au · <a href="/privacy/">Privacy</a></p></footer></body></html>""")
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter

@@ -1,0 +1,34 @@
+name: Refresh OpenStreetMap camps
+on:
+  schedule:
+    - cron: "20 18 * * 1"   # Mondays 18:20 UTC. Does not deploy; a data commit on main triggers the existing 3-hourly workflow.
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: refresh-osm
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pyosmium
+        run: python3 -m pip install osmium
+      - name: Rebuild Victorian camps and towns
+        run: python3 scripts/build_osm.py
+      - name: Commit OSM data if it changed
+        run: |
+          set -euo pipefail
+          git add data/osm-camps-vic.json data/osm-camps-vic.csv data/vic-towns.json
+          if git diff --cached --quiet; then
+            echo "No OSM data changes."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Refresh Victorian OpenStreetMap camps and towns"
+          git push

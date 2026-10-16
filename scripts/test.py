@@ -85,7 +85,10 @@ for r, _, fs in os.walk(D):
     if not f.endswith((".html", ".json", ".txt", ".js")): continue
     blob = open(os.path.join(r, f), encoding="utf-8").read().lower()
     for needle in banned:
-      if needle.lower() in blob:
+      # "osom" is the VicEmergency feed name. A word match keeps camp names such as Possum.
+      if needle == "osom":
+        if re.search(r"\bosom\b", blob): bad.append((os.path.join(r, f)[len(D):], needle))
+      elif needle.lower() in blob:
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
   if key in feed: bad.append(("status.json", key))
@@ -183,4 +186,88 @@ if (src.includes(", 502)") || src.includes("status: 502")) { console.error("stil
 """], cwd=root, capture_output=True, text=True)
 if confirm_api.returncode != 0:
   bad.append(("confirm api", (confirm_api.stderr or confirm_api.stdout)[-400:]))
+
+CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0)"
+about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
+if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
+if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
+for bit in ("Search by town", 'id="town-search"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", "Rest area (overnight)"):
+  if bit not in home: bad.append(("/", "missing " + bit))
+if "vic-towns.json" in home: bad.append(("/", "towns JSON should be lazy-loaded, not inlined"))
+towns_path = os.path.join(D, "vic-towns.json")
+if not os.path.isfile(towns_path): bad.append(("vic-towns.json", "missing"))
+else:
+  towns = json.load(open(towns_path, encoding="utf-8"))
+  if not towns or any(k not in towns[0] for k in ("name", "lat", "lon", "place", "rank")): bad.append(("vic-towns.json", "shape"))
+  if not any(t.get("rank") == 0 for t in towns) or not any(t.get("rank") == 1 for t in towns): bad.append(("vic-towns.json", "ranks"))
+  sample = json.dumps(towns[:2], ensure_ascii=False)
+  if sample and sample in home: bad.append(("/", "towns inlined"))
+if 'fetch("/vic-towns.json")' not in mj or "setView" not in mj or ", 10)" not in mj: bad.append(("map.js", "town search"))
+if "slice(0, 15)" not in mj: bad.append(("map.js", "nearest camps"))
+for flag in ("self", "dogs", "dump", "showers", "tents", "caravans", "motorhomes"):
+  if f'data-flag="{flag}"' not in home: bad.append(("/", "toggle " + flag))
+osm = [c for c in feed["camps"] if c.get("source") == "osm"]
+dv = [c for c in feed["camps"] if c.get("source") == "datavic"]
+if not osm or not dv: bad.append(("status.json", "both sources"))
+if any(c.get("nearby_closures") for c in osm) or any(c.get("status") != "check" for c in osm) or any(c.get("closure") for c in osm):
+  bad.append(("status.json", "osm must not get parks vic closures"))
+if str(len(feed["camps"])) not in home: bad.append(("/", "home count"))
+shown = {"call": False, "operator": False, "review": False, "max": False, "unknown": False, "tel": False, "https": False}
+for camp in osm:
+  page = os.path.join(D, "vic", "camp", camp["slug"], "index.html")
+  if not os.path.isfile(page):
+    bad.append((camp["slug"], "missing osm page")); continue
+  html_page = open(page, encoding="utf-8").read()
+  if "no road or track closures were found" in html_page: bad.append((camp["slug"], "false road claim"))
+  if camp.get("category") == "Showground":
+    if "Call first" not in html_page: bad.append((camp["slug"], "call first"))
+    else: shown["call"] = True
+  elif "Conditions: check with operator" not in html_page:
+    bad.append((camp["slug"], "operator conditions"))
+  else:
+    shown["operator"] = True
+  if camp.get("needs_review"):
+    if "Unverified, help us confirm" not in html_page or f'/report/?camp={camp["slug"]}' not in html_page:
+      bad.append((camp["slug"], "unverified"))
+    else:
+      shown["review"] = True
+  if "Max nights:" in html_page or "Max stay: ask operator" in html_page: shown["max"] = True
+  else: bad.append((camp["slug"], "max stay"))
+  if "Dogs: Unknown" in html_page or "Dump point: Unknown" in html_page or "Showers: Unknown" in html_page: shown["unknown"] = True
+  if 'href="tel:' in html_page: shown["tel"] = True
+  if ">Website</a>" in html_page: shown["https"] = True
+for key in shown:
+  if not shown[key]: bad.append(("osm pages", "missing example of " + key))
+for r, _, fs in os.walk(D):
+  for f in fs:
+    if "osm-camps" in f: bad.append((f, "combined dataset published"))
+if "osm-camps-vic" in home or "osm-camps-vic" in about: bad.append(("download", "combined dataset linked"))
+import classify, towns as townmod, build_osm
+if classify.category_for({"name": "Echuca Showgrounds", "amenity": "showground"}, "Echuca Showgrounds") != "Showground": bad.append(("classify", "showground"))
+if classify.category_for({"tourism": "camp_site", "fee": "no", "name": "Apex"}, "Apex") != "Free": bad.append(("classify", "free"))
+if classify.category_for({"tourism": "camp_site", "fee": "donation", "name": "Mill"}, "Mill") != "Donation": bad.append(("classify", "donation"))
+if classify.category_for({"tourism": "camp_site", "operator": "Campaspe Shire Council", "fee": "no", "name": "Park"}, "Park") != "Council park": bad.append(("classify", "council"))
+if classify.category_for({"tourism": "camp_site", "owner": "City of Ballarat", "operator": "Big4 Parks", "name": "Lake"}, "Lake") != "Council park (leased)": bad.append(("classify", "leased"))
+if classify.category_for({"highway": "rest_area", "camping": "yes", "name": "Night Rest Area"}, "Night Rest Area") != "Rest area (overnight)": bad.append(("classify", "rest"))
+if classify.accept_feature({"highway": "rest_area", "name": "Day use"}): bad.append(("classify", "day rest area"))
+if classify.classify({"tourism": "camp_site", "name": "Quiet"}, "Quiet")["dogs"] is not None: bad.append(("classify", "unknown dogs"))
+if classify.max_nights({"maxstay": "48 hours"}) != 2 or classify.max_nights({"maxstay": "3 nights"}) != 3: bad.append(("classify", "max nights"))
+if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.place_rank({"place": "locality", "name": "X"}) != 1: bad.append(("towns", "rank"))
+if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
+corr_path = os.path.join(root, "data", "manual-corrections.json")
+before = os.path.getmtime(corr_path)
+kept = build_osm.apply_corrections([{"osm_id": "node/1", "name": "A"}, {"osm_id": "node/2", "name": "B"}], {"drop": ["node/1"], "overrides": {"node/2": {"category": "Free"}}})
+if [c["osm_id"] for c in kept] != ["node/2"] or kept[0]["category"] != "Free": bad.append(("corrections", "apply"))
+if os.path.getmtime(corr_path) != before: bad.append(("corrections", "file overwritten"))
+osm_src = open(os.path.join(root, "scripts", "build_osm.py"), encoding="utf-8").read()
+if "manual-corrections.json" not in osm_src or re.search(r"open\(\s*CORRECTIONS\s*,\s*[\"']w", osm_src): bad.append(("build_osm.py", "corrections write"))
+refresh = open(os.path.join(root, ".github", "workflows", "refresh-osm.yml"), encoding="utf-8").read()
+if "wrangler" in refresh or "pages deploy" in refresh or "--branch=main" in refresh: bad.append(("refresh-osm.yml", "must not deploy"))
+add = refresh.split("git add", 1)[1].split("git commit", 1)[0]
+if "manual-corrections" in add or "osm-camps-vic.json" not in add or "vic-towns.json" not in add: bad.append(("refresh-osm.yml", "git add"))
+if "20 18 * * 1" not in refresh: bad.append(("refresh-osm.yml", "weekly schedule"))
+preview = open(os.path.join(root, ".github", "workflows", "preview-more-sites.yml"), encoding="utf-8").read()
+if "feature/more-sites" not in preview or "--branch=main" in preview or 'branches: [main]' in preview: bad.append(("preview-more-sites.yml", "branch"))
+if 'if [ "$branch" = "main" ]' not in preview: bad.append(("preview-more-sites.yml", "refuse main"))
+if "feature/more-sites" in wf or "17 */3 * * *" not in wf: bad.append(("build-deploy.yml", "production schedule"))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)

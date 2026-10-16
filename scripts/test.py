@@ -190,6 +190,10 @@ if confirm_api.returncode != 0:
 CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0)"
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
+if "Other states coming soon" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
+  bad.append(("/", "banner"))
+if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or 'justify-content:flex-end' not in home:
+  bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
 for bit in ("Search by town", 'id="town-search"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"'):
   if bit not in home: bad.append(("/", "missing " + bit))

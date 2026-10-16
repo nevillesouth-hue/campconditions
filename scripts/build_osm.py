@@ -7,7 +7,9 @@ no overnight indication, and private or disused sites. DataVic wins: drop an OSM
 within 300 m, or within 3 km when the names share a word.
 
 data/manual-corrections.json is only read. A missing file is an empty overlay and is
-never created.
+never created. The overlay is a dict keyed by osm_id: exclusions remove sites,
+other records override fields, and keys starting with "new:" add sites (they carry
+their own lat/lon). A legacy {"drop", "overrides"} object is still accepted.
 """
 import csv
 import gzip
@@ -33,7 +35,8 @@ BBOX = (140.90, -39.30, 150.10, -33.90)
 UA = "CampConditions.au/0.1 (+https://campconditions.au)"
 STOP = {"camp", "camping", "ground", "area", "site", "reserve", "the", "park", "caravan", "campground"}
 FIELDS = ["name", "lat", "lon", "category", "suits", "self_contained_only", "max_nights", "dogs", "dump_point",
-          "showers", "toilets", "phone", "email", "website", "operator", "label", "osm_id", "needs_review"]
+          "showers", "toilets", "phone", "email", "website", "operator", "label", "osm_id", "needs_review",
+          "description", "source_url", "checked_date", "water_tap", "fee_type", "booking", "access"]
 
 
 def metres(lat1, lon1, lat2, lon2):
@@ -93,20 +96,66 @@ def load_corrections(path=CORRECTIONS):
     return data if isinstance(data, dict) else {}
 
 
+_SKIP = {"exclude", "new", "reason", "coords_approx"}
+
+
+def _legacy_corrections(corrections):
+    return isinstance(corrections, dict) and ("drop" in corrections or "overrides" in corrections)
+
+
 def apply_corrections(camps, corrections):
-    drop = set(corrections.get("drop") or [])
-    overrides = corrections.get("overrides") or {}
+    """Overlay corrections onto extracted camps. Never writes the corrections file.
+
+    Legacy shape: {"drop": [osm_id], "overrides": {osm_id: {fields}}}.
+    Current shape: {osm_id: {fields}}. A truthy exclude removes the site. Other
+    fields replace the extracted camp. Keys starting with "new:" (or records
+    flagged new) are added when they have a name and coordinates. Applying the
+    overlay twice does not duplicate new sites.
+    """
+    corrections = corrections or {}
+    if not isinstance(corrections, dict):
+        return list(camps)
+    if _legacy_corrections(corrections):
+        drop = set(corrections.get("drop") or [])
+        overrides = corrections.get("overrides") or {}
+        kept = []
+        for camp in camps:
+            osm_id = camp.get("osm_id")
+            if osm_id in drop:
+                continue
+            extra = overrides.get(osm_id)
+            if isinstance(extra, dict) and extra:
+                camp = dict(camp)
+                camp.update(extra)
+                camp["osm_id"] = osm_id
+            kept.append(camp)
+        return kept
+    excluded = {key for key, fields in corrections.items() if isinstance(fields, dict) and fields.get("exclude")}
+    seen = set()
     kept = []
     for camp in camps:
         osm_id = camp.get("osm_id")
-        if osm_id in drop:
+        if osm_id in excluded:
             continue
-        extra = overrides.get(osm_id)
-        if extra:
+        extra = corrections.get(osm_id)
+        if isinstance(extra, dict):
             camp = dict(camp)
-            camp.update(extra)
+            camp.update({k: v for k, v in extra.items() if k not in _SKIP and v not in (None, "")})
             camp["osm_id"] = osm_id
         kept.append(camp)
+        if osm_id:
+            seen.add(osm_id)
+    for key, fields in corrections.items():
+        if not isinstance(fields, dict) or fields.get("exclude") or key in seen:
+            continue
+        if not (str(key).startswith("new:") or fields.get("new")):
+            continue
+        if not fields.get("name") or "lat" not in fields or "lon" not in fields:
+            continue
+        row = {k: v for k, v in fields.items() if k not in _SKIP and v not in (None, "")}
+        row["osm_id"] = key
+        kept.append(row)
+        seen.add(key)
     return kept
 
 

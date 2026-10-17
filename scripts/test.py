@@ -272,7 +272,7 @@ if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or a
 if "© State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0" not in home or "Explore Outdoors" not in about: bad.append(("credit", "explore outdoors"))
 if "Covering Victoria now" not in home or "Other states coming soon" not in home or 'class="soon"' not in home or "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
   bad.append(("/", "banner"))
-if 'alt="Optimum Quest for Big Things logo"' not in home or 'src="/optimum-quest-logo.webp"' not in home or 'width="192" height="192"' not in home:
+if 'alt="Optimum Quest for Big Things logo"' not in home or 'src="/optimum-quest-logo.webp"' not in home or 'width="192" height="192"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
 logo = os.path.join(D, "optimum-quest-logo.webp")

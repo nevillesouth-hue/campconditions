@@ -275,8 +275,9 @@ if "Covering Victoria now" not in home or "Other states coming soon" not in home
 if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or 'justify-content:flex-end' not in home:
   bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
-for bit in ("Search by town", 'id="town-search"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"', 'value="Pub stay"', 'value="Paid – Parks Victoria (book ahead)"'):
+for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"', 'value="Pub stay"', 'value="Paid – Parks Victoria (book ahead)"'):
   if bit not in home: bad.append(("/", "missing " + bit))
+if 'placeholder="Search by town"' in home: bad.append(("/", "old town placeholder"))
 if "vic-towns.json" in home: bad.append(("/", "towns JSON should be lazy-loaded, not inlined"))
 towns_path = os.path.join(D, "vic-towns.json")
 if not os.path.isfile(towns_path): bad.append(("vic-towns.json", "missing"))
@@ -288,6 +289,8 @@ else:
   if sample and sample in home: bad.append(("/", "towns inlined"))
 if 'fetch("/vic-towns.json")' not in mj or "setView" not in mj or ", 10)" not in mj: bad.append(("map.js", "town search"))
 if "slice(0, 15)" not in mj: bad.append(("map.js", "nearest camps"))
+for bit in ("slice(0, 12)", "openPopup", "zoomToShowLayer", "ArrowDown", "aria-activedescendant", "hit-tag", 'kind === "camp"', 'replace(/[^a-z0-9]+/g, " ")', "regionName"):
+  if bit not in mj: bad.append(("map.js", "camp search " + bit))
 for flag in ("self", "dogs", "dump", "showers", "tents", "caravans", "motorhomes"):
   if f'data-flag="{flag}"' not in home: bad.append(("/", "toggle " + flag))
 osm = [c for c in feed["camps"] if c.get("source") == "osm"]

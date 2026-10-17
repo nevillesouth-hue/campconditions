@@ -400,7 +400,7 @@ if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.plac
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
 before = os.path.getmtime(corr_path)
 corrections = json.load(open(corr_path, encoding="utf-8"))
-if not isinstance(corrections, dict) or len(corrections) != 1052 or "drop" in corrections or "overrides" in corrections:
+if not isinstance(corrections, dict) or len(corrections) != 1074 or "drop" in corrections or "overrides" in corrections:
   bad.append(("corrections", "shape"))
 if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 114: bad.append(("corrections", "exclusions"))
 if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 436:
@@ -452,6 +452,10 @@ must("abbotsford-bend", murray, ["<strong>Free</strong>", "Booking required:</st
 orchard = page_of("the-orchard")
 must("the-orchard", orchard, ["Toilets: Yes (sealed pump-out)", "Drinking water: No", "Water source: reliable access to water (not stated as drinkable)", "Booking required:</strong> No", "<strong>Free</strong>", "Caravans: Yes", "Access: 2WD access", "Area:</strong> Delatite Arm Reserve, Lake Eildon", "reserve-wide", "toilet from the DataVic Recreation Assets layer", "exploreoutdoors.vic.gov.au", "Checked against official source, 18 October 2026"])
 if "Tents: Yes" in orchard or "Matched via the Delatite" in orchard or "Operator: MANSFIELD" in orchard or "Resolved 18 Oct" in orchard: bad.append(("the-orchard", "suits, flag or raw maintainer"))
+tunnel = page_of("tunnel-bend")
+must("tunnel-bend", tunnel, ["Area:</strong> Upper Goulburn State Forest (Goulburn River)", "area-wide statements on the Explore Outdoors page upper-goulburn-and-big-river-camping, not site-specific"])
+burrum = page_of("lake-burrumbeet-south-1")
+must("lake-burrumbeet-south-1", burrum, ["Area:</strong> Lake Burrumbeet", "lake-wide statements on the Explore Outdoors Lake Burrumbeet page"])
 if "$" in orchard.split('id="newsletter"')[0]: bad.append(("the-orchard", "fee amount"))
 horseshoe = page_of("horseshoe-bend-camping-area")
 must("horseshoe-bend", horseshoe, ["Rubbish: take rubbish home", "Toilets: Yes", 'class="badge check"'])

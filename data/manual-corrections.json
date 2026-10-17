@@ -3025,7 +3025,9 @@
   "source_url": "https://www.mountalexander.vic.gov.au/Explore-the-shire/Parks-reserves-and-playgrounds/Taradale-Mineral-Springs-Reserve",
   "toilets": "yes",
   "needs_review": true,
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-18",
+  "fee_type": "free",
+  "source_url2": "https://spatial.infrastructure.gov.au/server/rest/services/Hosted/RADAR_Curated_Prod_restareas/FeatureServer/1 (National Formal Rest Area dataset, VIC state data)"
  },
  "n4010648828": {
   "name": "Hamilton Showgrounds",
@@ -5246,10 +5248,16 @@
   "operator": "Parks Victoria",
   "phone": "13 1963",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/barmah-lakes-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "description": "Bush camping area in Barmah National Park, managed by Parks Victoria.",
-  "needs_review": true
+  "needs_review": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/barmah-lakes-camping-area",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "yes (south toilet only open after flood damage; check before you go)",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach."
  },
  "new:barton-track-camping-area-2-gunbower-state-forest": {
   "name": "Barton Track Camping Area 2 (GUNBOWER STATE FOREST)",
@@ -5861,14 +5869,15 @@
   "operator": "Parks Victoria",
   "phone": "13 1963",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/cemetery-bend-west-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "description": "Bush camping area in Gunbower National Park, managed by Parks Victoria.",
   "needs_review": true,
   "lat": -35.756851,
   "lon": 144.309919,
   "category": "free",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/cemetery-bend-west-camping-area-2"
  },
  "n9429838469": {
   "name": "Channel Track Camping Area (Murray-Sunset National Park)",
@@ -6055,10 +6064,15 @@
   "operator": "Parks Victoria",
   "phone": "13 1963",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/faraway-(peppertree)-beach-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "description": "Bush camping area in Peppertree, managed by Parks Victoria.",
-  "needs_review": true
+  "needs_review": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/faraway-(peppertree)-beach-camping-area",
+  "fee_type": "free",
+  "booking": "no",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach."
  },
  "new:doc-grahams-hut-camping-area-gunbower-national-park": {
   "name": "Doc Grahams Hut Camping Area (Gunbower National Park)",
@@ -7422,14 +7436,15 @@
   "operator": "Parks Victoria",
   "phone": "13 1963",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/norris-bend-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "on lead",
   "description": "Bush camping area in Gunbower National Park, managed by Parks Victoria.",
   "needs_review": true,
   "lat": -35.969717,
   "lon": 144.495481,
   "category": "free",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/norris-bend-camping-area-1"
  },
  "new:norris-bend-camping-area-2-river-murray-reserve": {
   "name": "Norris Bend Camping Area 2 (River Murray Reserve)",
@@ -8291,14 +8306,20 @@
   "operator": "Parks Victoria",
   "phone": "13 1963",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/ulupna-beach-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "description": "Bush camping area in Barmah National Park, managed by Parks Victoria.",
   "needs_review": true,
   "lat": -35.830052,
   "lon": 145.436514,
   "category": "free",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/ulupna-beach-camping-area",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "yes (long drop)",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach."
  },
  "new:walla-walla-track-camping-area-murray-sunset-national-park": {
   "name": "Walla Walla Track Camping Area (Murray-Sunset National Park)",
@@ -8471,7 +8492,7 @@
   "name": "Angling Club Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/angling-club-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8479,13 +8500,14 @@
   "lon": 145.247084,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/angling-club-bend-camping-area"
  },
  "new:big-cutting-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Big Cutting Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/big-cutting-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8493,13 +8515,14 @@
   "lon": 145.221372,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/big-cutting-camping-area"
  },
  "new:black-gate-camping-area-1-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Black Gate Camping Area 1 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/black-gate-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8507,13 +8530,14 @@
   "lon": 145.00328,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/black-gate-camping-area-1"
  },
  "new:black-gate-camping-area-2-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Black Gate Camping Area 2 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/black-gate-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8521,13 +8545,14 @@
   "lon": 145.007257,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/black-gate-camping-area-2"
  },
  "new:black-gate-camping-area-3-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Black Gate Camping Area 3 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/black-gate-camping-area-3",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8535,13 +8560,14 @@
   "lon": 145.009823,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/black-gate-camping-area-3"
  },
  "new:blacks-bend-wyuna-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Blacks Bend Wyuna Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/blacks-bend-wyuna-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8549,13 +8575,14 @@
   "lon": 145.057314,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/blacks-bend-wyuna-camping-area"
  },
  "new:blacks-track-wyuna-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Blacks Track Wyuna Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/blacks-track-wyuna-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8563,13 +8590,14 @@
   "lon": 145.04682,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/blacks-track-wyuna-camping-area"
  },
  "new:bottle-neck-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Bottle Neck Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/bottle-neck-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8577,13 +8605,14 @@
   "lon": 145.356029,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/bottle-neck-bend-camping-area"
  },
  "new:cahills-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Cahills Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/cahills-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8591,13 +8620,14 @@
   "lon": 145.016216,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/cahills-bend-camping-area"
  },
  "new:carson-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Carson Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/carson-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8605,13 +8635,14 @@
   "lon": 145.361844,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/carson-bend-camping-area"
  },
  "new:cattle-crossing-sand-bar-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Cattle Crossing Sand Bar Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/cattle-crossing-sand-bar-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8619,13 +8650,14 @@
   "lon": 145.004758,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/cattle-crossing-sand-bar-camping-area"
  },
  "new:clarks-bend-sandbar-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Clarks Bend Sandbar Camping area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/clarks-bend-sandbar-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8633,13 +8665,14 @@
   "lon": 145.110992,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/clarks-bend-sandbar-camping-area"
  },
  "new:cooma-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Cooma Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/cooma-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8647,13 +8680,14 @@
   "lon": 145.357738,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/cooma-bend-camping-area"
  },
  "new:cooma-track-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Cooma Track Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/cooma-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8661,13 +8695,14 @@
   "lon": 145.353507,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/cooma-track-camping-area"
  },
  "new:dawson-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Dawson Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/dawson-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8675,13 +8710,14 @@
   "lon": 145.029646,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/dawson-bend-camping-area"
  },
  "new:dingwell-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Dingwell Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/dingwell-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8689,13 +8725,14 @@
   "lon": 145.036457,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/dingwell-bend-camping-area"
  },
  "new:double-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Double Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/double-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8703,13 +8740,14 @@
   "lon": 145.330938,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/double-bend-camping-area"
  },
  "new:emily-jane-track-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Emily Jane Track Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/emily-jane-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8717,13 +8755,14 @@
   "lon": 145.042152,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/emily-jane-track-camping-area"
  },
  "new:forest-bend-wyuna-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Forest Bend Wyuna Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/forest-bend-wyuna-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8731,13 +8770,14 @@
   "lon": 145.042762,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/forest-bend-wyuna-camping-area"
  },
  "new:greys-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Greys Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/greys-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8745,13 +8785,14 @@
   "lon": 145.231176,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/greys-bend-camping-area"
  },
  "new:hair-pin-bend-track-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Hair Pin Bend Track Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/hair-pin-bend-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8759,13 +8800,14 @@
   "lon": 145.308547,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/hair-pin-bend-track-camping-area"
  },
  "new:harlows-track-boat-ramp-and-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Harlows Track Boat Ramp and Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/harlows-track-boat-ramp-and-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8773,13 +8815,14 @@
   "lon": 145.286786,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/harlows-track-boat-ramp-and-camping-area"
  },
  "new:hughes-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Hughes Bend Camping Area (LOWER GOULBURN NATIONAL PARK, Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/hughes-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in LOWER GOULBURN NATIONAL PARK, managed by Parks Victoria.",
@@ -8787,13 +8830,14 @@
   "lon": 145.32418,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/hughes-bend-camping-area"
  },
  "new:jack-pell-sandbar-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Jack Pell Sandbar Camping area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/jack-pell-sandbar-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8801,13 +8845,14 @@
   "lon": 145.197817,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/jack-pell-sandbar-camping-area"
  },
  "new:levee-bank-hole-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Levee Bank Hole Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/levee-bank-hole-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8815,13 +8860,14 @@
   "lon": 145.33143,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/levee-bank-hole-camping-area"
  },
  "new:mccrackens-bend-camping-area-1-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "McCrackens Bend Camping Area 1 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/mccrackens-bend-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8829,13 +8875,14 @@
   "lon": 145.362373,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/mccrackens-bend-camping-area-1"
  },
  "new:mccrackens-bend-camping-area-2-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "McCrackens Bend Camping Area 2 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/mccrackens-bend-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8843,13 +8890,14 @@
   "lon": 145.360107,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/mccrackens-bend-camping-area-2"
  },
  "new:mceniff-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "McEniff Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/mceniff-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8857,13 +8905,14 @@
   "lon": 145.301829,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/mceniff-bend-camping-area"
  },
  "new:mckerrow-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "McKerrow Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/mckerrow-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8871,13 +8920,14 @@
   "lon": 144.974712,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/mckerrow-bend-camping-area"
  },
  "new:mcrackens-bend-camping-area-3-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "McRackens Bend Camping area 3 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/mcrackens-bend-camping-area-3",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8885,13 +8935,14 @@
   "lon": 145.356383,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/mcrackens-bend-camping-area-3"
  },
  "new:medlands-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Medlands Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/medlands-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8899,13 +8950,14 @@
   "lon": 145.337423,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/medlands-bend-camping-area"
  },
  "new:mill-bend-hole-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Mill Bend Hole Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/mill-bend-hole-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8913,13 +8965,14 @@
   "lon": 145.227581,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/mill-bend-hole-camping-area"
  },
  "new:millers-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Millers Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/millers-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8927,13 +8980,14 @@
   "lon": 145.009808,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/millers-bend-camping-area"
  },
  "new:milne-track-camping-area-1-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Milne Track Camping Area 1 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/milne-track-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8941,13 +8995,14 @@
   "lon": 145.35314,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/milne-track-camping-area-1"
  },
  "new:milne-track-camping-area-2-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Milne Track Camping Area 2 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/milne-track-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -8955,13 +9010,14 @@
   "lon": 145.355424,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/milne-track-camping-area-2"
  },
  "new:munro-road-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Munro Road Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/munro-road-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8969,13 +9025,14 @@
   "lon": 145.12113,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/munro-road-camping-area"
  },
  "new:murrays-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Murrays Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/murrays-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8983,13 +9040,14 @@
   "lon": 145.340984,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/murrays-bend-camping-area"
  },
  "new:neck-bend-camping-area-loch-garry-lower-goulburn-national-park-loch-garry-wildlife-reserve-hunting-goulburn-river-heritage-river": {
   "name": "Neck Bend Camping Area Loch Garry (Lower Goulburn National Park, Loch Garry Wildlife Reserve (hunting), Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/neck-bend-camping-area-loch-garry",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -8997,13 +9055,14 @@
   "lon": 145.299947,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/neck-bend-camping-area-loch-garry"
  },
  "new:phillips-track-camping-area-goulburn-river-heritage-river-loch-garry-wildlife-reserve-hunting-lower-goulburn-national-park": {
   "name": "Phillips Track Camping Area (Goulburn River Heritage River, Loch Garry Wildlife Reserve (hunting), Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/phillips-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9011,13 +9070,14 @@
   "lon": 145.314897,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/phillips-track-camping-area"
  },
  "new:pogues-road-camping-area-1-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Pogues Road Camping Area 1 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/pogues-road-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9025,13 +9085,14 @@
   "lon": 145.262921,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/pogues-road-camping-area-1"
  },
  "new:pogues-road-camping-area-2-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Pogues Road Camping Area 2 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/pogues-road-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9039,13 +9100,14 @@
   "lon": 145.259628,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/pogues-road-camping-area-2"
  },
  "new:pump-hole-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Pump Hole Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/pump-hole-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9053,13 +9115,14 @@
   "lon": 145.240597,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/pump-hole-camping-area"
  },
  "new:reedy-swamp-camping-area-1-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Reedy Swamp Camping Area 1 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/reedy-swamp-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9067,13 +9130,14 @@
   "lon": 145.358887,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/reedy-swamp-camping-area-1"
  },
  "new:reedy-swamp-camping-area-2-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Reedy Swamp Camping Area 2 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/reedy-swamp-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9081,13 +9145,14 @@
   "lon": 145.360762,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/reedy-swamp-camping-area-2"
  },
  "new:reedy-swamp-camping-area-3-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Reedy Swamp Camping Area 3 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/reedy-swamp-camping-area-3",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9095,13 +9160,14 @@
   "lon": 145.361993,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/reedy-swamp-camping-area-3"
  },
  "new:ronnie-track-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Ronnie Track Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/ronnie-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9109,13 +9175,14 @@
   "lon": 145.214245,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/ronnie-track-camping-area"
  },
  "new:rooks-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Rooks Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/rooks-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9123,13 +9190,14 @@
   "lon": 145.259381,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/rooks-bend-camping-area"
  },
  "new:rooks-track-camping-area-1-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Rooks Track Camping Area 1 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/rooks-track-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9137,13 +9205,14 @@
   "lon": 145.26864,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/rooks-track-camping-area-1"
  },
  "new:rooks-track-camping-area-2-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Rooks Track Camping Area 2 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/rooks-track-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9151,13 +9220,14 @@
   "lon": 145.262157,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/rooks-track-camping-area-2"
  },
  "new:rushy-track-camping-areas-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Rushy Track Camping Areas (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/rushy-track-camping-areas",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9165,23 +9235,25 @@
   "lon": 144.986729,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/rushy-track-camping-areas"
  },
  "n5188247381": {
   "name": "Seven Rivers Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/seven-rivers-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/seven-rivers-camping-area"
  },
  "new:simpsons-bend-sandbar-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Simpsons Bend Sandbar Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/simpsons-bend-sandbar-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9189,13 +9261,14 @@
   "lon": 144.983165,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/simpsons-bend-sandbar-camping-area"
  },
  "new:sleeth-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Sleeth Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/sleeth-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9203,13 +9276,14 @@
   "lon": 145.254432,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/sleeth-bend-camping-area"
  },
  "new:snagging-track-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Snagging Track Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/snagging-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9217,13 +9291,14 @@
   "lon": 144.990044,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/snagging-track-camping-area"
  },
  "new:steens-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Steens Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/steens-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9231,13 +9306,14 @@
   "lon": 145.271367,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/steens-bend-camping-area"
  },
  "new:steeps-track-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Steeps Track Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/steeps-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9245,13 +9321,14 @@
   "lon": 145.319673,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/steeps-track-camping-area"
  },
  "new:steps-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Steps Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/steps-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9259,13 +9336,14 @@
   "lon": 145.322416,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/steps-bend-camping-area"
  },
  "new:the-big-bend-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "The Big Bend Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-big-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9273,13 +9351,14 @@
   "lon": 145.330294,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/the-big-bend-camping-area"
  },
  "new:thorntons-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Thorntons Bend Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/thorntons-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9287,13 +9366,14 @@
   "lon": 145.336732,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/thorntons-bend-camping-area"
  },
  "new:track-1-loch-gary-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Track 1 Loch Gary Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/track-1-loch-gary-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9301,13 +9381,14 @@
   "lon": 145.311474,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/track-1-loch-gary-camping-area"
  },
  "new:track-2-loch-gary-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Track 2 Loch Gary Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/track-2-loch-gary-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9315,13 +9396,14 @@
   "lon": 145.311224,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/track-2-loch-gary-camping-area"
  },
  "new:vearings-lane-camping-area-1-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Vearings Lane Camping Area 1 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/vearings-lane-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9329,13 +9411,14 @@
   "lon": 145.109723,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/vearings-lane-camping-area-1"
  },
  "new:vearings-lane-camping-area-2-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Vearings Lane Camping Area 2 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/vearings-lane-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9343,33 +9426,36 @@
   "lon": 145.104888,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/vearings-lane-camping-area-2"
  },
  "n7540080142": {
   "name": "Waites Lane Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/waites-lane-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/waites-lane-camping-area"
  },
  "n7540080141": {
   "name": "Watson Road Camping Areas (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/watson-road-camping-areas",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/watson-road-camping-areas"
  },
  "new:woolshed-bend-camping-area-lower-goulburn-national-park-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Woolshed Bend Camping Area (LOWER GOULBURN NATIONAL PARK, Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/woolshed-bend-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in LOWER GOULBURN NATIONAL PARK, managed by Parks Victoria.",
@@ -9377,13 +9463,14 @@
   "lon": 145.327488,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/woolshed-bend-camping-area"
  },
  "new:wyuna-track-camping-area-1-lower-goulburn-national-park-goulburn-river-heritage-river": {
   "name": "Wyuna Track Camping Area 1 (Lower Goulburn National Park, Goulburn River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/wyuna-track-camping-area-1",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Lower Goulburn National Park, managed by Parks Victoria.",
@@ -9391,13 +9478,14 @@
   "lon": 145.08806,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/wyuna-track-camping-area-1"
  },
  "new:wyuna-track-camping-area-2-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Wyuna Track Camping Area 2 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/wyuna-track-camping-area-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9405,13 +9493,14 @@
   "lon": 145.084208,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/wyuna-track-camping-area-2"
  },
  "new:wyuna-track-camping-area-3-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Wyuna Track Camping Area 3 (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/wyuna-track-camping-area-3",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9419,13 +9508,14 @@
   "lon": 145.070887,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/wyuna-track-camping-area-3"
  },
  "new:yambuna-track-camping-area-goulburn-river-heritage-river-lower-goulburn-national-park": {
   "name": "Yambuna Track Camping Area (Goulburn River Heritage River, Lower Goulburn National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/yambuna-track-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Goulburn River Heritage River, managed by Parks Victoria.",
@@ -9433,7 +9523,8 @@
   "lon": 144.992946,
   "category": "free",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/yambuna-track-camping-area"
  },
  "n1298312458": {
   "name": "Aberfeldy River Camping Area (Baw Baw National Park, Aberfeldy River Heritage River)",
@@ -9473,11 +9564,12 @@
   "name": "Balley Hooley Camping Area (Snowy River National Park, Snowy River Heritage River)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/balley-hooley-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Snowy River National Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/balley-hooley-camping-area"
  },
  "new:balt-camp-wombat-lerderderg-national-park-wombat-state-forest": {
   "name": "Balt Camp (Wombat-Lerderderg National Park, WOMBAT STATE FOREST)",
@@ -9746,11 +9838,12 @@
   "name": "Bundaleer Bush Camping Area (Grampians (Gariwerd) National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/bundaleer-bush-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Grampians (Gariwerd, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/bundaleer-bush-camping-area"
  },
  "new:camerons-track-campground-pyrenees-range-state-forest": {
   "name": "Camerons Track Campground (PYRENEES RANGE STATE FOREST)",
@@ -9848,11 +9941,12 @@
   "name": "Campground C09 (Gippsland Lakes Coastal Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/campground-c09",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Gippsland Lakes Coastal Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/campground-c09"
  },
  "n7828170850": {
   "name": "Campground C10 (Gippsland Lakes Coastal Park)",
@@ -10028,11 +10122,12 @@
   "name": "Desert Discovery Walk - Kiata to Mallee Camp (Little Desert National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/desert-discovery-walk---kiata-to-mallee-camp",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Little Desert National Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/desert-discovery-walk---kiata-to-mallee-camp"
  },
  "n2035760366": {
   "name": "Eastern Tyers Camping Area (UNKNOWN, Baw Baw National Park)",
@@ -10156,31 +10251,34 @@
   "name": "Grant Historic Township Camping Area (Grant Historic Area)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/grant-historic-township-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "yes (off leash)",
   "needs_review": true,
   "description": "Camping area in Grant Historic Area, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/grant-historic-township-camping-area"
  },
  "n8543395225": {
   "name": "Great South West Walk - Mallee Camping Area (Discovery Bay Coastal Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---mallee-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Discovery Bay Coastal Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---mallee-camping-area"
  },
  "n1808391940": {
   "name": "Great South West Walk - Simsons Camping Area to Lake Mombeong Camping Area (Nelson Streamside Reserve, Glenelg River Heritage River, Discovery Bay Coastal Park, Lower Glenelg National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---simsons-camping-area-to-lake-mombeong-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Nelson Streamside Reserve, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---simsons-camping-area-to-lake-mombeong-camping-area"
  },
  "n9687187841": {
   "name": "Great South West Walk - Springs Camping Area to Trewalla Camping Area  (Discovery Bay Coastal Park)",
@@ -10196,21 +10294,23 @@
   "name": "Great South West Walk - Tarragal Camping Area to Springs Camping Area (Tarragal Education Area, Discovery Bay Coastal Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---tarragal-camping-area-to-springs-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Tarragal Education Area, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---tarragal-camping-area-to-springs-camping-area"
  },
  "n9687219942": {
   "name": "Great South West Walk - Trewalla Camping Area (Discovery Bay Coastal Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---trewalla-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Discovery Bay Coastal Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---trewalla-camping-area"
  },
  "new:gunnai-beach-campground-cape-conran-coastal-park": {
   "name": "Gunnai Beach Campground (Cape Conran Coastal Park)",
@@ -10244,11 +10344,12 @@
   "name": "Harrier Swamp Campground (Holey Plains State Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/harrier-swamp-campground",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Holey Plains State Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/harrier-swamp-campground"
  },
  "new:jimmy-creek-campground-grampians-gariwerd-national-park": {
   "name": "Jimmy Creek Campground (Grampians (Gariwerd) National Park)",
@@ -10385,11 +10486,12 @@
   "name": "Raymond Creek Falls Camping Area (Snowy River National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/raymond-creek-falls-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Snowy River National Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/raymond-creek-falls-camping-area"
  },
  "n2340335449": {
   "name": "Red Bluff Campground (Gippsland Lakes Coastal Park)",
@@ -10406,11 +10508,12 @@
   "name": "Round Swamp Camping Area (Wyperfeld National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/round-swamp-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Wyperfeld National Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/round-swamp-camping-area"
  },
  "new:runciman-road-north-camping-area-river-murray-reserve": {
   "name": "Runciman Road North Camping Area (River Murray Reserve)",
@@ -10530,21 +10633,23 @@
   "name": "Slaty Creek Camping Area No 2 (Creswick Regional Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/slaty-creek-camping-area-no-2",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "yes (on lead)",
   "needs_review": true,
   "description": "Camping area in Creswick Regional Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/slaty-creek-camping-area-no-2"
  },
  "w824454904": {
   "name": "Slaty Creek Camping Area No 3 (Creswick Regional Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/slaty-creek-camping-area-no-3",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "yes (on lead)",
   "needs_review": true,
   "description": "Camping area in Creswick Regional Park, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/slaty-creek-camping-area-no-3"
  },
  "new:snaggy-point-camping-area-1-river-murray-reserve-unknown": {
   "name": "Snaggy Point camping area 1 (River Murray Reserve, UNKNOWN)",
@@ -10616,11 +10721,12 @@
   "name": "Talbotville Historic Township Camping Area (Grant Historic Area)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/talbotville-historic-township-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "yes (off leash)",
   "needs_review": true,
   "description": "Camping area in Grant Historic Area, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/talbotville-historic-township-camping-area"
  },
  "n316598509": {
   "name": "Teddington Camping Area (Kara Kara National Park)",
@@ -10672,11 +10778,12 @@
   "name": "The Wattles Camping Area (Wimmera River Heritage River, Lake Hindmarsh Lake Reserve)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-wattles-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-18",
   "dogs": "no",
   "needs_review": true,
   "description": "Camping area in Wimmera River Heritage River, managed by Parks Victoria.",
-  "phone": "13 1963"
+  "phone": "13 1963",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/the-wattles-camping-area"
  },
  "new:thistle-plain-track-camping-area-river-murray-reserve": {
   "name": "Thistle Plain Track camping area (River Murray Reserve)",
@@ -10845,8 +10952,12 @@
   "toilets": "no",
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/cape-conran-coastal-park/where-to-stay/camping-in-cape-conran-coastal-park",
   "source_note": "No booking required; no toilets (nearest at Bemm River); 5 sites.",
-  "description": "Binn Beach Campground: camping area managed by Parks Victoria.",
-  "checked_date": "2026-10-17"
+  "description": "Small remote campground of five sites in coastal tea-tree at Cape Conran Coastal Park, with a sandy track over the dunes to the beach (good surf fishing). No bookings, first in first served. No toilets: the nearest toilets and shops are 7 km away at Bemm River. Be self-sufficient.",
+  "checked_date": "2026-10-18",
+  "booking": "no",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/cape-conran-coastal-park/where-to-stay/camping-in-cape-conran-coastal-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/cape-conran-coastal-park/where-to-stay/camping-in-cape-conran-coastal-park",
+  "operator": "Parks Victoria"
  },
  "n1808391746": {
   "toilets": "yes",
@@ -10872,8 +10983,10 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/where-to-stay/mueller-inlet-campground",
   "source_note": "Parks Victoria campground page: Mueller Inlet Campground.",
   "description": "Mueller Inlet Campground: camping area managed by Parks Victoria.",
-  "checked_date": "2026-10-17",
-  "fee_note": "book_ahead"
+  "checked_date": "2026-10-18",
+  "fee_note": "book_ahead",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/where-to-stay/mueller-inlet-campground",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/where-to-stay/mueller-inlet-campground"
  },
  "w242167583": {
   "toilets": "yes",
@@ -13631,7 +13744,8 @@
   "needs_review": true,
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-glut-picnic-area",
   "source_note": "Parks Victoria lists The Glut (Mount Buangor National Park) as a picnic area for day visits; camping is not mentioned. Possible exclusion: check before keeping as a campsite.",
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-18",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/the-glut-picnic-area"
  },
  "n1808391811": {
   "name": "Donald Lakeside Caravan Park",
@@ -13760,6 +13874,213 @@
  "n1808392205": {
   "source_url": "https://www.ararat.vic.gov.au/community/townships/willaura",
   "description": "Ararat Rural City Council describes the Willaura Recreation Reserve as having room to camp, with an outdoor pool in summer, tennis courts, a playground, shade trees and free barbecues. Other camping details are not published by the council.",
+  "checked_date": "2026-10-18"
+ },
+ "n7650872876": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach.",
+  "description": "Designated riverside camping area in Barmah National Park, managed by Parks Victoria. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n7650872874": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach.",
+  "description": "Designated riverside camping area in Barmah National Park, managed by Parks Victoria. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n13288767102": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach.",
+  "description": "Designated riverside camping area in Barmah National Park, managed by Parks Victoria. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n7650872878": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach.",
+  "description": "Designated riverside camping area in Barmah National Park, managed by Parks Victoria. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n7650872875": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach.",
+  "description": "Designated riverside camping area in Barmah National Park, managed by Parks Victoria. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n7650872881": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach.",
+  "description": "Designated riverside camping area in Barmah National Park, managed by Parks Victoria. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n7650872880": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "source_note": "Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas shown on park maps; campers fully self-sufficient; dogs and pets prohibited in the national park; toilets at Barmah Lakes and long-drop toilets at Ulupna Beach.",
+  "description": "Designated riverside camping area in Barmah National Park, managed by Parks Victoria. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n1808392185": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "description": "Bush camping along the creeks and river on Wallpolla Island in Murray-Sunset National Park. Free, no booking, first in first served; no designated sites or facilities. Access via the unsealed Old Mail Road: 2WD in dry weather only, 4WD recommended; gates close in floods.",
+  "needs_review": false,
+  "checked_date": "2026-10-18"
+ },
+ "n980292673": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "source_note": "Location is on Lindsay Island in Murray-Sunset NP (matched by coordinates, not named on the page). The PV page says Lindsay Island bush camping is free, no booking, first in first served, no designated areas.",
+  "description": "Devils Elbow: bush camping on Lindsay Island in Murray-Sunset National Park, near the SA border. Free, no booking, no facilities. Unsealed access: 2WD in dry weather only, 4WD recommended; tracks close in floods.",
+  "checked_date": "2026-10-18"
+ },
+ "n1676323193": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "source_note": "Location is on Lindsay Island in Murray-Sunset NP (matched by coordinates, not named on the page). The PV page says Lindsay Island bush camping is free, no booking, first in first served, no designated areas.",
+  "description": "Glassy Meadows: bush camping on Lindsay Island in Murray-Sunset National Park, near the SA border. Free, no booking, no facilities. Unsealed access: 2WD in dry weather only, 4WD recommended; tracks close in floods.",
+  "checked_date": "2026-10-18"
+ },
+ "w1361004609": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/murray---sunset-national-park/where-to-stay/camping-in-murray-sunset-national-park",
+  "source_note": "Location is on Lindsay Island in Murray-Sunset NP (matched by coordinates, not named on the page). The PV page says Lindsay Island bush camping is free, no booking, first in first served, no designated areas.",
+  "description": "Lindsay Point Campground: bush camping on Lindsay Island in Murray-Sunset National Park, near the SA border. Free, no booking, no facilities. Unsealed access: 2WD in dry weather only, 4WD recommended; tracks close in floods.",
+  "checked_date": "2026-10-18"
+ },
+ "n5235873634": {
+  "toilets": "yes",
+  "suits": "tent",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "operator": "Parks Victoria",
+  "description": "Walk-in camping area at JB Plain in Alpine National Park, between Hotham Village and Dinner Plain off the Great Alpine Road. Toilets, picnic tables and fireplaces.",
+  "checked_date": "2026-10-18"
+ },
+ "n316596701": {
+  "toilets": "yes",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/camping-with-your-horse-in-the-bogong-high-plains",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/camping-with-your-horse-in-the-bogong-high-plains",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "operator": "Parks Victoria",
+  "description": "Camping area with horse yards on the Bogong High Plains east of Falls Creek, Alpine National Park. Toilets, picnic tables and fireplaces; the yards can be booked through Parks Victoria (horse season 1 December to 30 April).",
+  "checked_date": "2026-10-18"
+ },
+ "w743755133": {
+  "toilets": "yes (basic)",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/camping-with-your-horse-in-the-bogong-high-plains",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/camping-with-your-horse-in-the-bogong-high-plains",
+  "operator": "Parks Victoria",
+  "description": "Popular horse camp on the Bogong High Plains in Alpine National Park with campsites, fireplaces, basic toilets and Parks Victoria horse yards (bookable). No dispersed camping within 200 m of Pretty Valley Road.",
+  "checked_date": "2026-10-18"
+ },
+ "n5235767464": {
+  "toilets": "yes (basic)",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/camping-with-your-horse-in-the-bogong-high-plains",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/camping-with-your-horse-in-the-bogong-high-plains",
+  "operator": "Parks Victoria",
+  "description": "Horse camp in the West Kiewa, Alpine National Park, with yards, campsites, fireplaces and basic toilets; low-elevation riding with access to the Bogong High Plains via Westons Spur.",
+  "checked_date": "2026-10-18"
+ },
+ "n508105972": {
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "operator": "Parks Victoria",
+  "access_notes": "4WD recommended (very rough for 2WD past Bennies)",
+  "description": "Camping area with facilities at Lake Cobbler in Alpine National Park (Wabonga Plateau / Mt Cobbler area). 4WD access recommended; the road is very rough for 2WD past Bennies.",
+  "checked_date": "2026-10-18"
+ },
+ "w243116210": {
+  "toilets": "no",
+  "suits": "tent",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/bunyip-state-park/where-to-stay/camping-in-bunyip-state-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/bunyip-state-park/where-to-stay/camping-in-bunyip-state-park",
+  "operator": "Parks Victoria",
+  "access_notes": "walk-in only (6 km from car park)",
+  "description": "Hike-in camp in an open grassy area near the Bunyip River, Bunyip State Park, about 6 km walk from the car park off Bunyip River Road. Shared picnic table, no toilet.",
+  "checked_date": "2026-10-18"
+ },
+ "n2707968028": {
+  "toilets": "no",
+  "suits": "tent",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/where-to-stay/northern-overnight-hikes",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/where-to-stay/northern-overnight-hikes",
+  "operator": "Parks Victoria",
+  "access_notes": "hike-in only; hiking permit needed",
+  "description": "One of five overnight hikers' campsites in the northern wilderness of Wilsons Promontory National Park. Campsite only, no facilities. Hikers need a permit (Hiker Self Assessment Form first) and must navigate with map and compass.",
+  "checked_date": "2026-10-18"
+ },
+ "n2909005261": {
+  "toilets": "yes",
+  "potable_water": "no",
+  "suits": "tent",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park/where-to-stay/camping-in-little-desert-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park/where-to-stay/camping-in-little-desert-national-park",
+  "operator": "Parks Victoria",
+  "description": "Yellow Gum Walkers Camp in Little Desert National Park, a walkers' camp with a toilet, fireplace and table. No drinking water; bring your own (limited non-potable tank water may be available).",
+  "checked_date": "2026-10-18"
+ },
+ "n316599378": {
+  "fee_type": "free",
+  "booking": "no",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/lower-glenelg-national-park/where-to-stay/great-south-west-walk",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/lower-glenelg-national-park/where-to-stay/great-south-west-walk",
+  "operator": "Parks Victoria",
+  "description": "Campground on T & W Road in Cobboboonee National Park, near the Great South West Walk. Free to use and no booking needed.",
+  "checked_date": "2026-10-18"
+ },
+ "w237352775": {
+  "toilets": "yes",
+  "dogs": "yes (on lead)",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/slaty-creek-camping-area-no-1",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/publication-uploads/creswick-regional-park-visitor-guide_18062021052524716.pdf",
+  "operator": "Parks Victoria",
+  "description": "Slaty Creek No. 1, the largest of three small camping and picnic areas on Slaty Creek near Creswick, the only camping in Creswick Regional Park. Toilets, suits larger groups, dogs on lead, fires only in the steel fireplaces, carry out your rubbish.",
+  "checked_date": "2026-10-18"
+ },
+ "w200144091": {
+  "toilets": "yes",
+  "source_url2": "https://spatial.infrastructure.gov.au/server/rest/services/Hosted/RADAR_Curated_Prod_restareas/FeatureServer/1 (National Formal Rest Area dataset, VIC state data)",
+  "operator": "Parks Victoria",
+  "description": "Camping ground at McKillops Bridge on the Snowy River (Snowy River National Park). Toilets listed in the national rest-area data.",
   "checked_date": "2026-10-18"
  }
 }

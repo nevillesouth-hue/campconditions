@@ -11,7 +11,7 @@ import json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
 SITE = "https://campconditions.au"
-CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0); Explore Outdoors © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0"
+CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Campground details from DataVic and Explore Outdoors © State of Victoria (DEECA), CC BY 4.0, and Parks Victoria."
 PV_LABEL = "Paid – Parks Victoria (book ahead)"
 OSM_CATEGORIES = ["Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
 CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL}
@@ -142,7 +142,7 @@ def apply_row_facts(camp, row):
     if booking_raw in (None, ""): booking_raw = row.get("booking")
     booking = facts.booking_label(booking_raw)
     if booking: camp["booking_label"] = booking
-    fee = facts.fee_label(row.get("fee_type"))
+    fee = facts.fee_label(row.get("fee_type"), row.get("fee_note"))
     if fee: camp["fee_label"] = fee
     if row.get("max_nights") not in (None, ""):
         nights = facts.nights_from(row.get("max_nights"))
@@ -156,6 +156,11 @@ def apply_row_facts(camp, row):
     if access and access.lower() not in ("unknown", "yes", "no"): camp["access_notes"] = access
     rubbish = facts.scrub_money(row.get("rubbish"))
     if rubbish: camp["rubbish"] = rubbish
+    for src, dest in (("vehicle_notes", "vehicle_notes"), ("accessibility", "accessibility"), ("self_sufficient_note", "self_sufficient_note"), ("area", "area"), ("source_scope", "source_scope")):
+        text = facts.scrub_money(row.get(src))
+        if text and text.lower() != "unknown":
+            if text[0].islower(): text = text[0].upper() + text[1:]
+            camp[dest] = text
     description = facts.scrub_money(row.get("description"))
     if description: camp["description"] = description
     for key in ("phone", "email"):
@@ -287,7 +292,7 @@ def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure
 SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> This site does not republish VicEmergency warnings. Always check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href="tel:000">000</a>. VicEmergency hotline <a href="tel:1800226226">1800 226 226</a>.</div>'
 def footer():
     return f"""<footer><p>{e(CREDIT)}</p>
-<p><strong>Data and attribution.</strong> Campground details: <a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a>, Department of Energy, Environment and Climate Action (DEECA), via DataVic, licensed under CC BY 4.0. Extra campground details: <a href="https://www.exploreoutdoors.vic.gov.au/">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
+<p><strong>Data and attribution.</strong> Campground details from DataVic (<a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a> and Recreation Assets) and <a href="https://www.exploreoutdoors.vic.gov.au/">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
 <p>Site built {STAMP}. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>"""
 def vicemergency_url(lat, lon):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
@@ -842,18 +847,23 @@ def facility_items(c, fill_unknown):
     if c.get("water_source"): items.append(("Water source", c["water_source"]))
     if c.get("water_tap"): items.append(("Water tap", c["water_tap"]))
     if c.get("rubbish"): items.append(("Rubbish", c["rubbish"]))
+    if c.get("accessibility"): items.append(("Accessibility", c["accessibility"]))
+    if c.get("vehicle_notes"): items.append(("Vehicles", c["vehicle_notes"]))
     return items
 def facts_html(c, fill_unknown):
     bits = []
     if c.get("fee_label"): bits.append(f"<p><strong>{e(c['fee_label'])}</strong></p>")
     if c.get("booking_label"): bits.append(f"<p><strong>Booking required:</strong> {e(c['booking_label'])}</p>")
+    if c.get("area"): bits.append(f"<p><strong>Area:</strong> {e(c['area'])}</p>")
     if c.get("access_notes"): bits.append(f"<p><strong>Access: {e(c['access_notes'])}</strong></p>")
+    if c.get("self_sufficient_note"): bits.append(f"<p><strong>{e(c['self_sufficient_note'])}</strong></p>")
     contact = contact_html(c)
     if contact: bits.append(contact)
     if c.get("max_stay"): bits.append(f"<p><strong>Max stay: {e(c['max_stay'])}</strong></p>")
     elif fill_unknown: bits.append("<p><strong>Max stay: ask operator</strong></p>")
     items = facility_items(c, fill_unknown)
     if items: bits.append("<h2>Facilities</h2><ul>" + "".join(f"<li>{label}: {e(value)}</li>" for label, value in items) + "</ul>")
+    if c.get("source_scope"): bits.append(f"<p>{e(c['source_scope'])}</p>")
     if c.get("checked_line"): bits.append(f"<p>{e(c['checked_line'])}</p>")
     if (c.get("source_url") or "").startswith("http"):
         bits.append(f'<p>Source: <a href="{e(c["source_url"])}">official source</a></p>')
@@ -902,7 +912,11 @@ for c in camps:
         parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(cl["reopen"][:10])) if cl.get("reopen") else ""}</div>')
         if cl.get("outdated"): parts.append(f'<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date ({e(cl["reopen"][:10])}) has passed. Check <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> or call 13 1963 before you go.</div>')
     if c["nearby_closures"]: parts.append("<h2>Road and track closures within 5 km</h2><ul>" + "".join(f'<li>{e(x["type"])}{": "+e(x["name"]) if x["name"] else ""}{" — "+e(x["reason"]) if x["reason"] else ""}{" · reopens "+e(x["reopens"]) if x.get("reopens") else ""}</li>' for x in c["nearby_closures"]) + "</ul>")
-    info = "".join(f"<h2>{h}</h2><p>{e(t)}</p>" for h, t in [("About", c["about"]), ("Camping", c["camping"]), ("Caravans and campervans", c["caravans"]), ("Getting there", c["access"])] if t)
+    info_bits = []
+    for heading, raw in (("About", c["about"]), ("Camping", c["camping"]), ("Caravans and campervans", c["caravans"]), ("Getting there", c["access"])):
+        text = facts.without_prices(raw)
+        if text: info_bits.append(f"<h2>{heading}</h2><p>{e(text)}</p>")
+    info = "".join(info_bits)
     if osm:
         condition = osm_blocks(c)
         title = f"{c['name']} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{c['name']} — check with the operator | CampConditions.au"
@@ -977,7 +991,7 @@ page("/report/", "Report campground conditions | CampConditions.au", "Tell other
 <script>const p=new URLSearchParams(location.search).get('camp');if(p)document.getElementById('camp').value=p.replace(/-/g,' ');</script>""")
 page("/about/", "About CampConditions.au", "Who we are and where our data comes from.",
  f"""<h1>About</h1><p>CampConditions.au is a free digest of Victorian campground conditions, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href="https://www.youtube.com/@OptimumQuestforBigThings">Optimum Quest for Big Things</a>.</p>{SAFETY}
-<h2>Sources</h2><p>{e(CREDIT)}</p><ul><li>DEECA Recreation Sites via DataVic (CC BY 4.0), with Parks Victoria / DEECA MapShare closures</li><li>Explore Outdoors, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0. Facility details only. Closure status stays with DataVic and Parks Victoria.</li><li>OpenStreetMap campgrounds and towns (ODbL). These pages say to check with the operator. They are not given Parks Victoria closure data.</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers. We don't publish a downloadable copy of the combined campground list.</p>""")
+<h2>Sources</h2><p>{e(CREDIT)}</p><ul><li>Campground details from DataVic and Explore Outdoors © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. This includes Recreation Sites, Recreation Assets and Parks Victoria site pages. Facility details only. Closure status stays with DataVic and Parks Victoria.</li><li>Parks Victoria / DEECA MapShare closures on Recreation Sites.</li><li>OpenStreetMap campgrounds and towns (ODbL). These pages say to check with the operator. They are not given Parks Victoria closure data.</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers. We don't publish a downloadable copy of the combined campground list.</p>""")
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
  """<h1>Privacy</h1><p>Last updated 16 October 2026.</p>
 <h2>Who we are</h2><p>CampConditions.au publishes a free weekly digest of Victorian campground conditions. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>

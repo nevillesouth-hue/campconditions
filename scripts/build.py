@@ -239,8 +239,8 @@ camps.sort(key=lambda c: c["name"].lower())
 # ---------- rendering ----------
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
 header{background:var(--g);color:#fff}.banner{max-width:980px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.45rem 1.25rem}
-.brand{color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.35rem;white-space:nowrap;max-width:100%}
-.logo{font-size:1em;line-height:1}
+.brand{color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;max-width:100%}
+.logo{width:1em;height:1em;flex:0 0 auto;display:block;object-fit:contain}
 nav{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:.35rem 1.05rem;margin-left:auto}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
 .soon{margin:0;padding:.7rem 1rem;text-align:center;font-size:1.7rem;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
@@ -281,6 +281,7 @@ a.btn,a.btn-alert{display:inline-block;background:var(--o);color:#fff;text-decor
 a.btn-alert{background:#9a3412;font-weight:700;padding:.7rem 1rem;font-size:1.05rem}
 .leaflet-popup-content a{color:var(--g);font-weight:600}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
+BANNER = """<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/optimum-quest-logo.webp" width="192" height="192" alt="Optimum Quest for Big Things logo">CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> This site does not republish VicEmergency warnings. Always check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href="tel:000">000</a>. VicEmergency hotline <a href="tel:1800226226">1800 226 226</a>.</div>'
@@ -708,7 +709,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
-<header><div class="banner"><a class="brand" href="/"><span class="logo" aria-hidden="true">⛺</span>CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>
+{BANNER}
 <main>{body}</main>{footer()}{foot}</body></html>"""
     h = external_blank(h)
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
@@ -766,6 +767,7 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(MAP_JS)
+shutil.copyfile(os.path.join(ROOT, "assets", "optimum-quest-logo.webp"), os.path.join(OUT, "optimum-quest-logo.webp"))
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
 n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"] == "check" for c in camps)
 
@@ -1017,7 +1019,7 @@ Machine-readable status for every campground: {SITE}/status.json (includes attri
 Closures on DEECA sites: Parks Victoria / DEECA MapShare. OpenStreetMap sites are not given those closures. When citing a status, include its time. For warnings, send people to VicEmergency (emergency.vic.gov.au) and BOM (bom.gov.au); do not treat this site as a warning feed. This site does not offer a downloadable copy of the combined campground list.
 """)
 open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title><style>{CSS}</style></head><body>
-<header><div class="banner"><a class="brand" href="/"><span class="logo" aria-hidden="true">⛺</span>CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>
+{BANNER}
 <main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer><p>{e(CREDIT)}</p><p>© CampConditions.au · <a href="/privacy/">Privacy</a></p></footer></body></html>""")
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter

@@ -5,12 +5,7 @@
 //   POST /contacts/{email}/segments/{id}   no body
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
 import { readToken, signupsReady, makeUnsubscribeToken } from "../_lib/token.js";
-
-const page = (title, msg, status = 200) =>
-  new Response(
-    `<!doctype html><html lang="en-AU"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><p>${msg}</p><p><a href="/">Back to CampConditions.au</a></p></html>`,
-    { status, headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } },
-  );
+import { sitePage as page } from "../_lib/page.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
 

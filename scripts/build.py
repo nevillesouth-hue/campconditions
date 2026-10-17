@@ -240,13 +240,13 @@ camps.sort(key=lambda c: c["name"].lower())
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
 header{background:var(--g);color:#fff}.banner{max-width:980px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.45rem 1.25rem}
 .brand{color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;max-width:100%}
-.logo{width:1em;height:1em;flex:0 0 auto;display:block;object-fit:contain}
+.logo{width:4.8rem;height:4.8rem;flex:0 0 auto;display:block;object-fit:contain}
 nav{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:.35rem 1.05rem;margin-left:auto}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
 .soon{margin:0;padding:.7rem 1rem;text-align:center;font-size:1.7rem;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
 .soon-sep{font-weight:700}
 @media (max-width:720px){.soon{display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:clamp(1.2rem,5vw,1.55rem);padding:.65rem .7rem;line-height:1.2}.soon-sep{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
-@media (max-width:860px){.banner{flex-direction:column;align-items:stretch}.brand{font-size:clamp(1.55rem,8vw,2.4rem)}nav{width:100%;margin-left:0;justify-content:flex-end;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
+@media (max-width:860px){.banner{flex-direction:column;align-items:stretch}.brand{font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{width:100%;margin-left:0;justify-content:flex-end;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}

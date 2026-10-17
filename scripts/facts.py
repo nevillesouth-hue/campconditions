@@ -23,6 +23,15 @@ def scrub_money(value):
     return re.sub(r"\s+", " ", text).strip(" ;,-")
 
 
+def without_prices(value):
+    """Drop any sentence that states a dollar amount, then scrub leftovers."""
+    text = str(value or "").strip()
+    if not text or "$" not in text:
+        return text
+    kept = [part for part in re.split(r"(?<=[.!?])\s+", text) if "$" not in part]
+    return scrub_money(" ".join(kept))
+
+
 def yn_flag(value):
     if value is True or value is False:
         return value
@@ -160,12 +169,25 @@ def booking_label(value):
     return ""
 
 
-def fee_label(value):
+def fee_label(value, fee_note=None):
+    """Map fee_type, and fee_note when the site is paid. Never a dollar amount.
+
+    book_ahead, pay_on_site and permit are the only notes we show. A paid site
+    with no note says to contact the operator. Free stays Free even if a note
+    was left on the record.
+    """
     text = str(value or "").strip().lower()
+    note = str(fee_note or "").strip().lower()
     if text == "free":
         return "Free"
-    if text == "paid":
-        return "Paid – book ahead"
     if text == "donation":
         return "Donation"
-    return ""
+    if text != "paid":
+        return ""
+    if note == "book_ahead":
+        return "Paid – book ahead"
+    if note == "pay_on_site":
+        return "Fee payable on site"
+    if note == "permit":
+        return "Permit required"
+    return "Paid – contact for details"

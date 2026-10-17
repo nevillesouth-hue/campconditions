@@ -150,7 +150,8 @@
   "description": "Lakeside camping a kilometre from Watchem with 20 powered sites, a camp kitchen, laundry and new amenities. Bookings via the caretaker.",
   "source_url": "https://www.visitbuloke.com.au/attractions-in-buloke/watchem-lake",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "n11532511190": {
   "phone": "03 5350 2204",
@@ -199,7 +200,8 @@
   "website": "https://www.mornpen.vic.gov.au/Activities/Camping/Book-a-campsite",
   "source_url": "https://www.mornpen.vic.gov.au/Activities/Camping/Book-a-campsite",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w1113322081": {
   "fee_type": "paid",
@@ -209,7 +211,8 @@
   "description": "Seasonal Rosebud foreshore section run by the Shire; book online, no pets.",
   "source_url": "https://www.mornpen.vic.gov.au/Activities/Camping/Book-a-campsite",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w1113332209": {
   "fee_type": "paid",
@@ -219,7 +222,8 @@
   "description": "Seasonal Rosebud foreshore section run by the Shire; book online, no pets.",
   "source_url": "https://www.mornpen.vic.gov.au/Activities/Camping/Book-a-campsite",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w1114881513": {
   "fee_type": "paid",
@@ -229,7 +233,8 @@
   "description": "Seasonal Rosebud foreshore section run by the Shire; book online, no pets.",
   "source_url": "https://www.mornpen.vic.gov.au/Activities/Camping/Book-a-campsite",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "new:henty-park-rv-parking-portland": {
   "name": "Henty Park RV parking, Portland",
@@ -376,7 +381,8 @@
   "description": "Committee-run Crown reserve on the Loddon River with toilets, showers and fire pits; year-round camping, fees collected on site.",
   "source_url": "https://www.loddon.vic.gov.au/For-residents/Community-support/Community-Directory/Newbridge-Recreation-Reserve",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "pay_on_site"
  },
  "n1808392216": {
   "name": "Wunghnu Recreation Reserve",
@@ -468,7 +474,8 @@
   "description": "Shire-run park on Yarriambiack Creek with powered and unpowered sites, cabins, BBQs and a walking track; book online.",
   "source_url": "https://www.yarriambiack.vic.gov.au/Business/Business-Directory/Warracknabeal-Caravan-Park",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w559730291": {
   "category": "council_park",
@@ -483,7 +490,8 @@
   "description": "Small reserve beside the Gellibrand River 6 km from the Twelve Apostles, run by the Great Ocean Road Coast and Parks Authority; powered and unpowered sites, hot showers, camp kitchen; dogs and campfires allowed; bookings essential.",
   "source_url": "https://www.corangamite.vic.gov.au/Places-and-Events/Parks-sport-recreation/Princetown-Rec-Reserve",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w489190015": {
   "category": "council_park",
@@ -644,7 +652,8 @@
   "description": "Large Shire-run foreshore park on the Mallacoota inlet; bookings through the park's own site.",
   "source_url": "https://www.eastgippsland.vic.gov.au/caravan-parks/mallacoota-foreshore-holiday-park",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "n1808392135": {
   "category": "council_park",
@@ -658,7 +667,8 @@
   "description": "Small Shire park just off the Great Alpine Road with powered and unpowered sites, showers, a big covered fireplace area and playground; book and check in at the general store.",
   "source_url": "https://www.eastgippsland.vic.gov.au/caravan-parks/swifts-creek-caravan-park",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w225051932": {
   "category": "council_park",
@@ -773,7 +783,8 @@
   "description": "Riverside reserve on the Wannon at Cavendish with powered and unpowered sites, showers and a camp kitchen; book powered sites ahead.",
   "source_url": "https://www.visitgrampians.com.au/products/cavendish-on-wannon-campground",
   "needs_review": true,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w70517468": {
   "category": "council_park",
@@ -992,7 +1003,8 @@
   "description": "Reserve park at Yarra Junction with caravan and camp sites, amenities, laundry and camp kitchens; book online. Management type to confirm.",
   "source_url": "https://www.doonreserve.com.au/camping",
   "needs_review": true,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "n4585081522": {
   "category": "free",
@@ -1016,7 +1028,8 @@
   "description": "No-frills overnight area for self-contained RVs at the Benalla showgrounds (Cecil St gate); 15 spaces, honesty box, no bookings, no tents; closed around show week in October.",
   "source_url": "https://www.benallashow.com/index.php/rv-camping/",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "pay_on_site"
  },
  "w125450739": {
   "fee_type": "paid",
@@ -1040,7 +1053,8 @@
   "description": "Maydale Reserve showgrounds by the Wimmera River with bookable camp sites; free stays possible for event volunteers. Phone ahead for the gate code after hours.",
   "source_url": "https://horshamshow.com.au/facilities/",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w182488117": {
   "exclude": "Bendigo show society: no casual camping; amenities closed outside events (public dump point and water at Holmes Rd)",
@@ -1059,7 +1073,8 @@
   "description": "Bookable camping for vans, RVs and tents at Geelong Showgrounds in East Geelong; closed through October for the Royal Geelong Show.",
   "source_url": "https://www.geelongshowgrounds.com.au/camping/",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w52305483": {
   "fee_type": "paid",
@@ -1106,7 +1121,8 @@
   "description": "Kyabram show society takes caravan bookings at the showground (about 13 powered and 15 unpowered sites), mainly around events. Call first.",
   "source_url": "https://www.showmanager.com.au/activity/5019",
   "needs_review": true,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-10-16",
+  "fee_note": "book_ahead"
  },
  "w222752716": {
   "description": "Euroa Agricultural Society grounds. The Society reports the showgrounds are being used as a BlazeAid volunteer recovery camp, so public overnight stays are unlikely for now. Call first.",
@@ -2133,7 +2149,8 @@
   "description": "Committee-run lakeside camping in Green Lake Regional Park, 10 km from Sea Lake, with powered and unpowered sites, hot showers, toilets, laundry, BBQs and boat ramp. First in, no bookings for sites. No drinking water; nearest dump point is in Sea Lake.",
   "source_url": "https://greenlakeregionalpark.com.au/",
   "needs_review": false,
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "pay_on_site"
  },
  "new:tchum-lake-camping-birchip": {
   "name": "Tchum Lake camping, Birchip",
@@ -2176,7 +2193,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Wingan Inlet Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Wingan Inlet Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n316596637": {
   "name": "Shipwreck Creek Campground - Croajingolong NP",
@@ -2190,7 +2208,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Shipwreck Creek Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Shipwreck Creek Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n316596877": {
   "name": "Thurra River Campground - Croajingolong NP",
@@ -2204,7 +2223,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Thurra River Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Thurra River Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n316598091": {
   "name": "Lake Mournpall Campground - Hattah-Kulkyne NP",
@@ -2218,7 +2238,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Lake Mournpall Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Lake Mournpall Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n316598097": {
   "name": "Lake Hattah Campground - Hattah-Kulkyne NP",
@@ -2232,7 +2253,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Lake Hattah Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Lake Hattah Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n316599373": {
   "name": "Pritchards Campground - Lower Glenelg NP",
@@ -2246,7 +2268,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Pritchards Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Pritchards Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n316599502": {
   "name": "Wonga Campground - Wyperfeld NP",
@@ -2260,7 +2283,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Wonga Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Wonga Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1365333313": {
   "name": "Wonga Campground",
@@ -2280,7 +2304,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Forest North Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Forest North Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1382894524": {
   "name": "Red Gum Landing",
@@ -2294,7 +2319,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Red Gum Landing Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Red Gum Landing Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1382904277": {
   "name": "Wilson Hall",
@@ -2308,7 +2334,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Wilson Hall Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Wilson Hall Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1466700633": {
   "name": "Longridge Camp Site",
@@ -2328,7 +2355,8 @@
   "phone": "13 1963",
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
-  "description": "Parks Victoria campground listed as \"Candlebark Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches."
+  "description": "Parks Victoria campground listed as \"Candlebark Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808391826": {
   "name": "Emu Bight Campground",
@@ -2342,7 +2370,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Emu Bight Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Emu Bight Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808391956": {
   "name": "Lakeside Campground",
@@ -2355,7 +2384,8 @@
   "phone": "13 1963",
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
-  "description": "Parks Victoria campground listed as \"Lakeside Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches."
+  "description": "Parks Victoria campground listed as \"Lakeside Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808391995": {
   "name": "Middle Creek Campground",
@@ -2369,7 +2399,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Middle Creek Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Middle Creek Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808392044": {
   "name": "Paradise Beach Campground",
@@ -2383,7 +2414,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Paradise Beach Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Paradise Beach Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808392047": {
   "name": "Peach Tree Creek Camping Area",
@@ -2397,7 +2429,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Peachtree Creek Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Peachtree Creek Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808392134": {
   "name": "Swan Lake Campground",
@@ -2411,7 +2444,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Swan Lake Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Swan Lake Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808392654": {
   "name": "Blanket Bay Campground",
@@ -2425,7 +2459,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Blanket Bay Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Blanket Bay Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808393497": {
   "name": "Jerusalem Creek Campground",
@@ -2439,7 +2474,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Jerusalem Creek Campground 1 - 8\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Jerusalem Creek Campground 1 - 8\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808394728": {
   "name": "Upper Yarra Reservoir Park",
@@ -2453,7 +2489,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Upper Yarra Reservoir Park\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Upper Yarra Reservoir Park\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n2442832789": {
   "name": "Old Mill Camp Ground (hike-in)",
@@ -2474,7 +2511,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Big Hill Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Big Hill Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n3494068091": {
   "name": "Jerusalem Creek Campground",
@@ -2493,7 +2531,8 @@
   "phone": "13 1963",
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
-  "description": "Parks Victoria campground listed as \"Devil Cove Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches."
+  "description": "Parks Victoria campground listed as \"Devil Cove Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches.",
+  "fee_note": "book_ahead"
  },
  "n3958688847": {
   "name": "Devil's Kitchen Campsite",
@@ -2514,7 +2553,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Paradise Beach Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Paradise Beach Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n9633304659": {
   "name": "Skipworth Springs Canoe Camp",
@@ -2549,7 +2589,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Horseshoe Bend Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Horseshoe Bend Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w44356876": {
   "name": "Big Hill Campground",
@@ -2568,7 +2609,8 @@
   "phone": "13 1963",
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
-  "description": "Parks Victoria campground listed as \"Budj Bim Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches."
+  "description": "Parks Victoria campground listed as \"Budj Bim Campground\" in the high fee category: a booked, paid site with better facilities (mostly flush toilets, showers at some sites) and marked pitches.",
+  "fee_note": "book_ahead"
  },
  "w46949845": {
   "name": "Battersbys",
@@ -2582,7 +2624,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Battersbys Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Battersbys Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w47033920": {
   "name": "Lake Mombeong Campsite",
@@ -2596,7 +2639,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Lake Mombeong Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Lake Mombeong Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w116094685": {
   "name": "Lake Elizabeth Campground",
@@ -2610,7 +2654,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Lake Elizabeth Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Lake Elizabeth Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w116434764": {
   "name": "Boar Gully Camp Ground",
@@ -2624,7 +2669,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Boar Gully Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Boar Gully Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w130361193": {
   "name": "Blanket Bay Campsite",
@@ -2644,7 +2690,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Parker Hill Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Parker Hill Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w132188749": {
   "name": "Johanna Beach Campground",
@@ -2658,7 +2705,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Johanna Beach Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Johanna Beach Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w341098663": {
   "name": "Lower Gums - Centenary Park Campground",
@@ -2670,7 +2718,8 @@
   "booking": "required (Parks Victoria)",
   "phone": "13 1963",
   "website": "https://www.parks.vic.gov.au/where-to-stay",
-  "description": "Parks Victoria campground listed as \"Lower Gums Camping Area\" in the special fee category: bookings and fees apply; check the Parks Victoria page for access and facilities."
+  "description": "Parks Victoria campground listed as \"Lower Gums Camping Area\" in the special fee category: bookings and fees apply; check the Parks Victoria page for access and facilities.",
+  "fee_note": "book_ahead"
  },
  "w341098664": {
   "name": "The Pines - Centenary Park Campground",
@@ -2682,7 +2731,8 @@
   "booking": "required (Parks Victoria)",
   "phone": "13 1963",
   "website": "https://www.parks.vic.gov.au/where-to-stay",
-  "description": "Parks Victoria campground listed as \"The Pines Camping Area\" in the special fee category: bookings and fees apply; check the Parks Victoria page for access and facilities."
+  "description": "Parks Victoria campground listed as \"The Pines Camping Area\" in the special fee category: bookings and fees apply; check the Parks Victoria page for access and facilities.",
+  "fee_note": "book_ahead"
  },
  "w341098666": {
   "name": "Upper Gums - Centenary Park Campground",
@@ -2694,7 +2744,8 @@
   "booking": "required (Parks Victoria)",
   "phone": "13 1963",
   "website": "https://www.parks.vic.gov.au/where-to-stay",
-  "description": "Parks Victoria campground listed as \"Upper Gums Camping Area\" in the special fee category: bookings and fees apply; check the Parks Victoria page for access and facilities."
+  "description": "Parks Victoria campground listed as \"Upper Gums Camping Area\" in the special fee category: bookings and fees apply; check the Parks Victoria page for access and facilities.",
+  "fee_note": "book_ahead"
  },
  "w562979579": {
   "name": "Aire River West Campground - Otway NP",
@@ -2708,7 +2759,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Aire River West Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Aire River West Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w562981262": {
   "name": "Aire River East Campground",
@@ -2722,7 +2774,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Aire River East Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Aire River East Campground\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "w1343925855": {
   "name": "Neds Gully Camping Area",
@@ -2736,7 +2789,8 @@
   "website": "https://www.parks.vic.gov.au/where-to-stay",
   "toilets": "yes",
   "showers": "no",
-  "description": "Parks Victoria campground listed as \"Neds Gully Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches."
+  "description": "Parks Victoria campground listed as \"Neds Gully Camping Area\" in the mid fee category: a booked, paid site with basic facilities (pit or composting toilets, no showers) and mostly unmarked pitches.",
+  "fee_note": "book_ahead"
  },
  "n1808392094": {
   "name": "Rye East Foreshore Camping",
@@ -2753,7 +2807,8 @@
   "description": "Shire-run seasonal foreshore camping on Crown land between the road and the bay at Rye (east section). Powered and unpowered sites of irregular size, shared taps, toilets, showers and laundry. Open late October to late April only.",
   "source_url": "https://www.mornpen.vic.gov.au/Activities/Camping/Rye-Foreshore-Camping",
   "needs_review": false,
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n2005986046": {
   "name": "Rye West Foreshore Camping",
@@ -2770,7 +2825,8 @@
   "description": "Western section of the Shire-run Rye foreshore campground, towards the old lime kiln. Seasonal (late October to late April), bookings through the Shire; powered and unpowered sites with toilets, showers and laundry.",
   "source_url": "https://www.mornpen.vic.gov.au/Activities/Camping/Rye-Foreshore-Camping",
   "needs_review": false,
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n1808392120": {
   "name": "Sorrento Foreshore Reserve",
@@ -2784,7 +2840,8 @@
   "description": "One of the three foreshore campgrounds run by Mornington Peninsula Shire. Seasonal camping (roughly late October to late April) booked through the Shire.",
   "source_url": "https://www.mornpen.vic.gov.au/Activities/Camping/Book-a-campsite",
   "needs_review": false,
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n1808394519": {
   "name": "Rosebud Foreshore Reserve",
@@ -2827,7 +2884,8 @@
   "description": "Public-authority campground right on the beach at Wye River, mostly powered sites plus a few unpowered. Camp kitchen, laundry, accessible amenities and BBQs; store, cafe and pub across the road. Dogs allowed on set sites outside peak times.",
   "source_url": "https://greatoceanroadparks.com.au/find-a-park/wye-river",
   "needs_review": false,
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n2005938578": {
   "name": "Apollo Bay Recreation Reserve",
@@ -9455,13 +9513,14 @@
   "lon": 145.98718,
   "category": "park_campground",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "fee_note": "book_ahead"
  },
  "new:beeripmo-campground-mt-cole-beeripmo-state-forest-mount-buangor-national-park": {
   "name": "Beeripmo Campground (MT COLE/BEERIPMO STATE FOREST, Mount Buangor National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/beeripmo-campground",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-16",
   "dogs": "no",
   "toilets": "yes",
   "potable_water": "no",
@@ -9473,7 +9532,9 @@
   "lon": 143.248171,
   "category": "park_campground",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "exclude": true,
+  "reason": "Duplicate of DataVic camp 2366 Beeripmo Campground (30 m). Build already drops it via dedupe_datavic. Its fee/booking (paid/required) was also wrong: Parks Victoria says no bookings or fees."
  },
  "new:benwell-camping-area-1-river-murray-reserve-benwell-state-forest": {
   "name": "Benwell camping area 1 (River Murray Reserve, BENWELL STATE FOREST)",
@@ -9695,7 +9756,7 @@
   "name": "Camerons Track Campground (PYRENEES RANGE STATE FOREST)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/camerons-track-campground",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-16",
   "dogs": "yes (on lead)",
   "toilets": "yes",
   "fee_type": "paid",
@@ -9706,7 +9767,9 @@
   "lon": 143.297425,
   "category": "park_campground",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "exclude": true,
+  "reason": "Duplicate of DataVic camp 3036 Camerons Track Campground (25 m); facts now in datavic-enrichment.json."
  },
  "w1128969942": {
   "name": "Campground C01 (Gippsland Lakes Coastal Park)",
@@ -9931,7 +9994,8 @@
   "lon": 145.760466,
   "category": "park_campground",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "fee_note": "book_ahead"
  },
  "n3365152702": {
   "name": "Corringle Foreshore Campground (Marlo Coastal Reserve)",
@@ -9995,7 +10059,8 @@
   "fee_type": "paid",
   "booking": "required",
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/mount-buangor-national-park/where-to-stay/ferntree-camping-area",
-  "source_note": "Parks Victoria campground page: Ferntree Camping Area."
+  "source_note": "Parks Victoria campground page: Ferntree Camping Area.",
+  "fee_note": "book_ahead"
  },
  "n7396646264": {
   "name": "Fig Tree Camping Site (River Murray Reserve)",
@@ -10014,7 +10079,7 @@
   "name": "Firth Park Campground (Fingerpost Regional Park , WOMBAT STATE FOREST)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/firth-park-campground",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-10-16",
   "dogs": "yes (on lead)",
   "toilets": "yes",
   "fee_type": "paid",
@@ -10026,7 +10091,9 @@
   "lon": 144.408616,
   "category": "park_campground",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "exclude": true,
+  "reason": "Duplicate of DataVic camp 2107 Firth Park (130 m); facts now in datavic-enrichment.json."
  },
  "n9731618446": {
   "name": "Forges Bend Camping Area (Yarrawonga Regional Park)",
@@ -10082,7 +10149,8 @@
   "lon": 144.282012,
   "category": "park_campground",
   "phone": "13 1963",
-  "new": true
+  "new": true,
+  "fee_note": "book_ahead"
  },
  "n1861006215": {
   "name": "Grant Historic Township Camping Area (Grant Historic Area)",
@@ -10641,7 +10709,8 @@
   "fee_type": "paid",
   "booking": "required",
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/where-to-stay/tidal-river-campground",
-  "source_note": "Parks Victoria campground page: Tidal River Campground."
+  "source_note": "Parks Victoria campground page: Tidal River Campground.",
+  "fee_note": "book_ahead"
  },
  "n2852358827": {
   "name": "Trident Arm Camping Area (Lake Tyers State Park)",
@@ -10791,7 +10860,8 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/buchan-caves-reserve/where-to-stay/buchan-caves-camping",
   "source_note": "Parks Victoria campground page: Buchan Caves Camping.",
   "description": "Buchan Caves Camping Reserve: camping area managed by Parks Victoria. Notes: toilets.",
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n1808392155": {
   "category": "park_campground",
@@ -10802,7 +10872,8 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/where-to-stay/mueller-inlet-campground",
   "source_note": "Parks Victoria campground page: Mueller Inlet Campground.",
   "description": "Mueller Inlet Campground: camping area managed by Parks Victoria.",
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "w242167583": {
   "toilets": "yes",
@@ -10831,7 +10902,8 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/lower-glenelg-national-park/where-to-stay/forest-south-campground",
   "source_note": "Parks Victoria campground page: Forest South Campground.",
   "description": "Forest Camp: camping area managed by Parks Victoria. Notes: toilets.",
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n316599357": {
   "toilets": "yes",
@@ -10844,7 +10916,8 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/lower-glenelg-national-park/where-to-stay/princess-margaret-rose-cave-campground",
   "source_note": "Parks Victoria campground page: Princess Margaret Rose Cave Campground.",
   "description": "Princess Margaret Rose Caves - Lower Glenelg NP: camping area managed by Parks Victoria. Notes: toilets.",
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n1808391787": {
   "toilets": "yes (pit/drop)",
@@ -10871,7 +10944,8 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/mount-buffalo-national-park/where-to-stay/lake-catani-campground",
   "source_note": "Parks Victoria campground page: Lake Catani Campground.",
   "description": "Lake Catani Campground - Mt Buffalo NP: camping area managed by Parks Victoria. Notes: toilets; bring your own drinking water.",
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n803825222": {
   "toilets": "yes",
@@ -10883,7 +10957,8 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/upper-yarra-reservoir-park/where-to-stay/upper-yarra-reservoir-camping-area",
   "source_note": "Parks Victoria campground page: Upper Yarra Reservoir Camping Area.",
   "description": "Upper Yarra Reservoir: camping area managed by Parks Victoria. Notes: toilets.",
-  "checked_date": "2026-10-17"
+  "checked_date": "2026-10-17",
+  "fee_note": "book_ahead"
  },
  "n2294280390": {
   "exclude": true,
@@ -13544,6 +13619,147 @@
  },
  "w1356394978": {
   "exclude": "named pitch area inside one campground or event site, not a separate public camp",
+  "checked_date": "2026-10-18"
+ },
+ "n2923423669": {
+  "exclude": true,
+  "reason": "Duplicate of DataVic camp 1990 Carrolls Spring (346 m away, Werribee River, Spargo Creek Regional Park). Parks Victoria says Carrolls Spring is the campground in this park; the Werribee River Picnic Area is day use.",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/carrolls-spring-camping-area",
+  "checked_date": "2026-10-16"
+ },
+ "n8282192218": {
+  "needs_review": true,
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-glut-picnic-area",
+  "source_note": "Parks Victoria lists The Glut (Mount Buangor National Park) as a picnic area for day visits; camping is not mentioned. Possible exclusion: check before keeping as a campsite.",
+  "checked_date": "2026-10-16"
+ },
+ "n1808391811": {
+  "name": "Donald Lakeside Caravan Park",
+  "phone": "0497 770 064",
+  "fee_type": "paid",
+  "suits": "caravan",
+  "needs_review": false,
+  "source_url": "https://www.visitbuloke.com.au/places-to-stay/donald-lakeside-caravan-park",
+  "description": "Lakeside caravan park at 2 Corack Road, Donald, with large sites and powered sites, on a Crown land reserve leased out by Buloke Shire Council. A paid caravan park, not a free camp.",
+  "checked_date": "2026-10-18",
+  "category": "council_park_leased",
+  "operator": "Buloke Shire Council (lessee operates)",
+  "ownership_note": "Crown land reserve; Buloke Shire Council called for a long-term lease to develop and operate the Donald Caravan Park (tender C33 2015/16) and its Sept 2015 agenda refers to the park lessee. Current lessee not named in official sources.",
+  "ownership_source": "https://docs.buloke.vic.gov.au/Open/2015/09/ORD_09092015_AGN_AT.htm"
+ },
+ "n1808391958": {
+  "name": "Landsborough Caravan Park",
+  "phone": "0408 503 149",
+  "fee_type": "paid",
+  "dogs": "no",
+  "toilets": "yes",
+  "suits": "caravan",
+  "needs_review": false,
+  "source_url": "https://visitpyrenees.com.au/accommodation/landsborough-caravan-park-2/",
+  "also_source_url": "https://www.pyrenees.vic.gov.au/Residents/Completed-Projects/Better-Caravan-Parks",
+  "description": "Small caravan park on the main street of Landsborough, next to the summer pool, with powered and unpowered sites, a toilet block, laundry and playground. A paid caravan park; no pets.",
+  "checked_date": "2026-10-18",
+  "category": "council_park",
+  "operator": "Pyrenees Shire Council",
+  "ownership_note": "Council-owned: Pyrenees Shire Council budget lists caravan parks as a council service and its Better Caravan Parks project upgraded Landsborough Caravan Park; the council playground page calls the site part of the caravan park. Day-to-day operating model (direct or managed) not stated.",
+  "ownership_source": "https://www.pyrenees.vic.gov.au/Residents/Completed-Projects/Better-Caravan-Parks"
+ },
+ "n1808393379": {
+  "name": "Glenrowan Tourist Park",
+  "phone": "03 5766 2288",
+  "website": "https://glenrowanpark.com.au/",
+  "fee_type": "paid",
+  "toilets": "yes",
+  "showers": "yes",
+  "dump_point": "yes",
+  "needs_review": false,
+  "source_url": "https://glenrowanpark.com.au/facilities/",
+  "description": "Tourist park at 2 Old Hume Highway, Glenrowan (listed in OpenStreetMap as Glenrowan Caravan Park), with cabins and caravan sites, toilets and hot showers, a camp kitchen, laundry, pool and a dump point. A paid park; book by phone or email.",
+  "checked_date": "2026-10-18",
+  "exclude": true,
+  "reason": "Privately owned: Glenrowan Tourist Park About page says the family purchased the park in February 2020. Out of scope under Nev rule."
+ },
+ "w189986731": {
+  "phone": "(03) 5261 2932",
+  "website": "https://www.janjucpark.com.au/",
+  "fee_type": "paid",
+  "dogs": "no",
+  "toilets": "yes",
+  "showers": "yes",
+  "suits": "tent|caravan",
+  "needs_review": false,
+  "source_url": "https://www.janjucpark.com.au/",
+  "description": "Holiday park at Jan Juc with cabins and powered and unpowered camping, toilets, hot showers, a pool and laundry. A paid park with a no-dogs policy.",
+  "checked_date": "2026-10-18",
+  "exclude": true,
+  "reason": "Ownership not confirmed by an official source (operated by Jan Juc Park Pty Ltd; no council or Crown land record found). Excluded for now under Nev rule; revisit if council/Crown ownership is confirmed."
+ },
+ "n1808392083": {
+  "name": "Riverbank Caravan Park, Nathalia",
+  "phone": "0438 586 628",
+  "website": "https://riverbankcaravanpark.com.au/",
+  "fee_type": "paid",
+  "dogs": "yes (well-behaved dogs on a leash)",
+  "toilets": "yes",
+  "showers": "yes",
+  "dump_point": "yes",
+  "suits": "tent|caravan|motorhome",
+  "needs_review": false,
+  "source_url": "https://riverbankcaravanpark.com.au/",
+  "description": "Privately owned caravan park on Broken Creek at 1-5 Park Street, Nathalia, with grassy powered sites (some ensuite) for caravans, motorhomes and tents, cabins, amenities, laundry and a dump point. A paid park.",
+  "checked_date": "2026-10-18",
+  "exclude": true,
+  "reason": "Privately owned caravan park (own site: \"A privately owned caravan park on the banks of the Broken Creek\"). Out of scope under Nev rule: private/commercial caravan parks excluded."
+ },
+ "w280672060": {
+  "name": "Forrest Holiday Park",
+  "phone": "(03) 8727 8906",
+  "email": "info@forrestholidaypark.com.au",
+  "website": "https://forrestholidaypark.com.au/",
+  "fee_type": "paid",
+  "suits": "tent|caravan",
+  "needs_review": false,
+  "source_url": "https://forrestholidaypark.com.au/accommodation/caravanning-camping/",
+  "description": "Holiday park in Forrest in the Otways (formerly Forrest Caravan Park) with cabins and grassy powered and unpowered sites, amenities, barbecues and a camp kitchen. A paid park.",
+  "checked_date": "2026-10-18",
+  "category": "council_park_leased",
+  "operator": "BelgraviaPro (lease from Colac Otway Shire Council)",
+  "ownership_note": "Council-owned; Colac Otway Shire granted BelgraviaPro a 15-year lease (plus 5-year option) and the park reopened as Forrest Holiday Park in June 2022. Council later upgraded the site wastewater system.",
+  "ownership_source": "https://www.colacotway.vic.gov.au/News-media/Forrest-Holiday-Park-re-opens-ahead-of-June-long-weekend"
+ },
+ "w1117308921": {
+  "phone": "0417 781 141",
+  "website": "https://www.corinellaforeshore.com.au/caravanpark.html",
+  "fee_type": "paid",
+  "needs_review": false,
+  "operator": "Corinella Foreshore Reserve Committee of Management",
+  "source_url": "https://www.corinellaforeshore.com.au/caravanpark.html",
+  "description": "Small family caravan park in a bush setting on the Corinella foreshore reserve at 3 Peters Street, run by the reserve committee of management, with powered and unpowered sites and cabins. A paid park; bookings online.",
+  "checked_date": "2026-10-18",
+  "category": "council_park",
+  "ownership_note": "Crown land foreshore reserve; the caravan park is run directly by the Corinella Foreshore Reserve Committee of Management (DEECA-appointed). Not council, but public (Crown) ownership run by the land manager rather than leased to a business, so filed as council_park.",
+  "ownership_source": "https://www.corinellaforeshore.com.au/",
+  "fee_note": "book_ahead"
+ },
+ "n12345755270": {
+  "email": "tolmiereserve@gmail.com",
+  "website": "https://tolmie.com.au/tolmie-recreation-reserve-camping/",
+  "fee_type": "paid",
+  "booking": "not required",
+  "dogs": "yes (supervised; clean up after them)",
+  "showers": "yes",
+  "dump_point": "no",
+  "suits": "tent|caravan",
+  "max_nights": 28,
+  "needs_review": false,
+  "source_url": "https://tolmie.com.au/tolmie-recreation-reserve-camping/",
+  "description": "Unpowered camping on the oval and in treed areas of the Tolmie Recreation Reserve, for tents, camper trailers, caravans and big rigs. Showers and a camp kitchen; pay at the honesty box (cash); no bookings needed; campfires only in the fireplaces provided; take rubbish home; no dump point (nearest at Mansfield or Moyhu); stays up to 4 consecutive weeks a year.",
+  "checked_date": "2026-10-18",
+  "fee_note": "pay_on_site"
+ },
+ "n1808392205": {
+  "source_url": "https://www.ararat.vic.gov.au/community/townships/willaura",
+  "description": "Ararat Rural City Council describes the Willaura Recreation Reserve as having room to camp, with an outdoor pool in summer, tennis courts, a playground, shade trees and free barbecues. Other camping details are not published by the council.",
   "checked_date": "2026-10-18"
  }
 }

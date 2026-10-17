@@ -266,9 +266,14 @@ a{color:var(--g)}
 .map-sm{height:240px}.legend{margin:-.2rem 0 1rem;font-size:.9rem}.legend .badge{margin-right:.35rem}
 .town-search{margin:.8rem 0 .2rem}.town-search label{display:block;font-weight:700;margin-bottom:.3rem}
 .town-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}#town-search{flex:1 1 14rem;min-width:0;width:100%;font-size:1rem;padding:.7rem .8rem}
-#town-clear{background:#555;min-height:44px}#town-suggest{list-style:none;margin:.35rem 0 0;padding:0;background:#fff;border:1px solid #d9d4c8;border-radius:8px;max-height:16rem;overflow:auto}
-#town-suggest button{display:block;width:100%;text-align:left;background:#fff;color:#222;border:0;border-bottom:1px solid #eee;border-radius:0;padding:.75rem .8rem;font-weight:500;min-height:44px}
-#town-suggest button:hover,#town-suggest button:focus{background:#f3f1ea}.near-list{padding-left:1.2rem}
+#town-clear{background:#555;min-height:44px}#town-suggest{list-style:none;margin:.35rem 0 0;padding:0;background:#fff;border:1px solid #d9d4c8;border-radius:8px;max-height:22rem;overflow:auto}
+#town-suggest button{display:block;width:100%;text-align:left;background:#fff;color:#222;border:0;border-bottom:1px solid #eee;border-radius:0;padding:.65rem .8rem;font-weight:500;min-height:44px}
+#town-suggest button:hover,#town-suggest button:focus,#town-suggest button[aria-selected="true"]{background:#f3f1ea}
+.hit-tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:4px;padding:.05rem .4rem;margin-right:.45rem;vertical-align:middle}
+.hit-tag.town{background:#f4efe4;color:#6b3e12;border:1px solid #c2571a}
+.hit-tag.camp{background:#e7f2e4;color:#1e4620;border:1px solid #2f5d3a}
+.hit-meta{display:block;font-weight:400;color:#555;font-size:.85rem;margin-top:.1rem}
+.near-list{padding-left:1.2rem}
 .filters{margin:.5rem 0 .8rem}.filter-label{font-weight:700;margin:.45rem 0 .15rem}
 .filter-row label{display:inline-flex;align-items:center;gap:.35rem;margin:.1rem .75rem .1rem 0;min-height:2.6rem}
 .pin{background:transparent;border:none}.pin span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
@@ -331,7 +336,7 @@ def filters_html(items):
     types = "".join(f'<label><input type="checkbox" name="cat" value="{e(cat)}"> {e(cat)}</label>' for cat in cats)
     toggles = (("self", "Self-contained only"), ("dogs", "Dogs OK"), ("dump", "Dump point"), ("showers", "Showers"), ("tents", "Suits tents"), ("caravans", "Suits caravans"), ("motorhomes", "Suits motorhomes"))
     flags = "".join(f'<label><input type="checkbox" data-flag="{key}"> {label}</label>' for key, label in toggles)
-    return f'''<div class="town-search"><label for="town-search">Search by town</label><div class="town-row"><input id="town-search" type="search" placeholder="Search by town" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" hidden></ul><div id="town-results"></div></div>
+    return f'''<div class="town-search"><label for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul><div id="town-results" aria-live="polite"></div></div>
 <div class="filters" id="camp-filters"><p class="filter-label">Type</p><div class="filter-row">{types}</div><p class="filter-label">Facilities</p><div class="filter-row">{flags}</div></div>'''
 def map_block(items, label, small=False):
     cls = "map map-sm" if small else "map"
@@ -482,56 +487,159 @@ MAP_JS = r"""(function () {
     }
     return townsPromise;
   }
-  function suggestions(q) {
-    q = q.trim().toLowerCase();
-    if (q.length < 2 || !towns) return [];
-    var starts = [], contains = [];
-    towns.forEach(function (town) {
-      var name = String(town.name || "").toLowerCase();
-      if (name.indexOf(q) === 0) starts.push(town);
-      else if (name.indexOf(q) > 0) contains.push(town);
-    });
-    function cmp(a, b) {
-      var ar = a.rank || 0, br = b.rank || 0;
-      if (ar !== br) return ar - br;
-      return String(a.name).localeCompare(String(b.name), "en");
+  function fold(s) {
+    return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  }
+  function regionName(lat, lon) {
+    if (lat > -35.9) return "Murray & Mallee";
+    if (lat < -38.2 && lon < 145) return "Otways & Surf Coast";
+    if (lon < 143.6) return "Grampians & South West";
+    if (lon < 145.3) return "Goldfields & Central Victoria";
+    if (lon >= 146.0 && lat > -37.45) return "High Country";
+    if (lon >= 145.9) return "Gippsland";
+    return "Yarra Ranges & Central Highlands";
+  }
+  function matchScore(name, query) {
+    var n = fold(name), q = fold(query);
+    if (q.length < 2 || !n) return -1;
+    if (n === q) return 0;
+    var qWords = q.split(" "), nWords = n.split(" "), partial = false, i, j, ok;
+    for (i = 0; i < qWords.length; i++) {
+      ok = false;
+      for (j = 0; j < nWords.length; j++) {
+        if (nWords[j].indexOf(qWords[i]) === 0) { ok = true; break; }
+      }
+      if (!ok && n.indexOf(qWords[i]) >= 0) { ok = true; partial = true; }
+      if (!ok) return -1;
     }
-    starts.sort(cmp);
-    contains.sort(cmp);
-    return starts.concat(contains).slice(0, 8);
+    if (n.indexOf(q) === 0) return 1;
+    return partial ? 3 : 2;
+  }
+  function nearestTown(lat, lon) {
+    if (!towns || !towns.length) return null;
+    var best = null, bestD = Infinity, i, d;
+    for (i = 0; i < towns.length; i++) {
+      d = kmBetween(lat, lon, towns[i].lat, towns[i].lon);
+      if (d < bestD) { bestD = d; best = towns[i]; }
+    }
+    return best;
+  }
+  function byRank(a, b) {
+    if (a.score !== b.score) return a.score - b.score;
+    if (a.rank !== b.rank) return a.rank - b.rank;
+    return a.name.localeCompare(b.name, "en");
+  }
+  function suggestions(q) {
+    if (fold(q).length < 2) return [];
+    var hits = [];
+    (towns || []).forEach(function (town) {
+      var score = matchScore(town.name, q);
+      if (score < 0) return;
+      hits.push({kind: "town", score: score, rank: town.rank || 0, name: town.name, town: town});
+    });
+    data.forEach(function (camp, index) {
+      var score = matchScore(camp.name, q);
+      if (score < 0) return;
+      hits.push({kind: "camp", score: score, rank: 2, name: camp.name, camp: camp, index: index});
+    });
+    hits.sort(byRank);
+    var top = hits.slice(0, 9);
+    var only = top.length && top.every(function (hit) { return hit.kind === top[0].kind; });
+    if (only && hits.some(function (hit) { return hit.kind !== top[0].kind; })) {
+      hits.filter(function (hit) { return hit.kind !== top[0].kind; }).slice(0, 3).forEach(function (hit) { top.push(hit); });
+      top.sort(byRank);
+    }
+    return top.slice(0, 12);
   }
   var townInput = document.getElementById("town-search");
   var suggest = document.getElementById("town-suggest");
   var clearBtn = document.getElementById("town-clear");
+  var lastHits = [];
+  var activeIdx = -1;
+  function closeSuggest() {
+    activeIdx = -1;
+    if (suggest) suggest.hidden = true;
+    if (townInput) {
+      townInput.setAttribute("aria-expanded", "false");
+      townInput.removeAttribute("aria-activedescendant");
+    }
+  }
+  function campMeta(camp) {
+    var bits = [];
+    if (camp.cat) bits.push(camp.cat);
+    bits.push(regionName(camp.lat, camp.lon));
+    var near = nearestTown(camp.lat, camp.lon);
+    if (near && fold(near.name) !== fold(camp.name)) bits.push("near " + near.name);
+    return bits.join(" · ");
+  }
   function renderSuggest(items) {
     if (!suggest) return;
+    lastHits = items;
+    activeIdx = -1;
     suggest.innerHTML = "";
-    if (!items.length) {
-      suggest.hidden = true;
-      if (townInput) townInput.setAttribute("aria-expanded", "false");
-      return;
-    }
-    items.forEach(function (town) {
+    if (townInput) townInput.removeAttribute("aria-activedescendant");
+    if (!items.length) { closeSuggest(); return; }
+    items.forEach(function (hit, i) {
       var li = document.createElement("li");
+      li.setAttribute("role", "presentation");
       var btn = document.createElement("button");
       btn.type = "button";
+      btn.id = "town-suggest-" + i;
       btn.setAttribute("role", "option");
-      btn.textContent = town.name + " · " + (town.place || "place");
-      btn.addEventListener("click", function () { choose(town); });
+      btn.setAttribute("aria-selected", "false");
+      var tag = document.createElement("span");
+      tag.className = "hit-tag " + hit.kind;
+      tag.textContent = hit.kind === "camp" ? "Camp" : "Town";
+      var name = document.createElement("span");
+      name.className = "hit-name";
+      name.textContent = hit.name;
+      btn.appendChild(tag);
+      btn.appendChild(document.createTextNode(" "));
+      btn.appendChild(name);
+      var meta = document.createElement("span");
+      meta.className = "hit-meta";
+      meta.textContent = hit.kind === "camp" ? campMeta(hit.camp) : (hit.town.place || "place");
+      btn.appendChild(meta);
+      btn.addEventListener("click", function () { choose(hit); });
       li.appendChild(btn);
       suggest.appendChild(li);
     });
     suggest.hidden = false;
     if (townInput) townInput.setAttribute("aria-expanded", "true");
   }
-  function choose(town) {
-    picked = town;
-    if (townInput) townInput.value = town.name;
-    if (suggest) suggest.hidden = true;
-    if (townInput) townInput.setAttribute("aria-expanded", "false");
+  function moveActive(delta) {
+    var buttons = suggest ? suggest.querySelectorAll("button") : [];
+    if (!buttons.length) return;
+    if (activeIdx < 0) activeIdx = delta < 0 ? buttons.length - 1 : 0;
+    else activeIdx = (activeIdx + delta + buttons.length) % buttons.length;
+    buttons.forEach(function (btn, i) { btn.setAttribute("aria-selected", i === activeIdx ? "true" : "false"); });
+    if (townInput) townInput.setAttribute("aria-activedescendant", buttons[activeIdx].id);
+    buttons[activeIdx].scrollIntoView({block: "nearest"});
+  }
+  function showCamp(hit) {
+    var camp = hit.camp, marker = markers[hit.index];
+    picked = null;
+    if (!group.hasLayer(marker)) group.addLayer(marker);
+    var reveal = function () { marker.openPopup(); };
+    map.stop();
+    map.setView([camp.lat, camp.lon], 13, {animate: false});
+    if (group.getVisibleParent(marker) === marker) reveal();
+    else group.zoomToShowLayer(marker, reveal);
+    var results = document.getElementById("town-results");
+    if (results) results.innerHTML = "<p><a href=\"" + esc(camp.url) + "\">" + esc(camp.name) + "</a> <span class='muted'>" + esc(campMeta(camp)) + "</span></p>";
+  }
+  function choose(hit) {
+    if (townInput) townInput.value = hit.name;
+    closeSuggest();
     if (clearBtn) clearBtn.hidden = false;
-    map.setView([town.lat, town.lon], 10);
-    redraw(false);
+    if (hit.kind === "town") {
+      picked = hit.town;
+      map.stop();
+      map.setView([hit.town.lat, hit.town.lon], 10);
+      redraw(false);
+      return;
+    }
+    showCamp(hit);
   }
   if (townInput) {
     townInput.addEventListener("focus", function () { loadTowns(); });
@@ -541,7 +649,7 @@ MAP_JS = r"""(function () {
         picked = null;
         var results = document.getElementById("town-results");
         if (results) results.innerHTML = "";
-        if (suggest) suggest.hidden = true;
+        closeSuggest();
         if (clearBtn) clearBtn.hidden = true;
         redraw(true);
         return;
@@ -549,14 +657,26 @@ MAP_JS = r"""(function () {
       loadTowns().then(function () { renderSuggest(suggestions(q)); });
     });
     townInput.addEventListener("keydown", function (ev) {
+      if (ev.key === "ArrowDown" || ev.key === "ArrowUp") {
+        ev.preventDefault();
+        if (!lastHits.length || (suggest && suggest.hidden)) {
+          loadTowns().then(function () {
+            renderSuggest(suggestions(townInput.value));
+            if (lastHits.length) moveActive(ev.key === "ArrowDown" ? 1 : -1);
+          });
+          return;
+        }
+        moveActive(ev.key === "ArrowDown" ? 1 : -1);
+      }
       if (ev.key === "Enter") {
         ev.preventDefault();
+        if (activeIdx >= 0 && lastHits[activeIdx]) { choose(lastHits[activeIdx]); return; }
         loadTowns().then(function () {
           var items = suggestions(townInput.value);
           if (items.length) choose(items[0]);
         });
       }
-      if (ev.key === "Escape" && suggest) suggest.hidden = true;
+      if (ev.key === "Escape") closeSuggest();
     });
   }
   if (clearBtn) {
@@ -762,7 +882,7 @@ page("/", f"Victorian camp conditions — {len(camps)} sites | CampConditions.au
 <p>Weather warnings: <a href="https://www.bom.gov.au/vic/warnings/">check BOM's Victorian warnings</a>. Bushfire, flood and other emergency warnings: check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a> — they are not republished here.</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
 
 page("/vic/", f"Victoria campground conditions — {len(camps)} sites | CampConditions.au", f"Browse {len(camps)} Victorian campgrounds by region, including OpenStreetMap sites.",
-     f"<h1>Victoria</h1><p><strong>{len(camps)}</strong> campgrounds. Search by town, then filter by type and facilities.</p>{map_block(camps, 'Map of Victorian campgrounds')}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), ("Victoria", "/vic/")])], head=leaflet_head(True), foot=leaflet_foot(True))
+     f"<h1>Victoria</h1><p><strong>{len(camps)}</strong> campgrounds. Search by town or camp name, then filter by type and facilities.</p>{map_block(camps, 'Map of Victorian campgrounds')}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), ("Victoria", "/vic/")])], head=leaflet_head(True), foot=leaflet_foot(True))
 
 for k, (n, d) in REGIONS.items():
     lst = by_reg[k]

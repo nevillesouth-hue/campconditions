@@ -8,8 +8,10 @@ Sources:
 VicEmergency warnings are not fetched or republished. Camp pages link to emergency.vic.gov.au.
 """
 import json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as dt
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import facts
 SITE = "https://campconditions.au"
-CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0)"
+CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0); Explore Outdoors © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0"
 PV_LABEL = "Paid – Parks Victoria (book ahead)"
 OSM_CATEGORIES = ["Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
 CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL}
@@ -108,48 +110,94 @@ for f in (rec or {}).get("features", []):
         "nearby_closures": nearby_c[:10], "source": "datavic", "category": "Park campground",
         "needs_review": False})
 
-def yn_flag(value):
-    if value is True or value is False: return value
-    text = str(value or "").strip().lower()
-    if text == "yes": return True
-    if text == "no": return False
-    return None
-def suit_flags(suits):
-    raw = str(suits or "").strip().lower()
-    if not raw or raw == "unknown": return None, None, None
-    parts = set(raw.split("|"))
-    return (True if "tent" in parts else None, True if "caravan" in parts else None, True if "motorhome" in parts else None)
-def nights_from(value):
-    if isinstance(value, int): return value if 0 < value <= 365 else None
-    raw = str(value or "").strip()
-    match = re.search(r"(\d+)", raw)
-    if not match: return None
-    number = int(match.group(1))
-    if "hour" in raw.lower(): return max(1, int(round(number / 24.0)))
-    return number if 0 < number <= 365 else None
-def checked_phrase(value):
-    raw = str(value or "").strip()
-    if not raw: return ""
-    try:
-        day = dt.date.fromisoformat(raw[:10])
-        shown = day.strftime("%-d %B %Y")
-    except Exception:
-        shown = raw[:10]
-    return f"Checked against official source, {shown}"
-def dogs_fields(value):
+_FACT_PROTECTED = ("status", "closure", "nearby_closures", "id", "slug", "lat", "lon", "source", "region", "name")
+def _http(value):
     text = str(value or "").strip()
-    low = text.lower()
-    if not text or low == "unknown": return "", None
-    if low == "yes": return "", True
-    if low == "no": return "", False
-    if low.startswith("no"): return text, False
-    if low.startswith("yes") or low == "on lead" or "leash" in low or "on lead" in low: return text, True
-    return text, None
-def yes_no_label(value):
-    text = str(value or "").strip().lower()
-    if text in ("yes", "true"): return "Yes"
-    if text in ("no", "false"): return "No"
-    return str(value or "").strip()
+    if text and not text.startswith(("http://", "https://")): text = "https://" + text
+    return text
+def apply_row_facts(camp, row):
+    """Copy display facts onto a camp. Status, closures and identity stay as they were."""
+    protected = {key: camp.get(key) for key in _FACT_PROTECTED}
+    if str(row.get("suits") or "").strip():
+        camp["fac_tents"], camp["fac_caravans"], camp["fac_motorhomes"] = facts.suit_flags(row.get("suits"))
+    if row.get("dogs") not in (None, ""):
+        dogs_text, dogs_flag = facts.dogs_fields(row.get("dogs"))
+        camp["dogs_text"] = dogs_text
+        camp["fac_dogs"] = dogs_flag if dogs_flag is not None else facts.yn_flag(row.get("dogs"))
+    for src, dest in (("dump_point", "fac_dump"), ("dump", "fac_dump"), ("showers", "fac_showers"), ("self_contained_only", "fac_self"), ("self_contained", "fac_self")):
+        if row.get(src) not in (None, ""): camp[dest] = facts.yn_flag(row.get(src))
+    toilets = facts.toilet_label(row.get("toilets"))
+    if toilets:
+        camp["toilets_text"] = toilets
+        camp["fac_toilets"] = facts.yn_flag(row.get("toilets"))
+    drink_raw = row.get("drinking_water")
+    if drink_raw in (None, ""): drink_raw = row.get("potable_water")
+    drink = facts.drinking_label(drink_raw)
+    if drink: camp["drinking_water"] = drink
+    water_source = facts.scrub_money(row.get("water_source"))
+    if water_source: camp["water_source"] = water_source
+    water_tap = facts.yes_no_label(row.get("water_tap"))
+    if water_tap: camp["water_tap"] = water_tap
+    booking_raw = row.get("booking_required")
+    if booking_raw in (None, ""): booking_raw = row.get("booking")
+    booking = facts.booking_label(booking_raw)
+    if booking: camp["booking_label"] = booking
+    fee = facts.fee_label(row.get("fee_type"))
+    if fee: camp["fee_label"] = fee
+    if row.get("max_nights") not in (None, ""):
+        nights = facts.nights_from(row.get("max_nights"))
+        label = facts.stay_label(row.get("max_nights"), nights)
+        if label:
+            camp["max_nights"] = nights
+            camp["max_stay"] = label
+    access_raw = row.get("access_notes")
+    if access_raw in (None, ""): access_raw = row.get("access")
+    access = facts.scrub_money(access_raw)
+    if access and access.lower() not in ("unknown", "yes", "no"): camp["access_notes"] = access
+    rubbish = facts.scrub_money(row.get("rubbish"))
+    if rubbish: camp["rubbish"] = rubbish
+    description = facts.scrub_money(row.get("description"))
+    if description: camp["description"] = description
+    for key in ("phone", "email"):
+        val = str(row.get(key) or "").strip()
+        if val: camp[key] = val
+    operator = str(row.get("operator") or "").strip()
+    if operator:
+        camp["managed_by"] = operator
+        camp["overlay_operator"] = operator
+    website = _http(row.get("website"))
+    if website: camp["website"] = website
+    source_url = _http(row.get("source_url"))
+    if source_url: camp["source_url"] = source_url
+    extra_url = _http(row.get("also_source_url") or row.get("source_url2"))
+    if extra_url and extra_url != camp.get("source_url"): camp["source_url2"] = extra_url
+    checked = facts.checked_phrase(row.get("checked_date"))
+    if checked: camp["checked_line"] = checked
+    for key, value in protected.items(): camp[key] = value
+    return camp
+def load_datavic_enrichment():
+    path = os.path.join(ROOT, "data", "datavic-enrichment.json")
+    if not os.path.isfile(path): return {}
+    with open(path, encoding="utf-8") as handle: doc = json.load(handle)
+    camps = doc.get("camps") if isinstance(doc, dict) else None
+    return camps if isinstance(camps, dict) else {}
+def apply_datavic_enrichment(camps):
+    """Fill display facts on DataVic camps. Never changes status or closure."""
+    overlay = load_datavic_enrichment()
+    applied = mismatches = 0
+    for camp in camps:
+        if camp.get("source") != "datavic": continue
+        extra = overlay.get(str(camp.get("id")))
+        if not isinstance(extra, dict): continue
+        want = str(extra.get("slug") or "").strip()
+        if want and want != camp.get("slug"):
+            mismatches += 1
+            print(f"WARN datavic enrichment slug {camp.get('id')}: built {camp.get('slug')} overlay {want}", file=sys.stderr)
+        apply_row_facts(camp, extra)
+        camp["enriched"] = True
+        applied += 1
+    print(f"DataVic enrichment applied to {applied} camps, {mismatches} slug mismatches")
+    return applied
 def load_osm(seen):
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import build_osm
@@ -175,34 +223,17 @@ def load_osm(seen):
             s = f"{base}-{n}"; n += 1
         seen.add(s)
         cat = CAT_LABEL.get(raw_cat, raw_cat)
-        tents, vans, homes = suit_flags(row.get("suits"))
-        website = (row.get("website") or "").strip()
-        if website and not website.startswith(("http://", "https://")): website = "https://" + website
-        source_url = (row.get("source_url") or "").strip()
-        if source_url and not source_url.startswith(("http://", "https://")): source_url = "https://" + source_url
-        dogs_text, dogs_flag = dogs_fields(row.get("dogs"))
-        if dogs_flag is None and not dogs_text: dogs_flag = yn_flag(row.get("dogs"))
-        stay = str(row.get("max_nights") or "").strip()
-        if stay.lower() == "unknown": stay = ""
-        road = str(row.get("access") or "").strip()
-        if road.lower() in ("", "unknown", "yes", "no"): road = ""
-        water = yes_no_label(row.get("water_tap"))
-        extra.append({"slug": s, "id": row.get("osm_id") or s, "osm_id": row.get("osm_id") or "", "name": name,
+        camp = {"slug": s, "id": row.get("osm_id") or s, "osm_id": row.get("osm_id") or "", "name": name,
             "lat": row["lat"], "lon": row["lon"], "region": region(row["lon"], row["lat"]),
             "status": "check", "closure": None, "access": "", "about": "", "camping": "", "caravans": "",
-            "site_class": cat, "dis_access": None, "managed_by": (row.get("operator") or "").strip(), "data_date": "",
-            "nearby_closures": [], "source": "osm", "category": cat, "needs_review": bool(row.get("needs_review")),
-            "phone": (row.get("phone") or "").strip() or ("13 1963" if cat == PV_LABEL else ""),
-            "email": (row.get("email") or "").strip(), "website": website,
-            "max_nights": nights_from(stay), "max_stay": stay,
-            "description": str(row.get("description") or "").strip(),
-            "source_url": source_url, "checked_line": checked_phrase(row.get("checked_date")),
-            "water_tap": water, "road_access": road, "dogs_text": dogs_text,
-            "fac_dogs": dogs_flag, "fac_dump": yn_flag(row.get("dump_point", row.get("dump"))),
-            "fac_showers": yn_flag(row.get("showers")), "fac_tents": tents, "fac_caravans": vans, "fac_motorhomes": homes,
-            "fac_self": yn_flag(row.get("self_contained_only", row.get("self_contained")))})
+            "site_class": cat, "dis_access": None, "managed_by": "", "data_date": "",
+            "nearby_closures": [], "source": "osm", "category": cat, "needs_review": bool(row.get("needs_review"))}
+        apply_row_facts(camp, row)
+        if cat == PV_LABEL and not camp.get("phone"): camp["phone"] = "13 1963"
+        extra.append(camp)
     return extra
 camps.extend(load_osm(seen))
+apply_datavic_enrichment(camps)
 camps.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
@@ -250,7 +281,7 @@ def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure
 SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> This site does not republish VicEmergency warnings. Always check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href="tel:000">000</a>. VicEmergency hotline <a href="tel:1800226226">1800 226 226</a>.</div>'
 def footer():
     return f"""<footer><p>{e(CREDIT)}</p>
-<p><strong>Data and attribution.</strong> Campground details: <a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a>, Department of Energy, Environment and Climate Action (DEECA), via DataVic, licensed under CC BY 4.0. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
+<p><strong>Data and attribution.</strong> Campground details: <a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a>, Department of Energy, Environment and Climate Action (DEECA), via DataVic, licensed under CC BY 4.0. Extra campground details: <a href="https://www.exploreoutdoors.vic.gov.au/">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
 <p>Site built {STAMP}. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>"""
 def vicemergency_url(lat, lon):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
@@ -657,7 +688,11 @@ def osm_blocks(c):
     if "follow signs on site" in desc.lower() or unknown_overnight:
         bits.append("<p><strong>Follow signs on site.</strong> Overnight stays are not confirmed.</p>")
     if desc: bits.append(f"<p>{e(desc)}</p>")
-    if c.get("road_access"): bits.append(f"<p><strong>Access: {e(c['road_access'])}</strong></p>")
+    bits.append(facts_html(c, fill_unknown=True))
+    if c.get("category"): bits.append(f"<p>Type: {e(c['category'])}</p>")
+    if c.get("managed_by"): bits.append(f"<p>Operator: {e(c['managed_by'])}</p>")
+    return "".join(bits)
+def contact_html(c):
     buttons = []
     if c.get("phone") and tel_href(c["phone"]):
         buttons.append(f'<a class="btn" href="{e(tel_href(c["phone"]))}">Call {e(c["phone"])}</a>')
@@ -665,18 +700,50 @@ def osm_blocks(c):
         buttons.append(f'<a class="btn" href="mailto:{e(c["email"])}">Email</a>')
     if (c.get("website") or "").startswith("http"):
         buttons.append(f'<a class="btn" href="{e(c["website"])}">Website</a>')
-    if buttons: bits.append("<p>" + " ".join(buttons) + "</p>")
+    return "<p>" + " ".join(buttons) + "</p>" if buttons else ""
+def facility_items(c, fill_unknown):
+    items = []
+    def known(label, value):
+        if value is True: return (label, "Yes")
+        if value is False: return (label, "No")
+        if fill_unknown: return (label, "Unknown")
+        return None
+    if c.get("dogs_text"): items.append(("Dogs", c["dogs_text"]))
+    else:
+        row = known("Dogs", c.get("fac_dogs"))
+        if row: items.append(row)
+    for label, field in (("Dump point", "fac_dump"), ("Showers", "fac_showers"), ("Tents", "fac_tents"), ("Caravans", "fac_caravans"), ("Motorhomes", "fac_motorhomes"), ("Self-contained only", "fac_self")):
+        row = known(label, c.get(field))
+        if row: items.append(row)
+    if c.get("toilets_text"): items.append(("Toilets", c["toilets_text"]))
+    if c.get("drinking_water"): items.append(("Drinking water", c["drinking_water"]))
+    if c.get("water_source"): items.append(("Water source", c["water_source"]))
+    if c.get("water_tap"): items.append(("Water tap", c["water_tap"]))
+    if c.get("rubbish"): items.append(("Rubbish", c["rubbish"]))
+    return items
+def facts_html(c, fill_unknown):
+    bits = []
+    if c.get("fee_label"): bits.append(f"<p><strong>{e(c['fee_label'])}</strong></p>")
+    if c.get("booking_label"): bits.append(f"<p><strong>Booking required:</strong> {e(c['booking_label'])}</p>")
+    if c.get("access_notes"): bits.append(f"<p><strong>Access: {e(c['access_notes'])}</strong></p>")
+    contact = contact_html(c)
+    if contact: bits.append(contact)
     if c.get("max_stay"): bits.append(f"<p><strong>Max stay: {e(c['max_stay'])}</strong></p>")
-    else: bits.append("<p><strong>Max stay: ask operator</strong></p>")
-    fac = [("Dogs", c["dogs_text"] if c.get("dogs_text") else yn(c.get("fac_dogs")))]
-    fac += [("Dump point", yn(c.get("fac_dump"))), ("Showers", yn(c.get("fac_showers"))), ("Tents", yn(c.get("fac_tents"))), ("Caravans", yn(c.get("fac_caravans"))), ("Motorhomes", yn(c.get("fac_motorhomes"))), ("Self-contained only", yn(c.get("fac_self")))]
-    if c.get("water_tap"): fac.append(("Water tap", c["water_tap"]))
-    bits.append("<h2>Facilities</h2><ul>" + "".join(f"<li>{label}: {e(value)}</li>" for label, value in fac) + "</ul>")
+    elif fill_unknown: bits.append("<p><strong>Max stay: ask operator</strong></p>")
+    items = facility_items(c, fill_unknown)
+    if items: bits.append("<h2>Facilities</h2><ul>" + "".join(f"<li>{label}: {e(value)}</li>" for label, value in items) + "</ul>")
     if c.get("checked_line"): bits.append(f"<p>{e(c['checked_line'])}</p>")
     if (c.get("source_url") or "").startswith("http"):
         bits.append(f'<p>Source: <a href="{e(c["source_url"])}">official source</a></p>')
-    if c.get("category"): bits.append(f"<p>Type: {e(c['category'])}</p>")
-    if c.get("managed_by"): bits.append(f"<p>Operator: {e(c['managed_by'])}</p>")
+    if (c.get("source_url2") or "").startswith("http"):
+        bits.append(f'<p>Also: <a href="{e(c["source_url2"])}">official source</a></p>')
+    return "".join(bits)
+def datavic_facts(c):
+    if not c.get("enriched"): return ""
+    bits = []
+    if c.get("description"): bits.append(f"<p>{e(c['description'])}</p>")
+    bits.append(facts_html(c, fill_unknown=False))
+    if c.get("overlay_operator"): bits.append(f"<p>Operator: {e(c['overlay_operator'])}</p>")
     return "".join(bits)
 shutil.copyfile(os.path.join(ROOT, "data", "vic-towns.json"), os.path.join(OUT, "vic-towns.json"))
 n_osm = sum(c.get("source") == "osm" for c in camps)
@@ -721,6 +788,7 @@ for c in camps:
         dated = "Source: OpenStreetMap. Parks Victoria closure data is not applied to this site."
     else:
         condition = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
+        condition += datavic_facts(c)
         title = f"{c['name']} campground — is it open? Conditions today | CampConditions.au"
         desc = f"Is {c['name']} campground open? Current closure status and nearby road closures for {c['name']} in {rn}, Victoria."
         dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
@@ -787,7 +855,7 @@ page("/report/", "Report campground conditions | CampConditions.au", "Tell other
 <script>const p=new URLSearchParams(location.search).get('camp');if(p)document.getElementById('camp').value=p.replace(/-/g,' ');</script>""")
 page("/about/", "About CampConditions.au", "Who we are and where our data comes from.",
  f"""<h1>About</h1><p>CampConditions.au is a free digest of Victorian campground conditions, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href="https://www.youtube.com/@OptimumQuestforBigThings">Optimum Quest for Big Things</a>.</p>{SAFETY}
-<h2>Sources</h2><p>{e(CREDIT)}</p><ul><li>DEECA Recreation Sites via DataVic (CC BY 4.0), with Parks Victoria / DEECA MapShare closures</li><li>OpenStreetMap campgrounds and towns (ODbL). These pages say to check with the operator. They are not given Parks Victoria closure data.</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers. We don't publish a downloadable copy of the combined campground list.</p>""")
+<h2>Sources</h2><p>{e(CREDIT)}</p><ul><li>DEECA Recreation Sites via DataVic (CC BY 4.0), with Parks Victoria / DEECA MapShare closures</li><li>Explore Outdoors, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0. Facility details only. Closure status stays with DataVic and Parks Victoria.</li><li>OpenStreetMap campgrounds and towns (ODbL). These pages say to check with the operator. They are not given Parks Victoria closure data.</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers. We don't publish a downloadable copy of the combined campground list.</p>""")
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
  """<h1>Privacy</h1><p>Last updated 16 October 2026.</p>
 <h2>Who we are</h2><p>CampConditions.au publishes a free weekly digest of Victorian campground conditions. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>

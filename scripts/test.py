@@ -266,9 +266,10 @@ if (!gone.ok) process.exit(1);
 if unsub_api.returncode != 0:
   bad.append(("unsubscribe api", (unsub_api.stderr or unsub_api.stdout)[-400:]))
 
-CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0)"
+CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Recreation Sites © State of Victoria (DataVic, CC BY 4.0); Explore Outdoors © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0"
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
+if "© State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0" not in home or "Explore Outdoors" not in about: bad.append(("credit", "explore outdoors"))
 if "Covering Victoria now" not in home or "Other states coming soon" not in home or 'class="soon"' not in home or "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
   bad.append(("/", "banner"))
 if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or 'justify-content:flex-end' not in home:
@@ -353,7 +354,7 @@ merged = build_osm.apply_corrections(curated_sites, build_osm.load_corrections(c
 if len(merged) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(merged)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 931, "Council park": 68, "Showground": 40, "Paid – Parks Victoria (book ahead)": 37, "Rest area": 24, "Donation": 11, "Pub stay": 5, "Council park (leased)": 3}
+expect_counts = {"Free": 1075, "Council park": 68, "Showground": 40, "Paid – Parks Victoria (book ahead)": 52, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 3}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
@@ -389,11 +390,79 @@ if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.plac
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
 before = os.path.getmtime(corr_path)
 corrections = json.load(open(corr_path, encoding="utf-8"))
-if not isinstance(corrections, dict) or len(corrections) != 644 or "drop" in corrections or "overrides" in corrections:
+if not isinstance(corrections, dict) or len(corrections) != 1041 or "drop" in corrections or "overrides" in corrections:
   bad.append(("corrections", "shape"))
-if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 68: bad.append(("corrections", "exclusions"))
-if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 240:
+if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 107: bad.append(("corrections", "exclusions"))
+if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 439:
   bad.append(("corrections", "new sites"))
+import facts
+suit_cases = [
+  ("tent|caravan|motorhome", (True, True, True)),
+  ("tents, caravans", (True, True, None)),
+  ("Tents, Caravans, Motorhomes", (True, True, True)),
+  ("tents, caravans, campervans; limited powered sites", (True, True, True)),
+  ("caravan", (None, True, None)),
+  ("4WD only, river crossings", (None, None, None)),
+  ("unknown", (None, None, None)),
+  ("tents only (walk-in about 300 m, single site; no vehicle camping)", (True, None, None)),
+]
+for raw, expect in suit_cases:
+  if facts.suit_flags(raw) != expect: bad.append(("suits", raw))
+if facts.fee_label("paid") != "Paid – book ahead" or facts.fee_label("free") != "Free" or facts.fee_label("$25") != "": bad.append(("fee", "label"))
+if "$" in facts.scrub_money("yes ($5 public)") or facts.yn_flag("yes ($5 public)") is not True: bad.append(("fee", "amount"))
+if facts.booking_label("not required") != "No" or facts.booking_label("required (Parks Victoria)") != "Yes": bad.append(("booking", "label"))
+dv_path = os.path.join(root, "data", "datavic-enrichment.json")
+dv_before = os.path.getmtime(dv_path)
+dv_doc = json.load(open(dv_path, encoding="utf-8"))
+dv_camps = dv_doc.get("camps") or {}
+if len(dv_camps) != 116 or dv_doc.get("_meta", {}).get("count") != 116: bad.append(("datavic enrichment", "count"))
+build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
+if "datavic-enrichment.json" not in build_src or re.search(r"open\(\s*.*datavic-enrichment[^)]*[\"']w", build_src): bad.append(("build.py", "enrichment write"))
+if "apply_row_facts" not in build_src or "_FACT_PROTECTED" not in build_src: bad.append(("build.py", "status guard"))
+def page_of(slug):
+  path = os.path.join(D, "vic", "camp", slug, "index.html")
+  if not os.path.isfile(path):
+    bad.append((slug, "missing sample")); return ""
+  return open(path, encoding="utf-8").read()
+def must(slug, html_page, bits):
+  for bit in bits:
+    if bit not in html_page: bad.append((slug, "missing " + bit))
+king = page_of("king-hut-alpine-np")
+must("king-hut-alpine-np", king, ["Drinking water: No", "Dogs: No", "<strong>Free</strong>", "bring your own drinking water", "Checked against official source, 18 October 2026", ">official source</a>", "parks.vic.gov.au"])
+if "Unverified, help us confirm" in king: bad.append(("king-hut-alpine-np", "still unverified"))
+if "$" in king.split('id="newsletter"')[0]: bad.append(("king-hut-alpine-np", "fee amount"))
+dargo = page_of("dargo-river-inn")
+must("dargo-river-inn", dargo, ["Pub stay", "<strong>Paid – book ahead</strong>", "Toilets: Yes", "Showers: Yes", "Tents: Yes", "Caravans: Yes", "Motorhomes: Yes", 'href="tel:0351401330"', "info@dargoriverinn.com.au", "Checked against official source, 18 October 2026"])
+if "$" in dargo.split('id="newsletter"')[0]: bad.append(("dargo-river-inn", "fee amount"))
+goulburn = page_of("angling-club-bend-camping-area-lower-goulburn-national-park-goulburn-river-heritage-river")
+must("angling-club-bend", goulburn, ["Lower Goulburn National Park", "Dogs: No", 'href="tel:131963"', "parks.vic.gov.au", "Checked against official source"])
+murray = page_of("abbotsford-bend-camping-area-murray-river")
+must("abbotsford-bend", murray, ["<strong>Free</strong>", "Booking required:</strong> No", "Dogs: on lead", "Murray", "Checked against official source, 18 October 2026"])
+orchard = page_of("the-orchard")
+must("the-orchard", orchard, ["Toilets: Yes", "Drinking water: No", "Water source: reliable access to water (not stated as drinkable)", "Booking required:</strong> No", "<strong>Free</strong>", "Caravans: Yes", "Access: 2WD access", "exploreoutdoors.vic.gov.au", "Checked against official source, 18 October 2026"])
+if "Tents: Yes" in orchard or "Matched via the Delatite" in orchard or "Operator: MANSFIELD" in orchard: bad.append(("the-orchard", "suits, flag or raw maintainer"))
+if "$" in orchard.split('id="newsletter"')[0]: bad.append(("the-orchard", "fee amount"))
+horseshoe = page_of("horseshoe-bend-camping-area")
+must("horseshoe-bend", horseshoe, ["Rubbish: take rubbish home", "Toilets: Yes", 'class="badge check"'])
+avondale = next((c for c in feed["camps"] if c.get("slug") == "avondale-gardens"), None)
+if not avondale or avondale.get("status") != "closed" or avondale.get("source") != "datavic" or avondale.get("closure") in (None, {}, []):
+  bad.append(("avondale-gardens", "closure changed"))
+else:
+  av_html = page_of("avondale-gardens")
+  must("avondale-gardens", av_html, ['class="badge closed"', "<strong>Closed:</strong>", "<strong>Free</strong>", "Dogs: Yes"])
+for slug, tents, vans, homes, self_flag in (("dargo-river-inn", 1, 1, 1, None), ("coleraine-caravan-park", 1, 1, 1, 0)):
+  point = next((p for p in home_pts if p.get("url", "").rstrip("/").endswith("/" + slug)), None)
+  if not point or point.get("tents") != tents or point.get("caravans") != vans or point.get("motorhomes") != homes:
+    bad.append((slug, "map suit flags"))
+  elif self_flag is not None and point.get("self") != self_flag:
+    bad.append((slug, "map self flag"))
+applied = 0
+for row in dv_camps.values():
+  html_page = page_of(row["slug"])
+  if "Checked against official source" not in html_page: bad.append((row["slug"], "enrichment missing"))
+  else: applied += 1
+if applied != 116: bad.append(("datavic enrichment", applied))
+if os.path.getmtime(dv_path) != dv_before: bad.append(("datavic enrichment", "file overwritten"))
 kept = build_osm.apply_corrections([{"osm_id": "node/1", "name": "A"}, {"osm_id": "node/2", "name": "B"}], {"drop": ["node/1"], "overrides": {"node/2": {"category": "Free"}}})
 if [c["osm_id"] for c in kept] != ["node/2"] or kept[0]["category"] != "Free": bad.append(("corrections", "legacy apply"))
 overlay = build_osm.apply_corrections(

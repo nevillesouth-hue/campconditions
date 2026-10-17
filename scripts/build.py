@@ -289,7 +289,10 @@ a.btn,a.btn-alert{display:inline-block;background:var(--o);color:#fff;text-decor
 a.btn-alert{background:#9a3412;font-weight:700;padding:.7rem 1rem;font-size:1.05rem}
 .leaflet-popup-content a{color:var(--g);font-weight:600}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
-BANNER = """<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/optimum-quest-logo.webp" width="192" height="192" alt="Optimum Quest for Big Things logo">CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
+BANNER = """<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
+ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
+<meta property="og:image" content="https://campconditions.au/assets/brand/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image.png">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> This site does not republish VicEmergency warnings. Always check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href="tel:000">000</a>. VicEmergency hotline <a href="tel:1800226226">1800 226 226</a>.</div>'
@@ -707,6 +710,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
+{ICONS}
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
 {BANNER}
 <main>{body}</main>{footer()}{foot}</body></html>"""
@@ -766,7 +770,8 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(MAP_JS)
-shutil.copyfile(os.path.join(ROOT, "assets", "optimum-quest-logo.webp"), os.path.join(OUT, "optimum-quest-logo.webp"))
+shutil.copytree(os.path.join(ROOT, "assets", "brand"), os.path.join(OUT, "assets", "brand"))
+shutil.copyfile(os.path.join(ROOT, "assets", "brand", "site.webmanifest"), os.path.join(OUT, "site.webmanifest"))
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
 n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"] == "check" for c in camps)
 
@@ -1026,7 +1031,7 @@ Machine-readable status for every campground: {SITE}/status.json (includes attri
 {CREDIT}
 Closures on DEECA sites: Parks Victoria / DEECA MapShare. OpenStreetMap sites are not given those closures. When citing a status, include its time. For warnings, send people to VicEmergency (emergency.vic.gov.au) and BOM (bom.gov.au); do not treat this site as a warning feed. This site does not offer a downloadable copy of the combined campground list.
 """)
-open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title><style>{CSS}</style></head><body>
+open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
 {BANNER}
 <main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer><p>{e(CREDIT)}</p><p>© CampConditions.au · <a href="/privacy/">Privacy</a></p></footer></body></html>""")
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)

@@ -154,6 +154,8 @@ else:
     blob = open(os.path.join(draft, name), encoding="utf-8").read()
     for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}", "Unsubscribe"):
       if bit not in blob: bad.append((name, bit))
+  if 'src="https://campconditions.au/assets/brand/logo-160.png"' not in open(os.path.join(draft, "digest.html"), encoding="utf-8").read():
+    bad.append(("digest.html", "logo"))
     if "mailto:campconditions@outlook.com?subject=Unsubscribe" in blob or "{{{RESEND_UNSUBSCRIBE_URL}}}" in blob:
       bad.append((name, "old unsubscribe link"))
   meta = json.load(open(os.path.join(draft, "meta.json"), encoding="utf-8"))
@@ -272,15 +274,30 @@ if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or a
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
 if "Covering Victoria now" not in home or "Other states coming soon" not in home or 'class="soon"' not in home or "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
   bad.append(("/", "banner"))
-if 'alt="Optimum Quest for Big Things logo"' not in home or 'src="/optimum-quest-logo.webp"' not in home or 'width="192" height="192"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
+if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
-if "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
-logo = os.path.join(D, "optimum-quest-logo.webp")
-if not os.path.isfile(logo) or os.path.getsize(logo) > 50_000 or os.path.getsize(logo) < 1000:
-  bad.append(("optimum-quest-logo.webp", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
+if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
+for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image.png"', 'content="1200"', 'content="630"', 'content="summary_large_image"'):
+  if icon not in home: bad.append(("/", "icon " + icon))
+not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
+if "/site.webmanifest" not in not_found or "og-image.png" not in not_found: bad.append(("404", "icons"))
+logo = os.path.join(D, "assets", "brand", "logo-160.png")
+if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
+manifest = json.load(open(os.path.join(D, "site.webmanifest"), encoding="utf-8"))
+if manifest.get("name") != "CampConditions.au" or manifest.get("theme_color") != "#113521" or manifest.get("background_color") != "#F5ECD6":
+  bad.append(("site.webmanifest", "brand"))
+for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image.png"):
+  if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
+if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):
+  bad.append(("optimum-quest-logo.webp", "still present"))
 if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "margin-left:auto" in home or "justify-content:flex-end" in home:
   bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
+page_js = open(os.path.join(root, "functions", "_lib", "page.js"), encoding="utf-8").read()
+if "⛺" in page_js or 'src="/assets/brand/logo-160.png"' not in page_js: bad.append(("page.js", "logo"))
+for fn in ("functions/api/confirm.js", "functions/api/subscribe.js"):
+  src = open(os.path.join(root, fn), encoding="utf-8").read()
+  if "sitePage" not in src: bad.append((fn, "confirmation page logo"))
 for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"', 'value="Pub stay"', 'value="Paid – Parks Victoria (book ahead)"'):
   if bit not in home: bad.append(("/", "missing " + bit))
 if 'placeholder="Search by town"' in home: bad.append(("/", "old town placeholder"))

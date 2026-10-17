@@ -13,7 +13,7 @@ import facts
 SITE = "https://campconditions.au"
 CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Campground details from DataVic and Explore Outdoors © State of Victoria (DEECA), CC BY 4.0, and Parks Victoria."
 PV_LABEL = "Paid – Parks Victoria (book ahead)"
-OSM_CATEGORIES = ["Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
+OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
 CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "dist")
@@ -234,6 +234,9 @@ def load_osm(seen):
             "site_class": cat, "dis_access": None, "managed_by": "", "data_date": "",
             "nearby_closures": [], "source": "osm", "category": cat, "needs_review": bool(row.get("needs_review"))}
         apply_row_facts(camp, row)
+        if cat == "Free" and str(row.get("fee_type") or "").strip().lower() == "paid":
+            camp["category"] = "Camping area"
+            camp["site_class"] = "Camping area"
         if cat == PV_LABEL and not camp.get("phone"): camp["phone"] = "13 1963"
         extra.append(camp)
     return extra
@@ -243,15 +246,15 @@ camps.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
-header{background:var(--g);color:#fff}.banner{max-width:980px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.45rem 1.25rem}
+header{background:var(--g);color:#fff}.banner{max-width:980px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:.45rem 1.25rem}
 .brand{color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;max-width:100%}
 .logo{width:4.8rem;height:4.8rem;flex:0 0 auto;display:block;object-fit:contain}
-nav{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:.35rem 1.05rem;margin-left:auto}
+nav{display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.35rem 1.05rem}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
 .soon{margin:0;padding:.7rem 1rem;text-align:center;font-size:1.7rem;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
 .soon-sep{font-weight:700}
 @media (max-width:720px){.soon{display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:clamp(1.2rem,5vw,1.55rem);padding:.65rem .7rem;line-height:1.2}.soon-sep{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
-@media (max-width:860px){.banner{flex-direction:column;align-items:stretch}.brand{font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{width:100%;margin-left:0;justify-content:flex-end;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
+@media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:column;align-items:flex-start}.brand{font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{width:100%;flex-wrap:wrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
@@ -272,8 +275,8 @@ a{color:var(--g)}
 .town-search{margin:.8rem 0 .2rem}.town-search label{display:block;font-weight:700;margin-bottom:.3rem}
 .town-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}#town-search{flex:1 1 14rem;min-width:0;width:100%;font-size:1rem;padding:.7rem .8rem}
 #town-clear{background:#555;min-height:44px}#town-suggest{list-style:none;margin:.35rem 0 0;padding:0;background:#fff;border:1px solid #d9d4c8;border-radius:8px;max-height:22rem;overflow:auto}
-#town-suggest button{display:block;width:100%;text-align:left;background:#fff;color:#222;border:0;border-bottom:1px solid #eee;border-radius:0;padding:.65rem .8rem;font-weight:500;min-height:44px}
-#town-suggest button:hover,#town-suggest button:focus,#town-suggest button[aria-selected="true"]{background:#f3f1ea}
+#town-suggest button,#town-suggest a{display:block;width:100%;text-align:left;background:#fff;color:#222;border:0;border-bottom:1px solid #eee;border-radius:0;padding:.65rem .8rem;font-weight:500;min-height:44px;text-decoration:none}
+#town-suggest button:hover,#town-suggest button:focus,#town-suggest button[aria-selected="true"],#town-suggest a:hover,#town-suggest a:focus,#town-suggest a[aria-selected="true"]{background:#f3f1ea}
 .hit-tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:4px;padding:.05rem .4rem;margin-right:.45rem;vertical-align:middle}
 .hit-tag.town{background:#f4efe4;color:#6b3e12;border:1px solid #c2571a}
 .hit-tag.camp{background:#e7f2e4;color:#1e4620;border:1px solid #2f5d3a}
@@ -588,64 +591,55 @@ MAP_JS = r"""(function () {
     items.forEach(function (hit, i) {
       var li = document.createElement("li");
       li.setAttribute("role", "presentation");
-      var btn = document.createElement("button");
-      btn.type = "button";
-      btn.id = "town-suggest-" + i;
-      btn.setAttribute("role", "option");
-      btn.setAttribute("aria-selected", "false");
+      var option = hit.kind === "camp" ? document.createElement("a") : document.createElement("button");
+      if (hit.kind === "camp") option.href = hit.camp.url;
+      else {
+        option.type = "button";
+        option.addEventListener("click", function () { choose(hit); });
+      }
+      option.id = "town-suggest-" + i;
+      option.setAttribute("role", "option");
+      option.setAttribute("aria-selected", "false");
       var tag = document.createElement("span");
       tag.className = "hit-tag " + hit.kind;
       tag.textContent = hit.kind === "camp" ? "Camp" : "Town";
       var name = document.createElement("span");
       name.className = "hit-name";
       name.textContent = hit.name;
-      btn.appendChild(tag);
-      btn.appendChild(document.createTextNode(" "));
-      btn.appendChild(name);
+      option.appendChild(tag);
+      option.appendChild(document.createTextNode(" "));
+      option.appendChild(name);
       var meta = document.createElement("span");
       meta.className = "hit-meta";
       meta.textContent = hit.kind === "camp" ? campMeta(hit.camp) : (hit.town.place || "place");
-      btn.appendChild(meta);
-      btn.addEventListener("click", function () { choose(hit); });
-      li.appendChild(btn);
+      option.appendChild(meta);
+      li.appendChild(option);
       suggest.appendChild(li);
     });
     suggest.hidden = false;
     if (townInput) townInput.setAttribute("aria-expanded", "true");
   }
   function moveActive(delta) {
-    var buttons = suggest ? suggest.querySelectorAll("button") : [];
-    if (!buttons.length) return;
-    if (activeIdx < 0) activeIdx = delta < 0 ? buttons.length - 1 : 0;
-    else activeIdx = (activeIdx + delta + buttons.length) % buttons.length;
-    buttons.forEach(function (btn, i) { btn.setAttribute("aria-selected", i === activeIdx ? "true" : "false"); });
-    if (townInput) townInput.setAttribute("aria-activedescendant", buttons[activeIdx].id);
-    buttons[activeIdx].scrollIntoView({block: "nearest"});
-  }
-  function showCamp(hit) {
-    var camp = hit.camp, marker = markers[hit.index];
-    picked = null;
-    if (!group.hasLayer(marker)) group.addLayer(marker);
-    var reveal = function () { marker.openPopup(); };
-    map.stop();
-    map.setView([camp.lat, camp.lon], 13, {animate: false});
-    if (group.getVisibleParent(marker) === marker) reveal();
-    else group.zoomToShowLayer(marker, reveal);
-    var results = document.getElementById("town-results");
-    if (results) results.innerHTML = "<p><a href=\"" + esc(camp.url) + "\">" + esc(camp.name) + "</a> <span class='muted'>" + esc(campMeta(camp)) + "</span></p>";
+    var options = suggest ? suggest.querySelectorAll('[role="option"]') : [];
+    if (!options.length) return;
+    if (activeIdx < 0) activeIdx = delta < 0 ? options.length - 1 : 0;
+    else activeIdx = (activeIdx + delta + options.length) % options.length;
+    options.forEach(function (option, i) { option.setAttribute("aria-selected", i === activeIdx ? "true" : "false"); });
+    if (townInput) townInput.setAttribute("aria-activedescendant", options[activeIdx].id);
+    options[activeIdx].scrollIntoView({block: "nearest"});
   }
   function choose(hit) {
+    if (hit.kind === "camp" && hit.camp && hit.camp.url) {
+      window.location.assign(hit.camp.url);
+      return;
+    }
     if (townInput) townInput.value = hit.name;
     closeSuggest();
     if (clearBtn) clearBtn.hidden = false;
-    if (hit.kind === "town") {
-      picked = hit.town;
-      map.stop();
-      map.setView([hit.town.lat, hit.town.lon], 10);
-      redraw(false);
-      return;
-    }
-    showCamp(hit);
+    picked = hit.town;
+    map.stop();
+    map.setView([hit.town.lat, hit.town.lon], 10);
+    redraw(false);
   }
   if (townInput) {
     townInput.addEventListener("focus", function () { loadTowns(); });

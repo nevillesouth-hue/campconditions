@@ -278,7 +278,7 @@ if "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
 logo = os.path.join(D, "optimum-quest-logo.webp")
 if not os.path.isfile(logo) or os.path.getsize(logo) > 50_000 or os.path.getsize(logo) < 1000:
   bad.append(("optimum-quest-logo.webp", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
-if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or 'justify-content:flex-end' not in home:
+if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "margin-left:auto" in home or "justify-content:flex-end" in home:
   bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
 for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"', 'value="Pub stay"', 'value="Paid – Parks Victoria (book ahead)"'):
@@ -295,8 +295,9 @@ else:
   if sample and sample in home: bad.append(("/", "towns inlined"))
 if 'fetch("/vic-towns.json")' not in mj or "setView" not in mj or ", 10)" not in mj: bad.append(("map.js", "town search"))
 if "slice(0, 15)" not in mj: bad.append(("map.js", "nearest camps"))
-for bit in ("slice(0, 12)", "openPopup", "zoomToShowLayer", "ArrowDown", "aria-activedescendant", "hit-tag", 'kind === "camp"', 'replace(/[^a-z0-9]+/g, " ")', "regionName"):
+for bit in ("slice(0, 12)", "ArrowDown", "aria-activedescendant", "hit-tag", 'kind === "camp"', 'replace(/[^a-z0-9]+/g, " ")', "regionName", 'window.location.assign(hit.camp.url)', 'document.createElement("a")', '[role="option"]'):
   if bit not in mj: bad.append(("map.js", "camp search " + bit))
+if "openPopup" in mj or "zoomToShowLayer" in mj: bad.append(("map.js", "camp search still opens a popup"))
 for flag in ("self", "dogs", "dump", "showers", "tents", "caravans", "motorhomes"):
   if f'data-flag="{flag}"' not in home: bad.append(("/", "toggle " + flag))
 osm = [c for c in feed["camps"] if c.get("source") == "osm"]
@@ -362,8 +363,8 @@ if set(s.get("category") for s in curated_sites) - allowed: bad.append(("osm dat
 merged = build_osm.apply_corrections(curated_sites, build_osm.load_corrections(corr_path))
 if len(merged) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(merged)}"))
 labels = {c.get("category") for c in osm}
-if labels - {"Free", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1067, "Council park": 70, "Showground": 40, "Paid – Parks Victoria (book ahead)": 49, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 5}
+if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
+expect_counts = {"Free": 1064, "Camping area": 3, "Council park": 70, "Showground": 40, "Paid – Parks Victoria (book ahead)": 49, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 5}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
@@ -467,7 +468,8 @@ corinella = page_of("corinella-foreshore-caravan-park")
 must("corinella-foreshore-caravan-park", corinella, ["Type: Council park", "<strong>Paid – book ahead</strong>"])
 if "<strong>Free</strong>" in corinella or "Council park (leased)" in corinella: bad.append(("corinella-foreshore-caravan-park", "category"))
 tolmie = page_of("tolmie-recreational-reserve")
-must("tolmie-recreational-reserve", tolmie, ["<strong>Fee payable on site</strong>", "Booking required:</strong> No", "Max stay: 28 nights", "honesty box"])
+must("tolmie-recreational-reserve", tolmie, ["Type: Camping area", "<strong>Fee payable on site</strong>", "Booking required:</strong> No", "Max stay: 28 nights", "honesty box"])
+if "Type: Free" in tolmie: bad.append(("tolmie-recreational-reserve", "paid site still typed Free"))
 if "$" in tolmie.split('id="newsletter"')[0]: bad.append(("tolmie-recreational-reserve", "fee amount"))
 permit = page_of("blackwood")
 must("blackwood", permit, ["<strong>Permit required</strong>", "Toilets: Yes (sealed pump-out, septic)", "Water source: tap (not stated as drinkable)", "Vehicles: Camper trailers mentioned as suitable", "Accessibility: Partial wheelchair access (DataVic)"])

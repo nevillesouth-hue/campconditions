@@ -4,7 +4,8 @@
 Kept categories: free, donation, showground, council_park, council_park_leased, rest_area.
 Dropped: unnamed sites, commercial caravan parks with no council or committee operator,
 big chains, hiker/group/scout/school camps, rest areas with no overnight indication,
-and private or disused sites.
+and private or disused sites. A tourism=camp_site whose name also contains "camp"
+is not dropped just because the name says picnic.
 
 decide(tags) returns a site dict, or None when the feature is dropped.
 """
@@ -77,9 +78,13 @@ def decide(tags, name=None):
     if tags.get("access") in ("private", "no") or tags.get("disused") or tags.get("abandoned"):
         return None
     # "and" binds tighter than "or", matching the curated script.
+    # Picnic does not exclude a camp_site whose name also says camp.
+    excl_name = name
+    if tourism == "camp_site" and re.search(r"(?i)camp", name):
+        excl_name = re.sub(r"(?i)picnic", "", name)
     if (tags.get("backcountry") == "yes" or tags.get("group_only") == "yes"
             or (tags.get("camp_site") == "basic" and "hike" in low)
-            or EXCL.search(name) or tags.get("scout") == "yes"):
+            or EXCL.search(excl_name) or tags.get("scout") == "yes"):
         return None
     if CHAIN.search(name) or CHAIN.search(tags.get("brand") or "") or CHAIN.search(operator):
         return None

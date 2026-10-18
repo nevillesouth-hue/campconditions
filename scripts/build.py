@@ -165,7 +165,7 @@ def apply_row_facts(camp, row):
     if access and access.lower() not in ("unknown", "yes", "no"): camp["access_notes"] = access
     rubbish = facts.scrub_money(row.get("rubbish"))
     if rubbish: camp["rubbish"] = rubbish
-    for src, dest in (("vehicle_notes", "vehicle_notes"), ("accessibility", "accessibility"), ("self_sufficient_note", "self_sufficient_note"), ("area", "area"), ("source_scope", "source_scope")):
+    for src, dest in (("vehicle_notes", "vehicle_notes"), ("accessibility", "accessibility"), ("self_sufficient_note", "self_sufficient_note"), ("area", "area"), ("source_scope", "source_scope"), ("source_note", "source_note")):
         text = facts.scrub_money(row.get(src))
         if text and text.lower() != "unknown":
             if text[0].islower(): text = text[0].upper() + text[1:]
@@ -226,7 +226,7 @@ def load_osm(seen):
     for row in rows:
         name = (row.get("name") or "").strip()
         raw_cat = (row.get("category") or "").strip()
-        if not name or raw_cat not in allowed: continue
+        if not name or not re.search(r"[A-Za-z0-9]", name) or raw_cat not in allowed: continue
         s = slug(name)
         if s in seen:
             tail = slug(str(row.get("osm_id") or "osm")) or "osm"
@@ -949,6 +949,7 @@ def facts_html(c, fill_unknown):
         if collapse: block += f'<p>Other facilities not yet confirmed. Know this spot? <a href="/report/?camp={e(c["slug"])}">Help us confirm</a>.</p>'
         bits.append(block)
     if c.get("source_scope"): bits.append(f"<p>{e(c['source_scope'])}</p>")
+    if c.get("source_note"): bits.append(f"<p>{e(c['source_note'])}</p>")
     if c.get("checked_line"): bits.append(f"<p>{e(c['checked_line'])}</p>")
     if (c.get("source_url") or "").startswith("http"):
         bits.append(f'<p>Source: <a href="{e(c["source_url"])}">official source</a></p>')

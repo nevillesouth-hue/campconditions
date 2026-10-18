@@ -416,17 +416,22 @@ curated_sites = curated["sites"] if isinstance(curated, dict) else curated
 corr_path = os.path.join(root, "data", "manual-corrections.json")
 if set(s.get("category") for s in curated_sites) - allowed: bad.append(("osm data", "category outside the six"))
 merged = build_osm.apply_corrections(curated_sites, build_osm.load_corrections(corr_path))
-if len(merged) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(merged)}"))
+named = [s for s in merged if re.search(r"[A-Za-z0-9]", (s.get("name") or ""))]
+if len(named) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1064, "Camping area": 3, "Council park": 70, "Showground": 40, "Paid – Parks Victoria (book ahead)": 49, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 5}
+expect_counts = {"Free": 1126, "Camping area": 3, "Council park": 70, "Showground": 40, "Paid – Parks Victoria (book ahead)": 54, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 5}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
 if sum(1 for c in osm if c.get("needs_review")) != sum(1 for c in osm if c.get("needs_review") is True): bad.append(("osm", "review flag"))
 if not any(c.get("needs_review") is False for c in osm): bad.append(("osm", "no confirmed sites"))
 if any(classify.CHAIN.search(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "chain name kept"))
-if any(classify.EXCL.search(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "hiker or group name kept"))
+def _still_excluded(name):
+  checked = name or ""
+  if re.search(r"(?i)camp", checked): checked = re.sub(r"(?i)picnic", "", checked)
+  return classify.EXCL.search(checked)
+if any(_still_excluded(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "hiker or group name kept"))
 show = classify.decide({"name": "Echuca Showgrounds"})
 if not show or show["category"] != "showground" or show["label"] != "call first" or not show["needs_review"]: bad.append(("classify", "showground"))
 if (classify.decide({"tourism": "camp_site", "fee": "no", "name": "Apex"}) or {}).get("category") != "free": bad.append(("classify", "free"))
@@ -445,6 +450,10 @@ if classify.decide({"tourism": "camp_site", "name": "Old", "disused": "yes"}): b
 if classify.decide({"tourism": "camp_site", "name": "Mount Thackeray Hiker Camp"}): bad.append(("classify", "hiker"))
 if classify.decide({"tourism": "camp_site", "name": "Stoney Creek Group Camping Area"}): bad.append(("classify", "group"))
 if classify.decide({"tourism": "camp_site", "name": "1st Camberwell Scout Camp"}): bad.append(("classify", "scout"))
+picnic_camp = classify.decide({"tourism": "camp_site", "fee": "no", "name": "Kurth Kiln Camping and Picnic"})
+if not picnic_camp or picnic_camp["category"] != "free": bad.append(("classify", "picnic camp"))
+if classify.decide({"tourism": "camp_site", "fee": "no", "name": "Riverside Picnic Area"}): bad.append(("classify", "picnic only"))
+if classify.decide({"tourism": "camp_site", "name": "Scout Picnic Camp"}): bad.append(("classify", "scout picnic"))
 if classify.decide({"tourism": "caravan_site", "name": "Discovery Parks Melbourne", "brand": "Discovery"}): bad.append(("classify", "chain"))
 if classify.decide({"tourism": "caravan_site", "name": "BIG4 Bendigo Park Lane"}): bad.append(("classify", "big4"))
 if classify.decide({"tourism": "caravan_site", "name": "Hamilton Caravan Park"}): bad.append(("classify", "commercial"))
@@ -455,10 +464,10 @@ if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.plac
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
 before = os.path.getmtime(corr_path)
 corrections = json.load(open(corr_path, encoding="utf-8"))
-if not isinstance(corrections, dict) or len(corrections) != 1074 or "drop" in corrections or "overrides" in corrections:
+if not isinstance(corrections, dict) or len(corrections) != 1142 or "drop" in corrections or "overrides" in corrections:
   bad.append(("corrections", "shape"))
-if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 114: bad.append(("corrections", "exclusions"))
-if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 436:
+if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 118: bad.append(("corrections", "exclusions"))
+if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 500:
   bad.append(("corrections", "new sites"))
 import facts
 suit_cases = [

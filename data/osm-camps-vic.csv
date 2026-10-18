@@ -1,0 +1,954 @@
+name,lat,lon,category,suits,self_contained_only,max_nights,dogs,dump_point,showers,toilets,phone,email,website,operator,label,osm_id,needs_review
+Border RA,-37.394515,149.675726,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316588373,true
+Wingan Inlet Campground - Croajingolong NP,-37.741714,149.497566,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596629,true
+Shipwreck Creek Campground - Croajingolong NP,-37.644678,149.698873,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596637,true
+Frosty Hollow Camping Area - Errinundra NP,-37.298723,148.962607,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596646,true
+Buenba Flat #1,-36.700818,147.92217,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596664,true
+Langfords West Campground,-36.928435,147.304251,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596701,true
+Eaglevale Camping Area - Alpine NP,-37.366243,147.006587,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596737,true
+Bluff Hut - Alpine NP,-37.215803,146.524228,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n316596768,true
+King Hut - Alpine NP,-37.08849,146.572301,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596772,true
+Pineapple Flat Camping Area - Alpine NP,-37.06587,146.499413,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596777,true
+Barnewall Plains Camping Area,-37.357995,145.926749,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596808,true
+Thurra River Campground - Croajingolong NP,-37.780846,149.308256,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596877,true
+Cann River East Rest Area,-37.567234,149.183937,free,caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n316596882,true
+Lomond Hill Rest Area,-37.57508,149.306215,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596893,true
+Newmerella Logging Station Rest Area,-37.7401,148.421737,free,caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316596973,false
+Hospital Creek Rest Area,-37.752136,148.189223,free,unknown,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n316596978,true
+Seninis Campground - Moondarra State Park,-38.023433,146.339757,free,unknown,no,,no,unknown,unknown,yes,,,https://www.parks.vic.gov.au/,,check with operator,n316597040,false
+Willow Park,-38.141909,146.791898,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597059,true
+Flamingo Beach,-38.285349,147.307705,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597118,true
+Nine Mile Creek Rest Area,-38.643868,146.482375,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597148,true
+Swamp Tower Reserve,-38.213108,145.458895,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597170,true
+Ellis Bridge RA,-36.407891,147.232633,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597214,true
+Peters Bridge RA,-36.399886,147.246891,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597217,true
+Pigs Point Reserve,-36.279699,147.237504,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597221,true
+Lake Catani Campground - Mt Buffalo NP,-36.735293,146.812686,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597266,true
+Anglers Rest Camping Area,-36.99064,147.489626,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n316597299,false
+Staghorn Flat RA,-36.244599,146.934254,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597364,true
+Yea RA,-37.21244,145.441178,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597695,true
+Moira Park - Jollys Bend SF,-36.476612,145.369182,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597756,true
+Wenhams Camping Area,-36.34103,146.204494,free,unknown,no,,unknown,unknown,unknown,yes,,,,,check with operator,n316597810,true
+Goulburn River RA,-37.142944,145.242574,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597813,true
+King Parrot Creek RA,-37.146203,145.267344,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597817,true
+Loddon Floodway,-35.378151,143.689306,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316597990,true
+Lake Mournpall Campground - Hattah-Kulkyne NP,-34.704648,142.335783,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598091,true
+Lake Hattah Campground - Hattah-Kulkyne NP,-34.752818,142.342999,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598097,true
+Lexton South Rest Area,-37.289045,143.546638,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598321,true
+Vaughan Springs Reserve - Castlemaine Diggings National Heritage Park,-37.159663,144.214249,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598431,true
+Warburton Bridge Reserve,-37.170808,144.238469,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598439,true
+Teddington Reservoir - St Arnaud Range NP,-36.84328,143.262561,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598509,true
+Green Hill Lake Reserve,-37.29623,142.981074,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Ararat Rural City Council; Green Hill Lake Development Board,check with operator,n316598598,false
+Newbridge Recreation Reserve,-36.739387,143.902416,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598725,true
+Meredith Park,-38.267835,143.609112,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598860,true
+Ash Wednesday Memorial RA,-38.336156,142.727286,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316598968,true
+Wannon Falls Campground,-37.674513,141.846983,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599253,true
+Princess Margaret Rose Caves - Lower Glenelg NP,-37.986878,140.991846,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599357,true
+Pritchards Campground - Lower Glenelg NP,-38.056355,141.21864,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599373,true
+Jackass Fern Gully Campground,-38.074815,141.42564,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599378,true
+Western Beach Campground - Lake Albacutya Regional Park,-35.780451,141.935851,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599441,true
+Wonga Campground - Wyperfeld NP,-35.583285,142.053458,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599502,true
+Yaapeet Beach Campground - Lake Albacutya Regional Park,-35.766171,142.006748,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599513,true
+Dolly Creek,-37.752813,144.094647,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n316599580,false
+Leanganook Camping Area,-37.017894,144.30652,free,unknown,no,,yes,unknown,unknown,yes,,,https://www.parks.vic.gov.au/places-to-see/sites/leanganook-camping-area,Parks Victoria,check with operator,n317073951,false
+Jokers Flat Camping Area,-36.943385,147.473787,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n324934517,false
+The Farm;Private Property,-37.381727,147.287512,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n457388215,true
+Lake Cobbler,-37.05086,146.626662,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n508105972,true
+Flat Rock Camping Area,-37.169428,145.149103,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n587552562,true
+Forest Camp,-38.030891,141.139074,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n599198047,true
+Site 1,-38.046397,141.160793,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n599201325,true
+Site 2,-38.046465,141.160927,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n599201326,true
+Fitzroy River,-38.223607,141.762479,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n600217299,true
+Buenba Flat South #2,-36.706287,147.91543,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n607977292,true
+Buenba Flat South #1,-36.702434,147.91955,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n607977295,true
+Buenba Flat South #3,-36.705763,147.913834,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n607978143,true
+Sunday Creek campsite,-37.136657,145.058106,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n621616725,true
+Smythesdale Gardens,-37.639136,143.685237,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n707302648,true
+Upper Yarra Reservoir,-37.668874,145.889819,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n803825222,true
+Wye River Foreshore Camping Reserve,-38.633762,143.891957,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n863349374,true
+Tuan Campsite,-36.12851,146.589846,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n938382102,true
+Devils Elbow,-34.054907,141.152841,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n980292673,true
+Wannon Crossing Campground,-37.433754,142.47565,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/wannon-crossing-campground,Parks Victoria,check with operator,n1010039365,false
+Forest Edge CYC,-37.940799,146.021323,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1112492636,true
+Casterton Showgrounds,-37.580828,141.403682,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n1171472416,false
+Casterton Council Caravan Park,-37.581287,141.405398,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1171472419,true
+Jamieson Track Camping Area,-38.596601,143.918008,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1187108930,true
+Turtons Creek Reserve,-38.534488,146.250028,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1201357137,true
+Acheron Campground,-37.57652,145.691559,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1276707069,false
+Bomjinna,-37.272346,142.61328,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1282697096,true
+Red Bluff,-35.876993,140.998467,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1296124476,true
+Aberfeldy River Campground,-37.853401,146.431836,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1298312458,true
+Broken Bucket Tank,-35.967621,141.399609,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1311413380,true
+Wonga Campground,-35.58527,142.047404,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1365333313,true
+Forest Camp North,-38.029862,141.140349,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1382891277,true
+Red Gum Landing,-38.03451,141.155303,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1382894524,true
+Wilson Hall,-38.02201,141.105636,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1382904277,true
+Mount Franklin Reserve Campground - Hepburn Regional Park,-37.264865,144.150711,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1455710447,true
+Happy Jacks Natural Reserve,-36.839622,144.15513,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1455718513,true
+Longridge Camp Site,-37.733819,145.187223,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n1466700633,true
+Mulberry Beach,-35.8131,145.560987,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1469115187,true
+Fortress Cave Bush Camp,-37.311196,142.305567,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1490233468,true
+Horseyard Flat,-37.482816,146.982078,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1520630745,true
+Mountain Creek Campsite,-36.699813,147.2525,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1592068298,true
+Dederang North RA,-36.509726,147.010582,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1602169539,true
+Free camp site,-36.327892,147.031065,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1611269168,true
+Old Yards Camp Ground,-34.095442,141.234756,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1676319858,true
+Glassy Meadows,-34.121891,141.113406,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Victoria Parks,check with operator,n1676323193,false
+Fortes,-37.299201,143.354656,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1706902853,true
+Frasers Trail Bike,-37.085944,143.369428,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1750902138,true
+Taylors Crossing campsite,-36.826362,147.659378,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n1762850072,false
+Merbein Common - River Access 5,-34.15755,142.077569,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n1763842206,false
+Merbein Common - River Access 7,-34.154781,142.070988,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n1774623315,false
+Merbein Common - River Access 8,-34.154372,142.069232,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n1774623341,false
+Mafeking Rover Park,-37.064785,145.503469,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1777698401,true
+Wright Horse Camp - Cobboboonee National Park,-38.035491,141.389548,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1782109456,true
+Homestead Flat Camping Area,-37.204713,146.833154,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1802391346,true
+Agnes River Rest Area,-38.67167,146.38639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391662,true
+Apex Beach,-35.81306,145.54833,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391671,true
+Avalon Rest Area,-38.001008,144.491406,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391673,true
+Avon River,-36.640168,142.978577,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391676,true
+Baileys Rocks Campground,-37.28806,141.17722,free,unknown,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n1808391678,false
+Balnarring Beach Camping Reserve,-38.390479,145.12404,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391681,true
+Bass Valley Camping Ground,-38.360574,145.764455,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391686,true
+Bears Lagoon Fruit Fly Rest Area,-36.31306,143.97444,free,tent|caravan,unknown,,unknown,no,no,no,,,,,check with operator,n1808391688,true
+Beazleys Bridge Rest Area,-36.701783,143.163755,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391692,true
+Beggs Bend,-34.628493,142.861527,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391695,true
+Bellbird Creek,-37.652226,148.817743,free,caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808391699,false
+Bj Robertson Memorial Park,-35.345456,142.424474,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391720,true
+Branxholme Rest Area,-37.85806,141.8025,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391736,true
+Brightlight Saddle Rest Area,-37.589202,148.957359,free,caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808391739,false
+Browns Water Holes Caravan Park,-37.954295,143.346965,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391742,true
+Buchan Caves Camping Reserve,-37.49528,148.16389,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391746,true
+Bung Bong Rest Area,-37.09806,143.56917,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391748,true
+Burned Bridge Reserve,-37.81606,148.030694,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391749,true
+Burrowye West Rest Area,-35.958257,147.443231,free,unknown,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808391752,true
+C.R.B. Camp Area,-36.98778,147.49472,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n1808391756,false
+Candlebark Campground,-37.17667,145.84056,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391759,true
+Cherrypool Highway Park,-37.108068,142.187296,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391772,true
+Clarendon Rest Area,-37.70917,143.98222,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391777,true
+Coleraine Caravan Park,-37.59722,141.69139,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391784,true
+Corringle Slips Campground,-37.8,148.5225,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391787,true
+Dartmoor Turnoff Rest Area,-38.07528,141.165,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391797,true
+Dederang North Rest Area,-36.44444,147.01694,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391799,true
+Deep Lake Recreation Reserve,-37.93139,143.17694,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391800,true
+Derrinallum Recreation Reserve,-37.948821,143.22751,donation,caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391803,false
+Derrinallum Town Park,-37.94806,143.22389,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391804,true
+Dodds Bridge Rest Area,-36.79417,146.135,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391808,true
+Donald Lakeside Caravan Park,-36.364639,142.988167,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391811,true
+Donald Town Park,-36.3675,142.9775,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391812,true
+"Edenhope Lake Wallace Recreation Ground""""",-37.03444,141.29611,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391819,true
+Edenhope North Rest Area,-37.00111,141.3475,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391820,true
+Emmerts Bend,-34.56944,142.41,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391825,true
+Emu Bight Campground,-37.99556,147.65278,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391826,true
+English's Bridge,-36.62139,144.56111,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391827,true
+Ensay Recreation Ground,-37.382747,147.824023,council_park,tent|caravan,no,,unknown,unknown,yes,yes,,,,,check with operator,n1808391828,false
+Ferny Flat Campground,-36.89333,147.63139,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391833,true
+Fitzroy River Reserve,-38.25801,141.848499,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391836,true
+"Floating Islands Lagoon Nature Reserve""""",-38.34889,143.39917,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391838,true
+Four Corners Caravan Park,-36.30361,145.43194,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391843,true
+Genoa Rest Area / Wayside Stop / Camp Park,-37.472745,149.590992,donation,tent|caravan,unknown,72 hours,unknown,unknown,unknown,unknown,,,,East Gippsland Shire Council,check with operator,n1808391846,false
+Gibbo River Bush Camping,-36.756694,147.700486,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391848,true
+Girgarre Town Park,-36.39806,144.98,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391850,true
+Glenpatrick Reserve,-37.1375,143.32722,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391853,true
+Greens Campground - Whroo Historical Area,-36.646972,145.033112,free,unknown,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n1808391865,false
+Harriers Swamp Campground,-38.20861,146.84583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391871,true
+Hiscocks Crossing,-37.93889,141.44667,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391874,true
+Hoopers Bridge (tallaroop Creek),-36.63583,143.83556,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391875,true
+Hopetoun Caravan Park,-35.72611,142.36694,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391876,true
+Hopetoun Rest Area,-35.7225,142.36472,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391877,true
+Hotspur Bridge (Crawford River),-37.92583,141.56111,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391881,true
+Hynes Reserve Camping Area,-37.22472,142.105,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391885,false
+Indi Bridge Reserve,-36.23417,148.03333,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391886,true
+Jeparit Caravan Park,-36.14472,141.98417,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391895,true
+Johnny Mullagh Park Camping Ground,-37.170211,141.589498,council_park,tent|caravan,no,,unknown,no,yes,yes,,,,Johnny Mullagh Committee,check with operator,n1808391902,false
+Katamatite Lions Memorial Park,-36.08093,145.690705,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391906,true
+Killarney Beach Camping Reserve,-38.35528,142.30778,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391913,true
+Knowsley Rest Area,-36.83944,144.60194,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391918,true
+Kooreh Hall,-36.64056,143.38556,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391919,true
+Lake Batyo Catyo Campground,-36.51611,142.94583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391925,true
+Lake Charlegrark Campground,-36.75222,141.23639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391934,true
+Lake Elingamite,-38.349899,143.016737,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391936,true
+Lake Monibeong Campground,-38.133812,141.185498,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391940,true
+Lake Ratzcastle Camp Area,-36.811425,141.465477,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391943,true
+Lake Tooliorook,-37.97722,143.28472,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391945,true
+Lake Walpeup Reserve Camping Area,-35.197753,142.137804,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391948,true
+Watchem Lake,-36.14833,142.8475,council_park,tent|caravan,no,,unknown,unknown,yes,yes,+61 411 928 220,,https://www.visitbuloke.com.au/attractions-in-buloke/watchem-lake,Buloke Shire Council,check with operator,n1808391949,false
+Lakes Crosbie Campground,-35.055806,141.730123,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391953,true
+Lakeside Campground,-37.17694,145.86222,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391956,true
+Landsborough Caravan Park,-37.00833,143.13639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391958,true
+Lismore Town Park,-37.953838,143.344302,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391969,true
+Loch Memorial Reserve,-38.367746,145.711983,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391970,true
+Lochiel Rest Area,-36.41833,141.98111,free,caravan,no,,unknown,unknown,no,yes,,,,,check with operator,n1808391972,true
+Major Creek Reserve,-36.855548,145.068075,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391981,true
+Mallacoota Foreshore Camping Park,-37.557044,149.759134,council_park,unknown,no,,unknown,yes,unknown,yes,,,,,check with operator,n1808391982,true
+Manangatang Travellers Rest,-35.05278,142.88333,donation,tent|caravan,no,72 hours,unknown,unknown,yes,yes,,,,,check with operator,n1808391984,false
+7 Manna Gum Camp,-37.53278,146.60833,free,tent,no,,unknown,unknown,unknown,yes,,,,,check with operator,n1808391985,false
+Marlay Point Free Camping,-38.061161,147.249683,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391986,false
+McCoys Bridge Rest Area,-36.178038,145.116043,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808391988,false
+Merrinee North Rest Area,-34.26007,141.824091,free,unknown,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808391993,true
+Middle Creek Campground,-37.33253,143.246293,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808391995,true
+Murtoa Caravan Park,-36.62174,142.466122,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392014,true
+8 Muttonwood Camp,-37.530323,146.614558,free,tent|caravan,no,,unknown,unknown,unknown,yes,,,,,check with operator,n1808392015,false
+Nash Creek Campground,-37.945898,145.688007,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392020,true
+Nevins East Beach,-35.95556,145.89194,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392024,true
+Numurkah Lions Community Park,-36.097865,145.439283,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392035,true
+Nyah Recreation Reserve,-35.167529,143.380205,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392036,true
+OTIT Campground,-35.72778,141.99167,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392041,true
+Paddys Range State Park,-37.08278,143.69083,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392043,true
+Paradise Beach Campground,-38.19417,147.42222,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392044,true
+Parolas Bend,-36.05889,146.19806,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392045,true
+Passage Camp,-34.71694,143.19944,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392046,true
+Peach Tree Creek Camping Area,-37.7425,149.13667,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392047,true
+Penshurst Caravan Park,-37.872911,142.289978,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 5576 5220,,,,check with operator,n1808392048,true
+Piangil North Rest Area,-35.04278,143.32472,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392050,true
+Piangil Rest Area,-35.055271,143.31227,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392051,true
+Piangil West Rest Area,-35.05694,143.21694,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392052,true
+Pirron Yallock West Rest Area,-38.34694,143.4125,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392060,true
+Police Paddocks,-35.980264,146.504049,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392064,true
+Powelltown Rest Area,-37.86056,145.74472,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392068,true
+Providence Ponds,-37.921157,147.273985,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392072,true
+Psyche Bends,-34.251346,142.23313,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392073,true
+Pump Road Camp,-34.60694,142.80278,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392074,true
+Pyramid Hill Caravan Park,-36.05528,144.125,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392075,true
+12 Red Box Camp,-37.5186,146.622663,free,tent,no,,unknown,unknown,unknown,yes,,,,,check with operator,n1808392080,false
+Reeves Beach Coastal Reserve,-38.57333,146.95222,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392082,true
+Riverbank Caravan Park,-36.05417,145.20972,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 438 586 628,,,,check with operator,n1808392083,true
+Rochester North Rest Area,-36.27528,144.70139,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392085,true
+Rubicon River Rest Area,-37.279089,145.79953,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392088,true
+Running Creek Rest Area,-36.54444,147.04639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392089,true
+Runnymede Highway Park,-36.52247,144.624288,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n1808392091,false
+Rutherglen East Rest Area,-36.04722,146.63444,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392092,true
+Ryan Creek Rest Area,-36.48667,143.71417,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392093,true
+Rye East Foreshore Camping,-38.370723,144.829127,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392094,true
+Scotts Beach,-35.930274,145.68213,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392098,true
+Sea Lake Caravan & Camping Park,-35.503169,142.846109,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392100,true
+Serviceton Recreational Reserve,-36.386637,140.980868,council_park,tent|caravan,no,,unknown,unknown,yes,yes,,,,,check with operator,n1808392102,false
+Shallow Inlet Campground,-38.82111,146.17167,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392104,true
+Skinners Flat Reservoir,-36.36611,143.58583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392109,true
+Snowy River Rest Area 1,-37.739901,148.506798,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392118,true
+Snowy River Rest Area 2,-37.767882,148.536881,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392119,true
+Sorrento Foreshore Reserve,-38.34417,144.75222,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392120,true
+Stuart Mill South Rest Area,-36.83972,143.31944,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392129,true
+Surrey Ridge Campground,-38.18389,141.50417,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392132,true
+Swan Lake Campground,-38.21361,141.31111,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392134,true
+Swifts Creek Caravan & Tourist Park,-37.261255,147.724407,council_park,tent|caravan,no,,unknown,unknown,yes,yes,,,,East Gippsland Shire,check with operator,n1808392135,false
+Tallangatta Creek Rest Area,-36.195298,147.317388,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392137,true
+Taradale Mineral Springs Reserve,-37.13861,144.34972,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392140,true
+Tarrington Town Park,-37.76639,142.09833,free,tent|caravan,no,,unknown,unknown,no,yes,,,,,check with operator,n1808392142,true
+Tea Tree Lake,-38.08167,142.80917,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392144,true
+Terrick Terrick Campground,-36.168747,144.241978,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n1808392148,false
+The Glasshouse Camping Area,-37.84639,148.10917,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392151,true
+Mueller Inlet Campground,-37.77722,149.32361,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392155,true
+Tolmie Rest Area,-36.91778,146.26528,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392158,true
+Tongala Turnoff Rest Area,-36.19937,144.950849,free,caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808392160,true
+Underbool Rest Area,-35.169518,141.809875,donation,unknown,no,,unknown,unknown,yes,yes,,,,,check with operator,n1808392173,false
+Victoria Falls Campground,-37.09361,147.425,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392178,true
+Wallpolla Island,-34.153816,141.779071,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392185,true
+Walshs Bend Camp,-34.607706,142.823816,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392187,true
+Warrnambool Showgrounds,-38.376905,142.464899,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n1808392193,false
+Wee Wee Rup Rest Area,-35.85861,144.28639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392197,true
+Wemen Rest Area,-34.78222,142.636905,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808392198,false
+Willaura Recreation Grounds,-37.545343,142.743319,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392205,true
+Woodend Town Park,-37.35389,144.52944,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392213,true
+Wulgulmerang Recreation Reserve,-37.06847,148.25913,council_park,tent|caravan,no,,unknown,yes,yes,yes,,,,,check with operator,n1808392215,false
+Wunghnu Rest Area,-36.155547,145.430886,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392216,true
+Wycheproof Caravan Park,-36.069513,143.226136,free,caravan,unknown,,unknown,unknown,unknown,unknown,+61 3 5493 7278,,,,check with operator,n1808392217,true
+Yambuk Caravan Park,-38.33924,142.054001,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392222,true
+Yuppeckiar Park,-37.635873,142.48249,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392225,true
+Aysons Reserve (Campaspe River),-36.459147,144.670658,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392599,false
+Barmah Lakes Campground,-35.956248,144.958945,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392605,true
+Browns Camping Area 2,-35.860821,145.295909,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n1808392606,true
+Barwidgee Rest Area,-36.494012,146.793304,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392607,true
+Beulah Caravan Park,-35.942313,142.416974,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392623,true
+Big River Bridge Campground / Hills Historic / Rest Area,-36.893218,147.463572,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n1808392630,false
+Blanket Bay Campground,-38.82806,143.58278,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392654,true
+Boolarra Apex Park,-38.429164,146.308892,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392676,true
+Brookes River Reserve,-37.190627,145.671068,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392708,true
+Buckety Plains Campground,-36.939028,147.328659,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392714,true
+Casuarina Campground,-35.445712,141.995588,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392732,true
+Clarke Lagoon Reserve,-36.023395,147.912986,free,tent|caravan,unknown,,no,unknown,unknown,no,,,,Parks Victoria,check with operator,n1808392745,false
+Cottontree Creek Campground,-36.114848,147.30515,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://parkweb.vic.gov.au/explore/parks/mount-granya-state-park/things-to-do/cottontree-creek,,check with operator,n1808392755,true
+Cowwarr Weir,-37.99694,146.65944,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392757,true
+Cullulleraine West Rest Area,-34.274871,141.231615,free,unknown,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808392758,true
+Ebden Reserve,-36.15167,147.02583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808392844,true
+Elphinstone North Rest Area,-37.07056,144.30639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393011,true
+Freeburgh Bridge,-36.756394,147.02357,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393370,true
+Glenrowan Caravan Park,-36.451744,146.23626,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393379,true
+Gordon Park Camping Ground,-36.26639,143.35028,free,tent|caravan,unknown,,unknown,unknown,no,unknown,,,,,check with operator,n1808393381,true
+Gormandale Recreation Reserve,-38.292231,146.700979,free,tent|caravan,unknown,,unknown,no,unknown,unknown,,,,,check with operator,n1808393382,false
+Guttram State Forest,-35.6125,144.11528,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393393,true
+Hattah North Rest Area,-34.74194,142.27167,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808393397,false
+Horseshoe Beach,-35.92806,145.69583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393403,true
+J C Stretch Memorial Park,-37.807716,143.586517,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393490,true
+Jack Emmett Billabong Camping Area,-36.626528,142.629368,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393491,true
+Jane Duff Highway Park,-36.73306,141.7225,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393494,true
+Jerusalem Creek Campground,-37.264264,145.968092,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393497,true
+Jessie Kennedy Reserve,-37.11028,144.18444,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393498,true
+Kevington Hotel,-37.358146,146.160881,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393547,true
+Kinnabulla Rest Area,-35.897771,142.795938,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393740,true
+Lake Bringalbert,-36.832472,141.162317,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393753,true
+Lake Lascelles,-35.72528,142.37472,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393763,true
+Lascelles West Rest Area,-35.65639,142.5025,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393788,true
+Lock 9,-34.19167,141.59417,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393802,true
+Ludlows Reserve,-36.170549,147.035208,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393821,true
+Moliagul Rest Area,-36.751242,143.664161,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393871,true
+Mongans Bridge Camping Park,-36.58472,147.09361,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393872,true
+Mt Sturgeon Rest Area,-37.654108,142.319883,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393879,true
+Nariel Creek Recreation Reserve,-36.242111,147.83172,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393890,true
+No 2 Creek Rest Area,-37.06028,143.46083,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393901,true
+Oxley Recreation Reserve,-36.47056,146.385,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808393913,true
+Porepunkah East Rest Area,-36.709424,146.926246,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394021,true
+Raspberry Hill Campground,-36.9425,147.3175,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394415,true
+Rosebud Foreshore Reserve,-38.36139,144.88361,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394519,true
+Sale Showground Caravan & Motorhome Park,-38.092679,147.066551,showground,tent|caravan|motorhome,no,,unknown,yes,yes,yes,+61 435 853 333,,,,call first,n1808394529,false
+Sandbanks Reserve,-38.17028,146.49194,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394530,true
+Shoreham Foreshore Reserve,-38.428627,145.05195,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,http://www.shorehamforeshorereserve.com.au/,Shoreham Foreshore Reserve,check with operator,n1808394541,true
+Staceys Bridge,-36.44333,147.83028,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394557,true
+Stonehenge Farmstay Camping Ground,-37.53083,148.13556,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394562,true
+Tallandoon Rest Area,-36.440495,147.203217,free,tent|caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1808394592,false
+Tanwood South Rest Area,-37.0175,143.40639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394602,true
+Tarra River Rest Area,-38.55056,146.68306,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394604,true
+The Quarries Campground,-37.812836,147.089126,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394636,true
+Thurra River / Drummer Forest Walk / Rest Area,-37.568747,149.272518,free,tent|caravan,unknown,28 days,unknown,unknown,unknown,unknown,,,,Victoria State Forests,check with operator,n1808394639,true
+Tom Mitchell Reserve Rest Area,-36.178309,147.549964,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394642,true
+Toolangi Recreational Reserve,-37.535,145.47444,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394644,true
+Torneys Tank Bushland Reserve,-35.73944,143.11639,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394647,true
+Trawool Rest Area,-37.09056,145.20167,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394651,true
+Upper Yarra Reservoir Park,-37.66944,145.89028,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394728,true
+Walpeup Wayside Stop,-35.13597,142.024928,council_park,unknown,no,,unknown,unknown,yes,yes,,,,Mildura Rural City Council,check with operator,n1808394747,false
+Wharparilla Flora Reserve Rest Area,-36.122294,144.719186,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394843,true
+Wickliffe Rest Area,-37.690987,142.722949,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394845,true
+Woady Yaloak Creek Rest Area,-37.678122,143.638297,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394850,true
+Won Wron North Rest Area,-38.45889,146.72972,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1808394851,true
+Hinches Beach Campsite,-35.967453,145.944193,free,unknown,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n1811188912,true
+Towong Reserve,-36.123575,147.997581,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,Snowy Valleys Council,check with operator,n1811199421,false
+Grant Township Camping Area,-37.343891,147.155837,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1861006215,true
+Knowsley Rest Area,-36.893508,144.529545,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1906375597,true
+Knowsley Rest Area,-36.949964,144.498451,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1906375670,true
+McFarlane Saddle,-37.474689,146.849463,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n1918054366,true
+Apollo Bay Recreational Reserve,-38.763951,143.66726,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2005938578,true
+Ocean Grove,-38.278374,144.50059,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2005938579,true
+Foreshore Reserve,-38.355294,144.764518,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2005986043,true
+Whitecliffs Foreshore Reserve,-38.366885,144.807397,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 5981 7100,,https://www.whitecliffs.com.au/,,check with operator,n2005986044,true
+Foreshore Reserve,-38.367733,144.857677,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2005986045,true
+Rye West Foreshore Camping,-38.36877,144.814647,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2005986046,true
+Merricks Camp and Conference Centre,-38.403479,145.071552,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2005986051,true
+Eastern Tyers Camping Area,-37.924805,146.384636,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/eastern-tyers-camping-area,Parks Victoria,check with operator,n2035760366,false
+Quart Pot Flat Camping Area,-36.731825,147.616221,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,"https://www.parks.vic.gov.au/places-to-see/sites/quart-pot-flat-hut-,-a-,-camping-area",,check with operator,n2062595160,true
+Dogmans Hut camping area,-36.53781,148.132965,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2100532181,true
+Buenba Flat #2,-36.697565,147.922368,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2103616933,true
+Buenba Flat #3,-36.693359,147.924578,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2103616935,true
+Rest Area,-35.198762,141.590774,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2105486998,true
+Mud Creek bush campsite,-36.987314,142.454583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2241434690,true
+Bass Valley Camping Ground,-38.366643,145.766884,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2283068020,true
+Mossvale Park,-38.401436,146.053941,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2283068021,true
+Abbeyard Camping Area,-36.908906,146.701034,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2294280390,true
+Forest Road Trail Bike Unloading Area,-38.008728,145.806889,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2338094290,true
+Red Bluff campsite,-38.055174,147.525831,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2340335449,true
+Chokem Flats - Castlemaine Diggings National Heritage Park,-37.141869,144.225305,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2362674473,true
+10 Breakfast Creek Camp,-37.517224,146.618014,free,tent|caravan,no,,unknown,unknown,unknown,yes,,,,,check with operator,n2387190552,false
+Bush Camp,-37.279566,143.218442,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2400422187,true
+Railway Creek,-37.412407,146.094624,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2412946214,true
+White Sands,-38.093361,141.07946,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2429187718,true
+Old Mill Camp Ground (hike-in),-37.852991,144.195399,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2442832789,true
+Bally Hooley Campsite,-37.517778,148.263366,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2479623409,true
+Samaria Wells Camp Site,-36.824692,146.063296,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2553790377,true
+Billy Goat Bend Camp Site,-37.667237,147.368702,free,unknown,unknown,,unknown,no,unknown,unknown,,,,Parks Victoria,check with operator,n2612749250,true
+Limestone Creek Campsite,-36.854886,148.055389,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2637752962,true
+Ambleside on the Lake,-37.351586,144.137498,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2692338223,true
+Tin Mine Cove Camping Area,-38.807914,146.424327,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2707968028,true
+RAS Showgrounds/Langs Road,-37.783106,144.907397,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://transport.vic.gov.au/stop/22271/,,call first,n2709990103,true
+Goat Track Camping,-38.509582,143.771012,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2831315983,true
+Beveridge Station Camping Area,-36.986464,146.956748,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n2847864680,true
+Trident Arm Camp,-37.823853,148.135431,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2852358827,true
+Reedy Arm No.2 Camp,-37.796476,148.137152,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2852358828,true
+Camerons Arm No.1 Camp,-37.780426,148.135982,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2852358829,true
+Ovens River Reserve,-36.41421,146.456617,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2852421173,true
+Mallee Camp,-36.479697,141.923369,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2909005260,true
+Yellow Gum Camp,-36.554553,141.872991,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2909005261,true
+Bogong Creek Saddle Helipad,-36.771031,147.278037,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2912694517,true
+Werribee River Camping Ground,-37.498667,144.166081,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2923423669,true
+Clarks Camp Ground,-37.319963,147.216214,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2960547314,true
+Ballarat Showgrounds,-37.544093,143.847313,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n2961238737,true
+Big Hill Campground,-38.46504,143.941102,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3105067751,true
+Binn Beach Campground,-37.787961,148.885495,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3105247525,true
+Pearl Point Campground,-37.787942,148.880409,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3105253534,true
+Coburns Pines,-35.397434,141.071535,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3227710880,true
+Red Gums,-35.415824,141.102316,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3227713126,true
+Cactus Bore,-35.453829,141.161738,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3227734684,true
+White Springs,-35.395263,141.489086,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3227742484,true
+Brushcutters Flat,-35.492806,141.452194,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3227776394,true
+Bryce Gorge Camping Area,-37.295592,146.760007,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3274098161,true
+Wandiligong Caravan and Camping Reserve,-36.780057,146.988883,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3306987341,true
+Pigeon Springs Campground,-35.595171,141.4291,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3316424080,true
+Milmed Swamp Campsite,-35.648928,141.608116,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3316466243,true
+Round Swamp Campground,-35.710628,141.719047,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3316510649,true
+Arnold Springs Campground,-35.645358,141.713018,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3316511494,true
+Mouth of the Mullaroo Campsite,-34.084268,141.241356,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3337274894,true
+Shearers Quarters camp ground,-34.563321,141.071208,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3341866032,true
+Corringle,-37.799205,148.519956,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3365152702,true
+Remote Camp,-35.479947,141.998196,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n3369548154,true
+Mountaineer Creek Campground,-37.140024,145.857745,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3458568018,true
+Taylors Creek,-37.295068,146.037613,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3468511021,true
+Jerusalem Creek Campground,-37.272862,145.969287,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3494068091,true
+Barwon District Camp Site,-38.395339,144.217508,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3502570611,true
+Geelong Rivers Camp Site,-38.394425,144.216785,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3502623049,true
+Rotunda,-38.395593,144.213333,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3502625328,true
+Geelong Peninsula Campsite,-38.395046,144.213569,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3502625334,true
+Devils Cove Campground,-37.173043,145.840286,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3507702732,true
+Camp Fire Circle,-38.398602,144.214532,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3513966926,true
+BBQ,-38.397002,144.213853,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3513966946,true
+Gentle Annie Camp,-37.949292,145.816075,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3561151479,true
+Easby Creek Camp,-37.738816,149.52133,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3626340164,true
+Red River Camp,-37.722331,149.564442,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3626343055,true
+Petrel Point Camp Site,-37.772077,149.411356,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3626343089,true
+Seal Creek Camp,-37.66417,149.681919,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3626343117,true
+Benedore River Camp,-37.698436,149.620893,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3626343128,true
+Zanettis,-35.966934,145.94042,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3645411209,true
+Underbool Track Camping Area,-34.891028,141.626983,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n3762344098,true
+Mopoke Hut Camping Area,-34.81159,141.759578,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n3762366470,true
+Pettmans Beach Camping Area,-37.829155,148.184921,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3790897840,true
+Chromite Mine Campsite,-37.566299,146.728349,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n3800083506,false
+O'Tooles Flat,-37.341311,145.989865,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3900592581,true
+Bennies,-36.963834,146.537473,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3907624127,true
+Mustering Flat,-37.078201,146.61525,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3914038818,true
+Thomastown Campsite,-37.45666,146.740408,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3918152903,true
+13 Greenhood Camp,-37.516072,146.635849,free,tent,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n3918194316,false
+11 Red Bluff Camp,-37.519401,146.621703,free,tent,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n3918194379,false
+9 Cockatoo Camp,-37.522922,146.614086,free,unknown,no,,unknown,unknown,unknown,yes,,,,,check with operator,n3918195755,false
+5 Pardalote Camp,-37.53977,146.612101,free,tent,no,,unknown,unknown,unknown,yes,,,,,check with operator,n3918195756,false
+6 Treefrog Camp,-37.534874,146.612632,free,tent,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n3918197757,false
+2 Boobook camp,-37.551219,146.617819,free,tent,no,,unknown,unknown,unknown,yes,,,,,check with operator,n3918197758,false
+1 Wild Cherry Camp,-37.55359,146.619754,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3918197788,true
+3 Blackfish Camp,-37.549363,146.614423,free,tent,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n3918200699,false
+Corner Bend Beach Camp,-35.836738,145.220312,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3922961128,true
+The Wattles (Hope Amongst The Reeds) Camping Area 1,-35.834235,145.239907,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3922962063,true
+Macalister Springs,-37.172145,146.670734,free,unknown,unknown,,unknown,no,unknown,unknown,,,,Parks Victoria,check with operator,n3930295500,false
+Devil's Kitchen Campsite,-38.744428,143.204677,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3958688847,true
+Lightwood Camp Area,-38.44296,144.929247,free,unknown,no,,unknown,unknown,unknown,yes,,,,Parks Victoria,check with operator,n3969680756,false
+hamilton showgrounds,-37.733012,142.020258,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n4010648828,true
+balmoral showgrounds,-37.244366,141.834741,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n4010652579,true
+Fulham Streamside reserve,-37.149411,141.863247,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4082625703,true
+Chinamans - Creek,-37.87803,147.857648,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4137265692,true
+Morwell Resterea,-38.22946,146.378799,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4143767489,true
+Bunyip Recreation Area,-38.099988,145.719217,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4143767689,true
+Kinglake Ranges Wilderness Camp,-37.458253,145.227801,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4270767718,true
+Freshwater Lake Campground,-37.585957,142.318715,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4425653690,false
+Stony Creek #2,-37.178646,142.480617,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4571048539,false
+Camping Port Campbell Recreation Reserve,-38.617572,143.002691,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 431 128 790,,https://www.portcampbellcamping.com/,,check with operator,n4583519690,true
+Newstead Racecourse Reserve,-37.11781,144.056186,council_park,tent,unknown,,unknown,yes,unknown,unknown,,,,,check with operator,n4585081522,true
+Larni Barramal Yaluk Camp,-37.159544,144.089962,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4585082014,true
+Hawkesdale Campsite,-38.104246,142.321252,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4718113390,true
+Slalom Rapids Campsite,-37.602309,147.338873,free,unknown,unknown,,unknown,no,unknown,unknown,,,,Parks Victoria,check with operator,n4756284375,true
+14 Platypus Camp,-37.512455,146.643158,free,tent,no,,unknown,unknown,unknown,yes,,,,,check with operator,n4773847245,false
+Camping Free,-37.85728,148.083734,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n4849449122,false
+Wild Dog Creek Falls Camp,-36.864275,146.071419,free,tent,unknown,,no,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n4878234939,false
+Lake Becking Camping Area,-35.039114,141.71541,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5002954855,true
+Kwark Gap,-37.544222,148.738753,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5148654857,false
+Riverside camping,-35.389248,143.705307,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5182531638,false
+Sandbar,-36.278547,145.343005,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5188247381,true
+Upper Howqua Camping Area,-37.173629,146.562726,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n5215398897,false
+Dry River Camping Area,-37.187177,146.811091,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5216044599,true
+Parolas Bend Campground,-36.067017,146.202409,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5235521677,true
+Diamantina Horse Yards,-36.91132,147.170063,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n5235767464,false
+JB Plain Camp,-37.022957,147.220811,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5235873634,true
+Gulf Campsite,-38.730443,146.538197,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5247951841,true
+Swashway Campsite,-38.722548,146.503947,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5247966874,true
+Clinton Rocks,-37.777017,149.198969,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5405092921,true
+Merino Showgrounds,-37.710977,141.545817,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n5443898822,false
+Macarthur Recreation Reserve,-38.03702,142.007149,donation,tent|caravan,no,,unknown,yes,no,yes,,,,,check with operator,n5472427523,false
+Cronomby Campground,-35.686342,142.663507,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5484083521,true
+Broken Creek Bush Camp,-36.449688,145.90185,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 428 574 799,,,,check with operator,n5502395422,true
+McLoughlins,-38.611914,146.893785,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5512621921,true
+The Willows Public Recreation Reserve,-36.007523,146.39083,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5524156421,true
+Tungamah Lions Park,-36.16706,145.878517,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n5566495259,false
+Dargile Camping Area,-36.851996,144.743638,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6207327298,true
+Pay camp site,-35.596257,142.848227,free,tent|caravan,no,,unknown,no,yes,yes,,,,,check with operator,n6263370087,true
+Free Camping,-35.716862,143.10701,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6263374485,true
+Tostaree Cottages Farm Stay,-37.747338,148.182917,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 408 031 668,,http://tostareecottagees.com,,check with operator,n6403202785,true
+Tostaree Cottages,-37.748164,148.183814,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6408261185,true
+Dispersed Camping,-37.563979,149.174223,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6418615685,true
+Mcgaurans Beach Dispersed camping,-38.446987,147.101449,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6418709686,true
+Dispersed Camping,-37.677028,145.740947,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6427128385,false
+Dispersed Camping,-37.60277,145.701049,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6427128485,true
+Pattison Rest Area,-38.431024,146.537152,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n6615193743,true
+GOW Aire River Campground,-38.801533,143.476198,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7023039272,true
+Clunes Showground,-37.298966,143.784448,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://clunesshow.com.au/,,call first,n7137607421,true
+Tarragal Bushcamp,-38.309957,141.447616,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Great South West Walk Volunteers,check with operator,n7199811485,true
+Williams Camping Area,-36.055932,146.207813,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7357268576,true
+Dicks Bend,-35.950548,145.716004,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396529835,true
+Seppelts Beach,-35.935608,145.719346,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396529847,true
+Scotts High Bank Camping Area,-35.929838,145.687833,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396529869,true
+Bourkes Lagoon,-35.98829,145.816952,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396581125,true
+Lower Dead River,-35.98299,145.798686,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396581127,true
+Cobrawonga Creek,-35.963592,145.743899,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396581128,true
+Lagoon,-35.969256,145.912401,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396646261,true
+Fig Tree,-35.964087,145.899913,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396646264,true
+Kellys Pump,-35.975814,145.851542,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7396646269,true
+Davies High Bank,-35.875772,145.61922,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7472654655,true
+Racecourse Road,-35.888257,145.631633,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7472654656,true
+Willow (or Greens) Beach,-35.848883,145.584469,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7472732148,true
+Doctors Bend,-35.817252,145.469574,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7472732156,true
+Ulupna Creek East Camping Area,-35.818005,145.518245,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7472732157,true
+Pinnucks Camping Area 1,-35.866396,145.352839,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7484057019,true
+Pinnucks Camping Area 2,-35.866561,145.357768,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7484057020,true
+Morgans Beach Camping Area,-35.850526,145.38693,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7484057022,true
+Crawfords Boat Ramp Camping Area,-35.851092,145.393281,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7484057023,true
+The Junction Camping Area 1,-35.848283,145.411525,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7484057024,true
+Little Ulupna Creek Camping Area,-35.84787,145.413253,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7484057025,true
+Peppertree (or Faraway) Beach,-35.829357,145.418966,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7484057030,true
+McDonald Road,-36.106936,144.850413,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061972,true
+Simmie Road Camping Area 1,-36.113285,144.81335,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061973,true
+Simmie Road Camping Area 2,-36.112583,144.812588,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061974,true
+Betts Bend Camping Area 1,-36.113268,144.807583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061975,true
+Betts Bend Camping Area 2,-36.108423,144.806988,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061976,true
+Betts Bend Camping Area 4,-36.109515,144.811526,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061978,true
+Christies Beach Camping Area 4,-36.107023,144.817877,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061981,true
+Looker Road Camping Area 1,-36.106017,144.823263,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061982,true
+Looker Road Camping Area 2,-36.103122,144.829422,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061983,true
+Looker Road Camping Area 4,-36.102953,144.840386,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540061984,true
+Looker Road Camping Area 3,-36.103833,144.834212,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063585,true
+Junction Track Camping Area 1,-36.10222,144.833622,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063626,true
+Junction Track Camping Area 2,-36.100404,144.838525,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063627,true
+Junction Track Camping Area 3,-36.100729,144.842425,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063628,true
+Flemings Bend,-36.094492,144.840381,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063629,true
+Kiln Loop Track Camping Area 1,-36.059768,144.865095,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063632,true
+Kiln Loop Track Camping Area 2,-36.06011,144.878844,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063633,true
+The Ranch Site 7,-36.047433,144.980553,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540063634,true
+Watson Road,-36.110009,144.933454,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540080141,true
+Waites Lane,-36.099629,144.923648,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7540080142,true
+Tongalong Creek Camping Area,-35.842684,145.222859,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872809,true
+Rowes Camping Area 2,-35.842643,145.219318,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872811,true
+Rowes Camping Area 1,-35.83789,145.209137,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872813,true
+Sandpit Creek Camping Area 4,-35.837216,145.20021,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872814,true
+Sandpit Creek Camping Area 3,-35.836959,145.196992,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872815,true
+Sandpit Creek Camping Area 2,-35.837385,145.195168,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872816,true
+Sandpit Creek Camping Area 1,-35.837986,145.192148,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872817,true
+Burnt Landing Camping Area 3,-35.84089,145.183554,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872819,true
+Burnt Landing Camping Area 2,-35.842021,145.181644,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872820,true
+Burnt Landing Camping Area 1,-35.840612,145.176328,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872821,true
+The Gulf Camping Area,-35.841917,145.151625,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872822,true
+The Gulf Camping Area 3,-35.840677,145.153465,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872823,true
+The Gulf Camping Area 4,-35.84099,145.152376,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872824,true
+Frenchmans Camping Area 3,-35.833563,145.149774,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872830,true
+Frenchmans Camping Area 2,-35.832423,145.143905,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872831,true
+Frenchmans Camping Area 1,-35.829827,145.14118,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872832,true
+Stewart Kitchen Camping Area,-35.832958,145.138922,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872833,true
+Pinchgut Bend Camping Area 2,-35.83281,145.134373,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872835,true
+Pinchgut Bend Camping Area 1,-35.832088,145.133954,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872836,true
+Bull Paddock Camping Area 3,-35.828052,145.129389,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872837,true
+Bull Paddock Camping Area 2,-35.827395,145.127914,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872838,true
+Bull Paddock Camping Area 1,-35.828391,145.127565,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872839,true
+Sixty Mile Bend Camping Area 2,-35.825995,145.121697,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872841,true
+Sixty Mile Bend Camping Area 1,-35.826304,145.119175,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872842,true
+Mill Log Landing Camping Area,-35.82559,145.113977,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872843,true
+Potts Point Camping Area,-35.826939,145.108387,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872846,true
+Fish Basket Camping Area,-35.829809,145.103055,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872848,true
+Red Tank Lagoon Camping Area 2,-35.828861,145.099504,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872849,true
+Red Tank Lagoon Camping Area 1,-35.833193,145.095964,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872850,true
+Sapling Landing Camping Area,-35.835324,145.093592,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872851,true
+Punt Paddock Creek Camping Area 2,-35.831701,145.088802,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872853,true
+Punt Paddock Creek Camping Area 1,-35.826639,145.087016,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872854,true
+Green Engine Camping Area 2,-35.827661,145.07884,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872855,true
+Green Engine Camping Area 1,-35.832288,145.076727,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872856,true
+Long Landing Camping Area,-35.840153,145.067331,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872859,true
+Big Woodcutter Lagoon Camping Area 3,-35.837253,145.061728,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872860,true
+Big Woodcutter Lagoon Camping Area 2,-35.836857,145.055878,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872863,true
+Big Woodcutter Lagoon Camping Area 1,-35.83872,145.053729,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872864,true
+Nine Panel Bend Camping Area 2,-35.837953,145.049178,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872865,true
+Nine Panel Bend Camping Area 1,-35.840021,145.044009,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872866,true
+Nestrons Bend Camping Area,-35.843052,145.04115,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872867,true
+Campbells Landing Camping Area,-35.844743,145.038387,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872868,true
+Canalla Landing Camping Area,-35.846987,145.036477,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872870,true
+Thistle Bend Camping Area,-35.849222,145.031912,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872871,true
+Boals Creek Camping Area 2,-35.853166,145.023914,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872872,true
+Boals Creek Camping Area 1,-35.8536,145.023243,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872873,true
+Thistle Bed Camping Area 3,-35.856196,145.020567,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872874,true
+Thistle Bed Camping Area 2,-35.85687,145.018786,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872875,true
+Thistle Bed Camping Area 1,-35.857122,145.01745,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872876,true
+Budgee Creek Camping Area 1,-35.855418,145.005117,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872878,true
+Budgee Creek Camping Area 2,-35.856418,145.007317,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872879,true
+Cutting Creek Camping Area,-35.914528,144.956127,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872880,true
+War Creek Camping Area,-35.912326,144.960984,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650872881,true
+2nd Downstream of Wasers Beach,-35.862631,145.34447,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933911,true
+3rd Downstream of Wasers Beach,-35.862892,145.342072,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933912,true
+4th Downstream of Wasers Beach,-35.861213,145.339036,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933913,true
+5th Downstream of Wasers Beach,-35.860535,145.335957,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933914,true
+6th Downstream of Wasers Beach,-35.854487,145.329273,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933915,true
+7th Downstream of Wasers Beach,-35.855096,145.322556,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933916,true
+8th Downstream of Wasers Beach,-35.854766,145.319123,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933917,true
+The Steps Camping Area,-35.8599,145.310192,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933918,true
+Browns Camping Area 1,-35.858842,145.292846,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933922,true
+Clarkes Camping Area,-35.85692,145.284354,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933924,true
+McLeans Camping Area 2,-35.850933,145.284676,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933925,true
+McLeans Camping Area 1,-35.854011,145.281079,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933926,true
+Black Engine Lagoon Camping Area 3,-35.85407,145.278359,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933927,true
+Black Engine Lagoon Camping Area 2,-35.847678,145.273783,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933928,true
+Black Engine Lagoon Camping Area 1,-35.855148,145.268124,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933929,true
+Lupmans Camping Area,-35.85207,145.26351,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933930,true
+Boss Beach Camping Area,-35.836742,145.259262,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933933,true
+The Wattles Camping Area 2,-35.833302,145.245776,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933934,true
+Tongalong Camping Area,-35.83301,145.230755,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933935,true
+Tongalong Beach Camping Area,-35.833423,145.224371,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933936,true
+Bunyip Hole Camping Area 3,-35.835755,145.223248,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933937,true
+Bunyip Hole Camping Area 2,-35.836213,145.222454,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933938,true
+Bunyip Hole Camping Area 1,-35.839453,145.224605,free,unknown,unknown,,unknown,unknown,unknown,no,,,,Parks Victoria,check with operator,n7650933939,true
+Border Camping Area,-34.705504,140.969041,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Vic,check with operator,n7738705057,true
+The Wattles,-35.947502,141.873434,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7738705098,true
+Cork Oaks Campground,-37.310275,143.708235,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n7771817366,true
+Campsite C10,-38.255938,147.344005,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n7828170850,true
+Karnkendi Campsite,-38.046794,141.011506,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,http://www.karnkendi.pcsa.org.au/,,check with operator,n8042117285,true
+Euroa Glamping,-36.710858,145.640308,free,unknown,unknown,,unknown,unknown,unknown,unknown,,glampaustralia@gmail.com,https://www.euroaglamping.com.au/,Sunrise Natural Living Pty Ltd,check with operator,n8270152284,true
+Glut Campsite,-37.292969,143.268151,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n8282192218,true
+Rom's Bog,-37.28524,142.0729,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n8285387776,true
+Primrose Park Freedom Camping,-38.397043,146.282034,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n8341514017,true
+Top End Beach Campsite,-35.865849,145.354347,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n8444605871,true
+Paradise Beach Campsite,-35.855231,145.284147,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n8444624045,true
+GSWW Mallee Hike-In Camp,-38.426618,141.549925,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n8543395225,true
+Kalymna Falls Camping Area,-37.323831,142.621047,free,tent,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n8660421057,false
+Showgrounds 1,-37.783529,144.91514,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://ptv.vic.gov.au/stop/1177,Metro Trains Melbourne,call first,n8784348559,true
+Longpoint East,-37.014078,142.468099,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n8805692240,true
+Sandy Beach Campsite,-35.956439,145.880872,free,unknown,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n8813494135,true
+Raymond Creek Falls,-37.484028,148.308746,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n8976550210,true
+Clear Creek Campground,-36.891153,146.887094,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9025614258,true
+Gunbower 6,-35.666644,144.132243,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9118961174,true
+Gunbower 7,-35.666856,144.13299,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9118961175,true
+Gunbower 8,-35.666807,144.134753,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9118961176,true
+Gunbower 9,-35.667818,144.135989,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9118961177,true
+Gunbower 16,-35.681481,144.149419,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9123555993,true
+Sovereign Bend,-35.653614,144.151187,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9157551420,true
+Henry's Camp,-37.318194,142.036732,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9160300599,true
+Boatramp Camp (unofficial),-34.119467,141.107382,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9429838469,true
+Myrtleford Turn-Off Camping Area,-37.168276,146.782171,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9579690418,false
+Tim's Camp,-37.182094,146.897514,free,unknown,unknown,,unknown,unknown,no,no,,,,,check with operator,n9579690448,false
+Nyimba Camp,-37.53121,146.81738,free,unknown,no,,unknown,unknown,unknown,yes,,,,Parks Victoria,check with operator,n9612881916,false
+Skipworth Springs Canoe Camp,-38.052326,141.190239,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9633304659,true
+Lasletts Canoe Camp,-37.993569,141.016131,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9633308060,true
+Werrimull Campground,-34.387357,141.594107,free,tent|caravan,no,,unknown,unknown,yes,yes,,,,Mildura Rural City,check with operator,n9657528933,false
+GSWW The Springs Camp,-38.362158,141.370826,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---springs-camping-area,Parks Victoria,check with operator,n9687187841,true
+GSWW Trewalla Camp,-38.360285,141.462984,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n9687219942,true
+Forges Beach,-35.996232,145.963991,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9731618446,true
+Neils Bend,-35.974416,147.81413,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n9787066157,true
+Aire Crossing Campground,-38.703376,143.478424,free,unknown,no,,unknown,unknown,unknown,yes,,,https://www.parks.vic.gov.au/places-to-see/sites/aire-crossing-campground,Parks Victoria,check with operator,n10181780598,false
+Mulga Dam Camping Area,-36.4989,144.373079,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n10267019413,true
+Roadside Camp,-36.377792,141.23163,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n10573803609,true
+Pum,-38.336153,142.727927,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n10703874905,true
+Bendigo Showgrounds/Holmes Rd,-36.739177,144.270314,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,Christian's Bus Company,call first,n10749956206,true
+Erica caravan park,-37.97897,146.373304,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n10855673205,true
+Whittlesea Showgrounds/Yea Rd,-37.510595,145.126403,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n10920997076,true
+Eustace Camping Area,-36.628207,147.639695,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n10978053412,true
+Wood Duck Camping Ground,-36.403362,146.145705,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11090763889,true
+Wildlife Management Station Camping Area,-35.624477,143.753872,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11168682989,true
+Frys Flat Campground,-37.195901,146.330527,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796977,true
+Blackbird Flat,-37.196247,146.344913,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796978,true
+Sheepyard Flat,-37.194931,146.346848,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796979,true
+Davons Flat,-37.189489,146.348914,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796980,true
+Pickerings Flat,-37.186392,146.354403,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796985,true
+Noonans Flat,-37.187289,146.360907,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796986,true
+Tunnel Bend Flat,-37.188249,146.368749,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796991,true
+6 Mile Flat,-37.194798,146.400672,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796994,true
+8 Mile Flat,-37.197956,146.429719,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796996,true
+Ritchies,-37.195145,146.475445,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796997,true
+Pikes Flat,-37.179437,146.512628,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11195796998,true
+Cavendish Recreation Reserve,-37.522404,142.04385,council_park,tent|caravan,no,,unknown,unknown,yes,yes,,,,,check with operator,n11198778741,false
+Durd Durd Hike-in Campground,-37.353841,142.555261,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n11352852135,true
+Swifts Creek Riverbank Camping,-37.260659,147.722922,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11448979062,true
+Boort Township RV Friendly Site,-36.109871,143.729067,donation,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11464763747,false
+Hinnomunjie Bridge Camping Area,-36.945527,147.608044,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11496609544,true
+Lake Bolac Foreshore - East Beach,-37.72115,142.878173,council_park,tent|caravan,no,,unknown,unknown,no,yes,,,https://lakebolac.com.au/accommodation/lake-bolac-foreshore/,,check with operator,n11532511190,false
+Lake Bolac Foreshore - South Beach,-37.745892,142.841855,council_park,tent|caravan,no,,unknown,unknown,no,yes,,,https://lakebolac.com.au/accommodation/lake-bolac-foreshore/,,check with operator,n11532511191,false
+Showgrounds Takaway,-36.313376,145.056262,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n11552921652,true
+Butts Reserve,-36.987443,144.053829,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n11576254113,false
+Geelong Showgrounds Camping,-38.170929,144.372617,showground,caravan,no,,unknown,yes,yes,yes,+61 3 5221 1707,,https://royalgeelongshow.org.au/showgrounds/,,call first,n11705302684,false
+Showground Office,-38.092245,147.066605,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n11897962172,true
+Camp Sandy,-36.898052,142.37504,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n11914706494,true
+Tolmie Recreational Reserve,-36.934616,146.235845,free,tent|caravan,unknown,,unknown,no,unknown,unknown,,,,,check with operator,n12345755270,true
+Reef Hills South Truck Parking,-36.603658,145.960894,rest_area,caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n12401266301,false
+Happy Valley Crossing Streamside Reserve Campsite,-37.751257,143.579753,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n12591878663,true
+Camphora Campsite,-36.884331,146.086078,free,tent,no,,unknown,unknown,no,yes,,,,,check with operator,n12610831412,false
+Colemans Camp Loddon River,-36.348512,143.866183,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n12649485334,true
+Mount Lawson State Park - The Kurrajongs,-35.956449,147.419972,free,tent|caravan,no,,no,unknown,no,yes,,,,Parks Victoria,check with operator,n12674311769,false
+Lake Charm General Store & Caravan Park,-35.608508,143.80109,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 480 218 001,lakecharm3581@gmail.com,,,check with operator,n12709089125,true
+Dyers Campground,-37.946768,145.672344,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n12959993446,true
+Reef Hills North Truck Parking,-36.586659,145.960926,rest_area,caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,n13028144118,false
+Benalla Showgrounds/Bridge St West,-36.553611,145.979338,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,Benalla Bus Lines,call first,n13051004732,true
+Showgrounds Station rail replacement stop,-37.782578,144.916455,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,Metro Trains Melbourne,call first,n13061394764,true
+Showgrounds,-37.783411,144.91493,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://ptv.vic.gov.au/stop/1177,Metro Trains Melbourne,call first,n13065057204,true
+Dispersed camping unnumbered sites amongst trees,-35.95742,144.958304,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13288767102,true
+7 Mile Flat,-37.195411,146.422712,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13399055098,true
+Tobacco Flat Camping Area,-37.217082,146.315327,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13399117627,true
+Campsite,-35.972439,145.935065,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13424644601,true
+Mitchells Flat Camping Area,-37.30299,146.353843,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13425548085,true
+The Elms Camping Area,-37.208191,146.832554,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13447377179,true
+Conglomerate Creek Camping Area,-37.211294,146.831007,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13447377180,true
+Chapel Flat,-37.486418,143.910277,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13521257960,true
+Stop 33: Melbourne Showgrounds,-37.780204,144.91484,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,Keolis Downer,call first,n13654161243,true
+Minne Ha Ha Falls Campground,-38.52067,146.466465,free,caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13722826317,false
+Lake Wau Wauka Campsite (new),-37.52025,149.935691,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13724259569,true
+Colac Showground/Bruce St,-38.335286,143.603142,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n13731763322,true
+Shepparton Showground/Williams Rd,-36.380809,145.413633,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n13744188097,true
+Ballarat Showgrounds/Howitt St,-37.542111,143.846121,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n13752033642,true
+Lerderderg Campground,-37.485489,144.386334,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13765795201,true
+Bullock Flat Camping Area,-37.374535,147.057181,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13864995277,true
+Clear Hills,-37.1061,146.535625,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n13939540973,true
+Schulzes Beach Camping Area,-36.04563,141.857541,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n14050367327,true
+RV Stop (SC only),-36.360192,144.69947,free,unknown,unknown,2 days,unknown,unknown,unknown,unknown,,,,,check with operator,n14172548601,true
+Geelong Showgrounds/St Albans Rd,-38.170671,144.376936,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,n14227259572,true
+Moora Recreation Ground,-36.597187,144.946502,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n14278434038,true
+Royal Melbourne Showgrounds,-37.783128,144.912074,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://www.melbourneshowgrounds.com/,,call first,w25758487,true
+Horseshoe Bend,-36.498109,142.018148,free,tent|caravan,no,,unknown,unknown,no,yes,,,https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park/where-to-stay/horseshoe-bend-camping-area,,check with operator,w36336385,true
+Ackle Bend,-36.503936,142.020186,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park/where-to-stay/ackle-bend-camping-area,,check with operator,w36336389,true
+Kiata Campground,-36.447011,141.798308,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w36706958,true
+Shepparton Showgrounds,-36.381568,145.411043,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w40607052,true
+North Gardens Campground,-37.932615,146.448734,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w42745529,true
+Friday's Camping Area,-37.859641,144.190073,free,tent|caravan,unknown,,unknown,unknown,no,unknown,,,,,check with operator,w43355505,false
+Big Hill Campground,-38.474817,143.932488,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w44356876,true
+Budj Bim Campground,-38.056679,141.923186,free,tent|caravan,no,,unknown,unknown,yes,yes,,,,Parks Victoria,check with operator,w46868840,true
+Battersbys,-38.046341,141.160951,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w46949845,true
+Lake Mombeong Campsite,-38.134527,141.185085,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w47033920,true
+Mittagong Camp Site,-38.02504,144.412597,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w49836746,true
+Geelong Showgrounds,-38.170495,144.374035,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://royalgeelongshow.org.au,,call first,w50115141,true
+Hamiltons Crossing Crown Land Reserve,-36.942675,143.933698,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w50706102,true
+Berwick Showground,-38.039886,145.364557,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w52305483,true
+Eagle Point Caravan Park,-37.891691,147.681502,council_park_leased,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w54690308,true
+Kyneton Showgrounds,-37.244466,144.456978,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://www.mrsc.vic.gov.au/See-Do/Parks-Gardens-Reserves/Find-a-park/Kyneton-Showgrounds,,call first,w58936014,true
+Margarets Corner,-37.489213,144.353455,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w60334816,true
+Benalla Showgrounds Oval,-36.554146,145.980175,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w62171101,true
+Molesworth Recreation Reserve,-37.16272,145.539092,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w70517468,true
+Whittlesea Showgrounds,-37.509607,145.126646,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w84150053,true
+Surfside Holiday Park,-38.392002,142.486439,free,tent|caravan,no,,unknown,unknown,yes,yes,+61 3 5559 4700,surfside@warrnambool.vic.gov.au,https://www.surfsidepark.com.au/,Warrnambool City Council,check with operator,w105278879,true
+Cumberland River Holiday Park,-38.573677,143.948558,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w111295232,true
+Torquay Foreshore Caravan Park,-38.340001,144.320406,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.torquaycaravanpark.com.au/,,check with operator,w112530284,true
+Lake Elizabeth Campground,-38.54911,143.743814,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w116094685,true
+Boar Gully Camp Ground,-37.767045,144.262693,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w116434764,true
+Colac Showgrounds,-38.334057,143.605457,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w125450739,true
+Healesville Showgrounds and Sporting Complex,-37.66858,145.539395,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w126462719,true
+Warracknabeal Showground,-36.251813,142.404974,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w130006390,true
+Blanket Bay Campsite,-38.82762,143.582617,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w130361193,true
+Blanket Bay Great Ocean Walk Campsite,-38.826466,143.582383,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w130361198,true
+Parker Hill Campground,-38.846886,143.558308,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/parks/great-otway-national-park/where-to-stay/parker-hill-campground,,check with operator,w130361873,true
+Johanna Beach Campground,-38.761189,143.379018,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w132188749,true
+Melville Caves Campground,-36.600883,143.698902,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w135745442,true
+Camperdown Showgrounds,-38.24159,143.149805,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w137483219,true
+Carisbrook Showgrounds,-37.038187,143.795299,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w141323427,true
+Lord Somers Camp,-38.39107,145.145149,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.lscph.org.au/,,check with operator,w143010691,true
+Fern Tree Camping Area,-37.310744,143.239824,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w158623225,true
+Natimuk Showgrounds Recreation Reserve,-36.742601,141.948873,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w162691912,true
+Camping Bays,-37.064925,145.503765,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w166316531,true
+Minimum Impact Camping,-37.062516,145.498467,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w166316533,true
+Mallacoota Foreshore Holiday Park,-37.55809,149.758995,council_park,tent,no,,unknown,yes,yes,yes,,,,,check with operator,w167060008,true
+Talbotville Camp Site,-37.334188,147.066753,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w169923407,true
+Prince of Wales Showgrounds,-36.737664,144.272445,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w182488117,true
+Chinese Gardens,-37.929635,146.449426,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w183089057,true
+Jan Juc Caravan Park,-38.347509,144.291471,free,tent,unknown,,unknown,unknown,unknown,unknown,,,https://www.janjucpark.com.au/,Jan Juc Park Pty. Ltd.,check with operator,w189986731,true
+Queenscliff Recreational Reserve Caravan Park,-38.272434,144.656978,council_park,unknown,no,,unknown,yes,yes,yes,+61 3 5258 1765,,https://www.queenscliffe.vic.gov.au/Things-to-do/Tourist-parks,Borough of Queenscliffe,check with operator,w189986744,false
+Point Leo Foreshore Reserve,-38.416299,145.077207,council_park,tent,unknown,,unknown,yes,yes,unknown,+61 3 5989 8333,,https://pointleo.com,,check with operator,w189992763,true
+Showgrounds Road,-37.509064,145.129719,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w190562304,true
+Bogong Jack Saddle Camping Area,-36.834059,147.18618,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w191483448,true
+The Butts Reserve,-36.987423,144.053689,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w192543633,true
+Swan Hill Showgrounds,-35.338445,143.553108,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w194611478,true
+Ah Sye's Camping Area,-36.731164,147.732903,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w195842682,true
+Alexandra Showgrounds,-37.18524,145.706208,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w197314078,true
+Native Dog Flat Camping Area,-36.896493,148.089517,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w198695228,true
+Native Dog Flat Horse Camping Area,-36.898114,148.090715,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w198695229,true
+Suggan Buggan Campground,-36.952838,148.323937,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w198710148,true
+Willis Campground,-36.899214,148.425378,free,tent|caravan,no,,unknown,unknown,no,yes,,,,,check with operator,w198710762,true
+Willis Campground,-36.886705,148.419006,free,caravan,no,,unknown,unknown,no,yes,,,,,check with operator,w198711455,true
+McKillops Bridge,-37.091636,148.41191,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w200144091,true
+Mansfield Showgrounds,-37.057715,146.103437,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w200373284,true
+Horsham Showgrounds,-36.721027,142.207227,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://www.horshamshow.com.au/,,call first,w203862175,true
+Warracknabeal Caravan Park,-36.252654,142.387498,council_park,tent|caravan,no,,unknown,yes,yes,yes,,,,Yarriambiack Shire Council,check with operator,w219235480,false
+Numurkah Showgrounds,-36.093179,145.447435,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w219477701,true
+Yarram Rosebank Tourist Park,-38.569458,146.675643,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 5182 5063,,http://www.yarramrosebanktouristpark.com.au/,,check with operator,w219759882,true
+Prom Central Caravan Park,-38.654972,146.204908,free,tent,unknown,,unknown,unknown,unknown,unknown,+61 3 5639 4646,admin@promcentralcpfoster.com.au,https://promcentralcpfoster.com.au/,,check with operator,w219760845,true
+Euroa Showground,-36.742544,145.571257,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w222752716,true
+Taylor Reserve,-38.137085,144.710802,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w225051932,true
+Batman Reserve,-38.140679,144.712755,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w225051933,true
+Anderson Reserve,-38.132061,144.707136,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w225052007,true
+Heathcote Showgrounds,-36.917306,144.710316,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w227423658,true
+Ouyen Caravan Park,-35.074321,142.320424,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 9998 4409,,,,check with operator,w228351082,true
+Slaty Creek Camp Ground No 1,-37.462674,143.904205,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w237352775,true
+Wangaratta Show Grounds,-36.345986,146.317648,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w239273884,true
+Orbost Caravan Park,-37.711481,148.453417,council_park_leased,tent|caravan,no,,unknown,yes,yes,yes,+61 3 4108 9040,,https://www.orbostcaravanpark.com.au/,,check with operator,w239430786,true
+Yarra Glen Recreational Reserve and Showground,-37.660773,145.378952,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w240797173,true
+Fairhaven Campsite,-38.341896,145.280047,free,tent,unknown,,unknown,unknown,unknown,unknown,,,https://parkweb.vic.gov.au/explore/parks/french-island-national-park/things-to-do/fairhaven,Parks Victoria,check with operator,w242167583,false
+Bunyip Weir (Freemans Mill) Camping Area,-37.937452,145.747316,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w243116210,true
+Nhill Showgrounds,-36.342518,141.643799,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w250436632,true
+Bluff Falls Camping Area,-36.122808,147.777765,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w253114101,true
+Hinces Creek Camping Area,-36.085611,147.767774,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w253137156,true
+Traralgon Recreation Reserve and Showgrounds,-38.199425,146.545879,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w264436894,true
+State Border Rest Area,-36.344522,140.967445,free,unknown,no,,unknown,unknown,unknown,yes,,,,VicRoads,check with operator,w265146867,true
+Rawson Caravan Park,-37.956086,146.402918,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w270497189,true
+Forrest Caravan Park,-38.516271,143.7175,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w280672060,true
+Tatura Showgrounds and Recreation Reserve,-36.444975,145.234434,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w283066583,true
+Showgrounds Road,-37.709559,141.54664,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w284814532,true
+Boort Showgrounds,-36.108495,143.730239,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w288161134,true
+Benalla Showgrounds,-36.55486,145.981075,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w292257155,true
+Edwards Hill Camping Area,-37.759982,146.524666,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w293133304,true
+Gold Commissioner's Camp,-37.575654,143.866274,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w295214462,true
+Chinese Camp,-37.575876,143.867078,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w295214628,true
+Tallangatta Showgrounds,-36.219252,147.167767,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w299167293,true
+Show Ground Drive,-36.192611,147.90077,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w301425631,true
+Showground,-36.019013,146.007608,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w309527372,true
+Cobram Showgrounds,-35.921188,145.65325,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w310452256,true
+Edenhope Showgrounds Reserve,-37.038108,141.283909,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w310619739,true
+Nug Nug Reserve,-36.660808,146.70499,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w317596939,true
+Tranquil Waters Cullulleraine,-34.275446,141.602905,free,tent|caravan,no,,unknown,yes,yes,yes,,,https://www.tranquilwaterscullulleraine.com.au/,,check with operator,w329818333,true
+Lady Northcote Recreation Camp,-37.714638,144.314476,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://camps.ymca.org.au/discover/lady-northcote.html,YMCA,check with operator,w331159432,true
+Myrtleford Show Grounds,-36.543946,146.726448,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w333522073,true
+Lower Gums - Centenary Park Campground,-36.758011,141.850075,free,tent,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,w341098663,true
+The Pines - Centenary Park Campground,-36.759796,141.848039,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,w341098664,true
+Upper Gums - Centenary Park Campground,-36.758506,141.848639,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,w341098666,true
+Walkerville Camping Reserve,-38.837138,146.002766,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 5663 2224,,http://www.walkervillecamping.com/,,check with operator,w354236037,true
+Cub Camping Area,-37.415522,144.69094,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w366900664,true
+Mount Crozier Camping Area,-34.909611,141.705602,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w372682982,true
+Rocket Lake Camping Area,-34.638166,141.831597,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w372682983,true
+Allenvale Mill Camp Site,-38.550218,143.959788,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w386169867,true
+Herberts Camping Area,-38.489057,143.896152,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w386943409,true
+Dargo River Inn,-37.4718,147.254532,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w390789307,true
+Doon Reserve Caravan Park,-37.77147,145.608626,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w406164190,true
+Lorne Foreshore Caravan Park - Kia Ora,-38.534473,143.97186,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w434298606,true
+Lang Lang Showgrounds,-38.267651,145.561158,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w464508758,true
+Angusvale Camp Ground,-37.591369,147.352654,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w466311096,true
+Rosebud Foreshore Section 9,-38.357197,144.897502,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w481970530,true
+Granthams Bend Campground,-35.980728,146.416327,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w484342677,true
+Aysons Reserve,-36.458616,144.670145,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w487256782,false
+Mortlake Caravan Park,-38.08434,142.80919,council_park,tent,unknown,,unknown,yes,unknown,unknown,,,,Moyne Shire Council,check with operator,w489190015,false
+The Forest Camp,-36.221603,146.178883,free,tent|caravan,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,w503368571,false
+Waratah Beach Camp,-38.810602,146.063036,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 5684 1435,,https://www.waratahbeachcamp.com.au/,,check with operator,w537644335,true
+Princetown Camping Reserve,-38.698793,143.159129,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w559730291,true
+Aire River West Campground - Otway NP,-38.802225,143.47695,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w562979579,true
+Aire River East Campground,-38.800256,143.481898,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w562981262,true
+Tanglefoot,-37.510315,145.536096,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w568676090,true
+Kyabram Horticultural And Pastoral Society showground,-36.315134,145.058966,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w572796848,true
+Buchan Showgrounds,-37.497028,148.176354,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w659480663,true
+Winton Motor Raceway Camping Ground,-36.519015,146.09149,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://wintonraceway.com.au/camping/,,check with operator,w672266597,true
+Oasis,-37.019229,142.71905,rest_area,caravan,no,,unknown,unknown,unknown,yes,,,,,check with operator,w672791811,false
+Djab Wurrung Embassy,-37.308893,143.012213,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Djab Wurrung Elders,check with operator,w718391885,true
+Pretty Valley Camping Area,-36.894247,147.249566,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w743755133,true
+Echo Bend Camp Site,-37.71152,147.363937,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w823380388,true
+Slaty Creek Campground No2,-37.46572,143.9047,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w824450799,true
+Slaty Creek Camp Ground No 3,-37.467533,143.908601,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w824454904,true
+Cork Oaks,-37.3098,143.708111,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w832440663,true
+The Dam Campground,-37.306288,143.724898,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w832532653,true
+Manna Gums Campground,-37.316083,143.720694,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w832533951,true
+Wesburn Camp,-37.784327,145.650387,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 5967 2599,,https://www.wesburncamp.com.au/,,check with operator,w884252810,true
+Camp Warringal,-37.451147,145.108238,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w928726856,true
+Campground No1,-34.124051,142.028389,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,ParksVic,check with operator,w954220838,true
+Campground No 2,-34.124539,142.028683,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w954221496,true
+Campground No 4,-34.12804,142.031441,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w954226233,true
+Campground No 3,-34.127698,142.030959,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w954226778,true
+Campground No 5,-34.12842,142.031994,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w954227402,true
+Campground No 6,-34.128841,142.032745,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w954227809,true
+Paradise Valley Camping Ground,-37.838573,146.711349,free,unknown,unknown,,unknown,unknown,unknown,unknown,+61 3 5148 0291,info@paradisevalley.com.au,https://paradisevalley.com.au/,,check with operator,w974028456,true
+Myers Flat Rest Area,-36.711035,144.22408,free,tent|caravan,unknown,,unknown,no,no,no,,,,,check with operator,w1002844713,true
+Candlebark Farm,-37.722417,145.52679,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1007808346,true
+Gentle Annie Caravan and Camping Reserve,-36.752983,146.42432,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1010479834,true
+Dawson City Campground,-37.387809,147.618268,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1022225855,false
+Koornalla Reserve,-38.343048,146.532184,free,unknown,unknown,,unknown,unknown,unknown,no,,,,LaTrobe Council,check with operator,w1056326904,false
+Green Lake,-35.596674,142.850333,free,tent|caravan,no,,unknown,yes,yes,yes,,,,,check with operator,w1066498823,true
+Lorne Foreshore Caravan Park - Ocean Road,-38.534518,143.974156,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1068103062,true
+Lorne Foreshore Caravan Park - Erskine River,-38.535529,143.974789,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1068103063,true
+Lorne Foreshore Caravan Park - Top Bank,-38.535652,143.975761,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1068103064,true
+Wooroonook Lake,-36.261203,143.194552,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1076970426,true
+Rosebud Foreshore Section 10B,-38.357819,144.894895,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1113322081,true
+Rosebud Foreshore Section 10A,-38.358312,144.893002,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1113332209,true
+Rosebud Foreshore Section 11,-38.359887,144.887725,council_park,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1114881513,true
+Corinella Foreshore Caravan Park,-38.408495,145.421834,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Corinella Foreshore Reserve Inc.,check with operator,w1117308921,true
+Campground C1,-38.21735,147.393583,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c01,Parks Victoria,check with operator,w1128969942,false
+Campground C2,-38.220778,147.389234,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c02,Parks Victoria,check with operator,w1128969945,false
+Campground C4,-38.229833,147.377029,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c04,Parks Victoria,check with operator,w1128969946,false
+Campground C5,-38.230723,147.375915,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c05,Parks Victoria,check with operator,w1128969947,false
+Campground C6,-38.235341,147.369867,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c06,Parks Victoria,check with operator,w1128969951,false
+Campground C7,-38.239092,147.365354,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c07,Parks Victoria,check with operator,w1128969955,false
+Campground C8,-38.244109,147.358842,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c08,Parks Victoria,check with operator,w1128969957,false
+Campground C9,-38.246569,147.356002,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w1128969960,false
+Campground C10,-38.256147,147.343726,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c10,Parks Victoria,check with operator,w1128969962,false
+Campground C11,-38.258762,147.340489,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c11,Parks Victoria,check with operator,w1128969963,false
+Campground C12,-38.281527,147.311727,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c12,Parks Victoria,check with operator,w1128969966,false
+Campground C14,-38.322457,147.259746,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c14,Parks Victoria,check with operator,w1128969968,false
+Campground C15,-38.323484,147.258749,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c15,Parks Victoria,check with operator,w1128969970,false
+Campground C16,-38.325597,147.256048,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c16,Parks Victoria,check with operator,w1128969972,false
+Campground C17,-38.326418,147.254845,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c17,Parks Victoria,check with operator,w1128969974,false
+Campground C18,-38.333973,147.245109,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c18,Parks Victoria,check with operator,w1128969976,false
+Campground C19,-38.335437,147.243713,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,https://www.parks.vic.gov.au/places-to-see/sites/campground-c19,Parks Victoria,check with operator,w1128969978,false
+Whittlesea Showgrounds Helipad,-37.508359,145.124194,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w1133969756,true
+Greens Lake Camping Area,-36.438009,144.829298,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Goulburn-Murray Water,check with operator,w1194880396,true
+Crescent Camp,-36.482181,146.104911,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1196246879,true
+Nesting Camp Ground,-36.446297,146.113993,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1196258392,true
+Tidal River,-39.031349,146.320165,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1212505382,true
+Lascelles campground,-35.607648,142.579796,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1212724143,true
+Lake Tooliorook Campsite,-37.977538,143.285106,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1227959200,true
+Scotts Homestead Camping Area,-37.57049,147.3512,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w1240332843,false
+Rainbow Caravan Park,-35.90517,141.99326,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1244906713,true
+Diggers Rest 4 Camping,-37.010314,142.630974,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1245520603,false
+Diggers Rest 3 Camping,-37.010203,142.628132,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1245520604,false
+Tysers Camping,-37.010812,142.634924,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1245520606,false
+Diggers Rest 2 Camping,-37.007923,142.626146,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1245520607,false
+Diggers Rest 1 Camping,-37.007994,142.624116,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1245520608,false
+Flat Rock 2 Camping,-37.009295,142.619517,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1246029314,false
+Flat Rock 1 Camping,-37.007859,142.617326,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1246031007,false
+North Boat Ramp Camping,-37.008317,142.611627,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1246031008,false
+Elliotts Camping,-37.00983,142.606407,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,GWMWater,check with operator,w1246032226,false
+Langi Ghiran,-37.290238,143.091576,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1250246637,true
+Plantation Campground,-37.058831,142.515548,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w1251553943,false
+Black Springs,-36.331991,146.182098,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1263994090,false
+Point Leo Foreshore Reserve,-38.424177,145.075991,council_park,tent|caravan,no,,unknown,unknown,unknown,yes,,,https://pointleo.com,,check with operator,w1280780083,false
+Sale Showground,-38.092264,147.065553,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,https://saleshow.com.au/,,call first,w1282082977,true
+4 Currawong Camp,-37.552606,146.612761,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1306624925,true
+Mirimbah Campsite,-37.111435,146.401012,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1322722176,true
+Lang Lang Caravan & Camping Park,-38.310606,145.519357,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1323573174,true
+Neds Gully Camping Area,-37.355861,145.751826,free,tent,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,w1343925855,true
+Box Hill,-37.847613,143.934744,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394940,true
+The Falklands,-37.849191,143.935093,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394941,true
+Argentina,-37.84861,143.93448,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394942,true
+Elwood,-37.847773,143.933762,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394944,true
+Eltham,-37.849038,143.936083,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394948,true
+Premier,-37.846754,143.935329,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394949,true
+Kingswood,-37.84725,143.93536,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394950,true
+Belmont,-37.848059,143.935422,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394951,true
+Sanctuary Cove,-37.849698,143.935295,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394952,true
+Ringwood,-37.848806,143.93318,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394953,true
+North Pines,-37.849312,143.933148,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394954,true
+Sebastopol,-37.847844,143.932468,free,caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394955,true
+Vogtland,-37.850655,143.932662,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394956,true
+Mulwaverley,-37.847067,143.933075,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394957,true
+Sunset Strip,-37.847755,143.931764,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394958,true
+The Rochester,-37.846737,143.933753,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394959,true
+Brougham,-37.845952,143.935239,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394960,true
+Spring Valley,-37.844326,143.932793,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394961,true
+Africa,-37.84407,143.931169,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394962,true
+Outer Mongolia,-37.843547,143.930958,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394963,true
+Bush,-37.842857,143.932178,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394964,true
+Inner Mongolia,-37.84341,143.931673,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394965,true
+Bavaria,-37.843272,143.932659,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394966,true
+Tasmania,-37.843738,143.932281,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394967,true
+Hidden Valley,-37.843549,143.933885,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394968,true
+Kevin North,-37.842843,143.933612,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394969,true
+Kevin,-37.84321,143.933665,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394970,true
+Hong Kong Island,-37.846421,143.934039,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394975,true
+New Territories,-37.845879,143.934362,free,tent|caravan,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394976,true
+Kowloon,-37.846262,143.934731,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394977,true
+Cook's Look,-37.843542,143.935499,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1356394978,true
+Lindsay Point Campground,-34.088652,141.040175,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1361004609,true
+Lake Boga Camp Ground 401-412,-35.434005,143.65279,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1363540100,true
+Lake Boga Camp Ground 501-523,-35.438821,143.659117,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1363540105,true
+Mortlake Showground,-38.075669,142.807501,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w1427503377,true
+Ngallo Park,-35.272705,141.070027,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1441898991,true
+Don McKenzie Reserve,-36.587047,146.131897,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1457670726,true
+Henschke Track Camp ground,-34.592136,141.945649,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1464582535,true
+Kerang Apex Park - Reedy Lake,-35.68616,143.88535,free,tent|caravan,no,,unknown,unknown,no,yes,,,,,check with operator,w1490157991,false
+Showground Road,-38.241569,143.149152,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w1505763146,true
+Coleraine Showgrounds,-37.595072,141.677949,showground,tent|caravan|motorhome,unknown,,unknown,unknown,unknown,unknown,,,,,call first,w1549078456,true
+Corindhap Recreation Reserve,-37.873267,143.741003,free,unknown,no,,unknown,unknown,unknown,yes,,,https://www.melbourneplaygrounds.com.au/corindhap-recreation-reserve-playground-hall-road-corindhap,,check with operator,w1550057146,true
+Murrabit Recreation Reserve,-35.528881,143.953394,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1551474793,true
+Great Western Rest Area,-37.144723,142.842083,rest_area,caravan,unknown,,unknown,unknown,unknown,no,,,,,check with operator,w1562750247,false
+Murrayville East RA,-35.261841,141.250285,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w1568233652,true
+Delegate River Camping and Picnic Area,-37.195828,148.827546,free,unknown,no,,unknown,unknown,no,yes,,,,Parks Victoria,check with operator,n316596903,false
+.,-36.70449,144.45724,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n2090541737,true
+Camping and Picnic area,-34.207804,141.51408,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,n3337769584,true
+Snow Drift Picnic and Camping Area,-35.43174,141.911643,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,Parks Victoria,check with operator,n3369555987,true
+Kurth Kiln Camping and Picnic (2nd),-37.899953,145.577401,free,unknown,no,,unknown,unknown,no,yes,,,,,check with operator,n8343413190,false
+Bailes Picnic and Camping Area,-37.316079,143.240125,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w158623223,true
+Notley Picnic and Camping Area,-36.649776,144.26248,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w174880637,true
+Shadbolt Camping Ground and Picnic Site,-36.628548,144.247497,free,unknown,unknown,,unknown,unknown,unknown,unknown,,,,,check with operator,w174883053,true

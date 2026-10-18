@@ -335,8 +335,14 @@ if "⛺" in page_js or 'src="/assets/brand/logo-160.png"' not in page_js: bad.ap
 for fn in ("functions/api/confirm.js", "functions/api/subscribe.js"):
   src = open(os.path.join(root, fn), encoding="utf-8").read()
   if "sitePage" not in src: bad.append((fn, "confirmation page logo"))
-for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Known to be free/donation", 'name="cost" value="free"', "Known to be paid", 'name="cost" value="paid"', "Showground", 'value="Council"', 'value="Rest area"', 'value="Parks Victoria"', "Dogs OK", "Known to suit caravans", "Known to suit motorhomes", "These filters only show sites where the detail is confirmed.", "Hide closed", 'data-flag="hide-closed"', 'id="filter-count"', "Showing ", " of ", " camps", "No camps match these filters", 'id="filter-clear"', "Clear filters"):
+for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Known to be free/donation", 'name="cost" value="free"', "Known to be paid", 'name="cost" value="paid"', "Showground", 'value="Council"', 'value="Rest area"', 'value="Parks Victoria"', "Dogs OK", "Known to suit caravans", "Known to suit motorhomes", "These filters only show sites where the detail is confirmed.", "Hide closed", 'data-flag="hide-closed"', 'id="filter-count"', "Showing ", " of ", " camps", "No camps match these filters", 'id="filter-clear"', "Clear filters", 'class="page-head"', 'class="head-counts"', 'id="filters-all"', 'id="filter-btn-cost"', 'id="filter-panel-facilities"', 'aria-expanded="false"', "font-size:16px"):
   if bit not in home: bad.append(("/", "missing " + bit))
+if "Right now" in home: bad.append(("/", "counts still in the intro"))
+fac = home.find('id="filter-panel-facilities"')
+note = home.find("These filters only show sites where the detail is confirmed.")
+count_at = home.find('id="filter-count"')
+if not (0 <= fac < note < count_at): bad.append(("/", "facility note not in the popover"))
+if home.find('class="head-counts"') > home.find("campgrounds across Victoria"): bad.append(("/", "counts below the intro"))
 for bit in ('value="Free"', 'value="Donation"', 'value="Camping area"', 'value="Pub stay"', 'value="Council park"', 'value="Council park (leased)"', 'value="Park campground"', 'value="Paid – Parks Victoria (book ahead)"', 'data-flag="self"', 'data-flag="dump"', 'data-flag="tents"', 'data-flag="showers"', "Self-contained only", "Dump point", "Suits tents", "Suits caravans", "Suits motorhomes", "> Showers<", "> Free/Donation<", "> Paid<"):
   if bit in home: bad.append(("/", "old filter " + bit))
 if 'placeholder="Search by town"' in home: bad.append(("/", "old town placeholder"))
@@ -357,7 +363,7 @@ if "openPopup" in mj or "zoomToShowLayer" in mj: bad.append(("map.js", "camp sea
 for flag in ("dogs", "caravans", "motorhomes", "hide-closed"):
   if f'data-flag="{flag}"' not in home: bad.append(("/", "toggle " + flag))
 if 'input[name="cat"]' in mj or 'andFlags = ["self"' in mj: bad.append(("map.js", "old filters"))
-for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "caravans", "motorhomes"]', "updateFilterStatus", "formatCount", "filter-count", "filter-empty", "filter-clear", "No camps match these filters"):
+for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "caravans", "motorhomes"]', "updateFilterStatus", "formatCount", "filter-count", "filter-empty", "filter-clear", "No camps match these filters", "refreshFilterButtons", "filters-open", "max-width: 640px", "aria-expanded"):
   if bit not in mj: bad.append(("map.js", "filter " + bit))
 osm = [c for c in feed["camps"] if c.get("source") == "osm"]
 dv = [c for c in feed["camps"] if c.get("source") == "datavic"]

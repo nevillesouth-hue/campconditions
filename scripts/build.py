@@ -330,11 +330,15 @@ header{background:var(--g);color:#fff}.banner{max-width:980px;margin:0 auto;padd
 .logo{width:4.8rem;height:4.8rem;flex:0 0 auto;display:block;object-fit:contain}
 nav{display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.35rem 1.05rem}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
-.soon{margin:0;padding:.7rem 1rem;text-align:center;font-size:1.7rem;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
+.soon{margin:0;padding:6px 1rem;text-align:center;font-size:16px;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
 .soon-sep{font-weight:700}
-@media (max-width:720px){.soon{display:flex;flex-direction:column;align-items:center;gap:.15rem;font-size:clamp(1.2rem,5vw,1.55rem);padding:.65rem .7rem;line-height:1.2}.soon-sep{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}}
+@media (max-width:720px){.soon{font-size:15px;padding:6px .5rem;white-space:nowrap}}
+@media (max-width:360px){.soon{white-space:normal}}
 @media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:column;align-items:flex-start}.brand{font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{width:100%;flex-wrap:wrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
+.page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem .75rem;margin:.1rem 0 .15rem}
+.page-head h1{margin:0;flex:1 1 auto}.head-counts{margin:0;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
 .card a{color:var(--g);font-weight:600}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
@@ -351,9 +355,10 @@ a{color:var(--g)}
 .warn{background:#fff4e5;border-left:4px solid var(--o);padding:.6rem .8rem;margin:1rem 0}
 .map{height:440px;margin:1rem 0;border:1px solid #e3e0d6;border-radius:10px;background:#e7e4da}
 .map-sm{height:240px}.legend{margin:-.2rem 0 1rem;font-size:.9rem}.legend .badge{margin-right:.35rem}
-.town-search{margin:.8rem 0 .2rem}.town-search label{display:block;font-weight:700;margin-bottom:.3rem}
-.town-row{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}#town-search{flex:1 1 14rem;min-width:0;width:100%;font-size:1rem;padding:.7rem .8rem}
-#town-clear{background:#555;min-height:44px}#town-suggest{list-style:none;margin:.35rem 0 0;padding:0;background:#fff;border:1px solid #d9d4c8;border-radius:8px;max-height:22rem;overflow:auto}
+.finder{position:relative;z-index:500;display:flex;flex-wrap:wrap;align-items:center;gap:.4rem .5rem;margin:.35rem 0 .4rem;padding:8px 0}
+.town-search{position:relative;flex:1 1 14rem;min-width:9rem;margin:0}
+.town-row{display:flex;flex-wrap:nowrap;gap:.4rem;align-items:center}#town-search{flex:1 1 auto;min-width:0;width:100%;font-size:1rem;padding:.4rem .7rem;min-height:44px}
+#town-clear{background:#555;min-height:44px;padding:.35rem .6rem}#town-suggest{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);list-style:none;margin:0;padding:0;background:#fff;border:1px solid #d9d4c8;border-radius:8px;max-height:22rem;overflow:auto}
 #town-suggest button,#town-suggest a{display:block;width:100%;text-align:left;background:#fff;color:#222;border:0;border-bottom:1px solid #eee;border-radius:0;padding:.65rem .8rem;font-weight:500;min-height:44px;text-decoration:none}
 #town-suggest button:hover,#town-suggest button:focus,#town-suggest button[aria-selected="true"],#town-suggest a:hover,#town-suggest a:focus,#town-suggest a[aria-selected="true"]{background:#f3f1ea}
 .hit-tag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;border-radius:4px;padding:.05rem .4rem;margin-right:.45rem;vertical-align:middle}
@@ -361,11 +366,30 @@ a{color:var(--g)}
 .hit-tag.camp{background:#e7f2e4;color:#1e4620;border:1px solid #2f5d3a}
 .hit-meta{display:block;font-weight:400;color:#555;font-size:.85rem;margin-top:.1rem}
 .near-list{padding-left:1.2rem}
-.filters{margin:.5rem 0 .8rem}.filter-label{font-weight:700;margin:.45rem 0 .15rem}
-.filter-count{margin:.1rem 0 .45rem;font-weight:700}
+.filters{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem .45rem;margin:0}
+.filters-all{display:none}
+.filter-pop{position:relative}
+.filter-btn{background:#fff;color:#222;border:1px solid #c9c3b6;border-radius:6px;min-height:44px;padding:.3rem .65rem;font-weight:600;white-space:nowrap;box-shadow:none}
+.filter-btn[aria-expanded="true"]{border-color:var(--g);box-shadow:0 0 0 2px rgba(47,93,58,.2)}
+.filter-caret{color:#555}
+.filter-panel{position:absolute;z-index:5;top:calc(100% + 4px);left:0;min-width:15.5rem;background:#fff;border:1px solid #d9d4c8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:.45rem .75rem .55rem}
+.filter-panel-title{display:none;margin:.35rem 0 .1rem;font-weight:700}
+.filter-count{margin:0;font-weight:700;font-size:.95rem;white-space:nowrap}
 .filter-empty{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.75rem .9rem;margin:0 0 .8rem}
-.filter-note{margin:0 0 .15rem;font-size:.85rem;color:#555}
-.filter-row label{display:inline-flex;align-items:center;gap:.35rem;margin:.1rem .75rem .1rem 0;min-height:2.6rem}
+.filter-note{margin:0 0 .35rem;font-size:.85rem;color:#555}
+.hide-closed{display:inline-flex;align-items:center;gap:.35rem;margin:0;min-height:44px;white-space:nowrap;font-weight:600}
+.filter-panel .filter-row{display:flex;flex-direction:column}
+.filter-panel .filter-row label{display:flex;align-items:center;gap:.4rem;margin:0;min-height:2.25rem;font-weight:500}
+@media (max-width:640px){
+  .filters-all{display:inline-flex;flex:0 0 auto}
+  .finder{flex-wrap:nowrap}
+  .filters{display:none;position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);flex-direction:column;align-items:stretch;background:#fff;border:1px solid #d9d4c8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:.7rem .85rem .85rem;gap:.15rem}
+  .finder.filters-open .filters{display:flex}
+  .filter-pop .filter-btn{display:none}
+  .filter-panel{position:static;box-shadow:none;border:0;padding:0 0 .35rem;min-width:0}
+  .filter-panel-title{display:block}
+  .filter-count{white-space:normal}
+}
 .pin{background:transparent;border:none}.pin span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
 a.btn,a.btn-alert{display:inline-block;background:var(--o);color:#fff;text-decoration:none;font-weight:600;padding:.45rem .8rem;border-radius:6px}
 a.btn-alert{background:#9a3412;font-weight:700;padding:.7rem 1rem;font-size:1.05rem}
@@ -430,8 +454,18 @@ def filters_html(items):
     type_html = "".join(f'<label><input type="checkbox" name="type" value="{e(cat)}"> {e(cat)}</label>' for cat in types)
     flags = "".join(f'<label><input type="checkbox" data-flag="{key}"> {label}</label>' for key, label in toggles)
     total = f"{len(items):,}"
-    return f'''<div class="town-search"><label for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul><div id="town-results" aria-live="polite"></div></div>
-<div class="filters" id="camp-filters"><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p><p class="filter-label">Cost</p><div class="filter-row">{cost_html}</div><p class="filter-label">Type</p><div class="filter-row">{type_html}</div><p class="filter-label">Facilities</p><p class="filter-note">These filters only show sites where the detail is confirmed.</p><div class="filter-row">{flags}</div><div class="filter-row"><label><input type="checkbox" data-flag="hide-closed"> Hide closed</label></div></div>'''
+    def pop(key, title, body):
+        return (f'<div class="filter-pop"><button type="button" class="filter-btn" id="filter-btn-{key}" aria-expanded="false" aria-haspopup="true" aria-controls="filter-panel-{key}">'
+                f'<span class="filter-btn-label">{title}</span><span class="filter-caret" aria-hidden="true"> ▾</span></button>'
+                f'<div id="filter-panel-{key}" class="filter-panel" role="group" aria-labelledby="filter-btn-{key}" hidden>'
+                f'<p class="filter-panel-title">{title}</p>{body}</div></div>')
+    cost_panel = f'<div class="filter-row">{cost_html}</div>'
+    type_panel = f'<div class="filter-row">{type_html}</div>'
+    fac_panel = f'<p class="filter-note">These filters only show sites where the detail is confirmed.</p><div class="filter-row">{flags}</div>'
+    return f'''<div class="finder"><div class="town-search"><label class="sr" for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul></div>
+<button type="button" class="filter-btn filters-all" id="filters-all" aria-expanded="false" aria-controls="camp-filters"><span class="filter-btn-label">Filters</span></button>
+<div class="filters" id="camp-filters">{pop("cost", "Cost", cost_panel)}{pop("type", "Type", type_panel)}{pop("facilities", "Facilities", fac_panel)}<label class="hide-closed"><input type="checkbox" data-flag="hide-closed"> Hide closed</label><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p></div></div>
+<div id="town-results" aria-live="polite"></div>'''
 def map_block(items, label, small=False):
     cls = "map map-sm" if small else "map"
     legend = "" if small else LEGEND
@@ -556,11 +590,23 @@ MAP_JS = r"""(function () {
   function formatCount(n) {
     return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
+  function setFilterLabel(btn, base, n) {
+    var label = btn && btn.querySelector(".filter-btn-label");
+    if (label) label.textContent = n ? base + " (" + n + ")" : base;
+  }
+  function refreshFilterButtons() {
+    var fac = document.querySelectorAll("#filter-panel-facilities input:checked").length;
+    [["filter-btn-cost", "Cost", selected("cost").length], ["filter-btn-type", "Type", selected("type").length], ["filter-btn-facilities", "Facilities", fac]].forEach(function (row) {
+      setFilterLabel(document.getElementById(row[0]), row[1], row[2]);
+    });
+    setFilterLabel(document.getElementById("filters-all"), "Filters", document.querySelectorAll("#camp-filters input:checked").length);
+  }
   function updateFilterStatus(shownCount) {
     var countEl = document.getElementById("filter-count");
     if (countEl) countEl.textContent = "Showing " + formatCount(shownCount) + " of " + formatCount(data.length) + " camps";
     var empty = document.getElementById("filter-empty");
     if (empty) empty.hidden = shownCount !== 0;
+    refreshFilterButtons();
   }
   function redraw(fit) {
     group.clearLayers();
@@ -786,6 +832,59 @@ MAP_JS = r"""(function () {
   document.querySelectorAll("#camp-filters input").forEach(function (box) {
     box.addEventListener("change", function () { redraw(false); });
   });
+  var phoneQuery = window.matchMedia("(max-width: 640px)");
+  function phoneLayout() { return phoneQuery.matches; }
+  function closeFilterMenus(restore) {
+    document.querySelectorAll(".filter-pop .filter-btn").forEach(function (btn) {
+      btn.setAttribute("aria-expanded", "false");
+      var panel = document.getElementById(btn.getAttribute("aria-controls"));
+      if (panel && !phoneLayout()) panel.hidden = true;
+    });
+    var finder = document.querySelector(".finder");
+    var allBtn = document.getElementById("filters-all");
+    if (finder) finder.classList.remove("filters-open");
+    if (allBtn) allBtn.setAttribute("aria-expanded", "false");
+    if (restore && restore.focus) restore.focus();
+  }
+  function syncPhonePanels() {
+    if (phoneLayout()) document.querySelectorAll(".filter-panel").forEach(function (panel) { panel.hidden = false; });
+    else closeFilterMenus();
+  }
+  document.querySelectorAll(".filter-pop .filter-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      if (phoneLayout()) return;
+      var willOpen = btn.getAttribute("aria-expanded") !== "true";
+      closeFilterMenus();
+      if (!willOpen) return;
+      btn.setAttribute("aria-expanded", "true");
+      var panel = document.getElementById(btn.getAttribute("aria-controls"));
+      if (panel) panel.hidden = false;
+    });
+  });
+  var allFilters = document.getElementById("filters-all");
+  if (allFilters) {
+    allFilters.addEventListener("click", function () {
+      var finder = document.querySelector(".finder");
+      var willOpen = finder && !finder.classList.contains("filters-open");
+      closeFilterMenus();
+      if (!willOpen) return;
+      finder.classList.add("filters-open");
+      allFilters.setAttribute("aria-expanded", "true");
+      document.querySelectorAll(".filter-panel").forEach(function (panel) { panel.hidden = false; });
+    });
+  }
+  document.addEventListener("click", function (ev) {
+    if (ev.target.closest(".filter-btn") || ev.target.closest(".filter-panel") || ev.target.closest(".hide-closed")) return;
+    closeFilterMenus();
+  });
+  document.addEventListener("keydown", function (ev) {
+    if (ev.key !== "Escape") return;
+    var open = document.querySelector(".filter-pop .filter-btn[aria-expanded='true']");
+    if (open) { closeFilterMenus(open); return; }
+    if (allFilters && allFilters.getAttribute("aria-expanded") === "true") closeFilterMenus(allFilters);
+  });
+  if (phoneQuery.addEventListener) phoneQuery.addEventListener("change", syncPhonePanels);
+  syncPhonePanels();
   var clearFilters = document.getElementById("filter-clear");
   if (clearFilters) {
     clearFilters.addEventListener("click", function (ev) {
@@ -996,7 +1095,7 @@ home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampC
              {"@type": "Question", "name": "How do I know if a free camp in Victoria is open?", "acceptedAnswer": {"@type": "Answer", "text": "DEECA Recreation Sites pages show the closure status and nearby Parks Victoria road and seasonal closures. OpenStreetMap campgrounds are not in that closure feed: the page says to check with the operator, and showgrounds say to call first. CampConditions.au does not republish VicEmergency warnings. Check VicEmergency, Parks Victoria and the Bureau of Meteorology before you travel. In an emergency call 000. The VicEmergency hotline is 1800 226 226."}},
              {"@type": "Question", "name": "How often is CampConditions.au updated?", "acceptedAnswer": {"@type": "Answer", "text": "The site rebuilds from DEECA and Parks Victoria sources several times a day. OpenStreetMap campgrounds and towns are refreshed weekly. Each page shows when it was built. Warning information is not included."}}]}]
 page("/", f"Victorian camp conditions — {len(camps)} sites | CampConditions.au", f"Closure status and nearby road closures for {len(camps)} Victorian campgrounds, including {n_osm} OpenStreetMap sites to check with the operator.",
- f"""<h1>Victorian camp conditions</h1><p>Closures, nearby road conditions and camper reports for <strong>{len(camps)}</strong> campgrounds across Victoria. <strong>{n_dv}</strong> are DEECA Recreation Sites with Parks Victoria closures. <strong>{n_osm}</strong> more are from OpenStreetMap — check with the operator, and call a showground first. Right now <span class="badge closed">{n_closed} closed</span> <span class="badge check">{n_check} to check</span>.</p>
+ f"""<div class="page-head"><h1>Victorian camp conditions</h1><p class="head-counts"><span class="badge closed">{n_closed} closed</span> <span class="badge check">{n_check} to check</span></p></div><p>Closures, nearby road conditions and camper reports for <strong>{len(camps)}</strong> campgrounds across Victoria. <strong>{n_dv}</strong> are DEECA Recreation Sites with Parks Victoria closures. <strong>{n_osm}</strong> more are from OpenStreetMap — check with the operator, and call a showground first.</p>
 {map_block(camps, "Map of Victorian campgrounds")}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
 <p>Weather warnings: <a href="https://www.bom.gov.au/vic/warnings/">check BOM's Victorian warnings</a>. Bushfire, flood and other emergency warnings: check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a> — they are not republished here.</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
 

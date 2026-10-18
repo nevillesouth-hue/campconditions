@@ -380,15 +380,29 @@ a{color:var(--g)}
 .hide-closed{display:inline-flex;align-items:center;gap:.35rem;margin:0;min-height:44px;white-space:nowrap;font-weight:600}
 .filter-panel .filter-row{display:flex;flex-direction:column}
 .filter-panel .filter-row label{display:flex;align-items:center;gap:.4rem;margin:0;min-height:2.25rem;font-weight:500}
+.filter-sheet-body{display:contents}
+.filter-sheet-top,.filter-sheet-bottom{display:none}
+.filter-backdrop{display:none;position:fixed;inset:0;z-index:640;width:100%;height:100%;margin:0;padding:0;border:0;background:rgba(17,24,16,.45);cursor:pointer;touch-action:manipulation}
+.filter-backdrop[hidden]{display:none !important}
+html.filters-locked,html.filters-locked body{overflow:hidden}
 @media (max-width:640px){
   .filters-all{display:inline-flex;flex:0 0 auto}
   .finder{flex-wrap:nowrap}
-  .filters{display:none;position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);flex-direction:column;align-items:stretch;background:#fff;border:1px solid #d9d4c8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:.7rem .85rem .85rem;gap:.15rem}
-  .finder.filters-open .filters{display:flex}
+  .filters{display:none}
+  .filter-backdrop:not([hidden]){display:block}
+  .finder.filters-open{z-index:650}
+  .finder.filters-open .filters{display:flex;position:fixed;z-index:660;left:0;right:0;bottom:0;top:auto;max-height:80vh;overflow:hidden;flex-direction:column;align-items:stretch;gap:0;margin:0;padding:0;background:#fff;border:0;border-radius:14px 14px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,.22);pointer-events:auto;touch-action:manipulation}
   .filter-pop .filter-btn{display:none}
   .filter-panel{position:static;box-shadow:none;border:0;padding:0 0 .35rem;min-width:0}
   .filter-panel-title{display:block}
   .filter-count{white-space:normal}
+  .filter-sheet-body{display:block;overflow:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0;padding:.35rem .9rem .7rem}
+  .filter-sheet-top,.filter-sheet-bottom{display:flex;flex:0 0 auto;align-items:center;background:#fff;z-index:2}
+  .filter-sheet-top{position:sticky;top:0;justify-content:space-between;padding:.25rem .35rem .25rem .9rem;border-bottom:1px solid #e3e0d6}
+  .filter-sheet-title{margin:0;font-weight:700;font-size:1.05rem}
+  .filter-sheet-close{background:transparent;color:#222;border:0;box-shadow:none;width:44px;height:44px;padding:0;font-size:1.8rem;line-height:1;touch-action:manipulation}
+  .filter-sheet-bottom{position:sticky;bottom:0;padding:.65rem .9rem calc(.65rem + env(safe-area-inset-bottom));border-top:1px solid #e3e0d6}
+  .filter-done{width:100%;min-height:48px;background:var(--g);color:#fff;border:0;border-radius:8px;font-weight:700;font-size:1.05rem;touch-action:manipulation}
 }
 .pin{background:transparent;border:none}.pin span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
 a.btn,a.btn-alert{display:inline-block;background:var(--o);color:#fff;text-decoration:none;font-weight:600;padding:.45rem .8rem;border-radius:6px}
@@ -462,9 +476,9 @@ def filters_html(items):
     cost_panel = f'<div class="filter-row">{cost_html}</div>'
     type_panel = f'<div class="filter-row">{type_html}</div>'
     fac_panel = f'<p class="filter-note">These filters only show sites where the detail is confirmed.</p><div class="filter-row">{flags}</div>'
-    return f'''<div class="finder"><div class="town-search"><label class="sr" for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul></div>
+    return f'''<button type="button" id="filter-backdrop" class="filter-backdrop" hidden aria-label="Close filters"></button><div class="finder"><div class="town-search"><label class="sr" for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul></div>
 <button type="button" class="filter-btn filters-all" id="filters-all" aria-expanded="false" aria-controls="camp-filters"><span class="filter-btn-label">Filters</span></button>
-<div class="filters" id="camp-filters">{pop("cost", "Cost", cost_panel)}{pop("type", "Type", type_panel)}{pop("facilities", "Facilities", fac_panel)}<label class="hide-closed"><input type="checkbox" data-flag="hide-closed"> Hide closed</label><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p></div></div>
+<div class="filters" id="camp-filters"><div class="filter-sheet-top"><p class="filter-sheet-title" id="filter-sheet-title">Filters</p><button type="button" class="filter-sheet-close" id="filter-sheet-close" aria-label="Close filters">×</button></div><div class="filter-sheet-body">{pop("cost", "Cost", cost_panel)}{pop("type", "Type", type_panel)}{pop("facilities", "Facilities", fac_panel)}<label class="hide-closed"><input type="checkbox" data-flag="hide-closed"> Hide closed</label><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p></div><div class="filter-sheet-bottom"><button type="button" class="filter-done" id="filter-done">Show {total} camps</button></div></div></div>
 <div id="town-results" aria-live="polite"></div>'''
 def map_block(items, label, small=False):
     cls = "map map-sm" if small else "map"
@@ -606,6 +620,8 @@ MAP_JS = r"""(function () {
     if (countEl) countEl.textContent = "Showing " + formatCount(shownCount) + " of " + formatCount(data.length) + " camps";
     var empty = document.getElementById("filter-empty");
     if (empty) empty.hidden = shownCount !== 0;
+    var done = document.getElementById("filter-done");
+    if (done) done.textContent = "Show " + formatCount(shownCount) + (shownCount === 1 ? " camp" : " camps");
     refreshFilterButtons();
   }
   function redraw(fit) {
@@ -834,17 +850,43 @@ MAP_JS = r"""(function () {
   });
   var phoneQuery = window.matchMedia("(max-width: 640px)");
   function phoneLayout() { return phoneQuery.matches; }
+  function revealMap() {
+    var mapEl = document.getElementById("camp-map");
+    if (!mapEl) return;
+    var rect = mapEl.getBoundingClientRect();
+    var visible = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+    if (visible < Math.min(rect.height, window.innerHeight) * 0.45) mapEl.scrollIntoView({ block: "center" });
+    var campMap = mapEl._campMap;
+    if (campMap && campMap.invalidateSize) {
+      campMap.invalidateSize();
+      setTimeout(function () { campMap.invalidateSize(); }, 200);
+    }
+  }
   function closeFilterMenus(restore) {
+    var finder = document.querySelector(".finder");
+    var wasPhoneSheet = phoneLayout() && finder && finder.classList.contains("filters-open");
     document.querySelectorAll(".filter-pop .filter-btn").forEach(function (btn) {
       btn.setAttribute("aria-expanded", "false");
       var panel = document.getElementById(btn.getAttribute("aria-controls"));
       if (panel && !phoneLayout()) panel.hidden = true;
     });
-    var finder = document.querySelector(".finder");
     var allBtn = document.getElementById("filters-all");
+    var backdrop = document.getElementById("filter-backdrop");
     if (finder) finder.classList.remove("filters-open");
     if (allBtn) allBtn.setAttribute("aria-expanded", "false");
+    if (backdrop) backdrop.hidden = true;
+    document.documentElement.classList.remove("filters-locked");
+    if (wasPhoneSheet) revealMap();
     if (restore && restore.focus) restore.focus();
+  }
+  function openPhoneSheet() {
+    var finder = document.querySelector(".finder");
+    var backdrop = document.getElementById("filter-backdrop");
+    if (finder) finder.classList.add("filters-open");
+    if (allFilters) allFilters.setAttribute("aria-expanded", "true");
+    if (backdrop) backdrop.hidden = false;
+    document.documentElement.classList.add("filters-locked");
+    document.querySelectorAll(".filter-panel").forEach(function (panel) { panel.hidden = false; });
   }
   function syncPhonePanels() {
     if (phoneLayout()) document.querySelectorAll(".filter-panel").forEach(function (panel) { panel.hidden = false; });
@@ -863,24 +905,38 @@ MAP_JS = r"""(function () {
   });
   var allFilters = document.getElementById("filters-all");
   if (allFilters) {
-    allFilters.addEventListener("click", function () {
+    allFilters.addEventListener("click", function (ev) {
+      ev.stopPropagation();
       var finder = document.querySelector(".finder");
       var willOpen = finder && !finder.classList.contains("filters-open");
       closeFilterMenus();
-      if (!willOpen) return;
-      finder.classList.add("filters-open");
-      allFilters.setAttribute("aria-expanded", "true");
-      document.querySelectorAll(".filter-panel").forEach(function (panel) { panel.hidden = false; });
+      if (willOpen) openPhoneSheet();
     });
   }
+  function dismissPhoneSheet(ev) {
+    if (ev.type === "touchend") ev.preventDefault();
+    ev.stopPropagation();
+    closeFilterMenus(allFilters);
+  }
+  ["filter-done", "filter-sheet-close", "filter-backdrop"].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("touchend", dismissPhoneSheet, { passive: false });
+    el.addEventListener("click", dismissPhoneSheet);
+  });
   document.addEventListener("click", function (ev) {
+    if (phoneLayout()) {
+      if (ev.target.closest("#camp-filters") || ev.target.closest("#filters-all") || ev.target.closest("#filter-backdrop")) return;
+      closeFilterMenus();
+      return;
+    }
     if (ev.target.closest(".filter-btn") || ev.target.closest(".filter-panel") || ev.target.closest(".hide-closed")) return;
     closeFilterMenus();
   });
   document.addEventListener("keydown", function (ev) {
     if (ev.key !== "Escape") return;
     var open = document.querySelector(".filter-pop .filter-btn[aria-expanded='true']");
-    if (open) { closeFilterMenus(open); return; }
+    if (open && !phoneLayout()) { closeFilterMenus(open); return; }
     if (allFilters && allFilters.getAttribute("aria-expanded") === "true") closeFilterMenus(allFilters);
   });
   if (phoneQuery.addEventListener) phoneQuery.addEventListener("change", syncPhonePanels);

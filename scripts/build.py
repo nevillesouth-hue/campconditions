@@ -80,6 +80,13 @@ def region(lon, lat):
     return "yarra-ranges-central"
 
 def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
+# A leading "12 " is an index, not part of the name, unless the next word is a
+# unit or place descriptor (6 Mile Flat, 82 Bend, 14 Creek).
+_KEEP_UNIT = {"mile", "miles", "bend", "bends", "km", "kms", "kilometre", "kilometres", "kilometer", "kilometers", "creek", "creeks"}
+def strip_index_name(name):
+    match = re.match(r"^(\d+)\s+([A-Za-z]+)", name or "")
+    if not match or match.group(2).lower() in _KEEP_UNIT: return name
+    return name[match.start(2):]
 e = lambda s: html.escape(str(s or ""), quote=True)
 def clean(s): return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()
 
@@ -240,6 +247,11 @@ def load_osm(seen):
             camp["category"] = "Camping area"
             camp["site_class"] = "Camping area"
         if cat == PV_LABEL and not camp.get("phone"): camp["phone"] = "13 1963"
+        shown = strip_index_name(camp["name"])
+        if shown != camp["name"]:
+            # Slug stays on the original name so the old URL keeps working.
+            camp["former_name"] = camp["name"]
+            camp["name"] = shown
         extra.append(camp)
     return extra
 camps.extend(load_osm(seen))
@@ -261,6 +273,54 @@ def assign_filters(camp):
     else: camp["type_filter"] = ""
     return camp
 for camp in camps: assign_filters(camp)
+def nearest_places(camp, towns, limit=8):
+    scored = []
+    for town in towns:
+        scored.append((km((camp["lon"], camp["lat"]), (town["lon"], town["lat"])), town["name"]))
+    scored.sort()
+    names, seen = [], set()
+    for dist, place_name in scored:
+        key = place_name.casefold()
+        if key in seen: continue
+        seen.add(key)
+        names.append((dist, place_name))
+        if len(names) >= limit: break
+    return names
+def assign_page_names(camps):
+    """Duplicate names get a nearest-place subtitle so the title and h1 differ."""
+    with open(os.path.join(ROOT, "data", "vic-towns.json"), encoding="utf-8") as handle:
+        towns = json.load(handle)
+    groups = {}
+    for camp in camps:
+        groups.setdefault(camp["name"].casefold(), []).append(camp)
+    for group in groups.values():
+        if len(group) < 2: continue
+        choices = {id(camp): nearest_places(camp, towns) for camp in group}
+        used = set()
+        for camp in sorted(group, key=lambda camp: choices[id(camp)][0][0]):
+            place = next((name for dist, name in choices[id(camp)] if name.casefold() not in used), choices[id(camp)][0][1])
+            used.add(place.casefold())
+            camp["page_name"] = f"{camp['name']}, near {place}"
+        labels = {}
+        for camp in group:
+            labels.setdefault(camp["page_name"].casefold(), []).append(camp)
+        for dupes in labels.values():
+            if len(dupes) < 2: continue
+            for camp in dupes:
+                camp["page_name"] = f"{camp['page_name']}, {REGIONS[camp['region']][0]}"
+        labels = {}
+        for camp in group:
+            labels.setdefault(camp["page_name"].casefold(), []).append(camp)
+        for dupes in labels.values():
+            if len(dupes) < 2: continue
+            ordered = sorted(dupes, key=lambda camp: (camp["lat"], camp["lon"]))
+            if len(ordered) == 2:
+                ordered[0]["page_name"] += " (south)"
+                ordered[1]["page_name"] += " (north)"
+            else:
+                for index, camp in enumerate(ordered, 1):
+                    camp["page_name"] += f" ({index})"
+assign_page_names(camps)
 camps.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
@@ -334,7 +394,7 @@ def cdn(kind, href, integrity):
 LEAFLET_CSS = cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css", "sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb")
 LEAFLET_JS = cdn("js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js", "sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO")
 CLUSTER_CSS = (
-    cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css", "sha384-uIZNAcoEHVWMk8LrCSX95DJk6FQzH6zG00LQC9BykRY1UKKpkDzDhbDLYQ1HoRdVx8nYU4LQ5eGzI")
+    cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css", "sha384-uIZNAcoEHVWMk8LrCSX95DJk6FQzH6zG00LQC9BykRY1UKKpkDzDhbDLYQ1Ho3mI")
     + cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.min.css", "sha384-NyCa0nBOjmCqS9HwLKpE7yqy2HVG6PN/cDyAAIdPijDlUH6jCfqX6ydzXFTA/L/l")
 )
 CLUSTER_JS = cdn("js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js", "sha384-SIh+qcEBNMda8tT+rx66aCBuWtVYMVzRABqhK4eeQh4pjDHoRdVx8nYU4LQ5eGzI")
@@ -842,20 +902,26 @@ def contact_html(c):
     if (c.get("website") or "").startswith("http"):
         buttons.append(f'<a class="btn" href="{e(c["website"])}">Website</a>')
     return "<p>" + " ".join(buttons) + "</p>" if buttons else ""
+FACILITY_CHECKS = (("Dogs", "fac_dogs"), ("Dump point", "fac_dump"), ("Showers", "fac_showers"), ("Tents", "fac_tents"), ("Caravans", "fac_caravans"), ("Motorhomes", "fac_motorhomes"), ("Self-contained only", "fac_self"))
+def checklist_rows(c):
+    rows = []
+    for label, field in FACILITY_CHECKS:
+        if label == "Dogs" and c.get("dogs_text"):
+            rows.append((label, c["dogs_text"], True)); continue
+        value = c.get(field)
+        if value is True: rows.append((label, "Yes", True))
+        elif value is False: rows.append((label, "No", True))
+        else: rows.append((label, "Unknown", False))
+    return rows
+def facilities_collapsed(c):
+    rows = checklist_rows(c)
+    unknown = sum(1 for row in rows if not row[2])
+    return unknown > len(rows) - unknown
 def facility_items(c, fill_unknown):
     items = []
-    def known(label, value):
-        if value is True: return (label, "Yes")
-        if value is False: return (label, "No")
-        if fill_unknown: return (label, "Unknown")
-        return None
-    if c.get("dogs_text"): items.append(("Dogs", c["dogs_text"]))
-    else:
-        row = known("Dogs", c.get("fac_dogs"))
-        if row: items.append(row)
-    for label, field in (("Dump point", "fac_dump"), ("Showers", "fac_showers"), ("Tents", "fac_tents"), ("Caravans", "fac_caravans"), ("Motorhomes", "fac_motorhomes"), ("Self-contained only", "fac_self")):
-        row = known(label, c.get(field))
-        if row: items.append(row)
+    collapse = facilities_collapsed(c)
+    for label, value, known in checklist_rows(c):
+        if known or (fill_unknown and not collapse): items.append((label, value))
     if c.get("toilets_text"): items.append(("Toilets", c["toilets_text"]))
     if c.get("drinking_water"): items.append(("Drinking water", c["drinking_water"]))
     if c.get("water_source"): items.append(("Water source", c["water_source"]))
@@ -876,7 +942,12 @@ def facts_html(c, fill_unknown):
     if c.get("max_stay"): bits.append(f"<p><strong>Max stay: {e(c['max_stay'])}</strong></p>")
     elif fill_unknown: bits.append("<p><strong>Max stay: ask operator</strong></p>")
     items = facility_items(c, fill_unknown)
-    if items: bits.append("<h2>Facilities</h2><ul>" + "".join(f"<li>{label}: {e(value)}</li>" for label, value in items) + "</ul>")
+    collapse = facilities_collapsed(c)
+    if items or collapse:
+        block = "<h2>Facilities</h2>"
+        if items: block += "<ul>" + "".join(f"<li>{label}: {e(value)}</li>" for label, value in items) + "</ul>"
+        if collapse: block += f'<p>Other facilities not yet confirmed. Know this spot? <a href="/report/?camp={e(c["slug"])}">Help us confirm</a>.</p>'
+        bits.append(block)
     if c.get("source_scope"): bits.append(f"<p>{e(c['source_scope'])}</p>")
     if c.get("checked_line"): bits.append(f"<p>{e(c['checked_line'])}</p>")
     if (c.get("source_url") or "").startswith("http"):
@@ -931,15 +1002,16 @@ for c in camps:
         text = facts.without_prices(raw)
         if text: info_bits.append(f"<h2>{heading}</h2><p>{e(text)}</p>")
     info = "".join(info_bits)
+    page_name = c.get("page_name") or c["name"]
     if osm:
         condition = osm_blocks(c)
-        title = f"{c['name']} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{c['name']} — check with the operator | CampConditions.au"
+        title = f"{page_name} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{page_name} — check with the operator | CampConditions.au"
         desc = f"{c['name']} in {rn}, Victoria. Conditions: check with the operator. Type: {c.get('category') or 'camp'}."
         dated = "Source: OpenStreetMap. Parks Victoria closure data is not applied to this site."
     else:
         condition = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
         condition += datavic_facts(c)
-        title = f"{c['name']} campground — is it open? Conditions today | CampConditions.au"
+        title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
         desc = f"Is {c['name']} campground open? Current closure status and nearby road closures for {c['name']} in {rn}, Victoria."
         dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
     camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}/vic/camp/{c['slug']}/", "description": (c.get("description") or c["about"] or desc)[:300],
@@ -949,7 +1021,7 @@ for c in camps:
     if cl:
         lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}/vic/camp/{c['slug']}/"})
     page(f"/vic/camp/{c['slug']}/", title, desc,
-     f"""<p class="muted"><a href="/vic/">Victoria</a> › <a href="/vic/{c['region']}/">{e(rn)}</a></p><h1>{e(c['name'])}</h1><p>{badge(c)} <span class="muted">Checked {STAMP}</span></p>
+     f"""<p class="muted"><a href="/vic/">Victoria</a> › <a href="/vic/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1><p>{badge(c)} <span class="muted">Checked {STAMP}</span></p>
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
@@ -1052,6 +1124,13 @@ open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter
 print(f"Built {len(urls)} pages, {len(camps)} camps ({n_dv} DEECA, {n_osm} OSM, {n_closed} closed, {n_check} check), {len(closures)} closure features")
+renamed = [c for c in camps if c.get("former_name")]
+print(f"Renamed {len(renamed)} indexed OSM names; slugs unchanged")
+for camp in sorted(renamed, key=lambda c: c["former_name"].lower()):
+    print(f"  {camp['former_name']} -> {camp['name']}  /vic/camp/{camp['slug']}/")
+print("Duplicate page names")
+for camp in camps:
+    if camp.get("page_name"): print(f"  {camp['name']} -> {camp['page_name']}  /vic/camp/{camp['slug']}/")
 for name, count in Counter(c.get("category") or "?" for c in camps).most_common():
     print(f"  {count:4d}  {name}")
 print("Filters")

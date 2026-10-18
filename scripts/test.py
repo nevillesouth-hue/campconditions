@@ -69,6 +69,8 @@ if not ah or ah.get("cost") != "free" or ah.get("type") != "Parks Victoria": bad
 bull = by_point.get("/vic/camp/bull-creek/")
 if not bull or bull.get("cost") != "paid" or bull.get("type") != "Parks Victoria": bad.append(("bull-creek", "datavic paid cost"))
 if sum(1 for p in home_pts if p.get("cost") == "free" and p.get("type") == "Parks Victoria") < 100: bad.append(("filters", "datavic free missing"))
+if "sha384-uIZNAcoEHVWMk8LrCSX95DJk6FQzH6zG00LQC9BykRY1UKKpkDzDhbDLYQ1Ho3mI" not in home or "crossorigin=" not in home: bad.append(("sri", "markercluster css"))
+if "sha384-uIZNAcoEHVWMk8LrCSX95DJk6FQzH6zG00LQC9BykRY1UKKpkDzDhbDLYQ1HoRdVx8nYU4LQ5eGzI" in home: bad.append(("sri", "old markercluster css hash"))
 by={}
 for c in feed["camps"]: by.setdefault(c["region"], []).append(c)
 for name in os.listdir(os.path.join(D,"vic")):
@@ -76,6 +78,7 @@ for name in os.listdir(os.path.join(D,"vic")):
   if name=="camp" or not os.path.isfile(page): continue
   pts=expect_map(f"/vic/{name}/", open(page, encoding="utf-8").read(), True)
   if len(pts)!=len(by.get(name, [])): bad.append((f"/vic/{name}/", "region map count"))
+page_titles=[]
 for slug in os.listdir(os.path.join(D,"vic","camp")):
   page=os.path.join(D,"vic","camp",slug,"index.html")
   if not os.path.isfile(page): continue
@@ -92,6 +95,22 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "vicemergency link"))
     if "1800 226 226" not in html_page or ">000<" not in html_page:
       bad.append((slug, "emergency hotline"))
+  title_m = re.search(r"<title>(.*?)</title>", html_page)
+  h1_m = re.search(r"<h1>(.*?)</h1>", html_page)
+  if not title_m or not h1_m or h1_m.group(1) not in title_m.group(1): bad.append((slug, "title"))
+  else: page_titles.append(title_m.group(1))
+dup_titles = [t for t in set(page_titles) if page_titles.count(t) > 1]
+if dup_titles: bad.append(("duplicate titles", dup_titles[:3]))
+def named(name): return [c for c in feed["camps"] if c.get("name") == name]
+if named("1 Wild Cherry Camp") or not named("Wild Cherry Camp") or named("Wild Cherry Camp")[0]["slug"] != "1-wild-cherry-camp": bad.append(("rename", "wild cherry"))
+if not named("6 Mile Flat") or not any(c["name"].startswith("82 Bend Camping Area") for c in feed["camps"]): bad.append(("rename", "kept unit name"))
+cherry = open(os.path.join(D, "vic", "camp", "1-wild-cherry-camp", "index.html"), encoding="utf-8").read()
+if "<h1>Wild Cherry Camp</h1>" not in cherry or "1 Wild Cherry" in cherry: bad.append(("1-wild-cherry-camp", "display name"))
+for shore in named("Foreshore Reserve"):
+  shore_html = open(os.path.join(D, "vic", "camp", shore["slug"], "index.html"), encoding="utf-8").read()
+  if "<h1>Foreshore Reserve, near " not in shore_html: bad.append((shore["slug"], "near town"))
+thin = open(os.path.join(D, "vic", "camp", "langfords-west-campground", "index.html"), encoding="utf-8").read()
+if "Other facilities not yet confirmed. Know this spot?" not in thin or 'href="/report/?camp=langfords-west-campground"' not in thin or "Dogs: Unknown" in thin or "Showers: Unknown" in thin: bad.append(("langfords-west-campground", "thin facilities"))
 banned = ("emergency.vic.gov.au/public", "osom", "emv.vic.gov.au", "nearby_emergency", "fire_danger", "fire danger", "CC BY 3.0", "Emergency data last received", "Current VicEmergency warnings", "within 25 km")
 for r, _, fs in os.walk(D):
   if draft_dir(r): continue

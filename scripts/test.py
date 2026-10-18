@@ -312,9 +312,9 @@ if "⛺" in page_js or 'src="/assets/brand/logo-160.png"' not in page_js: bad.ap
 for fn in ("functions/api/confirm.js", "functions/api/subscribe.js"):
   src = open(os.path.join(root, fn), encoding="utf-8").read()
   if "sitePage" not in src: bad.append((fn, "confirmation page logo"))
-for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Free/Donation", 'name="cost" value="free"', 'name="cost" value="paid"', "> Paid<", "Showground", 'value="Council"', 'value="Rest area"', 'value="Parks Victoria"', "Dogs OK", "Showers", "Known to suit caravans", "Known to suit motorhomes", "These filters only show sites where the detail is confirmed.", "Hide closed", 'data-flag="hide-closed"'):
+for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Known to be free/donation", 'name="cost" value="free"', "Known to be paid", 'name="cost" value="paid"', "Showground", 'value="Council"', 'value="Rest area"', 'value="Parks Victoria"', "Dogs OK", "Known to suit caravans", "Known to suit motorhomes", "These filters only show sites where the detail is confirmed.", "Hide closed", 'data-flag="hide-closed"'):
   if bit not in home: bad.append(("/", "missing " + bit))
-for bit in ('value="Free"', 'value="Donation"', 'value="Camping area"', 'value="Pub stay"', 'value="Council park"', 'value="Council park (leased)"', 'value="Park campground"', 'value="Paid – Parks Victoria (book ahead)"', 'data-flag="self"', 'data-flag="dump"', 'data-flag="tents"', "Self-contained only", "Dump point", "Suits tents", "Suits caravans", "Suits motorhomes"):
+for bit in ('value="Free"', 'value="Donation"', 'value="Camping area"', 'value="Pub stay"', 'value="Council park"', 'value="Council park (leased)"', 'value="Park campground"', 'value="Paid – Parks Victoria (book ahead)"', 'data-flag="self"', 'data-flag="dump"', 'data-flag="tents"', 'data-flag="showers"', "Self-contained only", "Dump point", "Suits tents", "Suits caravans", "Suits motorhomes", "> Showers<", "> Free/Donation<", "> Paid<"):
   if bit in home: bad.append(("/", "old filter " + bit))
 if 'placeholder="Search by town"' in home: bad.append(("/", "old town placeholder"))
 if "vic-towns.json" in home: bad.append(("/", "towns JSON should be lazy-loaded, not inlined"))
@@ -331,10 +331,10 @@ if "slice(0, 15)" not in mj: bad.append(("map.js", "nearest camps"))
 for bit in ("slice(0, 12)", "ArrowDown", "aria-activedescendant", "hit-tag", 'kind === "camp"', 'replace(/[^a-z0-9]+/g, " ")', "regionName", 'window.location.assign(hit.camp.url)', 'document.createElement("a")', '[role="option"]'):
   if bit not in mj: bad.append(("map.js", "camp search " + bit))
 if "openPopup" in mj or "zoomToShowLayer" in mj: bad.append(("map.js", "camp search still opens a popup"))
-for flag in ("dogs", "showers", "caravans", "motorhomes", "hide-closed"):
+for flag in ("dogs", "caravans", "motorhomes", "hide-closed"):
   if f'data-flag="{flag}"' not in home: bad.append(("/", "toggle " + flag))
 if 'input[name="cat"]' in mj or 'andFlags = ["self"' in mj: bad.append(("map.js", "old filters"))
-for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "showers", "caravans", "motorhomes"]'):
+for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "caravans", "motorhomes"]'):
   if bit not in mj: bad.append(("map.js", "filter " + bit))
 osm = [c for c in feed["camps"] if c.get("source") == "osm"]
 dv = [c for c in feed["camps"] if c.get("source") == "datavic"]

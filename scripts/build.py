@@ -348,7 +348,7 @@ def map_points(items):
         cl = c.get("closure") or {}
         pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": f"/vic/camp/{c['slug']}/", "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
         if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
-        for key, field in (("dogs", "fac_dogs"), ("showers", "fac_showers"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
+        for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
             value = c.get(field)
             if value is True: pt[key] = 1
             elif value is False: pt[key] = 0
@@ -361,9 +361,9 @@ def flag_attr(c, field):
     if value is False: return "0"
     return ""
 def filters_html(items):
-    costs = (("free", "Free/Donation"), ("paid", "Paid"))
+    costs = (("free", "Known to be free/donation"), ("paid", "Known to be paid"))
     types = ("Showground", "Council", "Rest area", "Parks Victoria")
-    toggles = (("dogs", "Dogs OK"), ("showers", "Showers"), ("caravans", "Known to suit caravans"), ("motorhomes", "Known to suit motorhomes"))
+    toggles = (("dogs", "Dogs OK"), ("caravans", "Known to suit caravans"), ("motorhomes", "Known to suit motorhomes"))
     cost_html = "".join(f'<label><input type="checkbox" name="cost" value="{key}"> {label}</label>' for key, label in costs)
     type_html = "".join(f'<label><input type="checkbox" name="type" value="{e(cat)}"> {e(cat)}</label>' for cat in types)
     flags = "".join(f'<label><input type="checkbox" data-flag="{key}"> {label}</label>' for key, label in toggles)
@@ -450,7 +450,7 @@ MAP_JS = r"""(function () {
     if (costs.length && costs.indexOf(obj.cost || "") === -1) return false;
     var hide = document.querySelector('#camp-filters input[data-flag="hide-closed"]');
     if (hide && hide.checked && obj.status === "closed") return false;
-    var andFlags = ["dogs", "showers", "caravans", "motorhomes"];
+    var andFlags = ["dogs", "caravans", "motorhomes"];
     for (var i = 0; i < andFlags.length; i++) {
       var box = document.querySelector('#camp-filters input[data-flag="' + andFlags[i] + '"]');
       if (box && box.checked && flag(obj, andFlags[i]) !== 1) return false;
@@ -803,7 +803,7 @@ def list_note(c):
     return ""
 def row_attrs(c):
     return (f'data-url="/vic/camp/{c["slug"]}/" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
-            f'data-dogs="{flag_attr(c,"fac_dogs")}" data-showers="{flag_attr(c,"fac_showers")}" '
+            f'data-dogs="{flag_attr(c,"fac_dogs")}" '
             f'data-caravans="{flag_attr(c,"fac_caravans")}" data-motorhomes="{flag_attr(c,"fac_motorhomes")}"')
 def yn(value):
     if value is True: return "Yes"
@@ -1056,8 +1056,8 @@ for name, count in Counter(c.get("category") or "?" for c in camps).most_common(
     print(f"  {count:4d}  {name}")
 print("Filters")
 for label, pred in (
-    ("Cost Free/Donation", lambda c: c.get("cost") == "free"),
-    ("Cost Paid", lambda c: c.get("cost") == "paid"),
+    ("Cost Known to be free/donation", lambda c: c.get("cost") == "free"),
+    ("Cost Known to be paid", lambda c: c.get("cost") == "paid"),
     ("Cost unknown", lambda c: not c.get("cost")),
     ("Type Showground", lambda c: c.get("type_filter") == "Showground"),
     ("Type Council", lambda c: c.get("type_filter") == "Council"),
@@ -1065,7 +1065,6 @@ for label, pred in (
     ("Type Parks Victoria", lambda c: c.get("type_filter") == "Parks Victoria"),
     ("Type none", lambda c: not c.get("type_filter")),
     ("Dogs OK", lambda c: c.get("fac_dogs") is True),
-    ("Showers", lambda c: c.get("fac_showers") is True),
     ("Known to suit caravans", lambda c: c.get("fac_caravans") is True),
     ("Known to suit motorhomes", lambda c: c.get("fac_motorhomes") is True),
     ("Hide closed", lambda c: c.get("status") == "closed"),

@@ -142,6 +142,8 @@ def apply_row_facts(camp, row):
     if booking_raw in (None, ""): booking_raw = row.get("booking")
     booking = facts.booking_label(booking_raw)
     if booking: camp["booking_label"] = booking
+    fee_raw = str(row.get("fee_type") or "").strip().lower()
+    if fee_raw in ("free", "donation", "paid"): camp["fee_type"] = fee_raw
     fee = facts.fee_label(row.get("fee_type"), row.get("fee_note"))
     if fee: camp["fee_label"] = fee
     if row.get("max_nights") not in (None, ""):
@@ -242,6 +244,23 @@ def load_osm(seen):
     return extra
 camps.extend(load_osm(seen))
 apply_datavic_enrichment(camps)
+def assign_filters(camp):
+    """Cost is the known fee. Type is the place filter, separate from the page label."""
+    fee = str(camp.get("fee_type") or "").strip().lower()
+    cat = camp.get("category") or ""
+    if fee == "paid" or cat in (PV_LABEL, "Camping area"):
+        camp["cost"] = "paid"
+    elif fee in ("free", "donation") or cat == "Donation":
+        camp["cost"] = "free"
+    else:
+        camp["cost"] = ""
+    if cat == "Showground": camp["type_filter"] = "Showground"
+    elif cat in ("Council park", "Council park (leased)"): camp["type_filter"] = "Council"
+    elif cat == "Rest area": camp["type_filter"] = "Rest area"
+    elif cat in ("Park campground", PV_LABEL): camp["type_filter"] = "Parks Victoria"
+    else: camp["type_filter"] = ""
+    return camp
+for camp in camps: assign_filters(camp)
 camps.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
@@ -283,6 +302,7 @@ a{color:var(--g)}
 .hit-meta{display:block;font-weight:400;color:#555;font-size:.85rem;margin-top:.1rem}
 .near-list{padding-left:1.2rem}
 .filters{margin:.5rem 0 .8rem}.filter-label{font-weight:700;margin:.45rem 0 .15rem}
+.filter-note{margin:0 0 .15rem;font-size:.85rem;color:#555}
 .filter-row label{display:inline-flex;align-items:center;gap:.35rem;margin:.1rem .75rem .1rem 0;min-height:2.6rem}
 .pin{background:transparent;border:none}.pin span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
 a.btn,a.btn-alert{display:inline-block;background:var(--o);color:#fff;text-decoration:none;font-weight:600;padding:.45rem .8rem;border-radius:6px}
@@ -326,9 +346,9 @@ def map_points(items):
     pts = []
     for c in items:
         cl = c.get("closure") or {}
-        pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": f"/vic/camp/{c['slug']}/", "cat": c.get("category") or ""}
+        pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": f"/vic/camp/{c['slug']}/", "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
         if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
-        for key, field in (("self", "fac_self"), ("dogs", "fac_dogs"), ("dump", "fac_dump"), ("showers", "fac_showers"), ("tents", "fac_tents"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
+        for key, field in (("dogs", "fac_dogs"), ("showers", "fac_showers"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
             value = c.get(field)
             if value is True: pt[key] = 1
             elif value is False: pt[key] = 0
@@ -341,15 +361,14 @@ def flag_attr(c, field):
     if value is False: return "0"
     return ""
 def filters_html(items):
-    cats, seen = [], set()
-    for cat in OSM_CATEGORIES + [c.get("category") or "" for c in items]:
-        if cat and cat not in seen:
-            cats.append(cat); seen.add(cat)
-    types = "".join(f'<label><input type="checkbox" name="cat" value="{e(cat)}"> {e(cat)}</label>' for cat in cats)
-    toggles = (("self", "Self-contained only"), ("dogs", "Dogs OK"), ("dump", "Dump point"), ("showers", "Showers"), ("tents", "Suits tents"), ("caravans", "Suits caravans"), ("motorhomes", "Suits motorhomes"))
+    costs = (("free", "Free/Donation"), ("paid", "Paid"))
+    types = ("Showground", "Council", "Rest area", "Parks Victoria")
+    toggles = (("dogs", "Dogs OK"), ("showers", "Showers"), ("caravans", "Known to suit caravans"), ("motorhomes", "Known to suit motorhomes"))
+    cost_html = "".join(f'<label><input type="checkbox" name="cost" value="{key}"> {label}</label>' for key, label in costs)
+    type_html = "".join(f'<label><input type="checkbox" name="type" value="{e(cat)}"> {e(cat)}</label>' for cat in types)
     flags = "".join(f'<label><input type="checkbox" data-flag="{key}"> {label}</label>' for key, label in toggles)
     return f'''<div class="town-search"><label for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul><div id="town-results" aria-live="polite"></div></div>
-<div class="filters" id="camp-filters"><p class="filter-label">Type</p><div class="filter-row">{types}</div><p class="filter-label">Facilities</p><div class="filter-row">{flags}</div></div>'''
+<div class="filters" id="camp-filters"><p class="filter-label">Cost</p><div class="filter-row">{cost_html}</div><p class="filter-label">Type</p><div class="filter-row">{type_html}</div><p class="filter-label">Facilities</p><p class="filter-note">These filters only show sites where the detail is confirmed.</p><div class="filter-row">{flags}</div><div class="filter-row"><label><input type="checkbox" data-flag="hide-closed"> Hide closed</label></div></div>'''
 def map_block(items, label, small=False):
     cls = "map map-sm" if small else "map"
     legend = "" if small else LEGEND
@@ -357,7 +376,10 @@ def map_block(items, label, small=False):
     return f'{tools}<div id="camp-map" class="{cls}" role="region" aria-label="{e(label)}"></div>{legend}<script type="application/json" id="camp-map-data">{map_points(items)}</script>'
 def directions(c):
     url = f"https://www.google.com/maps/dir/?api=1&destination={c['lat']},{c['lon']}"
-    return f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a></p>'
+    # toiletmap.gov.au centres a map only for a facility id (/123) or a saved custom map.
+    # lat/lng query strings are ignored, so this opens the Toilet Map home page.
+    toilets = "https://toiletmap.gov.au/"
+    return f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a> <a class="btn" href="{toilets}" target="_blank" rel="noopener noreferrer">Find nearby toilets</a></p>'
 MAP_JS = r"""(function () {
   var el = document.getElementById("camp-map");
   var raw = document.getElementById("camp-map-data");
@@ -416,29 +438,23 @@ MAP_JS = r"""(function () {
     if (v === 0 || v === "0" || v === false) return 0;
     return null;
   }
-  function selectedCats() {
+  function selected(name) {
     var out = [];
-    document.querySelectorAll('#camp-filters input[name="cat"]:checked').forEach(function (box) { out.push(box.value); });
+    document.querySelectorAll('#camp-filters input[name="' + name + '"]:checked').forEach(function (box) { out.push(box.value); });
     return out;
   }
   function matches(obj) {
-    var cats = selectedCats();
-    if (cats.length && cats.indexOf(obj.cat || "") === -1) return false;
-    var andFlags = ["self", "dogs", "dump", "showers"];
+    var types = selected("type");
+    if (types.length && types.indexOf(obj.type || "") === -1) return false;
+    var costs = selected("cost");
+    if (costs.length && costs.indexOf(obj.cost || "") === -1) return false;
+    var hide = document.querySelector('#camp-filters input[data-flag="hide-closed"]');
+    if (hide && hide.checked && obj.status === "closed") return false;
+    var andFlags = ["dogs", "showers", "caravans", "motorhomes"];
     for (var i = 0; i < andFlags.length; i++) {
       var box = document.querySelector('#camp-filters input[data-flag="' + andFlags[i] + '"]');
       if (box && box.checked && flag(obj, andFlags[i]) !== 1) return false;
     }
-    var suit = ["tents", "caravans", "motorhomes"];
-    var anySuit = false, suitOk = false;
-    for (var j = 0; j < suit.length; j++) {
-      var sbox = document.querySelector('#camp-filters input[data-flag="' + suit[j] + '"]');
-      if (sbox && sbox.checked) {
-        anySuit = true;
-        if (flag(obj, suit[j]) === 1) suitOk = true;
-      }
-    }
-    if (anySuit && !suitOk) return false;
     return true;
   }
   function kmBetween(lat1, lon1, lat2, lon2) {
@@ -786,10 +802,9 @@ def list_note(c):
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
     return ""
 def row_attrs(c):
-    return (f'data-url="/vic/camp/{c["slug"]}/" data-cat="{e(c.get("category") or "")}" '
-            f'data-self="{flag_attr(c,"fac_self")}" data-dogs="{flag_attr(c,"fac_dogs")}" data-dump="{flag_attr(c,"fac_dump")}" '
-            f'data-showers="{flag_attr(c,"fac_showers")}" data-tents="{flag_attr(c,"fac_tents")}" data-caravans="{flag_attr(c,"fac_caravans")}" '
-            f'data-motorhomes="{flag_attr(c,"fac_motorhomes")}"')
+    return (f'data-url="/vic/camp/{c["slug"]}/" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
+            f'data-dogs="{flag_attr(c,"fac_dogs")}" data-showers="{flag_attr(c,"fac_showers")}" '
+            f'data-caravans="{flag_attr(c,"fac_caravans")}" data-motorhomes="{flag_attr(c,"fac_motorhomes")}"')
 def yn(value):
     if value is True: return "Yes"
     if value is False: return "No"
@@ -893,7 +908,7 @@ page("/", f"Victorian camp conditions — {len(camps)} sites | CampConditions.au
 <p>Weather warnings: <a href="https://www.bom.gov.au/vic/warnings/">check BOM's Victorian warnings</a>. Bushfire, flood and other emergency warnings: check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a> — they are not republished here.</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
 
 page("/vic/", f"Victoria campground conditions — {len(camps)} sites | CampConditions.au", f"Browse {len(camps)} Victorian campgrounds by region, including OpenStreetMap sites.",
-     f"<h1>Victoria</h1><p><strong>{len(camps)}</strong> campgrounds. Search by town or camp name, then filter by type and facilities.</p>{map_block(camps, 'Map of Victorian campgrounds')}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), ("Victoria", "/vic/")])], head=leaflet_head(True), foot=leaflet_foot(True))
+     f"<h1>Victoria</h1><p><strong>{len(camps)}</strong> campgrounds. Search by town or camp name, then filter by cost, type and facilities.</p>{map_block(camps, 'Map of Victorian campgrounds')}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), ("Victoria", "/vic/")])], head=leaflet_head(True), foot=leaflet_foot(True))
 
 for k, (n, d) in REGIONS.items():
     lst = by_reg[k]
@@ -1039,4 +1054,21 @@ from collections import Counter
 print(f"Built {len(urls)} pages, {len(camps)} camps ({n_dv} DEECA, {n_osm} OSM, {n_closed} closed, {n_check} check), {len(closures)} closure features")
 for name, count in Counter(c.get("category") or "?" for c in camps).most_common():
     print(f"  {count:4d}  {name}")
+print("Filters")
+for label, pred in (
+    ("Cost Free/Donation", lambda c: c.get("cost") == "free"),
+    ("Cost Paid", lambda c: c.get("cost") == "paid"),
+    ("Cost unknown", lambda c: not c.get("cost")),
+    ("Type Showground", lambda c: c.get("type_filter") == "Showground"),
+    ("Type Council", lambda c: c.get("type_filter") == "Council"),
+    ("Type Rest area", lambda c: c.get("type_filter") == "Rest area"),
+    ("Type Parks Victoria", lambda c: c.get("type_filter") == "Parks Victoria"),
+    ("Type none", lambda c: not c.get("type_filter")),
+    ("Dogs OK", lambda c: c.get("fac_dogs") is True),
+    ("Showers", lambda c: c.get("fac_showers") is True),
+    ("Known to suit caravans", lambda c: c.get("fac_caravans") is True),
+    ("Known to suit motorhomes", lambda c: c.get("fac_motorhomes") is True),
+    ("Hide closed", lambda c: c.get("status") == "closed"),
+):
+    print(f"  {sum(1 for c in camps if pred(c)):4d}  {label}")
 for k, v in SRC.items(): print(("OK  " if v["ok"] else "FAIL"), k, v.get("error", ""))

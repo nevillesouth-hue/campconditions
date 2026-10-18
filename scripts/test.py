@@ -57,6 +57,18 @@ home_pts, vic_pts=expect_map("/", home, True), expect_map("/vic/", vic, True)
 if len(home_pts)!=len(feed["camps"]) or len(vic_pts)!=len(feed["camps"]): bad.append(("overview", "map count"))
 home_urls={p["url"] for p in home_pts}
 if home_urls!={c["url"].replace("https://campconditions.au","") for c in feed["camps"]}: bad.append(("overview","map urls"))
+by_point = {p["url"]: p for p in home_pts}
+for p in home_pts:
+  if p.get("cost") not in ("", "free", "paid") or p.get("type") not in ("", "Showground", "Council", "Rest area", "Parks Victoria"):
+    bad.append((p["url"], "filter fields")); break
+  if p.get("cat") == "Pub stay" and p.get("type"): bad.append((p["url"], "pub stay filtered")); break
+  if p.get("cat") in ("Council park", "Council park (leased)") and p.get("type") != "Council": bad.append((p["url"], "council merge")); break
+  if p.get("cat") in ("Park campground", "Paid – Parks Victoria (book ahead)") and p.get("type") != "Parks Victoria": bad.append((p["url"], "parks merge")); break
+ah = by_point.get("/vic/camp/ah-youngs/")
+if not ah or ah.get("cost") != "free" or ah.get("type") != "Parks Victoria": bad.append(("ah-youngs", "datavic free cost"))
+bull = by_point.get("/vic/camp/bull-creek/")
+if not bull or bull.get("cost") != "paid" or bull.get("type") != "Parks Victoria": bad.append(("bull-creek", "datavic paid cost"))
+if sum(1 for p in home_pts if p.get("cost") == "free" and p.get("type") == "Parks Victoria") < 100: bad.append(("filters", "datavic free missing"))
 by={}
 for c in feed["camps"]: by.setdefault(c["region"], []).append(c)
 for name in os.listdir(os.path.join(D,"vic")):
@@ -71,6 +83,8 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
   if len(pts)!=1 or pts[0]["url"]!=f"/vic/camp/{slug}/": bad.append((slug, "camp map"))
   elif f"destination={pts[0]['lat']},{pts[0]['lon']}" not in html_page or "Directions in Google Maps" not in html_page or "map-sm" not in html_page:
     bad.append((slug, "directions"))
+  elif "Find nearby toilets" not in html_page or 'href="https://toiletmap.gov.au/"' not in html_page or 'target="_blank"' not in html_page.split("Find nearby toilets", 1)[0][-80:]:
+    bad.append((slug, "toilets"))
   else:
     lat, lon = pts[0]["lat"], pts[0]["lon"]; pad = 0.2
     bbox = f"https://emergency.vic.gov.au/respond/?bbox={lon-pad:.5f},{lat-pad:.5f},{lon+pad:.5f},{lat+pad:.5f}"
@@ -298,8 +312,10 @@ if "⛺" in page_js or 'src="/assets/brand/logo-160.png"' not in page_js: bad.ap
 for fn in ("functions/api/confirm.js", "functions/api/subscribe.js"):
   src = open(os.path.join(root, fn), encoding="utf-8").read()
   if "sitePage" not in src: bad.append((fn, "confirmation page logo"))
-for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Self-contained only", "Dogs OK", "Dump point", "Showers", "Suits tents", "Suits caravans", "Suits motorhomes", "Free", "Donation", "Showground", "Council park (leased)", 'value="Rest area"', 'value="Pub stay"', 'value="Paid – Parks Victoria (book ahead)"'):
+for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Free/Donation", 'name="cost" value="free"', 'name="cost" value="paid"', "> Paid<", "Showground", 'value="Council"', 'value="Rest area"', 'value="Parks Victoria"', "Dogs OK", "Showers", "Known to suit caravans", "Known to suit motorhomes", "These filters only show sites where the detail is confirmed.", "Hide closed", 'data-flag="hide-closed"'):
   if bit not in home: bad.append(("/", "missing " + bit))
+for bit in ('value="Free"', 'value="Donation"', 'value="Camping area"', 'value="Pub stay"', 'value="Council park"', 'value="Council park (leased)"', 'value="Park campground"', 'value="Paid – Parks Victoria (book ahead)"', 'data-flag="self"', 'data-flag="dump"', 'data-flag="tents"', "Self-contained only", "Dump point", "Suits tents", "Suits caravans", "Suits motorhomes"):
+  if bit in home: bad.append(("/", "old filter " + bit))
 if 'placeholder="Search by town"' in home: bad.append(("/", "old town placeholder"))
 if "vic-towns.json" in home: bad.append(("/", "towns JSON should be lazy-loaded, not inlined"))
 towns_path = os.path.join(D, "vic-towns.json")
@@ -315,8 +331,11 @@ if "slice(0, 15)" not in mj: bad.append(("map.js", "nearest camps"))
 for bit in ("slice(0, 12)", "ArrowDown", "aria-activedescendant", "hit-tag", 'kind === "camp"', 'replace(/[^a-z0-9]+/g, " ")', "regionName", 'window.location.assign(hit.camp.url)', 'document.createElement("a")', '[role="option"]'):
   if bit not in mj: bad.append(("map.js", "camp search " + bit))
 if "openPopup" in mj or "zoomToShowLayer" in mj: bad.append(("map.js", "camp search still opens a popup"))
-for flag in ("self", "dogs", "dump", "showers", "tents", "caravans", "motorhomes"):
+for flag in ("dogs", "showers", "caravans", "motorhomes", "hide-closed"):
   if f'data-flag="{flag}"' not in home: bad.append(("/", "toggle " + flag))
+if 'input[name="cat"]' in mj or 'andFlags = ["self"' in mj: bad.append(("map.js", "old filters"))
+for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "showers", "caravans", "motorhomes"]'):
+  if bit not in mj: bad.append(("map.js", "filter " + bit))
 osm = [c for c in feed["camps"] if c.get("source") == "osm"]
 dv = [c for c in feed["camps"] if c.get("source") == "datavic"]
 if not osm or not dv: bad.append(("status.json", "both sources"))
@@ -505,12 +524,10 @@ if not avondale or avondale.get("status") != "closed" or avondale.get("source") 
 else:
   av_html = page_of("avondale-gardens")
   must("avondale-gardens", av_html, ['class="badge closed"', "<strong>Closed:</strong>", "<strong>Free</strong>", "Dogs: Yes"])
-for slug, tents, vans, homes, self_flag in (("dargo-river-inn", 1, 1, 1, None), ("coleraine-caravan-park", 1, 1, 1, 0)):
+for slug, vans, homes in (("dargo-river-inn", 1, 1), ("coleraine-caravan-park", 1, 1)):
   point = next((p for p in home_pts if p.get("url", "").rstrip("/").endswith("/" + slug)), None)
-  if not point or point.get("tents") != tents or point.get("caravans") != vans or point.get("motorhomes") != homes:
+  if not point or point.get("caravans") != vans or point.get("motorhomes") != homes or "tents" in point or "self" in point:
     bad.append((slug, "map suit flags"))
-  elif self_flag is not None and point.get("self") != self_flag:
-    bad.append((slug, "map self flag"))
 applied = 0
 for row in dv_camps.values():
   html_page = page_of(row["slug"])

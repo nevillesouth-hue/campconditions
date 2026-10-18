@@ -362,6 +362,8 @@ a{color:var(--g)}
 .hit-meta{display:block;font-weight:400;color:#555;font-size:.85rem;margin-top:.1rem}
 .near-list{padding-left:1.2rem}
 .filters{margin:.5rem 0 .8rem}.filter-label{font-weight:700;margin:.45rem 0 .15rem}
+.filter-count{margin:.1rem 0 .45rem;font-weight:700}
+.filter-empty{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.75rem .9rem;margin:0 0 .8rem}
 .filter-note{margin:0 0 .15rem;font-size:.85rem;color:#555}
 .filter-row label{display:inline-flex;align-items:center;gap:.35rem;margin:.1rem .75rem .1rem 0;min-height:2.6rem}
 .pin{background:transparent;border:none}.pin span{display:block;width:16px;height:16px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
@@ -427,13 +429,15 @@ def filters_html(items):
     cost_html = "".join(f'<label><input type="checkbox" name="cost" value="{key}"> {label}</label>' for key, label in costs)
     type_html = "".join(f'<label><input type="checkbox" name="type" value="{e(cat)}"> {e(cat)}</label>' for cat in types)
     flags = "".join(f'<label><input type="checkbox" data-flag="{key}"> {label}</label>' for key, label in toggles)
+    total = f"{len(items):,}"
     return f'''<div class="town-search"><label for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul><div id="town-results" aria-live="polite"></div></div>
-<div class="filters" id="camp-filters"><p class="filter-label">Cost</p><div class="filter-row">{cost_html}</div><p class="filter-label">Type</p><div class="filter-row">{type_html}</div><p class="filter-label">Facilities</p><p class="filter-note">These filters only show sites where the detail is confirmed.</p><div class="filter-row">{flags}</div><div class="filter-row"><label><input type="checkbox" data-flag="hide-closed"> Hide closed</label></div></div>'''
+<div class="filters" id="camp-filters"><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p><p class="filter-label">Cost</p><div class="filter-row">{cost_html}</div><p class="filter-label">Type</p><div class="filter-row">{type_html}</div><p class="filter-label">Facilities</p><p class="filter-note">These filters only show sites where the detail is confirmed.</p><div class="filter-row">{flags}</div><div class="filter-row"><label><input type="checkbox" data-flag="hide-closed"> Hide closed</label></div></div>'''
 def map_block(items, label, small=False):
     cls = "map map-sm" if small else "map"
     legend = "" if small else LEGEND
     tools = "" if small else filters_html(items)
-    return f'{tools}<div id="camp-map" class="{cls}" role="region" aria-label="{e(label)}"></div>{legend}<script type="application/json" id="camp-map-data">{map_points(items)}</script>'
+    empty = "" if small else '<p id="filter-empty" class="filter-empty" hidden>No camps match these filters. <a href="#camp-filters" id="filter-clear">Clear filters</a></p>'
+    return f'{tools}{empty}<div id="camp-map" class="{cls}" role="region" aria-label="{e(label)}"></div>{legend}<script type="application/json" id="camp-map-data">{map_points(items)}</script>'
 def directions(c):
     url = f"https://www.google.com/maps/dir/?api=1&destination={c['lat']},{c['lon']}"
     # toiletmap.gov.au centres a map only for a facility id (/123) or a saved custom map.
@@ -549,21 +553,31 @@ MAP_JS = r"""(function () {
     });
     results.innerHTML = html + "</ol>";
   }
+  function formatCount(n) {
+    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+  function updateFilterStatus(shownCount) {
+    var countEl = document.getElementById("filter-count");
+    if (countEl) countEl.textContent = "Showing " + formatCount(shownCount) + " of " + formatCount(data.length) + " camps";
+    var empty = document.getElementById("filter-empty");
+    if (empty) empty.hidden = shownCount !== 0;
+  }
   function redraw(fit) {
     group.clearLayers();
-    var any = false;
+    var shownCount = 0;
     data.forEach(function (p, i) {
       if (!matches(p)) return;
       group.addLayer(markers[i]);
-      any = true;
+      shownCount += 1;
     });
     document.querySelectorAll("#camp-list tbody tr[data-url]").forEach(function (row) {
       row.hidden = !matches(row.dataset);
     });
+    updateFilterStatus(shownCount);
     if (picked) showNearest();
-    else if (fit && any) {
+    else if (fit && shownCount) {
       try { map.fitBounds(group.getBounds().pad(0.08)); } catch (err) {}
-    } else if (!any) map.setView([-36.8, 144.5], 6);
+    } else if (!shownCount) map.setView([-36.8, 144.5], 6);
   }
   function loadTowns() {
     if (towns) return Promise.resolve(towns);
@@ -772,6 +786,14 @@ MAP_JS = r"""(function () {
   document.querySelectorAll("#camp-filters input").forEach(function (box) {
     box.addEventListener("change", function () { redraw(false); });
   });
+  var clearFilters = document.getElementById("filter-clear");
+  if (clearFilters) {
+    clearFilters.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      document.querySelectorAll("#camp-filters input").forEach(function (box) { box.checked = false; });
+      redraw(true);
+    });
+  }
   redraw(true);
 })();
 """
@@ -914,9 +936,8 @@ def checklist_rows(c):
         else: rows.append((label, "Unknown", False))
     return rows
 def facilities_collapsed(c):
-    rows = checklist_rows(c)
-    unknown = sum(1 for row in rows if not row[2])
-    return unknown > len(rows) - unknown
+    """Hide unconfirmed rows whenever any facility is still unknown."""
+    return any(not row[2] for row in checklist_rows(c))
 def facility_items(c, fill_unknown):
     items = []
     collapse = facilities_collapsed(c)

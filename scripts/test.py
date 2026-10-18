@@ -111,6 +111,10 @@ for shore in named("Foreshore Reserve"):
   if "<h1>Foreshore Reserve, near " not in shore_html: bad.append((shore["slug"], "near town"))
 thin = open(os.path.join(D, "vic", "camp", "langfords-west-campground", "index.html"), encoding="utf-8").read()
 if "Other facilities not yet confirmed. Know this spot?" not in thin or 'href="/report/?camp=langfords-west-campground"' not in thin or "Dogs: Unknown" in thin or "Showers: Unknown" in thin: bad.append(("langfords-west-campground", "thin facilities"))
+kurra = open(os.path.join(D, "vic", "camp", "mount-lawson-state-park-the-kurrajongs", "index.html"), encoding="utf-8").read()
+if ("Other facilities not yet confirmed. Know this spot?" not in kurra or 'href="/report/?camp=mount-lawson-state-park-the-kurrajongs"' not in kurra
+    or "Dump point: Unknown" in kurra or "Motorhomes: Unknown" in kurra or "Dogs: No" not in kurra or "Tents: Yes" not in kurra):
+  bad.append(("mount-lawson-state-park-the-kurrajongs", "known-only facilities"))
 banned = ("emergency.vic.gov.au/public", "osom", "emv.vic.gov.au", "nearby_emergency", "fire_danger", "fire danger", "CC BY 3.0", "Emergency data last received", "Current VicEmergency warnings", "within 25 km")
 for r, _, fs in os.walk(D):
   if draft_dir(r): continue
@@ -331,7 +335,7 @@ if "⛺" in page_js or 'src="/assets/brand/logo-160.png"' not in page_js: bad.ap
 for fn in ("functions/api/confirm.js", "functions/api/subscribe.js"):
   src = open(os.path.join(root, fn), encoding="utf-8").read()
   if "sitePage" not in src: bad.append((fn, "confirmation page logo"))
-for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Known to be free/donation", 'name="cost" value="free"', "Known to be paid", 'name="cost" value="paid"', "Showground", 'value="Council"', 'value="Rest area"', 'value="Parks Victoria"', "Dogs OK", "Known to suit caravans", "Known to suit motorhomes", "These filters only show sites where the detail is confirmed.", "Hide closed", 'data-flag="hide-closed"'):
+for bit in ("Search by town or camp name", 'id="town-search"', 'role="combobox"', 'aria-haspopup="listbox"', 'aria-live="polite"', 'id="camp-filters"', "Known to be free/donation", 'name="cost" value="free"', "Known to be paid", 'name="cost" value="paid"', "Showground", 'value="Council"', 'value="Rest area"', 'value="Parks Victoria"', "Dogs OK", "Known to suit caravans", "Known to suit motorhomes", "These filters only show sites where the detail is confirmed.", "Hide closed", 'data-flag="hide-closed"', 'id="filter-count"', "Showing ", " of ", " camps", "No camps match these filters", 'id="filter-clear"', "Clear filters"):
   if bit not in home: bad.append(("/", "missing " + bit))
 for bit in ('value="Free"', 'value="Donation"', 'value="Camping area"', 'value="Pub stay"', 'value="Council park"', 'value="Council park (leased)"', 'value="Park campground"', 'value="Paid – Parks Victoria (book ahead)"', 'data-flag="self"', 'data-flag="dump"', 'data-flag="tents"', 'data-flag="showers"', "Self-contained only", "Dump point", "Suits tents", "Suits caravans", "Suits motorhomes", "> Showers<", "> Free/Donation<", "> Paid<"):
   if bit in home: bad.append(("/", "old filter " + bit))
@@ -353,7 +357,7 @@ if "openPopup" in mj or "zoomToShowLayer" in mj: bad.append(("map.js", "camp sea
 for flag in ("dogs", "caravans", "motorhomes", "hide-closed"):
   if f'data-flag="{flag}"' not in home: bad.append(("/", "toggle " + flag))
 if 'input[name="cat"]' in mj or 'andFlags = ["self"' in mj: bad.append(("map.js", "old filters"))
-for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "caravans", "motorhomes"]'):
+for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "caravans", "motorhomes"]', "updateFilterStatus", "formatCount", "filter-count", "filter-empty", "filter-clear", "No camps match these filters"):
   if bit not in mj: bad.append(("map.js", "filter " + bit))
 osm = [c for c in feed["camps"] if c.get("source") == "osm"]
 dv = [c for c in feed["camps"] if c.get("source") == "datavic"]
@@ -394,7 +398,9 @@ for camp in osm:
     shown["confirmed"] = True
   if "Max stay:" not in html_page: bad.append((camp["slug"], "max stay"))
   else: shown["max"] = True
-  if "Dogs: Unknown" in html_page or "Dump point: Unknown" in html_page or "Showers: Unknown" in html_page: shown["unknown"] = True
+  if re.search(r"(?:Dogs|Dump point|Showers|Tents|Caravans|Motorhomes|Self-contained only): Unknown", html_page):
+    bad.append((camp["slug"], "unknown facility row"))
+  if "Other facilities not yet confirmed. Know this spot?" in html_page: shown["unknown"] = True
   if 'href="tel:' in html_page: shown["tel"] = True
   if ">Website</a>" in html_page: shown["https"] = True
   if "Water tap:" in html_page: shown["water"] = True

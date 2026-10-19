@@ -641,7 +641,47 @@ if "manual-corrections.json" not in osm_src or re.search(r"open\(\s*CORRECTIONS\
 refresh = open(os.path.join(root, ".github", "workflows", "refresh-osm.yml"), encoding="utf-8").read()
 if "wrangler" in refresh or "pages deploy" in refresh or "--branch=main" in refresh: bad.append(("refresh-osm.yml", "must not deploy"))
 add = refresh.split("git add", 1)[1].split("git commit", 1)[0]
-if "manual-corrections" in add or "osm-camps-vic.json" not in add or "vic-towns.json" not in add: bad.append(("refresh-osm.yml", "git add"))
+if "manual-corrections" in add or "osm-camps-vic.json" not in add or "vic-towns.json" not in add or "pending-osm.json" not in add: bad.append(("refresh-osm.yml", "git add"))
+if "left the vetted files unchanged" not in osm_src or "outside Victoria" not in osm_src or "missing id, needs remap" not in osm_src: bad.append(("build_osm.py", "soft fail or pending"))
+if not build_osm.in_state(-37.8136, 144.9631) or build_osm.in_state(-36.09, 144.75) or build_osm.in_state(-37.993592, 140.965965): bad.append(("boundary", "Victoria"))
+def _sample(osm_id, name, lat, lon):
+  return {"osm_id": osm_id, "name": name, "lat": lat, "lon": lon, "category": "free", "tags": {"tourism": "camp_site", "name": name}}
+published, pending = build_osm.vet_camps(
+  [_sample("n1", "Old Camp", -37.1, 144.2), _sample("n2", "Red Bank Camp", -37.2, 144.3)],
+  [_sample("n3", "Moama Camp", -36.09, 144.75)],
+  {"n1": {"needs_review": False, "name": "Old Camp", "checked_date": "2026-10-20"}},
+  [{"osm_id": "n1", "name": "Old Camp", "lat": -37.1, "lon": 144.2, "category": "free"}],
+)
+if [c.get("osm_id") for c in published] != ["n1"] or any(c.get("osm_id") == "n2" for c in published): bad.append(("vet", "new id published"))
+new_row = next((row for row in pending if row.get("id") == "n2"), None)
+out_row = next((row for row in pending if row.get("id") == "n3"), None)
+if not new_row or new_row.get("tags", {}).get("name") != "Red Bank Camp" or "lat" not in new_row: bad.append(("vet", "pending new id"))
+if not out_row or out_row.get("note") != "outside Victoria": bad.append(("vet", "outside Victoria"))
+published, pending = build_osm.vet_camps(
+  [_sample("n1", "Red Bank Camp", -37.2, 144.3), _sample("n4", "Red Bank Campsite", -37.2004, 144.3004)],
+  [],
+  {"n1": {"name": "Red Bank Camp"}},
+  [{"osm_id": "n1", "name": "Red Bank Camp", "lat": -37.2, "lon": 144.3, "category": "free"}],
+)
+flagged = next((row for row in pending if row.get("id") == "n4"), None)
+if not flagged or "likely duplicate of n1" not in flagged.get("duplicate", ""): bad.append(("vet", "duplicate"))
+far, far_pending = build_osm.vet_camps(
+  [_sample("n1", "Red Bank Camp", -37.2, 144.3), _sample("n5", "Red Bank Camp", -38.2, 146.3)],
+  [],
+  {"n1": {"name": "Red Bank Camp"}},
+  [{"osm_id": "n1", "name": "Red Bank Camp", "lat": -37.2, "lon": 144.3, "category": "free"}],
+)
+far_row = next((row for row in far_pending if row.get("id") == "n5"), {})
+if far_row.get("duplicate"): bad.append(("vet", "distant duplicate"))
+kept, missing = build_osm.vet_camps(
+  [],
+  [],
+  {"n9": {"name": "Gone Camp", "category": "free"}, "n8": {"exclude": "closed"}},
+  [{"osm_id": "n9", "name": "Gone Camp", "lat": -37.5, "lon": 145.1, "category": "free"}],
+)
+if not any(c.get("osm_id") == "n9" for c in kept) or any(c.get("osm_id") == "n8" for c in kept): bad.append(("vet", "missing kept"))
+if not any(row.get("id") == "n9" and row.get("note") == "missing id, needs remap" for row in missing): bad.append(("vet", "missing note"))
+if any(row.get("id") == "n8" for row in missing): bad.append(("vet", "exclusion logged missing"))
 if "20 18 * * 1" not in refresh: bad.append(("refresh-osm.yml", "weekly schedule"))
 preview = open(os.path.join(root, ".github", "workflows", "preview-more-sites.yml"), encoding="utf-8").read()
 if "feature/more-sites" not in preview or "--branch=main" in preview or 'branches: [main]' in preview: bad.append(("preview-more-sites.yml", "branch"))

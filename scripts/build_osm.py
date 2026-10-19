@@ -6,10 +6,19 @@ commercial caravan parks, big chains, hiker/group/scout/school camps, rest areas
 no overnight indication, and private or disused sites. DataVic wins: drop an OSM site
 within 300 m, or within 3 km when the names share a word.
 
+The Geofabrik extract spills onto the NSW bank of the Murray and into South Australia.
+Camp candidates are kept only when they fall inside data/victoria-boundary.json, the
+Geoscape state boundary. A small bounding box rejects points before that test.
+
 data/manual-corrections.json is only read. A missing file is an empty overlay and is
 never created. The overlay is a dict keyed by osm_id: exclusions remove sites,
 other records override fields, and keys starting with "new:" add sites (they carry
 their own lat/lon). A legacy {"drop", "overrides"} object is still accepted.
+
+An OSM id is published when it already has a non-exclude correction, or when it is
+already in the published file and has not been excluded. Any other id is written to
+data/pending-osm.json and left off the map. A filled-in correction whose id is no
+longer in the extract is kept and logged as "missing id, needs remap".
 """
 import csv
 import gzip
@@ -28,10 +37,15 @@ import towns
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
 CORRECTIONS = os.path.join(DATA, "manual-corrections.json")
+BOUNDARY = os.path.join(DATA, "victoria-boundary.json")
+PENDING = os.path.join(DATA, "pending-osm.json")
+PUBLISHED = os.path.join(DATA, "osm-camps-vic.json")
 PBF_URL = "https://download.geofabrik.de/australia-oceania/australia/victoria-latest.osm.pbf"
 DEFAULT_PBF = os.environ.get("OSM_PBF") or "/tmp/osm/victoria-latest.osm.pbf"
 WFS = "https://opendata.maps.vic.gov.au/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=open-data-platform:recweb_site&outputFormat=application/json&CQL_FILTER=camping='Y'"
 BBOX = (140.90, -39.30, 150.10, -33.90)
+DUPLICATE_M = 600
+_FILLED = {"name", "category", "operator", "description", "phone", "website", "email", "fee_type", "booking", "toilets", "lat", "lon", "source_url", "source_url2", "suits"}
 UA = "CampConditions.au/0.1 (+https://campconditions.au)"
 STOP = {"camp", "camping", "ground", "area", "site", "reserve", "the", "park", "caravan", "campground"}
 FIELDS = ["name", "lat", "lon", "category", "suits", "self_contained_only", "max_nights", "dogs", "dump_point",
@@ -44,8 +58,58 @@ def metres(lat1, lon1, lat2, lon2):
 
 
 def in_victoria(lat, lon):
+    """Fast reject. This box still includes the NSW bank of the Murray and a sliver of SA."""
     west, south, east, north = BBOX
     return west <= lon <= east and south <= lat <= north
+
+
+def _pip(lon, lat, ring):
+    inside = False
+    j = len(ring) - 1
+    for i, point in enumerate(ring):
+        xi, yi = point[0], point[1]
+        xj, yj = ring[j][0], ring[j][1]
+        den = yj - yi
+        if ((yi > lat) != (yj > lat)) and (lon < (xj - xi) * (lat - yi) / (den if den else 1e-30) + xi):
+            inside = not inside
+        j = i
+    return inside
+
+
+_BOUNDARY = None
+
+
+def load_boundary(path=BOUNDARY):
+    """Ring bounding boxes plus rings. The file is the Geoscape Victoria polygon."""
+    global _BOUNDARY
+    if _BOUNDARY is not None and _BOUNDARY[0] == path:
+        return _BOUNDARY[1]
+    with open(path, encoding="utf-8") as handle:
+        doc = json.load(handle)
+    indexed = []
+    for poly in doc.get("polygons") or []:
+        if not poly or len(poly[0]) < 4:
+            continue
+        xs = [point[0] for point in poly[0]]
+        ys = [point[1] for point in poly[0]]
+        indexed.append((min(xs), min(ys), max(xs), max(ys), poly))
+    _BOUNDARY = (path, indexed)
+    return indexed
+
+
+def in_state(lat, lon, path=BOUNDARY):
+    """True inside the Victorian state boundary, not merely inside the extract box."""
+    if not in_victoria(lat, lon):
+        return False
+    for west, south, east, north, poly in load_boundary(path):
+        if not (west <= lon <= east and south <= lat <= north):
+            continue
+        if not _pip(lon, lat, poly[0]):
+            continue
+        if any(_pip(lon, lat, ring) for ring in poly[1:]):
+            continue
+        return True
+    return False
 
 
 def toks(value):
@@ -237,6 +301,7 @@ class Extractor:
         info["lat"] = round(lat, 6)
         info["lon"] = round(lon, 6)
         info["osm_id"] = f"{kind}{ident}"
+        info["tags"] = tags
         self.camps.append(info)
 
 
@@ -270,20 +335,161 @@ def write_outputs(camps, town_rows):
     print(f"  needs_review {sum(1 for camp in camps if camp['needs_review'])}")
 
 
-def main():
-    path = download_pbf(sys.argv[1] if len(sys.argv) > 1 else DEFAULT_PBF)
+def _public_row(camp):
+    return {key: value for key, value in camp.items() if key != "tags"}
+
+
+def filled_in(fields):
+    """A correction with curated facts, rather than an exclusion or an empty note."""
+    return isinstance(fields, dict) and not fields.get("exclude") and bool(_FILLED & set(fields))
+
+
+def _pending_row(camp, note=""):
+    row = {
+        "id": camp.get("osm_id") or "",
+        "name": camp.get("name") or "",
+        "lat": camp.get("lat"),
+        "lon": camp.get("lon"),
+        "tags": camp.get("tags") or {},
+    }
+    if note:
+        row["note"] = note
+    return row
+
+
+def _nearest_duplicate(camp, existing):
+    best = None
+    for other in existing:
+        if not other.get("name") or other.get("osm_id") == camp.get("osm_id"):
+            continue
+        if camp.get("lat") is None or other.get("lat") is None:
+            continue
+        if not (toks(camp.get("name")) & toks(other.get("name"))):
+            continue
+        distance = metres(camp["lat"], camp["lon"], other["lat"], other["lon"])
+        if distance <= DUPLICATE_M and (best is None or distance < best[0]):
+            best = (distance, other)
+    if not best:
+        return ""
+    distance, other = best
+    return f"likely duplicate of {other.get('osm_id')} {other.get('name')}, {round(distance)} m"
+
+
+def vet_camps(inside, outside, corrections, previous):
+    """Choose published camps and the pending list. Does not write files.
+
+    Published: a non-exclude correction, or a camp already in the published file
+    that this run has not excluded. New ids stay in the pending list. An id that
+    is outside the state boundary is not added unless it was already published or
+    already has a keep record. A filled-in correction missing from the extract is
+    kept when the previous file still has its coordinates, and always logged.
+    """
+    corrections = corrections or {}
+    previous_by_id = {camp.get("osm_id"): camp for camp in previous or [] if camp.get("osm_id")}
+    publish = []
+    pending = []
+    seen = set()
+
+    def take(camps, outside_state):
+        for camp in camps:
+            osm_id = camp.get("osm_id")
+            seen.add(osm_id)
+            record = corrections.get(osm_id)
+            if isinstance(record, dict) and record.get("exclude"):
+                continue
+            known = isinstance(record, dict) or osm_id in previous_by_id
+            if outside_state and not known:
+                pending.append(_pending_row(camp, "outside Victoria"))
+                continue
+            if not known:
+                pending.append(_pending_row(camp))
+                continue
+            publish.append(_public_row(camp))
+
+    take(inside or [], False)
+    take(outside or [], True)
+    publish = apply_corrections(publish, corrections)
+    published_ids = {camp.get("osm_id") for camp in publish}
+    for key, fields in corrections.items():
+        if not isinstance(fields, dict) or str(key).startswith("new:") or fields.get("new") or not filled_in(fields):
+            continue
+        if key in seen:
+            continue
+        if key not in published_ids and key in previous_by_id:
+            publish.append(_public_row(previous_by_id[key]))
+            published_ids.add(key)
+        kept = previous_by_id.get(key) or {}
+        pending.append({
+            "id": key,
+            "name": kept.get("name") or fields.get("name") or "",
+            "lat": kept.get("lat", fields.get("lat")),
+            "lon": kept.get("lon", fields.get("lon")),
+            "tags": {},
+            "note": "missing id, needs remap",
+        })
+    for row in pending:
+        if row.get("note") == "missing id, needs remap":
+            continue
+        flag = _nearest_duplicate(row, publish)
+        if flag:
+            row["duplicate"] = flag
+    return publish, pending
+
+
+def load_published(path=PUBLISHED):
+    if not os.path.isfile(path):
+        return []
+    with open(path, encoding="utf-8") as handle:
+        doc = json.load(handle)
+    if isinstance(doc, dict):
+        return list(doc.get("sites") or [])
+    return list(doc) if isinstance(doc, list) else []
+
+
+def write_pending(entries, path=PENDING):
+    entries = sorted(entries, key=lambda row: (row.get("note") or "", str(row.get("id") or "")))
+    doc = {
+        "note": "OpenStreetMap camps left off the map. A new id is published only after it has a record in manual-corrections.json.",
+        "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "count": len(entries),
+        "sites": entries,
+    }
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(doc, handle, ensure_ascii=False, indent=1)
+        handle.write("\n")
+    print(f"Pending {len(entries)}")
+
+
+def refresh(pbf_path=None):
+    path = download_pbf(pbf_path or DEFAULT_PBF)
     official = fetch_datavic()
     extractor = Extractor()
     camps, town_rows = extractor.run(path)
-    print(f"Classified camps {len(camps)}; place points {len(town_rows)}")
-    before = len(camps)
-    camps = dedupe_internal(camps)
-    after_internal = len(camps)
-    camps = dedupe_datavic(camps, official)
-    print(f"Internal dedupe {before} -> {after_internal}; DataVic wins, dropped {after_internal - len(camps)}")
-    camps = apply_corrections(camps, load_corrections())
-    write_outputs(camps, town_rows)
+    inside, outside = [], []
+    for camp in camps:
+        if in_state(camp["lat"], camp["lon"]):
+            inside.append(camp)
+        else:
+            outside.append(camp)
+    print(f"Classified camps {len(camps)}; inside Victoria {len(inside)}; outside {len(outside)}; place points {len(town_rows)}")
+    before = len(inside)
+    inside = dedupe_internal(inside)
+    after_internal = len(inside)
+    inside = dedupe_datavic(inside, official)
+    print(f"Internal dedupe {before} -> {after_internal}; DataVic wins, dropped {after_internal - len(inside)}")
+    publish, pending = vet_camps(inside, outside, load_corrections(), load_published())
+    write_outputs(publish, town_rows)
+    write_pending(pending)
+
+
+def main():
+    try:
+        refresh(sys.argv[1] if len(sys.argv) > 1 else None)
+    except Exception as exc:
+        print(f"WARN OSM refresh left the vetted files unchanged: {exc}", file=sys.stderr)
+        return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

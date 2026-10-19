@@ -1,0 +1,15 @@
+{
+ "note": "OpenStreetMap camps left off the map. A new id is published only after it has a record in manual-corrections.json.",
+ "generated": "2026-10-19T22:42:31Z",
+ "count": 1,
+ "sites": [
+  {
+   "id": "n863349374",
+   "name": "Wye River Beachfront Campground",
+   "lat": null,
+   "lon": null,
+   "tags": {},
+   "note": "missing id, needs remap"
+  }
+ ]
+}

@@ -325,16 +325,24 @@ camps.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
-header{background:var(--g);color:#fff}.banner{max-width:980px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:.45rem 1.25rem}
-.brand{color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;max-width:100%}
+header{background:var(--g);color:#fff}.banner{max-width:1120px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:.45rem .85rem}
+.brand{order:0;flex:0 1 auto;min-width:0;color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;max-width:100%}
 .logo{width:4.8rem;height:4.8rem;flex:0 0 auto;display:block;object-fit:contain}
-nav{display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.35rem 1.05rem}
+nav{order:1;display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.35rem 1.05rem}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
+.digest-cta{order:2;margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:.4rem;background:#f6c445;color:#1a1208;text-decoration:none;font-weight:700;font-size:.95rem;line-height:1.1;padding:.4rem .75rem;border-radius:8px;white-space:nowrap;min-height:40px}
+.digest-cta:hover{background:#ffd36a;color:#1a1208}
+.digest-cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.digest-icon{display:block;flex:0 0 auto}
+.digest-cta-short{display:none}
 .soon{margin:0;padding:6px 1rem;text-align:center;font-size:16px;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
 .soon-sep{font-weight:700}
 @media (max-width:720px){.soon{font-size:15px;padding:6px .5rem;white-space:nowrap}}
 @media (max-width:360px){.soon{white-space:normal}}
-@media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:column;align-items:flex-start}.brand{font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{width:100%;flex-wrap:wrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
+@media (max-width:1040px) and (min-width:861px){.brand{font-size:clamp(1.15rem,2.35vw,2rem)}}
+@media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:row;align-items:center}.brand{flex:1 1 0;min-width:0;font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}.digest-cta{order:1;margin-left:.35rem}nav{order:2;width:100%;flex:1 0 100%;flex-wrap:wrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
+@media (max-width:640px){.banner{padding-left:.55rem;padding-right:.55rem}.brand{font-size:clamp(.78rem,3.55vw,1.15rem)}.digest-cta{font-size:.78rem;gap:.25rem;padding:.3rem .45rem;min-height:36px}.digest-icon{width:16px;height:16px}.digest-cta-long{display:none}.digest-cta-short{display:inline}}
+@media (max-width:380px){.brand{font-size:clamp(.64rem,3.2vw,.88rem)}.digest-cta{font-size:.72rem;padding:.26rem .38rem}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
 .page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem .75rem;margin:.1rem 0 .15rem}
 .page-head h1{margin:0;flex:1 1 auto}.head-counts{margin:0;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
@@ -347,6 +355,7 @@ a{color:var(--g)}
 .signup label{display:block;font-weight:700;margin:0 0 .35rem}
 .signup-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
 .signup-row input[type=email]{flex:1 1 auto;min-width:0;font-size:1.05rem;padding:.85rem .9rem;min-height:48px}
+.signup-row input[type=email]:focus{outline:3px solid var(--g);outline-offset:2px}
 .signup-row button{font-size:1.05rem;font-weight:700;padding:.85rem 1.25rem;min-height:48px}
 @media (max-width:640px){.signup-row{flex-direction:column;align-items:stretch}.signup-row input[type=email],.signup-row button{width:100%;flex:0 0 auto}}
 .notice{margin:1rem 0;padding:1.15rem 1.2rem;border-radius:10px;font-size:1.35rem;font-weight:700;line-height:1.35}
@@ -409,7 +418,9 @@ a.btn,a.btn-alert{display:inline-block;background:var(--o);color:#fff;text-decor
 a.btn-alert{background:#9a3412;font-weight:700;padding:.7rem 1rem;font-size:1.05rem}
 .leaflet-popup-content a{color:var(--g);font-weight:600}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
-BANNER = """<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
+def banner(on_home=False):
+    href = "#newsletter" if on_home else "/#newsletter"
+    return f"""<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span></a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta property="og:image" content="https://campconditions.au/assets/brand/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image.png">"""
@@ -965,7 +976,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
 {ICONS}
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
-{BANNER}
+{banner(path == "/")}
 <main>{body}</main>{footer()}{foot}</body></html>"""
     h = external_blank(h)
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
@@ -1019,7 +1030,28 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
   }
 });
 </script>
-<p class="muted">Coming soon: a paid daily digest with instant alerts for camps you've saved (about $5 a month).</p></section>"""
+<p class="muted">Coming soon: a paid daily digest with instant alerts for camps you've saved (about $5 a month).</p>
+<script>
+(function () {
+  const email = document.getElementById("digest-email");
+  const box = document.getElementById("newsletter");
+  if (!email || !box) return;
+  const openDigest = () => {
+    box.scrollIntoView({ behavior: "smooth", block: "start" });
+    email.focus({ preventScroll: true });
+  };
+  document.querySelectorAll("a.digest-cta").forEach((link) => {
+    if (link.getAttribute("href") !== "#newsletter") return;
+    link.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      if (location.hash !== "#newsletter") history.pushState(null, "", "#newsletter");
+      openDigest();
+    });
+  });
+  if (location.hash === "#newsletter") openDigest();
+})();
+</script>
+</section>"""
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(MAP_JS)
@@ -1296,7 +1328,7 @@ Machine-readable status for every campground: {SITE}/status.json (includes attri
 Closures on DEECA sites: Parks Victoria / DEECA MapShare. OpenStreetMap sites are not given those closures. When citing a status, include its time. For warnings, send people to VicEmergency (emergency.vic.gov.au) and BOM (bom.gov.au); do not treat this site as a warning feed. This site does not offer a downloadable copy of the combined campground list.
 """)
 open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
-{BANNER}
+{banner()}
 <main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer><p>{e(CREDIT)}</p><p>© CampConditions.au · <a href="/privacy/">Privacy</a></p></footer></body></html>""")
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter

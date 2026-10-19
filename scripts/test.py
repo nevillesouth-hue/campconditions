@@ -95,6 +95,8 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "vicemergency link"))
     if "1800 226 226" not in html_page or ">000<" not in html_page:
       bad.append((slug, "emergency hotline"))
+    if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in html_page:
+      bad.append((slug, "newsletter button"))
   title_m = re.search(r"<title>(.*?)</title>", html_page)
   h1_m = re.search(r"<h1>(.*?)</h1>", html_page)
   if not title_m or not h1_m or h1_m.group(1) not in title_m.group(1): bad.append((slug, "title"))
@@ -311,6 +313,14 @@ if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or a
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
 if "Covering Victoria now" not in home or "Other states coming soon" not in home or 'class="soon"' not in home or "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
   bad.append(("/", "banner"))
+if 'class="digest-cta" href="#newsletter" aria-label="Free weekly newsletter"' not in home or "Free weekly newsletter" not in home or "Free newsletter" not in home or 'class="digest-icon"' not in home or 'aria-hidden="true"' not in home:
+  bad.append(("/", "newsletter button"))
+if ".digest-cta:focus-visible" not in home or ".digest-cta-short{display:none}" not in home or ".digest-cta-short{display:inline}" not in home:
+  bad.append(("/", "newsletter button style"))
+if 'querySelectorAll("a.digest-cta")' not in home or "email.focus({ preventScroll: true })" not in home or 'getAttribute("href") !== "#newsletter"' not in home:
+  bad.append(("/", "newsletter button focus"))
+if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in about:
+  bad.append(("about", "newsletter button"))
 if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
@@ -318,6 +328,7 @@ for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/asse
   if icon not in home: bad.append(("/", "icon " + icon))
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
 if "/site.webmanifest" not in not_found or "og-image.png" not in not_found: bad.append(("404", "icons"))
+if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404", "newsletter button"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
 manifest = json.load(open(os.path.join(D, "site.webmanifest"), encoding="utf-8"))
@@ -327,7 +338,7 @@ for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon
   if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
 if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):
   bad.append(("optimum-quest-logo.webp", "still present"))
-if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "margin-left:auto" in home or "justify-content:flex-end" in home:
+if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "justify-content:flex-end" in home or ".digest-cta{order:2;margin-left:auto" not in home:
   bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
 page_js = open(os.path.join(root, "functions", "_lib", "page.js"), encoding="utf-8").read()

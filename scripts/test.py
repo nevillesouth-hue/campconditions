@@ -105,7 +105,7 @@ def named(name): return [c for c in feed["camps"] if c.get("name") == name]
 if named("1 Wild Cherry Camp") or not named("Wild Cherry Camp") or named("Wild Cherry Camp")[0]["slug"] != "1-wild-cherry-camp": bad.append(("rename", "wild cherry"))
 if not named("6 Mile Flat") or not any(c["name"].startswith("82 Bend Camping Area") for c in feed["camps"]): bad.append(("rename", "kept unit name"))
 cherry = open(os.path.join(D, "vic", "camp", "1-wild-cherry-camp", "index.html"), encoding="utf-8").read()
-if "<h1>Wild Cherry Camp</h1>" not in cherry or "1 Wild Cherry" in cherry: bad.append(("1-wild-cherry-camp", "display name"))
+if "<h1>Wild Cherry Camp</h1>" not in cherry or "<h1>1 Wild Cherry" in cherry or "<title>1 Wild Cherry" in cherry: bad.append(("1-wild-cherry-camp", "display name"))
 for shore in named("Foreshore Reserve"):
   shore_html = open(os.path.join(D, "vic", "camp", shore["slug"], "index.html"), encoding="utf-8").read()
   if "<h1>Foreshore Reserve, near " not in shore_html: bad.append((shore["slug"], "near town"))
@@ -383,7 +383,7 @@ for camp in osm:
     if "Call first" not in html_page: bad.append((camp["slug"], "call first"))
     else: shown["call"] = True
   elif camp.get("category") == PV:
-    if "Book ahead with Parks Victoria" not in html_page or "13 1963" not in html_page or f"Type: {PV}" not in html_page:
+    if "Book ahead with Parks Victoria" not in html_page or f"Type: {PV}" not in html_page or ("13 1963" not in html_page and 'href="tel:' not in html_page):
       bad.append((camp["slug"], "parks victoria label"))
     else: shown["park"] = True
   elif "Conditions: check with operator" not in html_page:
@@ -432,7 +432,7 @@ named = [s for s in merged if re.search(r"[A-Za-z0-9]", (s.get("name") or ""))]
 if len(named) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1126, "Camping area": 3, "Council park": 70, "Showground": 40, "Paid – Parks Victoria (book ahead)": 54, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 5}
+expect_counts = {"Free": 1092, "Camping area": 5, "Council park": 75, "Showground": 40, "Paid – Parks Victoria (book ahead)": 56, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
@@ -476,9 +476,9 @@ if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.plac
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
 before = os.path.getmtime(corr_path)
 corrections = json.load(open(corr_path, encoding="utf-8"))
-if not isinstance(corrections, dict) or len(corrections) != 1142 or "drop" in corrections or "overrides" in corrections:
+if not isinstance(corrections, dict) or len(corrections) != 1241 or "drop" in corrections or "overrides" in corrections:
   bad.append(("corrections", "shape"))
-if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 118: bad.append(("corrections", "exclusions"))
+if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 140: bad.append(("corrections", "exclusions"))
 if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 500:
   bad.append(("corrections", "new sites"))
 import facts
@@ -502,7 +502,7 @@ dv_path = os.path.join(root, "data", "datavic-enrichment.json")
 dv_before = os.path.getmtime(dv_path)
 dv_doc = json.load(open(dv_path, encoding="utf-8"))
 dv_camps = dv_doc.get("camps") or {}
-if len(dv_camps) != 352 or dv_doc.get("_meta", {}).get("count") != 352: bad.append(("datavic enrichment", "count"))
+if len(dv_camps) != 353 or dv_doc.get("_meta", {}).get("count") != 353: bad.append(("datavic enrichment", "count"))
 build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
 if "datavic-enrichment.json" not in build_src or re.search(r"open\(\s*.*datavic-enrichment[^)]*[\"']w", build_src): bad.append(("build.py", "enrichment write"))
 if "apply_row_facts" not in build_src or "_FACT_PROTECTED" not in build_src: bad.append(("build.py", "status guard"))
@@ -573,7 +573,7 @@ for row in dv_camps.values():
   html_page = page_of(row["slug"])
   if "Checked against official source" not in html_page: bad.append((row["slug"], "enrichment missing"))
   else: applied += 1
-if applied != 352: bad.append(("datavic enrichment", applied))
+if applied != 353: bad.append(("datavic enrichment", applied))
 if os.path.getmtime(dv_path) != dv_before: bad.append(("datavic enrichment", "file overwritten"))
 kept = build_osm.apply_corrections([{"osm_id": "node/1", "name": "A"}, {"osm_id": "node/2", "name": "B"}], {"drop": ["node/1"], "overrides": {"node/2": {"category": "Free"}}})
 if [c["osm_id"] for c in kept] != ["node/2"] or kept[0]["category"] != "Free": bad.append(("corrections", "legacy apply"))

@@ -6,7 +6,8 @@
   "attribution": "© State of Victoria (Department of Energy, Environment and Climate Action)",
   "fees": "No fee amounts recorded. fee_type is only free/paid as stated on the page.",
   "generated": "2026-10-18",
-  "count": 352
+  "count": 353,
+  "updated": "2026-10-20 (run 15)"
  },
  "camps": {
   "120028": {
@@ -4597,10 +4598,16 @@
    "access_notes": "4WD only",
    "rubbish": "Take rubbish home",
    "self_sufficient_note": "Self-sufficient camping (bring everything you need)",
-   "description": "Very basic bush campsite. Access: 4WD only.",
+   "description": "Very basic bush campsite on the Crooked River in the Grant Historic Area, Parks Victoria. 4WD only. No drinking water, so bring your own. Dogs on a leash or under control. Take rubbish home.",
    "source_url": "https://discover.data.vic.gov.au/dataset/recreation-sites",
    "data_source": "DataVic Recreation Sites/Assets",
-   "checked_date": "2026-10-18"
+   "checked_date": "2026-10-20",
+   "dogs": "yes (on leash or under control)",
+   "drinking_water": "no (bring your own)",
+   "website": "https://www.parks.vic.gov.au/places-to-see/parks/grant-historic-area",
+   "also_source_url": "https://www.parks.vic.gov.au/places-to-see/sites/crooked-river-camping-area",
+   "source_scope": "park-wide statements (Grant Historic Area), not site-specific",
+   "park_note": "Location inside Grant Historic Area (Parks Victoria) per DataVic PLM25. PV Grant Historic Area park page: drinking water is not provided, bring plenty of your own; dogs permitted but must always be on leash or under control. PV Crooked River Camping Area site page (about 150 m away) has no other facts; McMillans Road fire-recovery works 24 Sep - 30 Nov 2026 may cause delays."
   },
   "50861": {
    "name": "Dindi Mill",
@@ -4611,6 +4618,20 @@
    "also_source_url": "https://discover.data.vic.gov.au/dataset/recreation-assets",
    "data_source": "DataVic Recreation Sites/Assets",
    "checked_date": "2026-10-18"
+  },
+  "207227": {
+   "name": "Crooked River - Howittville Camping Area 2 (CLWF)",
+   "slug": "crooked-river-howittville-camping-area-2-clwf",
+   "dogs": "yes (on leash or under control)",
+   "drinking_water": "no (bring your own)",
+   "website": "https://www.parks.vic.gov.au/places-to-see/parks/grant-historic-area",
+   "also_source_url": "https://www.parks.vic.gov.au/places-to-see/sites/crooked-river-camping-area",
+   "source_scope": "park-wide statements (Grant Historic Area), not site-specific",
+   "park_note": "Location inside Grant Historic Area (Parks Victoria) per DataVic PLM25. PV Grant Historic Area park page: drinking water is not provided, bring plenty of your own; dogs permitted but must always be on leash or under control. PV Crooked River Camping Area site page (about 150 m away) has no other facts; McMillans Road fire-recovery works 24 Sep - 30 Nov 2026 may cause delays.",
+   "description": "Basic riverside bush campsite on the Crooked River in the Grant Historic Area, Parks Victoria. No drinking water, so bring your own. Dogs on a leash or under control.",
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/grant-historic-area",
+   "data_source": "Parks Victoria park page",
+   "checked_date": "2026-10-20"
   }
  }
 }

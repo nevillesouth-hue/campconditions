@@ -801,8 +801,11 @@
   "fee_type": "paid",
   "description": "Reserve beside Rocklands Reservoir (Hynes Rd boat ramp) west of the Grampians with powered and unpowered camping. Needs official confirmation.",
   "needs_review": true,
-  "checked_date": "2026-10-16",
-  "source_url": "https://betterboating.vic.gov.au/ramp-upgrades/rocklands-reservoir-hynes-road/"
+  "checked_date": "2026-10-20",
+  "source_url": "https://betterboating.vic.gov.au/ramp-upgrades/rocklands-reservoir-hynes-road/",
+  "dogs": "yes (on leash in camping areas, tied up at night)",
+  "source_url2": "https://www.gwmwater.org.au/water-and-sewerage/our-reservoirs/rocklands-reservoir/",
+  "source_note": "GWMWater Rocklands Reservoir page: camping is in the neighbouring State forest along the foreshore (campgrounds managed by DEECA); dogs must be under control, tied up at night and on a leash in picnic and camping areas; dogs must not enter the water (except duck season). Location inside Rocklands Reservoir land per DataVic PLM25."
  },
  "n1808391678": {
   "fee_type": "free",
@@ -1593,7 +1596,7 @@
   "new": true
  },
  "w333522073": {
-  "dump_point": "yes ($5 public)",
+  "dump_point": "yes (public, small fee)",
   "phone": "03 5755 0555",
   "description": "Myrtleford recreation reserve and showgrounds has a public dump point (small fee). Camping is reported but not confirmed by Council: call first.",
   "source_url": "https://www.alpineshire.vic.gov.au/residents-ratepayers/waste-recycling/dump-points",
@@ -13805,8 +13808,7 @@
   "source_url": "https://www.janjucpark.com.au/",
   "description": "Holiday park at Jan Juc with cabins and powered and unpowered camping, toilets, hot showers, a pool and laundry. A paid park with a no-dogs policy.",
   "checked_date": "2026-10-18",
-  "exclude": true,
-  "reason": "Ownership not confirmed by an official source (operated by Jan Juc Park Pty Ltd; no council or Crown land record found). Excluded for now under Nev rule; revisit if council/Crown ownership is confirmed."
+  "reason": "Kept in on Nev decision 20 Oct 2026 (Crown reserve, operator not officially stated)."
  },
  "n1808392083": {
   "name": "Riverbank Caravan Park, Nathalia",
@@ -14026,7 +14028,14 @@
   "operator": "Parks Victoria",
   "access_notes": "4WD recommended (very rough for 2WD past Bennies)",
   "description": "Camping area with facilities at Lake Cobbler in Alpine National Park (Wabonga Plateau / Mt Cobbler area). 4WD access recommended; the road is very rough for 2WD past Bennies.",
-  "checked_date": "2026-10-18"
+  "checked_date": "2026-10-19",
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park."
  },
  "w243116210": {
   "toilets": "no",
@@ -14204,7 +14213,7 @@
   "name": "Callistemon Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/callistemon-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.318227,
   "lon": 146.579483,
   "category": "free",
@@ -14212,13 +14221,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/callistemon-camping-area"
  },
  "new:chappell-gully-camping-area-chiltern-mt-pilot-national-park": {
   "name": "Chappell Gully camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/chappell-gully-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.308821,
   "lon": 146.606928,
   "category": "free",
@@ -14226,29 +14236,33 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/chappell-gully-camping-area"
  },
  "new:chinamans-bend-camping-area-yarrawonga-regional-park": {
   "name": "Chinamans Bend Camping Area (Yarrawonga Regional Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/chinamans-bend-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.007341,
   "lon": 145.9732,
   "category": "free",
   "phone": "13 1963",
   "new": true,
   "dogs": "yes (on lead)",
-  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/yarrawonga-regional-park/things-to-do/camping",
-  "source_note": "Parks Victoria Yarrawonga Regional Park camping page: camping spots throughout the park; tracks suit vehicles of all sizes.",
-  "needs_review": true,
-  "description": "Camping area in Yarrawonga Regional Park, managed by Parks Victoria. Dogs on a lead."
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "source_note": "PV Murray reach page (Echuca East to Barnawartha): all riverside campsites free, no bookings. Park camping page: tracks suit vehicles up to large caravans.",
+  "needs_review": false,
+  "description": "Camping area in Yarrawonga Regional Park, managed by Parks Victoria. Dogs on a lead.",
+  "fee_type": "free",
+  "booking": "no",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/chinamans-bend-camping-area"
  },
  "new:creekside-camping-area-chiltern-mt-pilot-national-park": {
   "name": "Creekside Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/creekside-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.312027,
   "lon": 146.59505,
   "category": "free",
@@ -14256,13 +14270,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/creekside-camping-area"
  },
  "new:dredge-flat-camping-area-chiltern-mt-pilot-national-park": {
   "name": "Dredge Flat Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/dredge-flat-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.308783,
   "lon": 146.647484,
   "category": "free",
@@ -14270,7 +14285,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/dredge-flat-camping-area"
  },
  "new:firemans-bend-camping-area-hattah-kulkyne-national-park": {
   "name": "Firemans Bend Camping Area (Hattah-Kulkyne National Park)",
@@ -14313,7 +14329,7 @@
   "name": "Glenelg River Road Bush Camp 1 (Grampians (Gariwerd) National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/glenelg-river-road-bush-camp-1",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.18483,
   "lon": 142.392761,
   "category": "free",
@@ -14321,13 +14337,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/glenelg-river-road-bush-camp-1"
  },
  "new:glenelg-river-road-bush-camp-2-grampians-gariwerd-national-park": {
   "name": "Glenelg River Road Bush Camp 2 (Grampians (Gariwerd) National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/glenelg-river-road-bush-camp-2-",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.224,
   "lon": 142.404064,
   "category": "free",
@@ -14335,7 +14352,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/glenelg-river-road-bush-camp-2-"
  },
  "new:heritage-fence-camping-area-kurth-kiln-regional-park": {
   "name": "Heritage Fence Camping Area (Kurth Kiln Regional Park)",
@@ -14359,7 +14377,7 @@
   "name": "Hicks Camping Area (Snowy River National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/hicks-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.410468,
   "lon": 148.359969,
   "category": "free",
@@ -14367,13 +14385,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Snowy River National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Snowy River National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/hicks-camping-area"
  },
  "new:holey-hill-camping-area-holey-plains-state-park": {
   "name": "Holey Hill Camping Area (Holey Plains State Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/holey-hill-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -38.231761,
   "lon": 146.938726,
   "category": "free",
@@ -14381,13 +14400,19 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Holey Plains State Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Holey Plains State Park, managed by Parks Victoria. Dogs not allowed.",
+  "toilets": "yes",
+  "potable_water": "no (bring your own)",
+  "access_notes": "2WD via Holey Hill Track",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/holey-plains-state-park",
+  "source_note": "PV Holey Plains SP page: camping areas and toilets at Holey Hill and Harrier Swamp; bring your own water; 2WD access on Holey Hill Track up to the campground.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/holey-hill-camping-area"
  },
  "new:ingleton-fireline-bush-camp-grampians-gariwerd-national-park": {
   "name": "Ingleton Fireline Bush Camp (Grampians (Gariwerd) National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/ingleton-fireline-bush-camp",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.348392,
   "lon": 142.503045,
   "category": "free",
@@ -14395,13 +14420,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/ingleton-fireline-bush-camp"
  },
  "new:jacksons-crossing-camping-area-snowy-river-heritage-river-snowy-river-national-park": {
   "name": "Jacksons Crossing Camping Area (Snowy River Heritage River, Snowy River National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/jacksons-crossing-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.382937,
   "lon": 148.343467,
   "category": "free",
@@ -14409,7 +14435,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Snowy River National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Snowy River National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/jacksons-crossing-camping-area"
  },
  "new:jinkers-bend-camping-area-hattah-kulkyne-national-park": {
   "name": "Jinkers Bend Camping Area (Hattah-Kulkyne National Park)",
@@ -14433,7 +14460,7 @@
   "name": "Johnsons camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/johnsons-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.316064,
   "lon": 146.655837,
   "category": "free",
@@ -14441,13 +14468,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/johnsons-camping-area"
  },
  "new:kangaroo-crossing-camping-area-chiltern-mt-pilot-national-park": {
   "name": "Kangaroo Crossing Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/kangaroo-crossing-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.328425,
   "lon": 146.562704,
   "category": "free",
@@ -14455,7 +14483,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/kangaroo-crossing-camping-area"
  },
  "new:ki-bend-camping-area-hattah-kulkyne-national-park": {
   "name": "Ki Bend Camping Area (Hattah-Kulkyne National Park)",
@@ -14514,7 +14543,7 @@
   "name": "Masons Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/masons-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.328918,
   "lon": 146.550331,
   "category": "free",
@@ -14522,13 +14551,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/masons-camping-area"
  },
  "new:masons-gully-camping-area-chiltern-mt-pilot-national-park": {
   "name": "Masons Gully Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/masons-gully-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.330072,
   "lon": 146.555752,
   "category": "free",
@@ -14536,13 +14566,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/masons-gully-camping-area"
  },
  "new:miners-bend-camping-area-chiltern-mt-pilot-national-park": {
   "name": "Miners Bend camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/miners-bend-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.302442,
   "lon": 146.621799,
   "category": "free",
@@ -14550,13 +14581,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/miners-bend-camping-area"
  },
  "new:miners-hut-camping-area-chiltern-mt-pilot-national-park": {
   "name": "Miners Hut camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/miners-hut-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.322235,
   "lon": 146.574065,
   "category": "free",
@@ -14564,13 +14596,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/miners-hut-camping-area"
  },
  "new:moora-henham-bush-camp-grampians-gariwerd-national-park": {
   "name": "Moora Henham Bush Camp (Grampians (Gariwerd) National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/moora-henham-bush-camp",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.215277,
   "lon": 142.405854,
   "category": "free",
@@ -14578,13 +14611,14 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/moora-henham-bush-camp"
  },
  "new:mount-thackeray-bush-camping-area-grampians-gariwerd-national-park-victoria-range-remote-and-natural-area": {
   "name": "Mount Thackeray Bush Camping Area (Grampians (Gariwerd) National Park, Victoria Range Remote and Natural Area)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/mount-thackeray-bush-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.2959,
   "lon": 142.337083,
   "category": "free",
@@ -14592,7 +14626,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Grampians (Gariwerd) National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/mount-thackeray-bush-camping-area"
  },
  "new:red-gum-swamp-camping-area-little-desert-national-park": {
   "name": "Red Gum Swamp Camping Area (Little Desert National Park)",
@@ -14616,7 +14651,7 @@
   "name": "Rocky Gully Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/rocky-gully-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.318016,
   "lon": 146.589982,
   "category": "free",
@@ -14624,7 +14659,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/rocky-gully-camping-area"
  },
  "new:scout-loop-track-campground-kurth-kiln-regional-park": {
   "name": "Scout Loop Track Campground (Kurth Kiln Regional Park)",
@@ -14648,7 +14684,7 @@
   "name": "Sebastopol camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/sebastopol-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.309507,
   "lon": 146.60426,
   "category": "free",
@@ -14656,7 +14692,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/sebastopol-camping-area"
  },
  "new:smiths-mill-campground-grampians-gariwerd-national-park": {
   "name": "Smiths Mill Campground (Grampians (Gariwerd) National Park)",
@@ -14703,15 +14740,21 @@
   "name": "Spring Creek Sawmill Camping Area (Mount Samaria State Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/spring-creek-sawmill-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.871382,
   "lon": 146.087146,
   "category": "free",
   "phone": "13 1963",
   "new": true,
   "dogs": "no",
-  "needs_review": true,
-  "description": "Camping area in Mount Samaria State Park, managed by Parks Victoria. Dogs not allowed."
+  "needs_review": false,
+  "description": "Camping area in Mount Samaria State Park, managed by Parks Victoria. Dogs not allowed.",
+  "fee_type": "free",
+  "toilets": "yes",
+  "potable_water": "no (bring your own)",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/mount-samaria-state-park/things-to-do/camping",
+  "source_note": "PV Mount Samaria camping page: camping at Spring Creek Sawmill and Samaria Well; all sites have toilets and fireplaces and are free; creek water limited, bring your own drinking water.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/spring-creek-sawmill-camping-area"
  },
  "new:stans-camp-little-desert-national-park": {
   "name": "Stans Camp (Little Desert National Park)",
@@ -14756,7 +14799,7 @@
   "name": "Teddington Hut (Kara Kara National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-hut",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.855503,
   "lon": 143.261148,
   "category": "free",
@@ -14764,15 +14807,18 @@
   "new": true,
   "dogs": "no",
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/kara-kara-national-park",
-  "source_note": "Parks Victoria Kara Kara park page: camping at the historic Teddington Hut; picnic tables and wood barbecues there.",
-  "needs_review": true,
-  "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Dogs not allowed."
+  "source_note": "PV Kara Kara park page: camp at the historic Teddington Hut or Upper Teddington camping area; camping is free; no drinking water provided; dogs not allowed.",
+  "needs_review": false,
+  "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Dogs not allowed.",
+  "fee_type": "free",
+  "potable_water": "no (bring your own)",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-hut"
  },
  "new:the-gardens-camping-area-chiltern-mt-pilot-national-park": {
   "name": "The Gardens Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-gardens-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.329812,
   "lon": 146.554067,
   "category": "free",
@@ -14780,7 +14826,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/the-gardens-camping-area"
  },
  "new:the-saplings-camping-area-river-murray-reserve": {
   "name": "The Saplings Camping Area (River Murray Reserve)",
@@ -14956,7 +15003,7 @@
   "name": "Upper Woolshed Valley Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/upper-woolshed-valley-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.31401,
   "lon": 146.661828,
   "category": "free",
@@ -14964,7 +15011,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/upper-woolshed-valley-camping-area"
  },
  "new:wakool-junction-camping-area-river-murray-reserve": {
   "name": "Wakool Junction Camping Area (River Murray Reserve)",
@@ -14987,7 +15035,7 @@
   "name": "Waratah Flat Campground (Snowy River National Park, Rodger River and Mountain Creek Natural Catchment Area)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/waratah-flat-campground",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -37.286191,
   "lon": 148.571777,
   "category": "free",
@@ -14995,7 +15043,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Snowy River National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Snowy River National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/waratah-flat-campground"
  },
  "new:williamsons-beach-camping-area-lake-hindmarsh-lake-reserve-wimmera-river-heritage-river": {
   "name": "Williamsons Beach Camping Area (Lake Hindmarsh Lake Reserve, Wimmera River Heritage River)",
@@ -15069,7 +15118,7 @@
   "name": "Wombat Diggings Camping Area (Chiltern-Mt Pilot National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/wombat-diggings-camping-area",
-  "checked_date": "2026-10-18",
+  "checked_date": "2026-10-19",
   "lat": -36.325616,
   "lon": 146.549869,
   "category": "free",
@@ -15077,7 +15126,8 @@
   "new": true,
   "dogs": "no",
   "needs_review": true,
-  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed."
+  "description": "Camping area in Chiltern-Mt Pilot National Park, managed by Parks Victoria. Dogs not allowed.",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/wombat-diggings-camping-area"
  },
  "new:yarrawonga-common-camping-area-yarrawonga-regional-park": {
   "name": "Yarrawonga Common camping area (Yarrawonga Regional Park)",
@@ -15146,5 +15196,1047 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
   "source_note": "Parks Victoria Murray River reach pages: all riverside campsites are free, no bookings required.",
   "description": "Camping area in River Murray Reserve, managed by Parks Victoria. Free camping; dogs on a lead."
+ },
+ "n607977292": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Buenba Flat South #2: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n607977295": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Buenba Flat South #1: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n607978143": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Buenba Flat South #3: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808391833": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Ferny Flat Campground: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808391848": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Gibbo River Bush Camping: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808392714": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Buckety Plains Campground: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808394415": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Raspberry Hill Campground: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n1918054366": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "McFarlane Saddle: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n2062595160": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Quart Pot Flat Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3274098161": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Bryce Gorge Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3800083506": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Chromite Mine Campsite: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3914038818": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Mustering Flat: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3918194316": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "13 Greenhood Camp: one of the Wellington River camping areas along Tamboritha Road north of Licola, in the Alpine National Park. Free, no bookings; toilets at some of the river sites. Bring everything you need, including drinking water. No dogs.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water; Wellington River: 13 camping areas on Tamboritha Road about 10 km from Licola, toilets at some sites. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3918194379": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "11 Red Bluff Camp: one of the Wellington River camping areas along Tamboritha Road north of Licola, in the Alpine National Park. Free, no bookings; toilets at some of the river sites. Bring everything you need, including drinking water. No dogs.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water; Wellington River: 13 camping areas on Tamboritha Road about 10 km from Licola, toilets at some sites. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3918195755": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "9 Cockatoo Camp: one of the Wellington River camping areas along Tamboritha Road north of Licola, in the Alpine National Park. Free, no bookings; toilets at some of the river sites. Bring everything you need, including drinking water. No dogs.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water; Wellington River: 13 camping areas on Tamboritha Road about 10 km from Licola, toilets at some sites. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3918197757": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "6 Treefrog Camp: one of the Wellington River camping areas along Tamboritha Road north of Licola, in the Alpine National Park. Free, no bookings; toilets at some of the river sites. Bring everything you need, including drinking water. No dogs.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water; Wellington River: 13 camping areas on Tamboritha Road about 10 km from Licola, toilets at some sites. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3918197788": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "1 Wild Cherry Camp: one of the Wellington River camping areas along Tamboritha Road north of Licola, in the Alpine National Park. Free, no bookings; toilets at some of the river sites. Bring everything you need, including drinking water. No dogs.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water; Wellington River: 13 camping areas on Tamboritha Road about 10 km from Licola, toilets at some sites. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n3918200699": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "3 Blackfish Camp: one of the Wellington River camping areas along Tamboritha Road north of Licola, in the Alpine National Park. Free, no bookings; toilets at some of the river sites. Bring everything you need, including drinking water. No dogs.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water; Wellington River: 13 camping areas on Tamboritha Road about 10 km from Licola, toilets at some sites. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n10978053412": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Eustace Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n11195796997": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Ritchies: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "n13425548085": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Mitchells Flat Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "w191483448": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Bogong Jack Saddle Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "w195842682": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Ah Sye's Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "w198695228": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Native Dog Flat Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "w198695229": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "Native Dog Flat Horse Camping Area: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "w1306624925": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/alpine-national-park/where-to-stay/dispersed-camping-in-alpine-national-park",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
+  "description": "4 Currawong Camp: one of the Wellington River camping areas along Tamboritha Road north of Licola, in the Alpine National Park. Free, no bookings; toilets at some of the river sites. Bring everything you need, including drinking water. No dogs.",
+  "needs_review": false,
+  "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water; Wellington River: 13 camping areas on Tamboritha Road about 10 km from Licola, toilets at some sites. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
+  "checked_date": "2026-10-19"
+ },
+ "w954220838": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve near Merbein per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Campground No1: one of a cluster of numbered riverside camp spots in the River Murray Reserve near Merbein, west of Mildura. Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "w954221496": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve near Merbein per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Campground No 2: one of a cluster of numbered riverside camp spots in the River Murray Reserve near Merbein, west of Mildura. Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "w954226778": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve near Merbein per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Campground No 3: one of a cluster of numbered riverside camp spots in the River Murray Reserve near Merbein, west of Mildura. Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "w954226233": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve near Merbein per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Campground No 4: one of a cluster of numbered riverside camp spots in the River Murray Reserve near Merbein, west of Mildura. Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "w954227402": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve near Merbein per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Campground No 5: one of a cluster of numbered riverside camp spots in the River Murray Reserve near Merbein, west of Mildura. Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "w954227809": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve near Merbein per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Campground No 6: one of a cluster of numbered riverside camp spots in the River Murray Reserve near Merbein, west of Mildura. Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808391695": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" Possible overlap with the PV \"Beggs Bend Camping Area\" record about 1.2 km away; check on a map.",
+  "description": "Beggs Bend: riverside bush camping on the Murray in the River Murray Reserve (Parks Victoria). Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808392074": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Pump Road Camp: riverside bush camping on the Murray in the River Murray Reserve (Parks Victoria). Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808392187": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in the River Murray Reserve per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Walshs Bend Camp: riverside bush camping on the Murray in the River Murray Reserve (Parks Victoria). Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "n1763842206": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in Merbein Common (proposed Murray River Park) per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" Reach page: dispersed camping is permitted along the river at Kings Billabong and Merbein Common.",
+  "description": "Merbein Common - River Access 5: river access point on Merbein Common near Mildura where dispersed camping along the river is allowed. Free, no bookings.",
+  "checked_date": "2026-10-19"
+ },
+ "n1774623315": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in Merbein Common (proposed Murray River Park) per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" Reach page: dispersed camping is permitted along the river at Kings Billabong and Merbein Common.",
+  "description": "Merbein Common - River Access 7: river access point on Merbein Common near Mildura where dispersed camping along the river is allowed. Free, no bookings.",
+  "checked_date": "2026-10-19"
+ },
+ "n1774623341": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "source_note": "Location in Merbein Common (proposed Murray River Park) per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" Reach page: dispersed camping is permitted along the river at Kings Billabong and Merbein Common.",
+  "description": "Merbein Common - River Access 8: river access point on Merbein Common near Mildura where dispersed camping along the river is allowed. Free, no bookings.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808391825": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/emmerts-bend-camping-area",
+  "source_note": "Location in Murray-Kulkyne Park per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" Reach page: Murray-Kulkyne offers dispersed bush camping for self-sufficient campers in 4WD vehicles. PV site page: dogs allowed on a leash.",
+  "description": "Emmerts Bend: dispersed riverside bush camping in Murray-Kulkyne Park, between the Murray and Hattah-Kulkyne NP. Free, no bookings, no facilities; suits self-sufficient campers with 4WD. Dogs on a leash.",
+  "dogs": "yes (on leash)",
+  "access_notes": "4WD recommended",
+  "checked_date": "2026-10-19"
+ },
+ "n9157551420": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/piangil-to-echuca-east",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/sovereign-bend-camping-area-(gunbower-island)",
+  "source_note": "Location in the River Murray Reserve on Gunbower Island per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" PV site page: no fees or bookings; dispersed bush camping with no facilities; self-sufficient; unsealed roads suitable for 2WD in dry weather; dogs on a leash.",
+  "description": "Sovereign Bend: dispersed bush camping among river red gums beside the Murray on Gunbower Island. Free, no bookings, no facilities, so be self-sufficient. Unsealed access suits 2WD in dry weather. Dogs on a leash.",
+  "dogs": "yes (on leash)",
+  "toilets": "no",
+  "access_notes": "unsealed road, 2WD in dry weather",
+  "checked_date": "2026-10-19"
+ },
+ "n316597990": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/piangil-to-echuca-east",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/piangil-to-echuca-east",
+  "source_note": "Location in the proposed Murray River Park (Loddon Floodway) per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" PV has separate pages for Caelli Lane and Middle/Eastern Bend camps about 0.9-1 km away; this OSM point may be a general marker.",
+  "description": "Loddon Floodway: riverside bush camping on the Murray in the proposed Murray River Park (Loddon Floodway) (Parks Victoria). Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "n7540061976": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/betts-bend-camping-area-2-",
+  "source_note": "Location in Echuca Regional Park per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" PV site page: dogs allowed on a leash.",
+  "description": "Betts Bend Camping Area 2: basic dispersed riverside camping in Echuca Regional Park, close to Echuca. Free, no bookings. Dogs on a leash.",
+  "dogs": "yes (on leash)",
+  "checked_date": "2026-10-19"
+ },
+ "n7396529869": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "source_note": "Location in Cobram Regional Park per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" Reach page: dogs permitted in the regional parks on a lead.",
+  "description": "Scotts High Bank: riverside camping on the high bank of the Murray in Cobram Regional Park. Free, no bookings, dogs on a lead.",
+  "dogs": "yes (on lead)",
+  "checked_date": "2026-10-19"
+ },
+ "n1808391671": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/apex-beach",
+  "source_note": "Location in Tocumwal Regional Park per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" PV Apex Beach site page: dogs not allowed.",
+  "description": "Apex Beach: sandy-beach riverside camping spot in Tocumwal Regional Park on the Murray. Free, no bookings. Dogs not allowed (PV site page).",
+  "dogs": "no",
+  "checked_date": "2026-10-19"
+ },
+ "n7472732157": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "source_note": "Location in the River Murray Reserve (Ulupna area) per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\"",
+  "description": "Ulupna Creek East Camping Area: riverside bush camping on the Murray in the River Murray Reserve (Ulupna area) (Parks Victoria). Free, no bookings. No facilities stated, so come self-sufficient.",
+  "checked_date": "2026-10-19"
+ },
+ "n3645411209": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "needs_review": false,
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/zanettis-no,-d-,-1-camping-area",
+  "source_note": "Location in Yarrawonga Regional Park per DataVic PLM25 layer. Parks Victoria Murray River reach page: \"All riverside campsites are free, no bookings required.\" PV Zanettis No. 1 site page: dogs not allowed. Park camping page: tracks suit vehicles from hatchbacks to large caravans; modern pit toilets in the park.",
+  "description": "Zanettis: riverside camping in Yarrawonga Regional Park downstream of Yarrawonga. Free, no bookings; park tracks take vehicles up to large caravans. Dogs not allowed (PV site page).",
+  "dogs": "no",
+  "checked_date": "2026-10-19"
+ },
+ "n3922961128": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/echuca-east-to-barnawartha",
+  "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/documents/visitor-guides-and-publications/barmah-national-park/barmah-national-park-visitor-guide.pdf",
+  "needs_review": false,
+  "source_note": "Location inside Barmah National Park per DataVic PLM25. Barmah NP visitor guide (Parks Victoria): no fees or bookings; camp only in designated areas; fully self-sufficient; dogs prohibited. Reach page: riverside campsites free.",
+  "description": "Corner Bend Beach: riverside beach camping in Barmah National Park. Free, no bookings, no dogs. Bring everything you need, including water and a portable toilet.",
+  "checked_date": "2026-10-19"
+ },
+ "n1469115187": {
+  "exclude": true,
+  "exclude_reason": "PV Mulberry Bend site page (Tocumwal RP, about 150 m away) lists \"No camping\".",
+  "checked_date": "2026-10-19"
+ },
+ "n1808392043": {
+  "fee_type": "free",
+  "toilets": "yes",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park",
+  "needs_review": true,
+  "source_note": "PV Paddys Ranges SP page: basic campground with picnic tables and a toilet block; camping is free; designated campground only; no drinking water; dogs not allowed. Page also says Paddy's Ranges Campground is closed for upgrades (dates not shown) - check before going.",
+  "description": "Basic campground in Paddys Ranges State Park near Maryborough with picnic tables and a toilet block. Free; no drinking water; no dogs. Parks Victoria lists the campground as closed for upgrades, so check before you go.",
+  "checked_date": "2026-10-19"
+ },
+ "w174880637": {
+  "toilets": "yes (non-flush, no handwashing)",
+  "potable_water": "no (bring your own)",
+  "suits": "tent|caravan|motorhome",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/greater-bendigo-national-park/where-to-stay/notley-campground-and-picnic-area",
+  "needs_review": false,
+  "source_note": "PV Notley page: large open grassy campground, shelter, non-flushing toilets, fireplaces; suits caravans, camper trailers, motorhomes (drive-through sites); bookings not required; no bins or water. Maintenance works at the camping area 28 Sep - 30 Oct 2026.",
+  "description": "Notley Campground in Greater Bendigo National Park: large open grassy campground with a shelter, non-flush toilets and fireplaces, and drive-through sites for caravans and motorhomes. No bookings needed. No water or bins. Parks Victoria lists maintenance works here until 30 October 2026.",
+  "checked_date": "2026-10-19"
+ },
+ "w1263994090": {
+  "fee_type": "free",
+  "booking": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/black-springs-day-visitor-and-camping-area",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/warby-ovens-national-park/things-to-do/camping",
+  "needs_review": false,
+  "source_note": "PV Warby-Ovens camping page: no fees or bookings; campers must be self-sufficient and bring firewood and drinking water; dogs not permitted in the park. PV Black Springs site page: no dogs.",
+  "description": "Black Springs day visitor and camping area in the Warby-Ovens National Park. Free, no bookings; bring your own drinking water and firewood. No dogs.",
+  "checked_date": "2026-10-19"
+ },
+ "n3900592581": {
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/o'toole-flat-camping-area",
+  "access_notes": "Eildon-Jamieson Road only; 4WD with small set-ups recommended, not long or towing vehicles",
+  "needs_review": true,
+  "source_note": "PV site page: re-opened; vehicle access from Eildon-Jamieson Road only; for self-sufficient visitors; 4WD with small set-ups recommended; fireplaces temporarily removed, no solid-fuel fires (gas/electric only); no dogs, generators or horses.",
+  "description": "O'Toole Flat: small camping area in Lake Eildon National Park for self-sufficient visitors, reached from Eildon-Jamieson Road. Best for 4WDs with small set-ups. No dogs or generators; fireplaces are temporarily removed, so no wood fires.",
+  "checked_date": "2026-10-19"
+ },
+ "n2852358828": {
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "potable_water": "no (bring your own)",
+  "dogs": "yes (on leash)",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/lake-tyers-state-park/things-to-do/camping",
+  "needs_review": false,
+  "source_note": "PV Lake Tyers camping page: no fees or bookings; self-sufficient, bring firewood and drinking water; Pettmans is the only site with toilets, all other sites have no facilities; dogs allowed on a leash; no camping within 20 m of the water.",
+  "description": "Reedy Arm No. 2: lakeside bush camp in Lake Tyers State Park. Free, no bookings, no facilities, so bring water and your own toilet. Dogs on a leash. Camp at least 20 m from the water.",
+  "checked_date": "2026-10-19"
+ },
+ "n1782109456": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/cobboboonee-national-park",
+  "needs_review": true,
+  "source_note": "PV Cobboboonee NP page: Wrights Campground (Wrights Swamp Road) and Jackass Fern Gully are free to use and need no booking. Matched to this OSM \"Wright Horse Camp\" by name and location; confirm.",
+  "description": "Wrights Campground on Wrights Swamp Road in Cobboboonee National Park, near Portland. Free, no booking needed.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808392132": {
+  "exclude": true,
+  "exclude_reason": "PV Cobboboonee page: Surry Ridge Campground closed (no toilets); overnight camping not permitted, picnic ground is day use only. Re-check later.",
+  "checked_date": "2026-10-19"
+ },
+ "w386943409": {
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/herberts-(wymbooliel)-campground",
+  "needs_review": true,
+  "source_note": "PV site page: no dogs, firearms or horses. Fees/booking not stated on the page.",
+  "description": "Herberts (Wymbooliel) Campground in the Great Otway National Park, managed by Parks Victoria. No dogs. Check Parks Victoria for booking and facilities.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808392178": {
+  "dogs": "yes (on leash)",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/victoria-falls-camp-area",
+  "needs_review": true,
+  "source_note": "PV Victoria Falls Camp Area site page (Victoria Falls Historic Area): dogs allowed on a leash. No fee or facility text.",
+  "description": "Victoria Falls Camp Area in the Victoria Falls Historic Area near Cobungra, managed by Parks Victoria. Dogs on a leash.",
+  "checked_date": "2026-10-19"
+ },
+ "n8805692240": {
+  "exclude": true,
+  "exclude_reason": "PV Longpoint East Hike-in Camping Area (Grampians): hike-in site, no fires; hike-in camps left out as in earlier runs.",
+  "checked_date": "2026-10-19"
+ },
+ "n5512621921": {
+  "exclude": true,
+  "exclude_reason": "PV McLoughlins Beach site page (Nooramunga M&CP) lists \"No camping\".",
+  "checked_date": "2026-10-19"
+ },
+ "n11576254113": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of OSM w192543633 \"The Butts Reserve\" (13 m).",
+  "checked_date": "2026-10-19"
+ },
+ "n7771817366": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of OSM w832440663 \"Cork Oaks\" (54 m).",
+  "checked_date": "2026-10-19"
+ },
+ "n10703874905": {
+  "exclude": true,
+  "exclude_reason": "\"Pum\": duplicate/junk point 56 m from Ash Wednesday Memorial RA (Panmure).",
+  "checked_date": "2026-10-19"
+ },
+ "w295214628": {
+  "exclude": true,
+  "exclude_reason": "Sovereign Hill (Ballarat) attraction feature per DataVic PLM25, not a public campground.",
+  "checked_date": "2026-10-19"
+ },
+ "w295214462": {
+  "exclude": true,
+  "exclude_reason": "Sovereign Hill (Ballarat) attraction feature per DataVic PLM25, not a public campground.",
+  "checked_date": "2026-10-19"
+ },
+ "n3502570611": {
+  "exclude": true,
+  "exclude_reason": "Scout/education group camp site inside Eumeralla Education Area (DataVic PLM25), not public camping.",
+  "checked_date": "2026-10-19"
+ },
+ "n3502625334": {
+  "exclude": true,
+  "exclude_reason": "Scout/education group camp site inside Eumeralla Education Area (DataVic PLM25), not public camping.",
+  "checked_date": "2026-10-19"
+ },
+ "n3502623049": {
+  "exclude": true,
+  "exclude_reason": "Scout/education group camp site inside Eumeralla Education Area (DataVic PLM25), not public camping.",
+  "checked_date": "2026-10-19"
+ },
+ "w130361198": {
+  "exclude": true,
+  "exclude_reason": "Great Ocean Walk hike-in walkers' campsite, 181 m from the Blanket Bay vehicle campground (already listed); hike-in sites left out.",
+  "checked_date": "2026-10-19"
+ },
+ "n7023039272": {
+  "exclude": true,
+  "exclude_reason": "Great Ocean Walk hike-in walkers' campsite, 101 m from Aire River West campground (already listed); hike-in sites left out.",
+  "checked_date": "2026-10-19"
+ },
+ "n1808393740": {
+  "toilets": "no",
+  "water_tap": "yes",
+  "fee_type": "free",
+  "needs_review": true,
+  "heavy_vehicles": "no",
+  "source_url": "https://spatial.infrastructure.gov.au/server/rest/services/Hosted/RADAR_Curated_Prod_restareas/FeatureServer/1 (National Formal Rest Area dataset, VIC state data)",
+  "source_note": "Matched to a Kinnabulla formal rest area 431 m away (same locality, Sunraysia Highway).",
+  "description": "Formal roadside rest area on the Sunraysia Highway at Kinnabulla (southbound). Listed facilities: water, table or chair, shade, bbq, bin; no toilet. Overnight stays are not stated in the government data; follow signs on site.",
+  "checked_date": "2026-10-19"
+ },
+ "w130006390": {
+  "phone": "0403 017 764",
+  "email": "info@warracknabealshow.com.au",
+  "website": "https://warracknabealshow.com.au/",
+  "needs_review": true,
+  "source_url": "https://www.yarriambiack.vic.gov.au/Community/Events/137th-Warracknabeal-Show-Day-2025",
+  "source_note": "Yarriambiack Shire event page lists the Warracknabeal A&P Society contacts for the Show Yards Reserve (142 Henty Hwy). No camping information; council directs RV stays to Warracknabeal Caravan Park.",
+  "description": "Warracknabeal Show Yards Reserve on the Henty Highway, run for the annual show by the Warracknabeal A&P Society. No casual camping is listed; call the society first. The council-run Warracknabeal Caravan Park is nearby.",
+  "checked_date": "2026-10-19"
+ },
+ "w1196246879": {
+  "toilets": "yes (Envirodome composting)",
+  "showers": "no",
+  "suits": "tent|caravan",
+  "source_note": "Winton Wetlands camping page: camping currently free, first in first served, no bookings; 20 unpowered campsites in three areas (Greens Hill Camp, Bill Friday Swamp, Duckpond Camp); bring your own water; dogs not allowed at any Winton Wetlands camp sites; fires only in official fireplaces; reserve closed on Total Fire Ban days. Location inside Winton Wetlands reserve per DataVic PLM25 (committee of management). This OSM \"Crescent Camp\" point is about 0.8 km from Bill Friday Swamp (VicNames/OSM), matching the Bill Friday Swamp camp on the official map (10 sites, picnic shelter, Envirodome toilets, no showers, tents and campervans/trailers).",
+  "description": "Bill Friday Swamp camp (OSM name \"Crescent Camp\") at Winton Wetlands near Benalla: 10 bush campsites with a picnic shelter and composting toilets, no showers. Suits tents and campervans or trailers. Free, first in first served, no bookings. Bring your own water. No dogs. The reserve closes on Total Fire Ban days.",
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "potable_water": "no (bring your own)",
+  "operator": "Winton Wetlands Committee of Management",
+  "website": "https://www.wintonwetlands.org.au/camping",
+  "source_url2": "https://wintonwetlands.org.au/wp-content/uploads/2023/07/WW-Map_2023_WEB.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-20"
+ },
+ "w1196258392": {
+  "source_note": "Winton Wetlands camping page: camping currently free, first in first served, no bookings; 20 unpowered campsites in three areas (Greens Hill Camp, Bill Friday Swamp, Duckpond Camp); bring your own water; dogs not allowed at any Winton Wetlands camp sites; fires only in official fireplaces; reserve closed on Total Fire Ban days. Location inside Winton Wetlands reserve per DataVic PLM25 (committee of management). OSM name \"Nesting Camp Ground\" (from signs at the reserve) does not match the website camp names; reserve-wide facts only. Greens Hill Camp (\"beneath the Eagles Nest\") is the likely match - check on the map.",
+  "description": "Bush camping area inside Winton Wetlands near Benalla, run by the reserve's committee of management. Camping is free, first in first served, with no bookings. Bring your own water. No dogs at any Winton Wetlands camp. The reserve closes on Total Fire Ban days.",
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "potable_water": "no (bring your own)",
+  "operator": "Winton Wetlands Committee of Management",
+  "website": "https://www.wintonwetlands.org.au/camping",
+  "source_url2": "https://wintonwetlands.org.au/wp-content/uploads/2023/07/WW-Map_2023_WEB.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-20"
+ },
+ "n11090763889": {
+  "source_note": "Winton Wetlands camping page: camping currently free, first in first served, no bookings; 20 unpowered campsites in three areas (Greens Hill Camp, Bill Friday Swamp, Duckpond Camp); bring your own water; dogs not allowed at any Winton Wetlands camp sites; fires only in official fireplaces; reserve closed on Total Fire Ban days. Location inside Winton Wetlands reserve per DataVic PLM25 (committee of management). OSM name \"Wood Duck Camping Ground\" (VicNames) does not match the website camp names; the point is in the north-east of the reserve, where the official map shows \"Bush Camp @ Duck Pond\" (open bush camping, no fire pit, picnic tables, tents; campervans/trailers with care). Reserve-wide facts only.",
+  "description": "Basic bush camping area in the north of Winton Wetlands near Benalla (probably the Duck Pond bush camp). Free, first in first served, no bookings. Bring your own water. No dogs at any Winton Wetlands camp. The reserve closes on Total Fire Ban days.",
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "no",
+  "potable_water": "no (bring your own)",
+  "operator": "Winton Wetlands Committee of Management",
+  "website": "https://www.wintonwetlands.org.au/camping",
+  "source_url2": "https://wintonwetlands.org.au/wp-content/uploads/2023/07/WW-Map_2023_WEB.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-20"
+ },
+ "w386169867": {
+  "category": "park_campground",
+  "fee_type": "paid",
+  "booking": "yes",
+  "fee_note": "book_ahead",
+  "toilets": "yes (non-flush)",
+  "potable_water": "no (bring your own)",
+  "suits": "tent",
+  "website": "https://www.greatoceanroadauthority.vic.gov.au/Land-We-Manage/National-Parks/Great-Otway-National-Park/Drive-in-campgrounds/Allenvale-Campground",
+  "needs_review": false,
+  "source_note": "GORCAPA Allenvale Campground page (Parks Victoria URL now redirects there): 20 unpowered walk-in sites, tents only, about 230 m from the carpark; bookings and payment required year-round; non-flush toilets, low tables, shelters; no fireplaces and no fires; bring your own drinking water; take rubbish home. GORCAPA manages this part of Great Otway NP from 1 July 2025 (PV Lorne page; DataVic PLM25).",
+  "description": "Allenvale Campground beside the St George River just outside Lorne: 20 walk-in tent sites about 230 m from the carpark, with non-flush toilets, low tables and shelters. Book and pay ahead (all year). No fires, so bring a gas or fuel stove, and bring your own drinking water. Managed by the Great Ocean Road Coast and Parks Authority.",
+  "operator": "Great Ocean Road Coast and Parks Authority",
+  "phone": "1300 736 533",
+  "email": "info@greatoceanroadauthority.vic.gov.au",
+  "checked_date": "2026-10-20"
+ },
+ "n1187108930": {
+  "category": "park_campground",
+  "fee_type": "paid",
+  "booking": "yes",
+  "fee_note": "book_ahead",
+  "toilets": "yes (non-flush)",
+  "suits": "tent|caravan|motorhome",
+  "access_notes": "2WD via Jamieson Track off the Great Ocean Road",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/great-otway-national-park/where-to-stay/jamieson-creek-campground",
+  "needs_review": true,
+  "source_note": "GORCAPA Jamieson Creek Campground page (via the Parks Victoria URL): 24 unpowered sites; sites 10-19 walk-in tents only; sites 4 and 7 suit caravans; others tents, camper trailers and campervans; bookings and payment required year-round; non-flush toilets, shared fireplaces (BYO firewood); 2WD via Jamieson Track. Matched to this OSM \"Jamieson Track Camping Area\" by name and track. GORCAPA notes January 2026 flood damage and trail closures near Lorne and on Jamieson Track - check before going.",
+  "description": "Jamieson Creek Campground on Jamieson Track between Lorne and Wye River: 24 unpowered sites, most for tents, camper trailers and campervans, two for caravans, plus walk-in tent sites. Non-flush toilets and shared fireplaces (bring firewood). Book and pay ahead (all year). 2WD access. Check for flood-recovery closures on Jamieson Track first.",
+  "operator": "Great Ocean Road Coast and Parks Authority",
+  "phone": "1300 736 533",
+  "email": "info@greatoceanroadauthority.vic.gov.au",
+  "checked_date": "2026-10-20"
+ },
+ "w111295232": {
+  "category": "council_park_leased",
+  "fee_type": "paid",
+  "booking": "yes",
+  "dogs": "no",
+  "suits": "tent",
+  "phone": "+61 3 5289 1790",
+  "website": "https://www.cumberlandriver.com.au/accommodation/camping/",
+  "needs_review": false,
+  "source_note": "Park's own site: unpowered garden and riverfront camp sites (tents, swags), book online, no pets, no powered sites, wash-up sinks, kiosk, fire drums. DataVic PLM25: Cumberland River Coastal Camping Reserve, Crown land managed by GORCAPA. The park is not on GORCAPA's own parks list, so it appears to be run by an operator on the reserve; the lease/operator is not stated officially (flag for Nev, as with Jan Juc).",
+  "description": "Holiday park on the Cumberland River where it meets the sea, about 7 km south-west of Lorne, on a coastal Crown reserve. Unpowered garden and riverfront camp sites for tents, plus cabins; book ahead. No pets and no powered sites.",
+  "checked_date": "2026-10-20"
+ },
+ "n8285387776": {
+  "dogs": "yes (on leash in camping areas, tied up at night)",
+  "source_url2": "https://www.gwmwater.org.au/water-and-sewerage/our-reservoirs/rocklands-reservoir/",
+  "needs_review": true,
+  "source_note": "GWMWater Rocklands Reservoir page: camping is in the neighbouring State forest along the foreshore (campgrounds managed by DEECA); dogs must be under control, tied up at night and on a leash in picnic and camping areas; dogs must not enter the water (except duck season). Location on Rocklands Reservoir land per DataVic PLM25; nearest DataVic camp is Fergusons Campsite (1.3 km). Camping details for the DEECA foreshore camps are on forestsandreserves (browser-only).",
+  "description": "Rom's Bog: camping spot on the shore of Rocklands Reservoir, west of the Grampians. Rocklands camping is in the State forest campgrounds beside the water (DEECA). Dogs on a leash in camping areas and tied up at night.",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391681": {
+  "category": "council_park",
+  "operator": "Balnarring Beach Foreshore and Parks Reserve Committee of Management",
+  "phone": "03 5983 5582",
+  "email": "balnarringforeshore@bigpond.com",
+  "website": "https://balnarring.net/camping/",
+  "toilets": "yes",
+  "showers": "yes",
+  "dogs": "no",
+  "fee_type": "paid",
+  "booking": "yes",
+  "fee_note": "book_ahead",
+  "needs_review": false,
+  "source_note": "Committee site: three campgrounds (A, B and C Reserves), powered and non-powered sites, each with an amenity block (toilets, showers, camp kitchen, laundry) and free BBQs; no pets or fires; bookings taken from 1 June each season; A Reserve open 1 Sep to King's Birthday weekend, B Reserve Cup Day weekend to Easter and King's Birthday weekend to 1 Sep, C Reserve 26 Dec to 26 Jan and some long weekends. Committee appointed by the Minister (DEECA).",
+  "description": "Foreshore camping at Balnarring Beach on Western Port, run by the reserve's committee of management: three campgrounds with powered and unpowered sites, each with toilets, showers, camp kitchen and laundry. Paid; book ahead, especially for holidays. No pets and no fires. The three areas open at different times of year.",
+  "checked_date": "2026-10-20"
+ },
+ "w1323573174": {
+  "category": "council_park",
+  "operator": "Lang Lang Foreshore Reserve Committee of Management",
+  "phone": "(03) 5997 5220",
+  "email": "bookings@langlangforeshore.com.au",
+  "website": "https://www.langlangforeshore.com.au/",
+  "dogs": "yes (on leash at campsites; not in cabins)",
+  "fee_type": "paid",
+  "booking": "yes",
+  "suits": "tent|caravan|motorhome",
+  "needs_review": false,
+  "source_note": "Lang Lang Foreshore Caravan Park own site (Jam Jerrup): powered and non-powered sites incl. walk-in tent sites, extra-large rig sites, waterfront and self-contained sites, six cabins; book online; pets welcome at campsites on leash, not in cabins. Committee page: DEECA-appointed volunteer committee of management runs the reserve. DataVic PLM25: Western Port Coastal Reserve (COM).",
+  "description": "Lang Lang Foreshore Caravan Park at Jam Jerrup on Western Port, run by the foreshore committee: powered and unpowered sites from walk-in tent sites to big-rig sites, next to the boat ramp and jetty. Paid; book ahead. Dogs on a leash at campsites.",
+  "checked_date": "2026-10-20"
+ },
+ "w354236037": {
+  "category": "council_park",
+  "operator": "Walkerville Foreshore Reserve Committee of Management",
+  "phone": "0487 007 176",
+  "website": "https://www.walkervilleforeshore.com.au/campground/",
+  "dogs": "no",
+  "fee_type": "paid",
+  "booking": "yes",
+  "suits": "tent|caravan|motorhome",
+  "needs_review": false,
+  "source_note": "Committee site: Walkerville Foreshore Camping Reserve, 128 powered and unpowered sites for tents, caravans and campervans, two bungalows; book online; summer fire ban (no camp fires); dogs not permitted in the camping reserve except to transit on the marked path.",
+  "description": "Walkerville Foreshore Camping Reserve on Waratah Bay, run by the foreshore committee: 128 powered and unpowered sites along 1 km of beachfront, for tents, caravans and campervans. Paid; book ahead online. No dogs in the camping reserve.",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391836": {
+  "fee_type": "paid",
+  "fee_note": "pay_on_site",
+  "suits": "tent|caravan|motorhome",
+  "needs_review": true,
+  "source_url": "https://www.visitportland.com.au/wp-content/uploads/2018/05/Glenelg-Shire-Caravan-and-Camping-2018.pdf",
+  "source_note": "Glenelg Shire Caravan and Camping guide 2018 (Visit Portland, council tourism): \"Fitzroy River Outlet\" on Thompson's Road, Tyrendarra East; camp sites on the river bank in coastal scrub; suits all types of camping incl. large motorhomes and caravans; fees apply, collected daily on site; short walk to the beach. Guide is from 2018, so needs review. DataVic PLM25: Yambuk Coastal Reserve (committee of management).",
+  "description": "Riverbank camping beside the Fitzroy River outlet on Thompson's Road, Tyrendarra East, a short walk from the beach. Suits tents, caravans and big motorhomes. A small fee is collected on site (council guide from 2018, so check current details).",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391881": {
+  "needs_review": true,
+  "source_url2": "https://www.visitportland.com.au/wp-content/uploads/2018/05/Glenelg-Shire-Caravan-and-Camping-2018.pdf",
+  "source_note": "Glenelg Shire Caravan and Camping guide 2018: \"Hotspur, Smokey Crawford River\" on the Portland-Casterton Road, large grassy area, limited shade, fishing. Crown frontage (DEECA per PLM25) - other details browser-only.",
+  "description": "Grassy riverside camping area beside the Crawford River at Hotspur, on the Portland-Casterton Road; limited shade, good for fishing (council guide, 2018).",
+  "checked_date": "2026-10-20"
+ },
+ "n1808392073": {
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "yes (on leash)",
+  "suits": "tent|caravan|motorhome",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/psyche-bend-camping-area-1",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "needs_review": true,
+  "source_note": "Matched to PV \"Psyche Bend Camping Area 1 (Kings Billabong Park)\" (PV coordinates 120 m away); PV site page: dogs allowed on a leash. PV Murray reach page (SA border to Piangil): all riverside campsites free, no bookings; dispersed camping permitted at Kings Billabong. Kings Billabong park note (PV, via Visit Mildura): camping is dispersed; an area just downstream of Psyche Pumps caters for caravans and campervans; no camping around the Psyche Pump Station itself. PV lists Psyche Bend Camping Area 2 as closed. needs_review because DataVic PLM25 puts the OSM point inside the Psyche Bend Pumps Historic Reserve, near the no-camping zone around the pump station.",
+  "description": "Psyche Bend camping area in Kings Billabong Park on the Murray, about 8 km south-east of Mildura: dispersed riverside camping, with an area just downstream of Psyche Pumps that suits caravans and campervans. Free, no bookings. Dogs on a leash. No camping right at the Psyche Pump Station.",
+  "checked_date": "2026-10-20"
+ },
+ "w1363540100": {
+  "category": "council_park_leased",
+  "operator": "Lake Boga Caravan Park (Swan Hill Rural City Council lease)",
+  "phone": "(03) 5037 2386",
+  "website": "https://lakeboga.com.au/",
+  "dogs": "yes (pet friendly on sites, per the park)",
+  "needs_review": true,
+  "source_url2": "https://www.miragenews.com/council-exploring-options-for-lake-boga-areas-4-1729614/",
+  "source_note": "Swan Hill Rural City Council release (reprinted by Mirage News): Areas 4 and 5 on the north-eastern shore of Lake Boga are Crown land leased to the Lake Boga Caravan Park operator and run as part of the caravan park; council has resolved to consider closing them, subject to negotiation with the lessee. OSM site numbers suggest this is Area 4. Caravan park site: dog friendly sites. Facilities/fees for Areas 4 and 5 are not listed separately.",
+  "description": "Lakeside camping area (Area 4) on the north-eastern shore of Lake Boga, run as part of the council-leased Lake Boga Caravan Park. Contact the park to book. Swan Hill council is considering closing Areas 4 and 5, so check before you go.",
+  "checked_date": "2026-10-20"
+ },
+ "w1363540105": {
+  "category": "council_park_leased",
+  "operator": "Lake Boga Caravan Park (Swan Hill Rural City Council lease)",
+  "phone": "(03) 5037 2386",
+  "website": "https://lakeboga.com.au/",
+  "dogs": "yes (pet friendly on sites, per the park)",
+  "needs_review": true,
+  "source_url2": "https://www.miragenews.com/council-exploring-options-for-lake-boga-areas-4-1729614/",
+  "source_note": "Swan Hill Rural City Council release (reprinted by Mirage News): Areas 4 and 5 on the north-eastern shore of Lake Boga are Crown land leased to the Lake Boga Caravan Park operator and run as part of the caravan park; council has resolved to consider closing them, subject to negotiation with the lessee. OSM site numbers suggest this is Area 5. Caravan park site: dog friendly sites. Facilities/fees for Areas 4 and 5 are not listed separately.",
+  "description": "Lakeside camping area (Area 5) on the north-eastern shore of Lake Boga, run as part of the council-leased Lake Boga Caravan Park. Contact the park to book. Swan Hill council is considering closing Areas 4 and 5, so check before you go.",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391819": {
+  "category": "council_park",
+  "operator": "Edenhope Lakeside Tourist Park",
+  "phone": "(03) 5585 1659",
+  "website": "https://www.visitwestwimmera.com.au/Stay/Edenhope/Edenhope-Lakeside-Tourist-Park",
+  "dogs": "yes (pet-friendly park)",
+  "toilets": "yes",
+  "suits": "tent|caravan",
+  "needs_review": true,
+  "source_note": "Visit West Wimmera (council tourism): Edenhope Lakeside Tourist Park on Lake Street, on Lake Wallace: cabins, powered caravan and camping sites, tent sites; new amenities block with toilets, camp kitchen, laundry; pet-friendly. West Wimmera council news (Aug 2024): park extended with state funding. DataVic PLM25: point is in Lake Wallace Reserve (council committee of management); whether council runs or leases the park is not stated. Matched by street and reserve; OSM name is \"Edenhope Lake Wallace Recreation Ground\" - check it is the tourist park.",
+  "description": "Camping on the shore of Lake Wallace in Edenhope through Edenhope Lakeside Tourist Park: powered and tent sites, cabins, a new amenities block with toilets, camp kitchen and laundry. Pet friendly. Walking and bike track around the lake.",
+  "checked_date": "2026-10-20"
+ },
+ "n1808393381": {
+  "category": "council_park",
+  "operator": "Charlton Caravan Park",
+  "phone": "0448 276 631",
+  "email": "charltoncaravanpark@gmail.com",
+  "website": "https://www.charltoncaravanpark.com.au",
+  "dogs": "yes (pet friendly)",
+  "toilets": "yes",
+  "source_url2": "https://www.visitbuloke.com.au/places-to-stay/charlton-caravan-park",
+  "needs_review": true,
+  "source_note": "DataVic PLM25: point is inside \"Gordon Park (Charlton Caravan Park)\" reserve, council committee of management. Visit Buloke (council tourism): Charlton Caravan Park on the Avoca River; north side has grassed powered and non-powered sites, camp kitchen, laundry, toilets and showers; south side ensuites, cabins and an RV park; pet friendly. OSM tags shower=no conflict with the park listing - check.",
+  "description": "Gordon Park on the Avoca River in Charlton, home of the Charlton Caravan Park: grassed powered and unpowered sites, camp kitchen, laundry and toilets, an RV area, close to the main street. Pet friendly. Contact the park to book.",
+  "checked_date": "2026-10-20"
+ },
+ "w1240332843": {
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/mitchell-river-national-park/things-to-do/camping",
+  "needs_review": true,
+  "source_note": "Location inside Mitchell River NP per DataVic PLM25. PV Mitchell River camping page: dogs and other pets are not permitted in the park; camp at least 20 m from water; take all rubbish home. This site is not named on the PV pages.",
+  "checked_date": "2026-10-20"
+ },
+ "n4756284375": {
+  "dogs": "no",
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/mitchell-river-national-park/things-to-do/camping",
+  "needs_review": true,
+  "source_note": "Location inside Mitchell River NP per DataVic PLM25. PV Mitchell River camping page: dogs and other pets are not permitted in the park; camp at least 20 m from water; take all rubbish home. This site is not named on the PV pages.",
+  "checked_date": "2026-10-20"
+ },
+ "n3626343128": {
+  "exclude": true,
+  "exclude_reason": "Remote hike-in campsite on the Wilderness Coast Walk, Croajingolong NP (PV walk page: walkers only, advance bookings required, 2-night maximum at remote campsites, no vehicles; east of Mallacoota booked via NSW NPWS). Hike-in sites left out as in earlier runs. Source: https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/things-to-do/walk-the-wilderness-coast",
+  "checked_date": "2026-10-20"
+ },
+ "n5405092921": {
+  "exclude": true,
+  "exclude_reason": "Remote hike-in campsite on the Wilderness Coast Walk, Croajingolong NP (PV walk page: walkers only, advance bookings required, 2-night maximum at remote campsites, no vehicles; east of Mallacoota booked via NSW NPWS). Hike-in sites left out as in earlier runs. Source: https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/things-to-do/walk-the-wilderness-coast",
+  "checked_date": "2026-10-20"
+ },
+ "n3626340164": {
+  "exclude": true,
+  "exclude_reason": "Remote hike-in campsite on the Wilderness Coast Walk, Croajingolong NP (PV walk page: walkers only, advance bookings required, 2-night maximum at remote campsites, no vehicles; east of Mallacoota booked via NSW NPWS). Hike-in sites left out as in earlier runs. Source: https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/things-to-do/walk-the-wilderness-coast",
+  "checked_date": "2026-10-20"
+ },
+ "n3626343089": {
+  "exclude": true,
+  "exclude_reason": "Remote hike-in campsite on the Wilderness Coast Walk, Croajingolong NP (PV walk page: walkers only, advance bookings required, 2-night maximum at remote campsites, no vehicles; east of Mallacoota booked via NSW NPWS). Hike-in sites left out as in earlier runs. Source: https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/things-to-do/walk-the-wilderness-coast",
+  "checked_date": "2026-10-20"
+ },
+ "n3626343055": {
+  "exclude": true,
+  "exclude_reason": "Remote hike-in campsite on the Wilderness Coast Walk, Croajingolong NP (PV walk page: walkers only, advance bookings required, 2-night maximum at remote campsites, no vehicles; east of Mallacoota booked via NSW NPWS). Hike-in sites left out as in earlier runs. Source: https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/things-to-do/walk-the-wilderness-coast",
+  "checked_date": "2026-10-20"
+ },
+ "n3626343117": {
+  "exclude": true,
+  "exclude_reason": "Remote hike-in campsite on the Wilderness Coast Walk, Croajingolong NP (PV walk page: walkers only, advance bookings required, 2-night maximum at remote campsites, no vehicles; east of Mallacoota booked via NSW NPWS). Hike-in sites left out as in earlier runs. Source: https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/things-to-do/walk-the-wilderness-coast",
+  "checked_date": "2026-10-20"
+ },
+ "n13724259569": {
+  "exclude": true,
+  "exclude_reason": "Remote hike-in campsite on the Wilderness Coast Walk, Croajingolong NP (PV walk page: walkers only, advance bookings required, 2-night maximum at remote campsites, no vehicles; east of Mallacoota booked via NSW NPWS). Hike-in sites left out as in earlier runs. Source: https://www.parks.vic.gov.au/places-to-see/parks/croajingolong-national-park/things-to-do/walk-the-wilderness-coast",
+  "checked_date": "2026-10-20"
+ },
+ "n3468511021": {
+  "exclude": true,
+  "exclude_reason": "Taylors Creek (Lake Eildon NP) is a boat-based camping area reached only by boat or on foot (PV Lake Eildon NP visitor guide; G-MW houseboat booklet). Boat/walk-in sites left out as in earlier runs (composting toilet, fireplace, no fees or bookings - re-add if Nev wants boat camps).",
+  "checked_date": "2026-10-20"
+ },
+ "n1706902853": {
+  "exclude": true,
+  "exclude_reason": "Inside Mt Lonarch plantation (DataVic PLM25: Victorian Plantations Corporation land). HVP visitor induction: visitors must not camp or stay overnight in the plantations. Re-check if a separate Crown camp is found nearby.",
+  "checked_date": "2026-10-20"
  }
 }

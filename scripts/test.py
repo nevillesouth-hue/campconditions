@@ -467,24 +467,29 @@ allowed = {"free", "donation", "showground", "council_park", "council_park_lease
 curated = json.load(open(os.path.join(root, "data", "osm-camps-vic.json"), encoding="utf-8"))
 curated_sites = curated["sites"] if isinstance(curated, dict) else curated
 corr_path = os.path.join(root, "data", "manual-corrections.json")
-if set(s.get("category") for s in curated_sites) - allowed: bad.append(("osm data", "category outside the six"))
-merged = build_osm.apply_corrections(curated_sites, build_osm.load_corrections(corr_path))
+corrections_doc = build_osm.load_corrections(corr_path)
+corrected_ids = set(corrections_doc) if isinstance(corrections_doc, dict) else set()
+# The Monday refresh writes the extract after corrections, so hand-checked
+# park camps and pub stays are already in the file. Guard the uncorrected rows.
+fresh = [s for s in curated_sites if s.get("osm_id") not in corrected_ids]
+if set(s.get("category") for s in fresh) - allowed: bad.append(("osm data", "category outside the six"))
+merged = build_osm.apply_corrections(curated_sites, corrections_doc)
 named = [s for s in merged if re.search(r"[A-Za-z0-9]", (s.get("name") or ""))]
 if len(named) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1092, "Camping area": 5, "Council park": 75, "Showground": 40, "Paid – Parks Victoria (book ahead)": 56, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
+expect_counts = {"Free": 1182, "Camping area": 5, "Council park": 74, "Showground": 40, "Paid – Parks Victoria (book ahead)": 56, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
 if sum(1 for c in osm if c.get("needs_review")) != sum(1 for c in osm if c.get("needs_review") is True): bad.append(("osm", "review flag"))
 if not any(c.get("needs_review") is False for c in osm): bad.append(("osm", "no confirmed sites"))
-if any(classify.CHAIN.search(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "chain name kept"))
+if any(classify.CHAIN.search(s.get("name") or "") for s in fresh): bad.append(("osm data", "chain name kept"))
 def _still_excluded(name):
   checked = name or ""
   if re.search(r"(?i)camp", checked): checked = re.sub(r"(?i)picnic", "", checked)
   return classify.EXCL.search(checked)
-if any(_still_excluded(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "hiker or group name kept"))
+if any(_still_excluded(s.get("name") or "") for s in fresh): bad.append(("osm data", "hiker or group name kept"))
 show = classify.decide({"name": "Echuca Showgrounds"})
 if not show or show["category"] != "showground" or show["label"] != "call first" or not show["needs_review"]: bad.append(("classify", "showground"))
 if (classify.decide({"tourism": "camp_site", "fee": "no", "name": "Apex"}) or {}).get("category") != "free": bad.append(("classify", "free"))

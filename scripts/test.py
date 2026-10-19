@@ -97,6 +97,12 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "emergency hotline"))
     if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in html_page:
       bad.append((slug, "newsletter button"))
+    if 'href="https://traffic.transport.vic.gov.au/"' not in html_page or "Check road closures" not in html_page or html_page.find("Find nearby toilets") > html_page.find("Check road closures"):
+      bad.append((slug, "road closures"))
+    if "traffic.vicroads.vic.gov.au" in html_page or "https://traffic.transport.vic.gov.au/?" in html_page:
+      bad.append((slug, "invented vicroads url"))
+    if "Also check" not in html_page or "Parks Victoria alerts" not in html_page or "for park camps" not in html_page or 'href="https://www.parks.vic.gov.au/coc-listing"' not in html_page:
+      bad.append((slug, "parks alerts"))
   title_m = re.search(r"<title>(.*?)</title>", html_page)
   h1_m = re.search(r"<h1>(.*?)</h1>", html_page)
   if not title_m or not h1_m or h1_m.group(1) not in title_m.group(1): bad.append((slug, "title"))
@@ -321,6 +327,23 @@ if 'querySelectorAll("a.digest-cta")' not in home or "email.focus({ preventScrol
   bad.append(("/", "newsletter button focus"))
 if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in about:
   bad.append(("about", "newsletter button"))
+if 'id="a2hs"' not in home or "campconditions-a2hs" not in home or "localStorage.getItem" not in home or "Add to Home Screen." not in home or "Add to Home screen or Install app." not in home or "iPad|iPhone|iPod" not in home or "/Android/i" not in home or "display-mode: standalone" not in home:
+  bad.append(("/", "home screen tip"))
+if home.find('href="/report/">Report conditions') < 0 or home.find('href="/about/">About') < home.find('href="/report/">Report conditions'):
+  bad.append(("/", "about nav"))
+if "flex:1 0 100%;flex-wrap:nowrap" not in home:
+  bad.append(("/", "nav collapse"))
+if 'class="filter-status"' not in home or 'class="filter-status-rule"' not in home or home.find('class="hide-closed"') > home.find('id="filter-count"'):
+  bad.append(("/", "filter separation"))
+if ".filter-status{display:flex;flex-direction:column" not in home:
+  bad.append(("/", "phone filter count"))
+if "Add to Home Screen." not in about or "Add to Home screen or Install app." not in about:
+  bad.append(("about", "home screen"))
+if "Find nearby toilets" not in about or "https://toiletmap.gov.au/" not in about or "Australian Government" not in about or "National Public Toilet Map" not in about:
+  bad.append(("about", "toilet map"))
+report = open(os.path.join(D, "report", "index.html"), encoding="utf-8").read()
+if 'class="back-map" href="/">← Back to map' not in report or 'id="ok"' not in report:
+  bad.append(("report", "back to map"))
 if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
@@ -332,8 +355,13 @@ if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404",
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
 manifest = json.load(open(os.path.join(D, "site.webmanifest"), encoding="utf-8"))
-if manifest.get("name") != "CampConditions.au" or manifest.get("theme_color") != "#113521" or manifest.get("background_color") != "#F5ECD6":
+if manifest.get("name") != "CampConditions.au" or manifest.get("theme_color") != "#113521" or manifest.get("background_color") != "#F5ECD6" or manifest.get("display") != "standalone":
   bad.append(("site.webmanifest", "brand"))
+icons = manifest.get("icons") or []
+if not any("icon-192.png" in (i.get("src") or "") for i in icons) or not any("icon-512.png" in (i.get("src") or "") for i in icons):
+  bad.append(("site.webmanifest", "icons"))
+if 'rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"' not in home:
+  bad.append(("/", "apple touch icon"))
 for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image.png"):
   if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
 if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):

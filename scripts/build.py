@@ -340,7 +340,7 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 @media (max-width:720px){.soon{font-size:15px;padding:6px .5rem;white-space:nowrap}}
 @media (max-width:360px){.soon{white-space:normal}}
 @media (max-width:1040px) and (min-width:861px){.brand{font-size:clamp(1.15rem,2.35vw,2rem)}}
-@media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:row;align-items:center}.brand{flex:1 1 0;min-width:0;font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}.digest-cta{order:1;margin-left:.35rem}nav{order:2;width:100%;flex:1 0 100%;flex-wrap:wrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
+@media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:row;align-items:center}.brand{flex:1 1 0;min-width:0;font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}.digest-cta{order:1;margin-left:.35rem}nav{order:2;width:100%;flex:1 0 100%;flex-wrap:nowrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
 @media (max-width:640px){.banner{padding-left:.55rem;padding-right:.55rem}.brand{font-size:clamp(.78rem,3.55vw,1.15rem)}.digest-cta{font-size:.78rem;gap:.25rem;padding:.3rem .45rem;min-height:36px}.digest-icon{width:16px;height:16px}.digest-cta-long{display:none}.digest-cta-short{display:inline}}
 @media (max-width:380px){.brand{font-size:clamp(.64rem,3.2vw,.88rem)}.digest-cta{font-size:.72rem;padding:.26rem .38rem}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
@@ -384,6 +384,8 @@ a{color:var(--g)}
 .filter-panel{position:absolute;z-index:5;top:calc(100% + 4px);left:0;min-width:15.5rem;background:#fff;border:1px solid #d9d4c8;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:.45rem .75rem .55rem}
 .filter-panel-title{display:none;margin:.35rem 0 .1rem;font-weight:700}
 .filter-count{margin:0;font-weight:700;font-size:.95rem;white-space:nowrap}
+.filter-status{display:inline-flex;align-items:center;gap:.7rem;margin-left:.35rem}
+.filter-status-rule{width:1px;height:1.35rem;background:#d4cfc3;flex:0 0 auto}
 .filter-empty{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.75rem .9rem;margin:0 0 .8rem}
 .filter-note{margin:0 0 .35rem;font-size:.85rem;color:#555}
 .hide-closed{display:inline-flex;align-items:center;gap:.35rem;margin:0;min-height:44px;white-space:nowrap;font-weight:600}
@@ -405,6 +407,8 @@ html.filters-locked,html.filters-locked body{overflow:hidden}
   .filter-panel{position:static;box-shadow:none;border:0;padding:0 0 .35rem;min-width:0}
   .filter-panel-title{display:block}
   .filter-count{white-space:normal}
+  .filter-status{display:flex;flex-direction:column;align-items:stretch;gap:.35rem;margin:.2rem 0 0;width:100%}
+  .filter-status-rule{width:100%;height:1px}
   .filter-sheet-body{display:block;overflow:auto;-webkit-overflow-scrolling:touch;flex:1 1 auto;min-height:0;padding:.35rem .9rem .7rem}
   .filter-sheet-top,.filter-sheet-bottom{display:flex;flex:0 0 auto;align-items:center;background:#fff;z-index:2}
   .filter-sheet-top{position:sticky;top:0;justify-content:space-between;padding:.25rem .35rem .25rem .9rem;border-bottom:1px solid #e3e0d6}
@@ -417,20 +421,50 @@ html.filters-locked,html.filters-locked body{overflow:hidden}
 a.btn,a.btn-alert{display:inline-block;background:var(--o);color:#fff;text-decoration:none;font-weight:600;padding:.45rem .8rem;border-radius:6px}
 a.btn-alert{background:#9a3412;font-weight:700;padding:.7rem 1rem;font-size:1.05rem}
 .leaflet-popup-content a{color:var(--g);font-weight:600}
+a.back-map{display:inline-flex;align-items:center;min-height:44px;margin:0 0 .35rem;padding:.35rem .8rem;background:#fff;color:var(--g);border:1px solid var(--g);border-radius:6px;font-weight:700;text-decoration:none}
+a.back-map:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+.a2hs{position:fixed;z-index:30;left:50%;bottom:12px;transform:translateX(-50%);width:min(28rem,calc(100% - 1.5rem));display:flex;align-items:flex-start;gap:.35rem;background:#fff;color:#222;border:1px solid #d9d4c8;border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.16);padding:.45rem .35rem .45rem .75rem;font-size:.85rem;line-height:1.35}
+.a2hs[hidden]{display:none !important}
+.a2hs p{margin:.35rem 0}
+.a2hs button{flex:0 0 auto;background:transparent;color:#222;border:0;box-shadow:none;width:44px;height:44px;padding:0;font-size:1.5rem;line-height:1}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
 def banner(on_home=False):
     href = "#newsletter" if on_home else "/#newsletter"
-    return f"""<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span></a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
+    return f"""<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span></a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta property="og:image" content="https://campconditions.au/assets/brand/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image.png">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> This site does not republish VicEmergency warnings. Always check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href="tel:000">000</a>. VicEmergency hotline <a href="tel:1800226226">1800 226 226</a>.</div>'
+A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type="button" id="a2hs-dismiss" aria-label="Dismiss add to home screen tip">×</button></div>
+<script>
+(function () {
+  var tip = document.getElementById("a2hs");
+  if (!tip) return;
+  var key = "campconditions-a2hs";
+  try { if (localStorage.getItem(key) === "dismissed") return; } catch (err) { return; }
+  if (window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true) return;
+  var ua = navigator.userAgent || "";
+  var iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  var android = /Android/i.test(ua);
+  var text = "";
+  if (iOS) text = "Add CampConditions to your home screen: tap Share, then Add to Home Screen.";
+  else if (android) text = "Add CampConditions to your home screen: tap the menu \\u22ee, then Add to Home screen or Install app.";
+  else return;
+  document.getElementById("a2hs-text").textContent = text;
+  tip.hidden = false;
+  document.getElementById("a2hs-dismiss").addEventListener("click", function () {
+    tip.hidden = true;
+    try { localStorage.setItem(key, "dismissed"); } catch (err) {}
+  });
+})();
+</script>"""
 def footer():
     return f"""<footer><p>{e(CREDIT)}</p>
 <p><strong>Data and attribution.</strong> Campground details from DataVic (<a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a> and Recreation Assets) and <a href="https://www.exploreoutdoors.vic.gov.au/">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
-<p>Site built {STAMP}. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>"""
+<p>Site built {STAMP}. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
+{A2HS}"""
 def vicemergency_url(lat, lon):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
     pad = 0.2
@@ -489,7 +523,7 @@ def filters_html(items):
     fac_panel = f'<p class="filter-note">These filters only show sites where the detail is confirmed.</p><div class="filter-row">{flags}</div>'
     return f'''<button type="button" id="filter-backdrop" class="filter-backdrop" hidden aria-label="Close filters"></button><div class="finder"><div class="town-search"><label class="sr" for="town-search">Search by town or camp name</label><div class="town-row"><input id="town-search" type="search" role="combobox" placeholder="Search by town or camp name" autocomplete="off" enterkeyhint="search" aria-autocomplete="list" aria-haspopup="listbox" aria-controls="town-suggest" aria-expanded="false"><button type="button" id="town-clear" hidden>Clear</button></div><ul id="town-suggest" role="listbox" aria-label="Towns and camps" hidden></ul></div>
 <button type="button" class="filter-btn filters-all" id="filters-all" aria-expanded="false" aria-controls="camp-filters"><span class="filter-btn-label">Filters</span></button>
-<div class="filters" id="camp-filters"><div class="filter-sheet-top"><p class="filter-sheet-title" id="filter-sheet-title">Filters</p><button type="button" class="filter-sheet-close" id="filter-sheet-close" aria-label="Close filters">×</button></div><div class="filter-sheet-body">{pop("cost", "Cost", cost_panel)}{pop("type", "Type", type_panel)}{pop("facilities", "Facilities", fac_panel)}<label class="hide-closed"><input type="checkbox" data-flag="hide-closed"> Hide closed</label><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p></div><div class="filter-sheet-bottom"><button type="button" class="filter-done" id="filter-done">Show {total} camps</button></div></div></div>
+<div class="filters" id="camp-filters"><div class="filter-sheet-top"><p class="filter-sheet-title" id="filter-sheet-title">Filters</p><button type="button" class="filter-sheet-close" id="filter-sheet-close" aria-label="Close filters">×</button></div><div class="filter-sheet-body">{pop("cost", "Cost", cost_panel)}{pop("type", "Type", type_panel)}{pop("facilities", "Facilities", fac_panel)}<div class="filter-status"><label class="hide-closed"><input type="checkbox" data-flag="hide-closed"> Hide closed</label><span class="filter-status-rule" aria-hidden="true"></span><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p></div></div><div class="filter-sheet-bottom"><button type="button" class="filter-done" id="filter-done">Show {total} camps</button></div></div></div>
 <div id="town-results" aria-live="polite"></div>'''
 def map_block(items, label, small=False):
     cls = "map map-sm" if small else "map"
@@ -502,7 +536,14 @@ def directions(c):
     # toiletmap.gov.au centres a map only for a facility id (/123) or a saved custom map.
     # lat/lng query strings are ignored, so this opens the Toilet Map home page.
     toilets = "https://toiletmap.gov.au/"
-    return f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a> <a class="btn" href="{toilets}" target="_blank" rel="noopener noreferrer">Find nearby toilets</a></p>'
+    # traffic.vicroads.vic.gov.au does not resolve. The live VicTraffic map is
+    # traffic.transport.vic.gov.au. Its app reads a disruption id query only,
+    # not lat/lng or zoom, so this opens the main map.
+    roads = "https://traffic.transport.vic.gov.au/"
+    return (f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a> '
+            f'<a class="btn" href="{toilets}" target="_blank" rel="noopener noreferrer">Find nearby toilets</a> '
+            f'<a class="btn" href="{roads}" target="_blank" rel="noopener noreferrer">Check road closures</a></p>'
+            f'<p class="muted">Also check <a href="https://www.parks.vic.gov.au/coc-listing" target="_blank" rel="noopener noreferrer">Parks Victoria alerts</a> for park camps.</p>')
 MAP_JS = r"""(function () {
   var el = document.getElementById("camp-map");
   var raw = document.getElementById("camp-map-data");
@@ -1277,7 +1318,7 @@ document.getElementById("unsub-form").addEventListener("submit", async (ev) => {
 });
 </script>""")
 page("/report/", "Report campground conditions | CampConditions.au", "Tell other campers what it's really like: how full, access, water, coverage.",
- """<h1>Report conditions</h1><p>Your report helps the next camper. Reports are checked before they're published.</p>
+ """<p><a class="back-map" href="/">← Back to map</a></p><h1>Report conditions</h1><p>Your report helps the next camper. Reports are checked before they're published.</p>
 <form class="box" onsubmit="event.preventDefault();document.getElementById('ok').hidden=false"><p><label>Campground<br><input name="camp" id="camp" required size="40"></label></p>
 <p><label>Date visited<br><input type="date" name="date" required></label></p><p><label>How full?<br><select name="full"><option>Plenty of room</option><option>About half</option><option>Nearly full</option><option>Full</option></select></label></p>
 <p><label>Road access<br><select name="access"><option>2WD fine</option><option>4WD only</option><option>Closed/impassable</option></select></label></p>
@@ -1286,6 +1327,8 @@ page("/report/", "Report campground conditions | CampConditions.au", "Tell other
 <script>const p=new URLSearchParams(location.search).get('camp');if(p)document.getElementById('camp').value=p.replace(/-/g,' ');</script>""")
 page("/about/", "About CampConditions.au", "Who we are and where our data comes from.",
  f"""<h1>About</h1><p>CampConditions.au is a free digest of Victorian campground conditions, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href="https://www.youtube.com/@OptimumQuestforBigThings">Optimum Quest for Big Things</a>.</p>{SAFETY}
+<h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
+<h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>
 <h2>Sources</h2><p>{e(CREDIT)}</p><ul><li>Campground details from DataVic and Explore Outdoors © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. This includes Recreation Sites, Recreation Assets and Parks Victoria site pages. Facility details only. Closure status stays with DataVic and Parks Victoria.</li><li>Parks Victoria / DEECA MapShare closures on Recreation Sites.</li><li>OpenStreetMap campgrounds and towns (ODbL). These pages say to check with the operator. They are not given Parks Victoria closure data.</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers. We don't publish a downloadable copy of the combined campground list.</p>""")
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
  """<h1>Privacy</h1><p>Last updated 16 October 2026.</p>

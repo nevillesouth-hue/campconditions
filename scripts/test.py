@@ -95,6 +95,14 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "vicemergency link"))
     if "1800 226 226" not in html_page or ">000<" not in html_page:
       bad.append((slug, "emergency hotline"))
+    if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in html_page:
+      bad.append((slug, "newsletter button"))
+    if 'href="https://traffic.transport.vic.gov.au/"' not in html_page or "Check road closures" not in html_page or html_page.find("Find nearby toilets") > html_page.find("Check road closures"):
+      bad.append((slug, "road closures"))
+    if "traffic.vicroads.vic.gov.au" in html_page or "https://traffic.transport.vic.gov.au/?" in html_page:
+      bad.append((slug, "invented vicroads url"))
+    if "Also check" not in html_page or "Parks Victoria alerts" not in html_page or "for park camps" not in html_page or 'href="https://www.parks.vic.gov.au/coc-listing"' not in html_page:
+      bad.append((slug, "parks alerts"))
   title_m = re.search(r"<title>(.*?)</title>", html_page)
   h1_m = re.search(r"<h1>(.*?)</h1>", html_page)
   if not title_m or not h1_m or h1_m.group(1) not in title_m.group(1): bad.append((slug, "title"))
@@ -311,6 +319,33 @@ if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or a
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
 if "Covering Victoria now" not in home or "Other states coming soon" not in home or 'class="soon"' not in home or "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
   bad.append(("/", "banner"))
+if 'class="digest-cta" href="#newsletter" aria-label="Free weekly newsletter"' not in home or "Free weekly newsletter" not in home or "Free newsletter" not in home or 'class="digest-icon"' not in home or 'aria-hidden="true"' not in home:
+  bad.append(("/", "newsletter button"))
+if ".digest-cta:focus-visible" not in home or ".digest-cta-short{display:none}" not in home or ".digest-cta-short{display:inline}" not in home:
+  bad.append(("/", "newsletter button style"))
+if 'querySelectorAll("a.digest-cta")' not in home or "email.focus({ preventScroll: true })" not in home or 'getAttribute("href") !== "#newsletter"' not in home:
+  bad.append(("/", "newsletter button focus"))
+if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in about:
+  bad.append(("about", "newsletter button"))
+if 'id="a2hs"' not in home or "campconditions-a2hs" not in home or "localStorage.getItem" not in home or "Add to Home Screen." not in home or "Add to Home screen or Install app." not in home or "iPad|iPhone|iPod" not in home or "/Android/i" not in home or "display-mode: standalone" not in home:
+  bad.append(("/", "home screen tip"))
+if home.find('href="/report/">Report conditions') < 0 or home.find('href="/about/">About') < home.find('href="/report/">Report conditions'):
+  bad.append(("/", "about nav"))
+if "flex:1 0 100%;flex-wrap:nowrap" not in home:
+  bad.append(("/", "nav collapse"))
+if 'class="filter-status"' not in home or 'class="filter-status-rule"' not in home or home.find('class="hide-closed"') > home.find('id="filter-count"'):
+  bad.append(("/", "filter separation"))
+if ".filter-status{display:flex;flex-direction:column" not in home:
+  bad.append(("/", "phone filter count"))
+if "Add to Home Screen." not in about or "Add to Home screen or Install app." not in about:
+  bad.append(("about", "home screen"))
+if "Find nearby toilets" not in about or "https://toiletmap.gov.au/" not in about or "Australian Government" not in about or "National Public Toilet Map" not in about:
+  bad.append(("about", "toilet map"))
+if "Check road closures" not in about or 'href="https://traffic.transport.vic.gov.au/"' not in about or "VicTraffic" not in about or "Victorian Government" not in about or "official live map of road closures and incidents" not in about or "Check it before you head out." not in about:
+  bad.append(("about", "victraffic"))
+report = open(os.path.join(D, "report", "index.html"), encoding="utf-8").read()
+if 'class="back-map" href="/">← Back to map' not in report or 'id="ok"' not in report:
+  bad.append(("report", "back to map"))
 if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
@@ -318,16 +353,22 @@ for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/asse
   if icon not in home: bad.append(("/", "icon " + icon))
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
 if "/site.webmanifest" not in not_found or "og-image.png" not in not_found: bad.append(("404", "icons"))
+if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404", "newsletter button"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
 manifest = json.load(open(os.path.join(D, "site.webmanifest"), encoding="utf-8"))
-if manifest.get("name") != "CampConditions.au" or manifest.get("theme_color") != "#113521" or manifest.get("background_color") != "#F5ECD6":
+if manifest.get("name") != "CampConditions.au" or manifest.get("theme_color") != "#113521" or manifest.get("background_color") != "#F5ECD6" or manifest.get("display") != "standalone":
   bad.append(("site.webmanifest", "brand"))
+icons = manifest.get("icons") or []
+if not any("icon-192.png" in (i.get("src") or "") for i in icons) or not any("icon-512.png" in (i.get("src") or "") for i in icons):
+  bad.append(("site.webmanifest", "icons"))
+if 'rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"' not in home:
+  bad.append(("/", "apple touch icon"))
 for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image.png"):
   if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
 if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):
   bad.append(("optimum-quest-logo.webp", "still present"))
-if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "margin-left:auto" in home or "justify-content:flex-end" in home:
+if home.find("<nav>") > home.find('class="soon"') or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "justify-content:flex-end" in home or ".digest-cta{order:2;margin-left:auto" not in home:
   bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
 page_js = open(os.path.join(root, "functions", "_lib", "page.js"), encoding="utf-8").read()
@@ -426,24 +467,29 @@ allowed = {"free", "donation", "showground", "council_park", "council_park_lease
 curated = json.load(open(os.path.join(root, "data", "osm-camps-vic.json"), encoding="utf-8"))
 curated_sites = curated["sites"] if isinstance(curated, dict) else curated
 corr_path = os.path.join(root, "data", "manual-corrections.json")
-if set(s.get("category") for s in curated_sites) - allowed: bad.append(("osm data", "category outside the six"))
-merged = build_osm.apply_corrections(curated_sites, build_osm.load_corrections(corr_path))
+corrections_doc = build_osm.load_corrections(corr_path)
+corrected_ids = set(corrections_doc) if isinstance(corrections_doc, dict) else set()
+# The Monday refresh writes the extract after corrections, so hand-checked
+# park camps and pub stays are already in the file. Guard the uncorrected rows.
+fresh = [s for s in curated_sites if s.get("osm_id") not in corrected_ids]
+if set(s.get("category") for s in fresh) - allowed: bad.append(("osm data", "category outside the six"))
+merged = build_osm.apply_corrections(curated_sites, corrections_doc)
 named = [s for s in merged if re.search(r"[A-Za-z0-9]", (s.get("name") or ""))]
 if len(named) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1092, "Camping area": 5, "Council park": 75, "Showground": 40, "Paid – Parks Victoria (book ahead)": 56, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
+expect_counts = {"Free": 1182, "Camping area": 5, "Council park": 74, "Showground": 40, "Paid – Parks Victoria (book ahead)": 56, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
 if sum(1 for c in osm if c.get("needs_review")) != sum(1 for c in osm if c.get("needs_review") is True): bad.append(("osm", "review flag"))
 if not any(c.get("needs_review") is False for c in osm): bad.append(("osm", "no confirmed sites"))
-if any(classify.CHAIN.search(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "chain name kept"))
+if any(classify.CHAIN.search(s.get("name") or "") for s in fresh): bad.append(("osm data", "chain name kept"))
 def _still_excluded(name):
   checked = name or ""
   if re.search(r"(?i)camp", checked): checked = re.sub(r"(?i)picnic", "", checked)
   return classify.EXCL.search(checked)
-if any(_still_excluded(s.get("name") or "") for s in curated_sites): bad.append(("osm data", "hiker or group name kept"))
+if any(_still_excluded(s.get("name") or "") for s in fresh): bad.append(("osm data", "hiker or group name kept"))
 show = classify.decide({"name": "Echuca Showgrounds"})
 if not show or show["category"] != "showground" or show["label"] != "call first" or not show["needs_review"]: bad.append(("classify", "showground"))
 if (classify.decide({"tourism": "camp_site", "fee": "no", "name": "Apex"}) or {}).get("category") != "free": bad.append(("classify", "free"))

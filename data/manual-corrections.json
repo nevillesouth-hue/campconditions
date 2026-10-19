@@ -2888,7 +2888,8 @@
   "source_url": "https://greatoceanroadparks.com.au/find-a-park/wye-river",
   "needs_review": false,
   "checked_date": "2026-10-17",
-  "fee_note": "book_ahead"
+  "fee_note": "book_ahead",
+  "superseded_by": "w204763505"
  },
  "n2005938578": {
   "name": "Apollo Bay Recreation Reserve",
@@ -16237,6 +16238,515 @@
  "n1706902853": {
   "exclude": true,
   "exclude_reason": "Inside Mt Lonarch plantation (DataVic PLM25: Victorian Plantations Corporation land). HVP visitor induction: visitors must not camp or stay overnight in the plantations. Re-check if a separate Crown camp is found nearby.",
+  "checked_date": "2026-10-20"
+ },
+ "n1763842211": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "needs_review": false,
+  "source_note": "Merbein Common, River Murray Reserve (same as River Access 5/7/8 already listed). Parks Victoria SA border to Piangil reach page: riverside campsites free, no bookings. OSM point sits just past the state line in the river channel.",
+  "checked_date": "2026-10-20",
+  "description": "Riverside bush camp on the Murray in Merbein Common, north of Merbein. Free, no bookings. Expect no facilities; bring water and check tracks after rain."
+ },
+ "n1763842241": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "needs_review": false,
+  "source_note": "Merbein Common, River Murray Reserve (same as River Access 5/7/8 already listed). Parks Victoria SA border to Piangil reach page: riverside campsites free, no bookings. OSM point sits just past the state line in the river channel.",
+  "checked_date": "2026-10-20",
+  "description": "Riverside bush camp on the Murray in Merbein Common, north of Merbein. Free, no bookings. Expect no facilities; bring water and check tracks after rain."
+ },
+ "n1763842244": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "needs_review": false,
+  "source_note": "Merbein Common, River Murray Reserve (same as River Access 5/7/8 already listed). Parks Victoria SA border to Piangil reach page: riverside campsites free, no bookings. OSM point sits just past the state line in the river channel.",
+  "checked_date": "2026-10-20",
+  "description": "Riverside bush camp on the Murray in Merbein Common, north of Merbein. Free, no bookings. Expect no facilities; bring water and check tracks after rain."
+ },
+ "n1763842185": {
+  "fee_type": "free",
+  "booking": "no",
+  "operator": "Parks Victoria",
+  "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "needs_review": false,
+  "source_note": "Merbein Common, River Murray Reserve (same as River Access 5/7/8 already listed). Parks Victoria SA border to Piangil reach page: riverside campsites free, no bookings. OSM point sits just past the state line in the river channel.",
+  "checked_date": "2026-10-20",
+  "description": "Riverside bush camp on the Murray in Merbein Common, north of Merbein. Free, no bookings. Expect no facilities; bring water and check tracks after rain."
+ },
+ "n1808391879": {
+  "operator": "Parks Victoria",
+  "fee_type": "free",
+  "booking": "no",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
+  "needs_review": true,
+  "source_note": "Next to Merbein Common River Access 5/6/7; Parks Victoria reach page rule (free, no bookings). No site page found; OSM operator typo corrected.",
+  "checked_date": "2026-10-20",
+  "description": "River bend camp on the Murray near Merbein Common. Free, no bookings; no known facilities."
+ },
+ "n7650933920": {
+  "operator": "Parks Victoria",
+  "needs_review": true,
+  "source_note": "OSM tags Parks Victoria (Barmah NP); point within ~100 m of the state line. No Parks Victoria site page found; not enriched.",
+  "checked_date": "2026-10-20"
+ },
+ "n7650933910": {
+  "operator": "Parks Victoria",
+  "needs_review": true,
+  "source_note": "OSM tags Parks Victoria (Barmah NP); point within ~100 m of the state line. No Parks Victoria site page found; not enriched.",
+  "checked_date": "2026-10-20"
+ },
+ "n7650872826": {
+  "operator": "Parks Victoria",
+  "needs_review": true,
+  "source_note": "OSM tags Parks Victoria (Barmah NP); point within ~100 m of the state line. No Parks Victoria site page found; not enriched.",
+  "checked_date": "2026-10-20"
+ },
+ "n7650872882": {
+  "operator": "Parks Victoria",
+  "needs_review": true,
+  "source_note": "OSM tags Parks Victoria (Barmah NP); point within ~100 m of the state line. No Parks Victoria site page found; not enriched.",
+  "checked_date": "2026-10-20"
+ },
+ "w1265101512": {
+  "operator": "Parks Victoria",
+  "needs_review": true,
+  "source_note": "River Murray Reserve, Burrowye (Victorian bank). East of Barnawartha, so the reach free/no-booking rule does not apply. No site page found.",
+  "checked_date": "2026-10-20"
+ },
+ "n9784649721": {
+  "operator": "Towong Shire Council",
+  "needs_review": true,
+  "source_note": "OSM tags Towong Shire; no official council camping page found (towong.vic.gov.au lists not readable).",
+  "checked_date": "2026-10-20"
+ },
+ "w1474028458": {
+  "exclude": true,
+  "exclude_reason": "Lions Club caravan park in Lismore with no official source (no-private-caravan-parks)",
+  "checked_date": "2026-10-20"
+ },
+ "w204763505": {
+  "name": "Wye River Beachfront Campground",
+  "category": "council_park",
+  "fee_type": "paid",
+  "operator": "Great Ocean Road Coast and Parks Authority",
+  "phone": "(03) 5289 0412",
+  "email": "wyeriver@greatoceanroadauthority.vic.gov.au",
+  "website": "https://greatoceanroadparks.com.au/find-a-park/wye-river",
+  "toilets": "yes",
+  "dogs": "seasonal (designated sites, off-peak)",
+  "suits": "tent|caravan|motorhome",
+  "booking": "recommended",
+  "description": "Public-authority campground right on the beach at Wye River, mostly powered sites plus a few unpowered. Camp kitchen, laundry, accessible amenities and BBQs; store, cafe and pub across the road. Dogs allowed on set sites outside peak times.",
+  "source_url": "https://greatoceanroadparks.com.au/find-a-park/wye-river",
+  "needs_review": false,
+  "checked_date": "2026-10-20",
+  "fee_note": "book_ahead",
+  "source_note": "Moved from OSM node n863349374, which OSM replaced with this way in the 20 Oct refresh."
+ },
+ "n8444751177": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7650933932": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Arnalds Camping Area (Barmah National Park), 143 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7540061977": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Betts Bend Camping Area 2, 125 m",
+  "checked_date": "2026-10-20"
+ },
+ "n2337828664": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808392639": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8813278746": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n3645411210": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Bourkes Beach Camping Area No. 1 (Murray River), 293 m",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391734": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Bourkes Bend No. 3 Beach Camping Area, 123 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7472732149": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391743": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Bruces Beach No. 2 Camping Area, 263 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7396646265": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Buchanans Camping Area (River Murray Reserve), 112 m",
+  "checked_date": "2026-10-20"
+ },
+ "n9795937261": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Buxtons Bend Camping Area (Murray River), 291 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7484057034": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7484057033": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8444803249": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391775": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Chinamans Bend Camping Area (Yarrawonga RP), 367 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7540061979": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7540061980": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808392743": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "w548273595": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7484057026": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Dead Dog Lagoon Camping Area 1 (Barmah NP), 22 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7484057029": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Dead Dog Lagoon Camping Area 2 (Barmah NP), 426 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7472654657": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808392765": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8442164373": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n11280806431": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (South Australia side of the border)",
+  "checked_date": "2026-10-20"
+ },
+ "n9813534269": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8442164351": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391840": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1811175325": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW) and a commercial caravan park",
+  "checked_date": "2026-10-20"
+ },
+ "n9796039043": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Graces Bend Camping Area (River Murray Reserve), 250 m",
+  "checked_date": "2026-10-20"
+ },
+ "n1808391861": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7650872828": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Honeymoon Bend Camping Area (Barmah NP), 119 m",
+  "checked_date": "2026-10-20"
+ },
+ "n8444728368": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8444803243": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8444728334": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7396581126": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "w277724944": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW, Snowy Valleys Council reserve)",
+  "checked_date": "2026-10-20"
+ },
+ "n8444803230": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1811181490": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7484057031": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Lagoon Beach Camping Area (Barmah NP), 160 m",
+  "checked_date": "2026-10-20"
+ },
+ "n8813494134": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7484057032": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n9731618496": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Little Bruces Camping Area (Yarrawonga RP), 165 m",
+  "checked_date": "2026-10-20"
+ },
+ "n8813278745": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7396529836": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7484057021": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Morgans Mill Camping Area (Barmah NP), 413 m",
+  "checked_date": "2026-10-20"
+ },
+ "n2267943802": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8442164374": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Nestrons Bend Camping Area (Barmah NP), 592 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7396646267": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Nevins Beach Camping Area (River Murray Reserve), 156 m",
+  "checked_date": "2026-10-20"
+ },
+ "n8813494133": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8813479694": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1811163057": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8444751154": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Pinchgut Bend Camping Area 1 (Barmah NP), 600 m",
+  "checked_date": "2026-10-20"
+ },
+ "n9796014220": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Police Bend Camping Area 1 (River Murray Reserve), 223 m",
+  "checked_date": "2026-10-20"
+ },
+ "n9796014219": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Police Bend Camping Area 2 (River Murray Reserve), 173 m",
+  "checked_date": "2026-10-20"
+ },
+ "n8444803263": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1811193052": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7396646266": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8813278758": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8444683848": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1811195066": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808392121": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Spences Bend Camping Area (River Murray Reserve), 354 m",
+  "checked_date": "2026-10-20"
+ },
+ "n8444790416": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8256303627": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Stantons Bend Camping Area (River Murray Reserve), 272 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7540063630": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7540063631": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8256331662": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Taylors Bend Camping Area (River Murray Reserve), 473 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7650872825": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: The Gulf Camping Area 2 (Barmah NP), 123 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7540063635": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: The Ranch Camping Area Site 3 (River Murray Reserve), 123 m",
+  "checked_date": "2026-10-20"
+ },
+ "n1811199234": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7472654660": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7396529848": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Twin Knobs Beach Camping Area (River Murray Reserve), 136 m",
+  "checked_date": "2026-10-20"
+ },
+ "n8813278756": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n1808392183": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Wakool Junction Camping Area (River Murray Reserve), 548 m",
+  "checked_date": "2026-10-20"
+ },
+ "n1808392195": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n7199815784": {
+  "exclude": true,
+  "exclude_reason": "duplicate of existing site: Weiss Beach Camping Area (Murray River), 158 m",
+  "checked_date": "2026-10-20"
+ },
+ "n7472732153": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
+  "checked_date": "2026-10-20"
+ },
+ "n8444751191": {
+  "exclude": true,
+  "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
   "checked_date": "2026-10-20"
  }
 }

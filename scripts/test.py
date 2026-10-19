@@ -341,6 +341,8 @@ if "Add to Home Screen." not in about or "Add to Home screen or Install app." no
   bad.append(("about", "home screen"))
 if "Find nearby toilets" not in about or "https://toiletmap.gov.au/" not in about or "Australian Government" not in about or "National Public Toilet Map" not in about:
   bad.append(("about", "toilet map"))
+if "Check road closures" not in about or 'href="https://traffic.transport.vic.gov.au/"' not in about or "VicTraffic" not in about or "Victorian Government" not in about or "official live map of road closures and incidents" not in about or "Check it before you head out." not in about:
+  bad.append(("about", "victraffic"))
 report = open(os.path.join(D, "report", "index.html"), encoding="utf-8").read()
 if 'class="back-map" href="/">← Back to map' not in report or 'id="ok"' not in report:
   bad.append(("report", "back to map"))

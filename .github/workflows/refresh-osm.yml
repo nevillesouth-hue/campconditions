@@ -23,7 +23,7 @@ jobs:
       - name: Commit OSM data if it changed
         run: |
           set -euo pipefail
-          git add data/osm-camps-vic.json data/osm-camps-vic.csv data/vic-towns.json
+          git add data/osm-camps-vic.json data/osm-camps-vic.csv data/vic-towns.json data/pending-osm.json
           if git diff --cached --quiet; then
             echo "No OSM data changes."
             exit 0

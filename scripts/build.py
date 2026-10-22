@@ -196,12 +196,19 @@ def load_datavic_enrichment():
     camps = doc.get("camps") if isinstance(doc, dict) else None
     return camps if isinstance(camps, dict) else {}
 def apply_datavic_enrichment(camps):
-    """Fill display facts on DataVic camps. Never changes status or closure."""
+    """Fill display facts on DataVic camps. Never changes status or closure.
+
+    A site that leaves the Recreation Sites feed is omitted with the rest of
+    the build. Its overlay row is left in place and reported, not written back.
+    """
     overlay = load_datavic_enrichment()
     applied = mismatches = 0
+    present = set()
     for camp in camps:
         if camp.get("source") != "datavic": continue
-        extra = overlay.get(str(camp.get("id")))
+        camp_id = str(camp.get("id"))
+        present.add(camp_id)
+        extra = overlay.get(camp_id)
         if not isinstance(extra, dict): continue
         want = str(extra.get("slug") or "").strip()
         if want and want != camp.get("slug"):
@@ -210,6 +217,15 @@ def apply_datavic_enrichment(camps):
         apply_row_facts(camp, extra)
         camp["enriched"] = True
         applied += 1
+    gone = []
+    for key, extra in overlay.items():
+        if key in present or not isinstance(extra, dict): continue
+        name = str(extra.get("name") or extra.get("slug") or key).strip()
+        slug_name = str(extra.get("slug") or "").strip()
+        label = f"{name} ({key})" if not slug_name or slug_name == name else f"{name} / {slug_name} ({key})"
+        gone.append(label)
+    if gone:
+        print(f"WARN datavic enrichment: {len(gone)} overlay site(s) no longer in the feed, so no page was built: {', '.join(gone)}", file=sys.stderr)
     print(f"DataVic enrichment applied to {applied} camps, {mismatches} slug mismatches")
     return applied
 def load_osm(seen):

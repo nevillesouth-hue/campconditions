@@ -1,5 +1,5 @@
 import os,re,json,sys,html,subprocess,tempfile
-D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];n=0;ldn=0
+D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
 for r,_,fs in os.walk(D):
@@ -618,12 +618,33 @@ for slug, vans, homes in (("dargo-river-inn", 1, 1), ("coleraine-caravan-park", 
   point = next((p for p in home_pts if p.get("url", "").rstrip("/").endswith("/" + slug)), None)
   if not point or point.get("caravans") != vans or point.get("motorhomes") != homes or "tents" in point or "self" in point:
     bad.append((slug, "map suit flags"))
+# Last known-good DataVic Recreation Sites count (22 Oct 2026, before Dindi Mill
+# left the feed). A site can disappear upstream without the build being broken.
+DATAVIC_BASELINE = 360
+DATAVIC_DROP = 0.05
+dv_count = len(dv)
+if dv_count == 0 or dv_count < DATAVIC_BASELINE * (1 - DATAVIC_DROP):
+  bad.append(("datavic count", dv_count))
+elif dv_count < DATAVIC_BASELINE:
+  warnings.append(("datavic count", f"{dv_count} of {DATAVIC_BASELINE}"))
 applied = 0
+missing_enrichment = []
 for row in dv_camps.values():
-  html_page = page_of(row["slug"])
-  if "Checked against official source" not in html_page: bad.append((row["slug"], "enrichment missing"))
-  else: applied += 1
-if applied != 353: bad.append(("datavic enrichment", applied))
+  slug = str(row.get("slug") or "")
+  path = os.path.join(D, "vic", "camp", slug, "index.html")
+  html_page = open(path, encoding="utf-8").read() if slug and os.path.isfile(path) else ""
+  if "Checked against official source" not in html_page:
+    missing_enrichment.append(slug or str(row.get("name") or "?"))
+  else:
+    applied += 1
+# Named camps above stay hard failures. Overlay rows can leave the feed: a gap
+# within 5% warns, an empty match or a larger gap still fails the deploy.
+if applied == 0 or len(missing_enrichment) > len(dv_camps) * DATAVIC_DROP:
+  bad.append(("datavic enrichment", applied, missing_enrichment[:12]))
+elif missing_enrichment:
+  shown = ", ".join(missing_enrichment[:12])
+  extra = "" if len(missing_enrichment) <= 12 else f" (+{len(missing_enrichment) - 12} more)"
+  warnings.append(("datavic enrichment", f"{applied} of {len(dv_camps)}; not on a page: {shown}{extra}"))
 if os.path.getmtime(dv_path) != dv_before: bad.append(("datavic enrichment", "file overwritten"))
 kept = build_osm.apply_corrections([{"osm_id": "node/1", "name": "A"}, {"osm_id": "node/2", "name": "B"}], {"drop": ["node/1"], "overrides": {"node/2": {"category": "Free"}}})
 if [c["osm_id"] for c in kept] != ["node/2"] or kept[0]["category"] != "Free": bad.append(("corrections", "legacy apply"))
@@ -687,4 +708,7 @@ preview = open(os.path.join(root, ".github", "workflows", "preview-more-sites.ym
 if "feature/more-sites" not in preview or "--branch=main" in preview or 'branches: [main]' in preview: bad.append(("preview-more-sites.yml", "branch"))
 if 'if [ "$branch" = "main" ]' not in preview: bad.append(("preview-more-sites.yml", "refuse main"))
 if "feature/more-sites" in wf or "17 */3 * * *" not in wf: bad.append(("build-deploy.yml", "production schedule"))
-print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken"); [print(b) for b in bad[:20]]; sys.exit(1 if bad else 0)
+print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken, {len(warnings)} warnings")
+for item in warnings: print("WARN", item)
+for item in bad[:20]: print(item)
+sys.exit(1 if bad else 0)

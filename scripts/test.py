@@ -55,6 +55,7 @@ if 'action="/api/subscribe"' not in home or "nothing was sent" in home or 'id="n
 vic=open(os.path.join(D,"vic","index.html"), encoding="utf-8").read()
 home_pts, vic_pts=expect_map("/", home, True), expect_map("/vic/", vic, True)
 if len(home_pts)!=len(feed["camps"]) or len(vic_pts)!=len(feed["camps"]): bad.append(("overview", "map count"))
+if not home_pts or not home_pts[0].get("slug"): bad.append(("overview", "map slug"))
 home_urls={p["url"] for p in home_pts}
 if home_urls!={c["url"].replace("https://campconditions.au","") for c in feed["camps"]}: bad.append(("overview","map urls"))
 by_point = {p["url"]: p for p in home_pts}
@@ -329,6 +330,21 @@ if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' 
   bad.append(("about", "newsletter button"))
 if 'id="a2hs"' not in home or "campconditions-a2hs" not in home or "localStorage.getItem" not in home or "Add to Home Screen." not in home or "Add to Home screen or Install app." not in home or "iPad|iPhone|iPod" not in home or "/Android/i" not in home or "display-mode: standalone" not in home:
   bad.append(("/", "home screen tip"))
+if "in Safari, tap Share, then Add to Home Screen." not in home or "in Chrome, tap the menu" not in home:
+  bad.append(("/", "home screen steps"))
+if 'id="share-page"' not in home or "navigator.share" not in home or "clipboard.writeText" not in home or "Copy this link" not in home:
+  bad.append(("/", "share"))
+if 'id="updated-line"' not in home or 'id="refresh-data"' not in home or "Updated " not in home or 'id="count-closed"' not in home:
+  bad.append(("/", "updated line"))
+if 'cache: "no-store"' not in home or "/status.json?v=" not in home or "visibilitychange" not in home or "pageshow" not in home or 'name="campconditions-built"' not in home:
+  bad.append(("/", "fresh status"))
+if "campApplyStatus" not in mj or "applyLiveStatus" not in mj:
+  bad.append(("map.js", "live status"))
+if 'name="apple-mobile-web-app-capable"' not in home or 'name="apple-mobile-web-app-title"' not in home or 'name="mobile-web-app-capable"' not in home or 'name="apple-mobile-web-app-status-bar-style"' not in home:
+  bad.append(("/", "apple web app"))
+headers = open(os.path.join(D, "_headers"), encoding="utf-8").read()
+if "/status.json" not in headers or "/vic/*" not in headers or headers.count("Cache-Control: no-cache") < 8 or "/assets/" in headers:
+  bad.append(("_headers", "no-cache"))
 if home.find('href="/report/">Report conditions') < 0 or home.find('href="/about/">About') < home.find('href="/report/">Report conditions'):
   bad.append(("/", "about nav"))
 if "flex:1 0 100%;flex-wrap:nowrap" not in home:
@@ -565,7 +581,8 @@ def must(slug, html_page, bits):
   for bit in bits:
     if bit not in html_page: bad.append((slug, "missing " + bit))
 king = page_of("king-hut-alpine-np")
-must("king-hut-alpine-np", king, ["Drinking water: No", "Dogs: No", "<strong>Free</strong>", "bring your own drinking water", "Checked against official source, 18 October 2026", ">official source</a>", "parks.vic.gov.au"])
+must("king-hut-alpine-np", king, ["Drinking water: No", "Dogs: No", "<strong>Free</strong>", "bring your own drinking water", "Checked against official source, 18 October 2026", ">official source</a>", "parks.vic.gov.au", 'data-camp="king-hut-alpine-np"', 'id="checked-line"', 'id="refresh-data"'])
+if 'id="camp-closure"' in king: bad.append(("king-hut-alpine-np", "osm closure block"))
 if "Unverified, help us confirm" in king: bad.append(("king-hut-alpine-np", "still unverified"))
 if "$" in king.split('id="newsletter"')[0]: bad.append(("king-hut-alpine-np", "fee amount"))
 dargo = page_of("dargo-river-inn")
@@ -613,7 +630,7 @@ if not avondale or avondale.get("status") != "closed" or avondale.get("source") 
   bad.append(("avondale-gardens", "closure changed"))
 else:
   av_html = page_of("avondale-gardens")
-  must("avondale-gardens", av_html, ['class="badge closed"', "<strong>Closed:</strong>", "<strong>Free</strong>", "Dogs: Yes"])
+  must("avondale-gardens", av_html, ['class="badge closed"', "<strong>Closed:</strong>", "<strong>Free</strong>", "Dogs: Yes", 'id="camp-closure"', 'data-camp="avondale-gardens"'])
 for slug, vans, homes in (("dargo-river-inn", 1, 1), ("coleraine-caravan-park", 1, 1)):
   point = next((p for p in home_pts if p.get("url", "").rstrip("/").endswith("/" + slug)), None)
   if not point or point.get("caravans") != vans or point.get("motorhomes") != homes or "tents" in point or "self" in point:

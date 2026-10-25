@@ -341,26 +341,26 @@ camps.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
-header{background:var(--g);color:#fff}.banner{max-width:1120px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:.45rem .85rem}
+header{background:var(--g);color:#fff}.banner{max-width:1120px;margin:0 auto;padding:.45rem 1rem .35rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:.15rem 0}
+.banner-row{display:flex;align-items:center;justify-content:flex-start;width:100%;min-width:0;flex:1 0 100%;flex-wrap:nowrap;gap:.25rem .5rem}
 .brand{order:0;flex:0 0 auto;min-width:0;max-width:100%;color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap}
 .logo{width:4.8rem;height:4.8rem;flex:0 0 auto;display:block;object-fit:contain}
-nav{order:1;flex:0 0 auto;display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.35rem 1.05rem}
+nav{flex:1 1 auto;min-width:0;display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.3rem .85rem}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
-.digest-cta{order:2;margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:.4rem;background:#f6c445;color:#1a1208;text-decoration:none;font-weight:700;font-size:.95rem;line-height:1.1;padding:.4rem .75rem;border-radius:8px;white-space:nowrap;min-height:40px}
+.digest-cta{order:2;margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:.32rem;background:#f6c445;color:#1a1208;text-decoration:none;font-weight:700;font-size:.76rem;line-height:1.1;padding:.32rem .6rem;border-radius:6px;white-space:nowrap;min-height:32px}
 .digest-cta:hover{background:#ffd36a;color:#1a1208}
 .digest-cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.digest-icon{display:block;flex:0 0 auto}
-.digest-cta-short{display:none}
-.banner-tools{order:2;margin-left:auto;flex:0 0 auto;display:flex;flex-wrap:nowrap;align-items:center;gap:.35rem .55rem;max-width:100%}
-.banner-tools .digest-cta,.banner-tools .share-btn{order:0;margin-left:0}
+.digest-icon{display:block;flex:0 0 auto;width:14px;height:14px}
+.digest-cta-short,.digest-cta-narrow{display:none}
 .soon{margin:0;padding:6px 1rem;text-align:center;font-size:16px;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
 .soon-sep{font-weight:700}
 @media (max-width:720px){.soon{font-size:15px;padding:6px .5rem;white-space:nowrap}}
 @media (max-width:360px){.soon{white-space:normal}}
-@media (max-width:1180px) and (min-width:861px){.brand{flex:1 0 100%;font-size:clamp(1.35rem,2.6vw,2rem)}.digest-cta{order:1;margin-left:0}nav{order:3;width:100%;flex:1 0 100%}}
-@media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:row;align-items:center}.brand{flex:1 0 100%;min-width:0;font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}.digest-cta{order:1;margin-left:0}nav{order:2;width:100%;flex:1 0 100%;flex-wrap:nowrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
-@media (max-width:640px){.banner{padding-left:.55rem;padding-right:.55rem}.brand{font-size:clamp(.78rem,3.55vw,1.15rem)}.digest-cta{font-size:.78rem;gap:.25rem;padding:.3rem .45rem;min-height:36px}.digest-icon{width:16px;height:16px}.digest-cta-long{display:none}.digest-cta-short{display:inline}}
-@media (max-width:380px){.brand{font-size:clamp(.64rem,3.2vw,.88rem)}.digest-cta{font-size:.72rem;padding:.26rem .38rem}}
+@media (max-width:860px){.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{gap:.2rem .55rem}nav a{font-size:clamp(.78rem,2.4vw,.95rem)}}
+@media (max-width:720px){.banner{padding-left:.55rem;padding-right:.55rem}.brand{font-size:clamp(1.2rem,4.7vw,2.4rem);gap:.3rem}}
+@media (max-width:640px){.digest-cta-long{display:none}.digest-cta-short{display:inline}}
+@media (max-width:420px){.brand{font-size:clamp(1.12rem,5vw,1.35rem)}.digest-cta{padding:.2rem .4rem;gap:.2rem;min-height:0}.digest-cta-short{display:none}.digest-cta-narrow{display:inline}nav{gap:.12rem .32rem}nav a{font-size:.74rem}}
+@media (max-width:370px){nav{gap:.1rem .26rem}nav a{font-size:.7rem}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
 .page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem .75rem;margin:.1rem 0 .15rem}
 .page-head h1{margin:0;flex:1 1 auto}.head-counts{margin:0;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
@@ -445,11 +445,9 @@ a.back-map:focus-visible{outline:3px solid var(--g);outline-offset:2px}
 .a2hs[hidden]{display:none !important}
 .a2hs p{margin:.35rem 0}
 .a2hs button{flex:0 0 auto;background:transparent;color:#222;border:0;box-shadow:none;width:44px;height:44px;padding:0;font-size:1.5rem;line-height:1}
-.share-btn{order:3;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:.3rem;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.75);border-radius:8px;font-weight:700;font-size:.85rem;line-height:1;padding:.35rem .7rem;min-height:44px;box-shadow:none;cursor:pointer}
-.share-btn svg{display:block;flex:0 0 auto}
+.share-btn{margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:.2rem;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.75);border-radius:5px;font-weight:700;font-size:.72rem;line-height:1.1;padding:.12rem .4rem;min-height:0;box-shadow:none;cursor:pointer}
+.share-btn svg{display:block;flex:0 0 auto;width:11px;height:11px}
 .share-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
-@media (max-width:1180px){.banner-tools{order:1;margin-left:0}.share-btn{order:1;margin-left:.35rem}}
-@media (max-width:640px){.share-btn{width:44px;padding:0}.share-label{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.share-btn.share-done{width:auto;padding:.35rem .6rem}.share-btn.share-done .share-label{position:static;width:auto;height:auto;overflow:visible;clip:auto}}
 .freshness{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:.5rem;margin:0;padding:.15rem .75rem;background:#fff;border-bottom:1px solid #e3e0d6;font-size:.8rem;line-height:1.2;color:#222}
 #updated-line{font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .refresh-btn{flex:0 0 auto;background:#fff;color:var(--g);border:1px solid var(--g);border-radius:5px;font-weight:700;font-size:.72rem;line-height:1.1;padding:.12rem .4rem;min-height:0;box-shadow:none;cursor:pointer}
@@ -514,7 +512,7 @@ SHARE_JS = r"""<script>
 </script>"""
 def banner(on_home=False):
     href = "#newsletter" if on_home else "/#newsletter"
-    return f"""<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><div class="banner-tools"><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span></a><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>""" + SHARE_JS
+    return f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span></a></div><div class="banner-row"><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>""" + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
 <meta name="apple-mobile-web-app-capable" content="yes">

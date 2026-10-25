@@ -355,6 +355,9 @@ if ".filter-status{display:flex;flex-direction:column" not in home:
   bad.append(("/", "phone filter count"))
 if "Add to Home Screen." not in about or "Add to Home screen or Install app." not in about:
   bad.append(("about", "home screen"))
+contact = 'Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>'
+if about.find(contact) < 0 or about.find(contact) < about.find("Optimum Quest for Big Things") or about.find("Not an official warning service") < about.find(contact):
+  bad.append(("about", "contact line"))
 if "Find nearby toilets" not in about or "https://toiletmap.gov.au/" not in about or "Australian Government" not in about or "National Public Toilet Map" not in about:
   bad.append(("about", "toilet map"))
 if "Check road closures" not in about or 'href="https://traffic.transport.vic.gov.au/"' not in about or "VicTraffic" not in about or "Victorian Government" not in about or "official live map of road closures and incidents" not in about or "Check it before you head out." not in about:

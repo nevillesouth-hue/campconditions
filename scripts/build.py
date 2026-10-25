@@ -341,24 +341,26 @@ camps.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
-header{background:var(--g);color:#fff}.banner{max-width:1120px;margin:0 auto;padding:.7rem 1rem;display:flex;flex-wrap:nowrap;align-items:center;justify-content:flex-start;gap:.45rem .85rem}
-.brand{order:0;flex:0 1 auto;min-width:0;color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap;max-width:100%}
+header{background:var(--g);color:#fff}.banner{max-width:1120px;margin:0 auto;padding:.45rem 1rem .35rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:.15rem 0}
+.banner-row{display:flex;align-items:center;justify-content:flex-start;width:100%;min-width:0;flex:1 0 100%;flex-wrap:nowrap;gap:.25rem .5rem}
+.brand{order:0;flex:0 0 auto;min-width:0;max-width:100%;color:#fff;text-decoration:none;font-weight:700;font-size:2.4rem;line-height:1.05;display:inline-flex;align-items:center;gap:.45rem;white-space:nowrap}
 .logo{width:4.8rem;height:4.8rem;flex:0 0 auto;display:block;object-fit:contain}
-nav{order:1;display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.35rem 1.05rem}
+nav{flex:1 1 auto;min-width:0;display:flex;flex-wrap:nowrap;justify-content:flex-start;align-items:center;gap:.3rem .85rem}
 nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-space:nowrap}
-.digest-cta{order:2;margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:.4rem;background:#f6c445;color:#1a1208;text-decoration:none;font-weight:700;font-size:.95rem;line-height:1.1;padding:.4rem .75rem;border-radius:8px;white-space:nowrap;min-height:40px}
+.digest-cta{order:2;margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:.32rem;background:#f6c445;color:#1a1208;text-decoration:none;font-weight:700;font-size:.76rem;line-height:1.1;padding:.32rem .6rem;border-radius:6px;white-space:nowrap;min-height:32px}
 .digest-cta:hover{background:#ffd36a;color:#1a1208}
 .digest-cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.digest-icon{display:block;flex:0 0 auto}
-.digest-cta-short{display:none}
+.digest-icon{display:block;flex:0 0 auto;width:14px;height:14px}
+.digest-cta-short,.digest-cta-narrow{display:none}
 .soon{margin:0;padding:6px 1rem;text-align:center;font-size:16px;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
 .soon-sep{font-weight:700}
 @media (max-width:720px){.soon{font-size:15px;padding:6px .5rem;white-space:nowrap}}
 @media (max-width:360px){.soon{white-space:normal}}
-@media (max-width:1040px) and (min-width:861px){.brand{font-size:clamp(1.15rem,2.35vw,2rem)}}
-@media (max-width:860px){.banner{flex-wrap:wrap;flex-direction:row;align-items:center}.brand{flex:1 1 0;min-width:0;font-size:clamp(1.05rem,5.15vw,2.4rem)}.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}.digest-cta{order:1;margin-left:.35rem}nav{order:2;width:100%;flex:1 0 100%;flex-wrap:nowrap;justify-content:flex-start;gap:.35rem .7rem}nav a{font-size:clamp(.8rem,3.1vw,.95rem)}}
-@media (max-width:640px){.banner{padding-left:.55rem;padding-right:.55rem}.brand{font-size:clamp(.78rem,3.55vw,1.15rem)}.digest-cta{font-size:.78rem;gap:.25rem;padding:.3rem .45rem;min-height:36px}.digest-icon{width:16px;height:16px}.digest-cta-long{display:none}.digest-cta-short{display:inline}}
-@media (max-width:380px){.brand{font-size:clamp(.64rem,3.2vw,.88rem)}.digest-cta{font-size:.72rem;padding:.26rem .38rem}}
+@media (max-width:860px){.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{gap:.2rem .55rem}nav a{font-size:clamp(.78rem,2.4vw,.95rem)}}
+@media (max-width:720px){.banner{padding-left:.55rem;padding-right:.55rem}.brand{font-size:clamp(1.2rem,4.7vw,2.4rem);gap:.3rem}}
+@media (max-width:640px){.digest-cta-long{display:none}.digest-cta-short{display:inline}}
+@media (max-width:420px){.brand{font-size:clamp(1.12rem,5vw,1.35rem)}.digest-cta{padding:.2rem .4rem;gap:.2rem;min-height:0}.digest-cta-short{display:none}.digest-cta-narrow{display:inline}nav{gap:.12rem .32rem}nav a{font-size:.74rem}}
+@media (max-width:370px){nav{gap:.1rem .26rem}nav a{font-size:.7rem}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
 .page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem .75rem;margin:.1rem 0 .15rem}
 .page-head h1{margin:0;flex:1 1 auto}.head-counts{margin:0;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
@@ -443,11 +445,80 @@ a.back-map:focus-visible{outline:3px solid var(--g);outline-offset:2px}
 .a2hs[hidden]{display:none !important}
 .a2hs p{margin:.35rem 0}
 .a2hs button{flex:0 0 auto;background:transparent;color:#222;border:0;box-shadow:none;width:44px;height:44px;padding:0;font-size:1.5rem;line-height:1}
+.share-btn{margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:.2rem;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.75);border-radius:5px;font-weight:700;font-size:.72rem;line-height:1.1;padding:.12rem .4rem;min-height:0;box-shadow:none;cursor:pointer}
+.share-btn svg{display:block;flex:0 0 auto;width:11px;height:11px}
+.share-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.freshness{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:.5rem;margin:0;padding:.15rem .75rem;background:#fff;border-bottom:1px solid #e3e0d6;font-size:.8rem;line-height:1.2;color:#222}
+#updated-line{font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.refresh-btn{flex:0 0 auto;background:#fff;color:var(--g);border:1px solid var(--g);border-radius:5px;font-weight:700;font-size:.72rem;line-height:1.1;padding:.12rem .4rem;min-height:0;box-shadow:none;cursor:pointer}
+.refresh-btn:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+html.standalone .freshness{position:sticky;top:0;z-index:45}
+html.standalone .refresh-btn{background:var(--g);color:#fff}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
+SHARE_JS = r"""<script>
+(function () {
+  var btn = document.getElementById("share-page");
+  if (!btn) return;
+  function flash(message) {
+    var label = btn.querySelector(".share-label");
+    if (!label) return;
+    var prev = label.textContent;
+    label.textContent = message;
+    btn.classList.add("share-done");
+    setTimeout(function () {
+      label.textContent = prev;
+      btn.classList.remove("share-done");
+    }, 1600);
+  }
+  function legacyCopy(url, done) {
+    var area = document.createElement("textarea");
+    area.value = url;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.top = "0";
+    area.style.left = "0";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
+    document.body.removeChild(area);
+    if (ok) done();
+    else window.prompt("Copy this link", url);
+  }
+  function copyLink(url) {
+    var done = function () { flash("Link copied"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(done).catch(function () { legacyCopy(url, done); });
+      return;
+    }
+    legacyCopy(url, done);
+  }
+  btn.addEventListener("click", function () {
+    var canon = document.querySelector('link[rel="canonical"]');
+    var url = (canon && canon.href) ? canon.href : String(location.href || "").split("#")[0];
+    var payload = { title: document.title || "CampConditions.au", url: url };
+    if (navigator.share) {
+      navigator.share(payload).catch(function (err) {
+        if (err && err.name === "AbortError") return;
+        copyLink(url);
+      });
+      return;
+    }
+    copyLink(url);
+  });
+})();
+</script>"""
 def banner(on_home=False):
     href = "#newsletter" if on_home else "/#newsletter"
-    return f"""<header><div class="banner"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span></a><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>"""
+    return f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span></a></div><div class="banner-row"><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>""" + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#113521">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CampConditions.au">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta property="og:image" content="https://campconditions.au/assets/brand/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image.png">"""
 
@@ -465,8 +536,8 @@ A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type=
   var iOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var android = /Android/i.test(ua);
   var text = "";
-  if (iOS) text = "Add CampConditions to your home screen: tap Share, then Add to Home Screen.";
-  else if (android) text = "Add CampConditions to your home screen: tap the menu \\u22ee, then Add to Home screen or Install app.";
+  if (iOS) text = "On iPhone or iPad: in Safari, tap Share, then Add to Home Screen.";
+  else if (android) text = "On Android: in Chrome, tap the menu \\u22ee, then Add to Home screen or Install app.";
   else return;
   document.getElementById("a2hs-text").textContent = text;
   tip.hidden = false;
@@ -476,11 +547,264 @@ A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type=
   });
 })();
 </script>"""
+STANDALONE_BOOT = """<script>try{if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true)document.documentElement.classList.add("standalone")}catch(e){}</script>"""
+FRESH_BAR = f'<p class="freshness" id="freshness" role="status"><span id="updated-line">Updated {STAMP}</span><button type="button" class="refresh-btn" id="refresh-data" aria-label="Refresh camp data">Refresh</button></p>'
+FRESH_JS = r"""<script>
+(function () {
+  var meta = document.querySelector('meta[name="campconditions-built"]');
+  var embedded = meta ? meta.getAttribute("content") || "" : "";
+  var line = document.getElementById("updated-line");
+  var button = document.getElementById("refresh-data");
+  var PV = "__PV_LABEL__";
+  var appliedAt = 0;
+  var lastStarted = 0;
+  var inflight = null;
+  function timeOf(value) {
+    var t = Date.parse(value || "");
+    return isNaN(t) ? 0 : t;
+  }
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function (ch) {
+      return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[ch];
+    });
+  }
+  function melbourneStamp(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return "";
+    try {
+      var date = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Melbourne", day: "numeric", month: "long", year: "numeric" }).format(d);
+      var time = new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Melbourne", hour: "numeric", minute: "2-digit", hour12: true }).format(d);
+      time = time.replace(/\s*([ap])\.?m\.?$/i, function (_, ap) { return " " + ap.toUpperCase() + "M"; });
+      var tz = "AEDT";
+      new Intl.DateTimeFormat("en-AU", { timeZone: "Australia/Melbourne", timeZoneName: "short" }).formatToParts(d).forEach(function (part) {
+        if (part.type === "timeZoneName" && part.value) tz = part.value;
+      });
+      return date + ", " + time + " " + tz;
+    } catch (err) {
+      return "";
+    }
+  }
+  function badgeText(c) {
+    if (c.source === "osm" && c.category === "Showground") return "Call first";
+    if (c.source === "osm" && c.category === PV) return "Book ahead";
+    if (c.source === "osm") return "Check with operator";
+    if (c.status === "closed") return "Closed";
+    if (c.status === "check") return "Check conditions";
+    return "No known issues";
+  }
+  function setBadge(el, c) {
+    if (!el || !c || !c.status) return;
+    el.className = "badge " + c.status;
+    el.textContent = badgeText(c);
+  }
+  function listNote(c) {
+    if (c.source === "osm") {
+      if (c.category === "Showground") return "Call first";
+      if (c.category === PV) return "Book ahead — Parks Victoria";
+      if (c.category === "Pub stay") return "Pub stay — check with the pub";
+      return "Conditions: check with operator";
+    }
+    var desc = c.closure && c.closure.desc ? c.closure.desc : "";
+    if (desc) return desc;
+    if (c.nearby && c.nearby.length) return c.nearby.length + " road closures nearby";
+    return "";
+  }
+  function closureHtml(c) {
+    if (!c || c.source === "osm") return null;
+    var parts = [];
+    var cl = c.closure || null;
+    if (cl) {
+      var label = cl.desc || cl.reason || "Full closure";
+      var reopen = cl.reopen ? " · Reopens " + esc(String(cl.reopen).slice(0, 10)) : " ";
+      parts.push('<div class="warn"><strong>Closed:</strong> ' + esc(label) + reopen + "</div>");
+      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(String(cl.reopen || "").slice(0, 10)) + ') has passed. Check <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> or call 13 1963 before you go.</div>');
+    }
+    var nearby = c.nearby || [];
+    if (nearby.length) {
+      var items = nearby.map(function (x) {
+        var bit = esc(x.type || "");
+        if (x.name) bit += ": " + esc(x.name);
+        if (x.reason) bit += " — " + esc(x.reason);
+        if (x.reopens) bit += " · reopens " + esc(x.reopens);
+        return "<li>" + bit + "</li>";
+      }).join("");
+      parts.push("<h2>Road and track closures within 5 km</h2><ul>" + items + "</ul>");
+    }
+    return parts.join("") || "<p>No closure is recorded for this campground, and no " + "road or track closures were found within 5 km.</p>";
+  }
+  function indexFeed(feed) {
+    var map = {};
+    (feed.camps || []).forEach(function (c) {
+      if (!c || !c.slug) return;
+      map[c.slug] = {
+        status: c.status,
+        note: c.closure && c.closure.outdated ? "Closure record may be outdated" : "",
+        source: c.source,
+        category: c.category,
+        closure: c.closure || null,
+        nearby: c.nearby_closures || [],
+        region: c.region
+      };
+    });
+    return map;
+  }
+  function slugFromUrl(url) {
+    var match = String(url || "").match(/\/vic\/camp\/([^/]+)/);
+    return match ? decodeURIComponent(match[1]) : "";
+  }
+  function readPoints() {
+    var raw = document.getElementById("camp-map-data");
+    if (!raw) return [];
+    try { return JSON.parse(raw.textContent); } catch (err) { return []; }
+  }
+  function statusesDiffer(bySlug) {
+    var points = readPoints();
+    for (var i = 0; i < points.length; i++) {
+      var fresh = bySlug[points[i].slug || slugFromUrl(points[i].url)];
+      if (!fresh || !fresh.status) continue;
+      if (fresh.status !== points[i].status) return true;
+      if ((fresh.note || "") !== (points[i].note || "")) return true;
+    }
+    var camp = document.querySelector("[data-camp]");
+    if (camp) {
+      var live = bySlug[camp.getAttribute("data-camp")];
+      var badge = camp.querySelector(".badge");
+      if (live && badge && live.status && !badge.classList.contains(live.status)) return true;
+    }
+    return false;
+  }
+  function writePoints(bySlug) {
+    var raw = document.getElementById("camp-map-data");
+    if (!raw) return;
+    var points = readPoints();
+    points.forEach(function (p) {
+      var fresh = bySlug[p.slug || slugFromUrl(p.url)];
+      if (!fresh || !fresh.status) return;
+      p.status = fresh.status;
+      if (fresh.note) p.note = fresh.note;
+      else delete p.note;
+    });
+    raw.textContent = JSON.stringify(points).replace(/</g, "\\u003c");
+  }
+  function patch(feed, bySlug) {
+    var stamp = melbourneStamp(feed.generated) || feed.generated;
+    if (line) line.textContent = "Updated " + stamp;
+    var shell = document.getElementById("shell-built");
+    if (shell) shell.textContent = stamp;
+    var checked = document.getElementById("checked-line");
+    if (checked) checked.textContent = "Checked " + stamp;
+    document.querySelectorAll("[data-camp]").forEach(function (el) {
+      setBadge(el.querySelector(".badge"), bySlug[el.getAttribute("data-camp")]);
+    });
+    document.querySelectorAll("tr[data-slug]").forEach(function (row) {
+      var c = bySlug[row.getAttribute("data-slug")];
+      if (!c) return;
+      row.setAttribute("data-status", c.status || "");
+      setBadge(row.querySelector(".camp-badge .badge"), c);
+      var note = row.querySelector(".camp-note");
+      if (note) note.textContent = listNote(c);
+    });
+    var closure = document.getElementById("camp-closure");
+    var campEl = document.querySelector("[data-camp]");
+    if (closure && campEl) {
+      var html = closureHtml(bySlug[campEl.getAttribute("data-camp")]);
+      if (html != null) closure.innerHTML = html;
+    }
+    var closedN = 0;
+    var checkN = 0;
+    var tally = {};
+    (feed.camps || []).forEach(function (c) {
+      if (c.status === "closed") closedN += 1;
+      else if (c.status === "check") checkN += 1;
+      var row = tally[c.region] || (tally[c.region] = { n: 0, closed: 0, check: 0 });
+      row.n += 1;
+      if (c.status === "closed") row.closed += 1;
+      else if (c.status === "check") row.check += 1;
+    });
+    var closedEl = document.getElementById("count-closed");
+    var checkEl = document.getElementById("count-check");
+    if (closedEl) closedEl.textContent = closedN + " closed";
+    if (checkEl) checkEl.textContent = checkN + " to check";
+    document.querySelectorAll("[data-region]").forEach(function (card) {
+      var row = tally[card.getAttribute("data-region")];
+      var el = card.querySelector(".region-counts");
+      if (!row || !el) return;
+      el.textContent = row.n + " campgrounds · " + row.closed + " closed · " + row.check + " to check";
+    });
+    writePoints(bySlug);
+    window.__campStatusPending = bySlug;
+    if (window.campApplyStatus) window.campApplyStatus(bySlug);
+    if (meta && feed.generated) meta.setAttribute("content", feed.generated);
+    embedded = feed.generated || embedded;
+  }
+  function applyFeed(feed) {
+    window.__campPatched = false;
+    if (!feed || !feed.generated) return false;
+    var next = timeOf(feed.generated);
+    if (next && appliedAt && next < appliedAt) return false;
+    var bySlug = indexFeed(feed);
+    var embeddedTime = timeOf(embedded);
+    var newer = !!(next && (!embeddedTime || next > embeddedTime + 999));
+    var older = !!(next && embeddedTime && next + 999 < embeddedTime);
+    if (older) return false;
+    if (!(newer || statusesDiffer(bySlug))) return false;
+    if (next) appliedAt = next;
+    patch(feed, bySlug);
+    window.__campPatched = true;
+    return true;
+  }
+  function loadStatus(force) {
+    var now = Date.now();
+    if (!force && inflight) return inflight;
+    if (!force && now - lastStarted < 2000) return inflight || Promise.resolve(window.__campFeed || null);
+    lastStarted = now;
+    var run = fetch("/status.json?v=" + now, {
+      cache: "no-store",
+      headers: { accept: "application/json", "cache-control": "no-cache", pragma: "no-cache" }
+    }).then(function (res) {
+      if (!res.ok) throw new Error("status");
+      return res.json();
+    }).then(function (feed) {
+      window.__campFeed = feed;
+      applyFeed(feed);
+      return feed;
+    }).catch(function () {
+      return null;
+    }).finally(function () {
+      if (inflight === run) inflight = null;
+    });
+    inflight = run;
+    return run;
+  }
+  loadStatus(false);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") loadStatus(false);
+  });
+  window.addEventListener("pageshow", function () {
+    if (document.visibilityState !== "hidden") loadStatus(false);
+  });
+  if (button) {
+    button.addEventListener("click", function () {
+      button.disabled = true;
+      button.textContent = "Refreshing";
+      loadStatus(true).then(function (feed) {
+        button.textContent = !feed ? "Retry" : (window.__campPatched ? "Refreshed" : "Up to date");
+      }).then(function () {
+        setTimeout(function () {
+          button.disabled = false;
+          button.textContent = "Refresh";
+        }, 1400);
+      });
+    });
+  }
+})();
+</script>""".replace("__PV_LABEL__", PV_LABEL)
 def footer():
     return f"""<footer><p>{e(CREDIT)}</p>
 <p><strong>Data and attribution.</strong> Campground details from DataVic (<a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a> and Recreation Assets) and <a href="https://www.exploreoutdoors.vic.gov.au/">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
-<p>Site built {STAMP}. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
-{A2HS}"""
+<p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
+{A2HS}
+{FRESH_JS}"""
 def vicemergency_url(lat, lon):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
     pad = 0.2
@@ -507,7 +831,7 @@ def map_points(items):
     pts = []
     for c in items:
         cl = c.get("closure") or {}
-        pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": f"/vic/camp/{c['slug']}/", "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
+        pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": f"/vic/camp/{c['slug']}/", "slug": c["slug"], "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
         if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
         for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
             value = c.get(field)
@@ -599,6 +923,38 @@ MAP_JS = r"""(function () {
     var title = p.name + (p.note ? " — " + p.note : "");
     return L.marker([p.lat, p.lon], {icon: icon(p.status), title: title}).bindPopup(popup(p));
   });
+  function slugOf(p) {
+    if (p.slug) return p.slug;
+    var m = String(p.url || "").match(/\/vic\/camp\/([^/]+)/);
+    return m ? m[1] : "";
+  }
+  function applyLiveStatus(bySlug) {
+    if (!bySlug) return;
+    data.forEach(function (p, i) {
+      var fresh = bySlug[slugOf(p)];
+      if (!fresh || !fresh.status) return;
+      var note = fresh.note || "";
+      if (p.status === fresh.status && (p.note || "") === note) return;
+      p.status = fresh.status;
+      if (note) p.note = note;
+      else delete p.note;
+      var marker = markers[i];
+      if (!marker) return;
+      marker.setIcon(icon(p.status));
+      marker.setPopupContent(popup(p));
+      var title = p.name + (p.note ? " — " + p.note : "");
+      marker.options.title = title;
+      var node = marker.getElement && marker.getElement();
+      if (node) node.setAttribute("title", title);
+    });
+    document.querySelectorAll("#camp-list tbody tr[data-slug]").forEach(function (row) {
+      var fresh = bySlug[row.getAttribute("data-slug")];
+      if (fresh && fresh.status) row.setAttribute("data-status", fresh.status);
+    });
+    if (group) redraw(false);
+  }
+  window.campApplyStatus = applyLiveStatus;
+  if (window.__campStatusPending) applyLiveStatus(window.__campStatusPending);
   if (small || typeof L.markerClusterGroup !== "function") {
     markers.forEach(function (m) { m.addTo(map); });
     if (markers.length === 1) map.setView([data[0].lat, data[0].lon], 13);
@@ -1028,12 +1384,16 @@ def external_blank(html):
     return re.sub(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>', repl, html)
 def page(path, title, desc, body, extra_ld=(), head="", foot=""):
     canon = SITE + path
+    built = NOW.isoformat()
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
 {ICONS}
+<meta name="campconditions-built" content="{built}">
+{STANDALONE_BOOT}
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
 {banner(path == "/")}
+{FRESH_BAR}
 <main>{body}</main>{footer()}{foot}</body></html>"""
     h = external_blank(h)
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
@@ -1128,7 +1488,7 @@ def list_note(c):
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
     return ""
 def row_attrs(c):
-    return (f'data-url="/vic/camp/{c["slug"]}/" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
+    return (f'data-slug="{e(c["slug"])}" data-url="/vic/camp/{c["slug"]}/" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
             f'data-dogs="{flag_attr(c,"fac_dogs")}" '
             f'data-caravans="{flag_attr(c,"fac_caravans")}" data-motorhomes="{flag_attr(c,"fac_motorhomes")}"')
 def yn(value):
@@ -1233,14 +1593,14 @@ n_osm = sum(c.get("source") == "osm" for c in camps)
 n_dv = len(camps) - n_osm
 
 # Home
-reg_cards = "".join(f'<div class="card"><a href="/vic/{k}/">{e(n)}</a><p class="muted">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
+reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/vic/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
 home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(camps)} sites in Victoria, Australia."},
            {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
            {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
              {"@type": "Question", "name": "How do I know if a free camp in Victoria is open?", "acceptedAnswer": {"@type": "Answer", "text": "DEECA Recreation Sites pages show the closure status and nearby Parks Victoria road and seasonal closures. OpenStreetMap campgrounds are not in that closure feed: the page says to check with the operator, and showgrounds say to call first. CampConditions.au does not republish VicEmergency warnings. Check VicEmergency, Parks Victoria and the Bureau of Meteorology before you travel. In an emergency call 000. The VicEmergency hotline is 1800 226 226."}},
              {"@type": "Question", "name": "How often is CampConditions.au updated?", "acceptedAnswer": {"@type": "Answer", "text": "The site rebuilds from DEECA and Parks Victoria sources several times a day. OpenStreetMap campgrounds and towns are refreshed weekly. Each page shows when it was built. Warning information is not included."}}]}]
 page("/", f"Victorian camp conditions — {len(camps)} sites | CampConditions.au", f"Closure status and nearby road closures for {len(camps)} Victorian campgrounds, including {n_osm} OpenStreetMap sites to check with the operator.",
- f"""<div class="page-head"><h1>Victorian camp conditions</h1><p class="head-counts"><span class="badge closed">{n_closed} closed</span> <span class="badge check">{n_check} to check</span></p></div><p>Closures, nearby road conditions and camper reports for <strong>{len(camps)}</strong> campgrounds across Victoria. <strong>{n_dv}</strong> are DEECA Recreation Sites with Parks Victoria closures. <strong>{n_osm}</strong> more are from OpenStreetMap — check with the operator, and call a showground first.</p>
+ f"""<div class="page-head"><h1>Victorian camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>Closures, nearby road conditions and camper reports for <strong>{len(camps)}</strong> campgrounds across Victoria. <strong>{n_dv}</strong> are DEECA Recreation Sites with Parks Victoria closures. <strong>{n_osm}</strong> more are from OpenStreetMap — check with the operator, and call a showground first.</p>
 {map_block(camps, "Map of Victorian campgrounds")}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
 <p>Weather warnings: <a href="https://www.bom.gov.au/vic/warnings/">check BOM's Victorian warnings</a>. Bushfire, flood and other emergency warnings: check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a> — they are not republished here.</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
 
@@ -1249,7 +1609,7 @@ page("/vic/", f"Victoria campground conditions — {len(camps)} sites | CampCond
 
 for k, (n, d) in REGIONS.items():
     lst = by_reg[k]
-    rows = "".join(f'<tr {row_attrs(c)}><td><a href="/vic/camp/{c["slug"]}/">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td>{badge(c)}</td><td>{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
+    rows = "".join(f'<tr {row_attrs(c)}><td><a href="/vic/camp/{c["slug"]}/">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
     il = {"@context": "https://schema.org", "@type": "ItemList", "name": f"Campgrounds in {n}, Victoria", "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}/vic/camp/{c['slug']}/", "name": c["name"]} for i, c in enumerate(lst)]}
     page(f"/vic/{k}/", f"{n} camps and campgrounds — {len(lst)} sites | CampConditions.au", f"{len(lst)} campgrounds in {n}, Victoria: closures, operator checks and facilities. {d}",
          f"<h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{map_block(lst, f'Map of {n} campgrounds')}{SAFETY}<table id=\"camp-list\"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or '<tr><td colspan=4>No campgrounds listed.</td></tr>'}</tbody></table>{NEWS}",
@@ -1275,8 +1635,8 @@ for c in camps:
         desc = f"{c['name']} in {rn}, Victoria. Conditions: check with the operator. Type: {c.get('category') or 'camp'}."
         dated = "Source: OpenStreetMap. Parks Victoria closure data is not applied to this site."
     else:
-        condition = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
-        condition += datavic_facts(c)
+        closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
+        condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
         title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
         desc = f"Is {c['name']} campground open? Current closure status and nearby road closures for {c['name']} in {rn}, Victoria."
         dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
@@ -1287,7 +1647,7 @@ for c in camps:
     if cl:
         lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}/vic/camp/{c['slug']}/"})
     page(f"/vic/camp/{c['slug']}/", title, desc,
-     f"""<p class="muted"><a href="/vic/">Victoria</a> › <a href="/vic/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1><p>{badge(c)} <span class="muted">Checked {STAMP}</span></p>
+     f"""<p class="muted"><a href="/vic/">Victoria</a> › <a href="/vic/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1><p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
@@ -1343,7 +1703,7 @@ page("/report/", "Report campground conditions | CampConditions.au", "Tell other
 <script>const p=new URLSearchParams(location.search).get('camp');if(p)document.getElementById('camp').value=p.replace(/-/g,' ');</script>""")
 page("/about/", "About CampConditions.au", "Who we are and where our data comes from.",
  f"""<h1>About</h1><p>CampConditions.au is a free digest of Victorian campground conditions, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href="https://www.youtube.com/@OptimumQuestforBigThings">Optimum Quest for Big Things</a>.</p>{SAFETY}
-<h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
+<h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p><p>Every camp page also has a Check road closures button. It opens <a href="https://traffic.transport.vic.gov.au/">VicTraffic</a>, the Victorian Government's official live map of road closures and incidents. Check it before you head out.</p>
 <h2>Sources</h2><p>{e(CREDIT)}</p><ul><li>Campground details from DataVic and Explore Outdoors © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. This includes Recreation Sites, Recreation Assets and Parks Victoria site pages. Facility details only. Closure status stays with DataVic and Parks Victoria.</li><li>Parks Victoria / DEECA MapShare closures on Recreation Sites.</li><li>OpenStreetMap campgrounds and towns (ODbL). These pages say to check with the operator. They are not given Parks Victoria closure data.</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers. We don't publish a downloadable copy of the combined campground list.</p>""")
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
@@ -1364,6 +1724,48 @@ feed = {"name": "CampConditions.au status feed", "region": "Victoria, Australia"
         "disclaimer": "Not an official warning service. VicEmergency warnings are not included. Check VicEmergency and the Bureau of Meteorology before travel. OpenStreetMap sites have no Parks Victoria closure data.", "sources": SRC,
         "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")} | {"url": f"{SITE}/vic/camp/{c['slug']}/"} for c in camps]}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
+# HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:
+# Pages joins every matching Cache-Control, and the strictest directive wins.
+# iOS standalone still pins the saved HTML; pages refetch /status.json with cache: no-store.
+open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write("""/
+  Cache-Control: no-cache
+
+/index.html
+  Cache-Control: no-cache
+
+/404.html
+  Cache-Control: no-cache
+
+/vic/*
+  Cache-Control: no-cache
+
+/about/*
+  Cache-Control: no-cache
+
+/privacy/*
+  Cache-Control: no-cache
+
+/report/*
+  Cache-Control: no-cache
+
+/unsubscribe/*
+  Cache-Control: no-cache
+
+/status.json
+  Cache-Control: no-cache
+
+/build-report.json
+  Cache-Control: no-cache
+
+/vic-towns.json
+  Cache-Control: no-cache
+
+/map.js
+  Cache-Control: no-cache
+
+/site.webmanifest
+  Cache-Control: no-cache
+""")
 urls = ["/", "/vic/", "/report/", "/about/", "/privacy/", "/unsubscribe/"] + [f"/vic/{k}/" for k in REGIONS] + [f"/vic/camp/{c['slug']}/" for c in camps]
 open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{SITE}{u}</loc><lastmod>{NOW.date()}</lastmod></url>\n" for u in urls) + "</urlset>\n")
 open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")

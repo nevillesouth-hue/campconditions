@@ -52,10 +52,12 @@ def site_phrase(name):
 
 
 def _item_applies(subtitle, content, phrase):
-    blob = re.sub(r"\s+", " ", f"{subtitle} {content}").lower()
-    if phrase and phrase in blob:
+    """An alert counts when its heading names this camp, or it says this area is closed."""
+    title = re.sub(r"\s+", " ", subtitle).lower()
+    body = re.sub(r"\s+", " ", content).lower()
+    if phrase and phrase in title:
         return True
-    return bool(re.search(r"\bthis (?:area|campground|camping area|campsite|camp site|site) is closed\b", blob))
+    return bool(re.search(r"\bthis (?:area|campground|camping area|campsite|camp site) is closed\b", body))
 
 
 class _Text(HTMLParser):
@@ -90,9 +92,19 @@ class _Text(HTMLParser):
             self.saw_structure = True
             capture = "item"
         elif "change-of-conditions__subtitle" in classes or "change-of-conditions__title-text" in classes:
+            self.saw_structure = True
+            if self.current is None or "".join(self.current["subtitle"]).strip():
+                self.current = {"subtitle": [], "content": []}
+                self.items.append(self.current)
             capture = "subtitle"
         elif "change-of-conditions__content" in classes:
+            self.saw_structure = True
+            if self.current is None:
+                self.current = {"subtitle": [], "content": []}
+                self.items.append(self.current)
             capture = "content"
+        elif "change-of-conditions" in classes:
+            self.saw_structure = True
         self.stack.append({
             "tag": tag,
             "skip": tag in SKIP_TAGS,

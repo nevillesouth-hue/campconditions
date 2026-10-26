@@ -1052,8 +1052,14 @@ CLUSTER_CSS = (
 CLUSTER_JS = cdn("js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js", "sha384-SIh+qcEBNMda8tT+rx66aCBuWtVYMVzRABqhK4eeQh4pjDHoRdVx8nYU4LQ5eGzI")
 def leaflet_head(cluster=False):
     return LEAFLET_CSS + (CLUSTER_CSS if cluster else "")
+def map_script_src():
+    """Victoria keeps /map.js. Each other built state has its own town search."""
+    slug = STATE.get("slug") or ""
+    if slug and slug != primary["slug"]:
+        return f"/map-{slug}.js"
+    return "/map.js"
 def leaflet_foot(cluster=False):
-    return LEAFLET_JS + (CLUSTER_JS if cluster else "") + '<script src="/map.js" defer></script>'
+    return LEAFLET_JS + (CLUSTER_JS if cluster else "") + f'<script src="{map_script_src()}" defer></script>'
 def camp_url(c):
     return f"/{c.get('state_slug') or SLUG}/camp/{c['slug']}/"
 def map_points(items):
@@ -1706,7 +1712,15 @@ def render_map_js():
         .replace("__MAP_LAT__", str(lat))
         .replace("__MAP_LON__", str(lon))
         .replace("__MAP_ZOOM__", str(zoom)))
-open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(render_map_js())
+def write_map_js(state):
+    bind(state)
+    name = "map.js" if state["slug"] == primary["slug"] else f"map-{state['slug']}.js"
+    open(os.path.join(OUT, name), "w", encoding="utf-8").write(render_map_js())
+write_map_js(primary)
+for state in statecfg.enabled():
+    if state["slug"] != primary["slug"]:
+        write_map_js(state)
+bind(primary)
 shutil.copytree(os.path.join(ROOT, "assets", "brand"), os.path.join(OUT, "assets", "brand"))
 shutil.copyfile(os.path.join(ROOT, "assets", "brand", "site.webmanifest"), os.path.join(OUT, "site.webmanifest"))
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
@@ -2013,7 +2027,12 @@ def headers_text():
         town = statecfg.public_file(state, "towns")
         if town:
             parts += [town, "  Cache-Control: no-cache", ""]
-    parts += ["/map.js", "  Cache-Control: no-cache", "", "/site.webmanifest", "  Cache-Control: no-cache", ""]
+    parts += ["/map.js", "  Cache-Control: no-cache", ""]
+    for state in statecfg.enabled():
+        if state["slug"] == primary["slug"]:
+            continue
+        parts += [f"/map-{state['slug']}.js", "  Cache-Control: no-cache", ""]
+    parts += ["/site.webmanifest", "  Cache-Control: no-cache", ""]
     return "\n".join(parts)
 open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
 urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/privacy/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]

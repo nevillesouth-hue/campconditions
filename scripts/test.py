@@ -1,4 +1,4 @@
-import os,re,json,sys,html,subprocess,tempfile
+import os,re,json,sys,html,math,subprocess,tempfile
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
@@ -920,7 +920,47 @@ if os.path.isfile(nsw_index):
   if 'href="/vic/">Victoria</a><a href="/nsw/">New South Wales</a>' in home: bad.append(("/", "state links"))
   if 'class="state-pick"' not in nsw_html or 'aria-label="State: New South Wales"' not in nsw_html or ">NSW <" not in nsw_html: bad.append(("nsw", "state picker"))
   if 'href="/nsw/" aria-current="page"' not in nsw_html or 'href="/vic/">Victoria</a>' not in nsw_html: bad.append(("nsw", "state menu"))
+  if 'src="/map-nsw.js"' not in nsw_html or 'src="/map.js"' in nsw_html: bad.append(("nsw", "town script"))
+  if "nsw-towns.json" in home or "map-nsw.js" in home: bad.append(("/", "nsw towns on the victoria page"))
+  if "Spatial Services" not in nsw_html or "Creative Commons Attribution 4.0" not in nsw_html: bad.append(("nsw", "town attribution"))
+  nsw_map = open(os.path.join(D, "map-nsw.js"), encoding="utf-8").read()
+  if 'fetch("/nsw-towns.json")' not in nsw_map or "vic-towns.json" in nsw_map: bad.append(("map-nsw.js", "town file"))
+  if 'fetch("/vic-towns.json")' not in mj: bad.append(("map.js", "victoria towns"))
+  nsw_towns = json.load(open(os.path.join(D, "nsw-towns.json"), encoding="utf-8"))
+  town_names = {row.get("name", "").casefold() for row in nsw_towns}
+  for required in ("Narrandera", "Dubbo", "Tumut"):
+    if required.casefold() not in town_names: bad.append(("nsw-towns.json", required))
+  if any(row.get("lat") is None or row.get("lon") is None or not row.get("name") for row in nsw_towns): bad.append(("nsw-towns.json", "blank coordinate"))
+  def town_km(lat1, lon1, lat2, lon2):
+    radius = math.pi / 180
+    dlat, dlon = (lat2 - lat1) * radius, (lon2 - lon1) * radius
+    hav = math.sin(dlat / 2) ** 2 + math.cos(lat1 * radius) * math.cos(lat2 * radius) * math.sin(dlon / 2) ** 2
+    return 6371 * 2 * math.asin(min(1, math.sqrt(hav)))
+  def nearest_town(lat, lon):
+    return min(nsw_towns, key=lambda row: town_km(lat, lon, row["lat"], row["lon"]))
   nsw_camps = [c for c in feed["camps"] if "/nsw/camp/" in c.get("url", "")]
+  def nearest_camps(place, limit=15):
+    ranked = sorted(nsw_camps, key=lambda camp: town_km(place["lat"], place["lon"], camp["lat"], camp["lon"]))
+    return ranked[:limit]
+  narrandera = next(row for row in nsw_towns if row["name"] == "Narrandera")
+  if not any(camp["name"].startswith("Brewery Flat") for camp in nearest_camps(narrandera)): bad.append(("Narrandera", "Brewery Flat"))
+  brewery = next(camp for camp in nsw_camps if camp["name"].startswith("Brewery Flat"))
+  brewery_town = nearest_town(brewery["lat"], brewery["lon"])["name"]
+  if brewery_town != "Gillenbah": bad.append(("Brewery Flat", brewery_town))
+  for place_name in ("Dubbo", "Tumut"):
+    place = next(row for row in nsw_towns if row["name"] == place_name)
+    closest = nearest_camps(place, 1)[0]
+    if town_km(place["lat"], place["lon"], closest["lat"], closest["lon"]) > 40: bad.append((place_name, closest["name"]))
+  for camp in nsw_camps:
+    page = os.path.join(D, camp["url"].lstrip("/"), "index.html")
+    if not os.path.isfile(page):
+      continue
+    heading = re.search(r"<h1>([^<]*)</h1>", open(page, encoding="utf-8").read())
+    if not heading or ", near " not in heading.group(1):
+      continue
+    place = heading.group(1).split(", near ", 1)[1].split(",")[0].strip()
+    place = re.sub(r" \((?:south|north|\d+)\)$", "", place)
+    if place.casefold() not in town_names: bad.append((camp["slug"], "near " + place)); break
   npws = [c for c in nsw_camps if c.get("source") == "npws"]
   if len(npws) < 700: bad.append(("nsw", "npws count " + str(len(npws))))
   for camp in npws:

@@ -11034,7 +11034,12 @@
   "source_note": "Parks Victoria campground page: Princess Margaret Rose Cave Campground.",
   "description": "Princess Margaret Rose Caves - Lower Glenelg NP: camping area managed by Parks Victoria. Notes: toilets.",
   "checked_date": "2026-10-17",
-  "fee_note": "book_ahead"
+  "fee_note": "book_ahead",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/lower-glenelg-national-park/where-to-stay/princess-margaret-rose-cave-campground",
+   "wording": "Please note: Princess Margaret Rose Cave Campground remains closed for assessments and upgrade works.",
+   "checked_date": "2026-10-26"
+  }
  },
  "n1808391787": {
   "toilets": "yes (pit/drop)",

@@ -428,7 +428,18 @@ for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', '
 osm = [c for c in feed["camps"] if c.get("source") == "osm"]
 dv = [c for c in feed["camps"] if c.get("source") == "datavic"]
 if not osm or not dv: bad.append(("status.json", "both sources"))
-if any(c.get("nearby_closures") for c in osm) or any(c.get("status") != "check" for c in osm) or any(c.get("closure") for c in osm):
+pmr = next((c for c in feed["camps"] if c.get("slug") == "princess-margaret-rose-caves-lower-glenelg-np"), None)
+if not pmr or pmr.get("status") != "closed" or pmr.get("source") != "osm":
+  bad.append(("princess-margaret-rose-caves-lower-glenelg-np", "closed override"))
+else:
+  pmr_html = open(os.path.join(D, "vic", "camp", "princess-margaret-rose-caves-lower-glenelg-np", "index.html"), encoding="utf-8").read()
+  note = "Please note: Princess Margaret Rose Cave Campground remains closed for assessments and upgrade works."
+  src = "https://www.parks.vic.gov.au/places-to-see/parks/lower-glenelg-national-park/where-to-stay/princess-margaret-rose-cave-campground"
+  if note not in pmr_html or src not in pmr_html or 'id="camp-closure"' not in pmr_html or 'class="badge closed"' not in pmr_html:
+    bad.append(("princess-margaret-rose-caves-lower-glenelg-np", "closure box"))
+  if (pmr.get("closure") or {}).get("desc") != note or (pmr.get("closure") or {}).get("source_url") != src:
+    bad.append(("princess-margaret-rose-caves-lower-glenelg-np", "closure feed"))
+if any(c.get("nearby_closures") for c in osm) or any((c.get("status") != "check" or c.get("closure")) and c.get("slug") != "princess-margaret-rose-caves-lower-glenelg-np" for c in osm):
   bad.append(("status.json", "osm must not get parks vic closures"))
 if str(len(feed["camps"])) not in home: bad.append(("/", "home count"))
 shown = {"call": False, "operator": False, "review": False, "confirmed": False, "max": False, "unknown": False, "tel": False, "https": False, "pub": False, "park": False, "water": False, "checked": False, "source": False, "access": False, "follow": False, "dogs": False}

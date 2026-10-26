@@ -44,17 +44,32 @@ def _name_tokens(name):
     return {word for word in re.findall(r"[a-z0-9]+", (name or "").lower()) if len(word) > 3 and word not in NAME_STOP}
 
 
+def site_phrase(name):
+    """Distinctive site name, without the park in parentheses or after a dash."""
+    head = (name or "").split("(")[0].split(" - ")[0]
+    head = re.sub(r"\b(campgrounds?|camping areas?|camping sites?|bush camps?|picnic(?: and camping)? areas?|camps?)\b", " ", head, flags=re.I)
+    return re.sub(r"[^a-z0-9]+", " ", head.lower()).strip()
+
+
+def _item_applies(subtitle, content, phrase):
+    blob = re.sub(r"\s+", " ", f"{subtitle} {content}").lower()
+    if phrase and phrase in blob:
+        return True
+    return bool(re.search(r"\bthis (?:area|campground|camping area|campsite|camp site|site) is closed\b", blob))
+
+
 class _Text(HTMLParser):
     """Overview text, plus a change-of-conditions item only when it names this camp."""
 
     def __init__(self, camp_name=""):
         super().__init__(convert_charrefs=True)
-        self.want = _name_tokens(camp_name)
+        self.phrase = site_phrase(camp_name)
         self.stack = []
         self.region = []
         self.fallback = []
         self.items = []
         self.current = None
+        self.saw_structure = False
 
     def handle_starttag(self, tag, attrs):
         if tag in VOID_TAGS:
@@ -68,9 +83,11 @@ class _Text(HTMLParser):
         capture = None
         if "explore__overview" in classes:
             capture = "overview"
+            self.saw_structure = True
         elif "change-of-conditions__item" in classes:
             self.current = {"subtitle": [], "content": []}
             self.items.append(self.current)
+            self.saw_structure = True
             capture = "item"
         elif "change-of-conditions__subtitle" in classes or "change-of-conditions__title-text" in classes:
             capture = "subtitle"
@@ -123,11 +140,13 @@ class _Text(HTMLParser):
         parts = list(self.region)
         for item in self.items:
             subtitle = "".join(item["subtitle"])
-            if self.want and (self.want & _name_tokens(subtitle)):
+            content = "".join(item["content"])
+            if _item_applies(subtitle, content, self.phrase):
                 parts.append("\n")
-                parts.extend(item["subtitle"])
-                parts.extend(item["content"])
-        chosen = parts if parts else self.fallback
+                parts.append(subtitle)
+                parts.append("\n")
+                parts.append(content)
+        chosen = parts if self.saw_structure else self.fallback
         return html.unescape("".join(chosen)).replace("\xa0", " ")
 
 
@@ -160,6 +179,8 @@ def classify_html(page, camp_name=""):
         if not CLOSED_RE.search(sentence):
             continue
         if IGNORE_RE.search(sentence) or re.fullmatch(r"this area is closed[.!]?", sentence, re.I):
+            continue
+        if re.search(r"\bmay be closed\b|fire danger rating", sentence, re.I):
             continue
         if ROAD_RE.search(sentence) and not CAMP_RE.search(sentence):
             continue

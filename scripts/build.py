@@ -1,26 +1,46 @@
 #!/usr/bin/env python3
-"""Build CampConditions.au (Victoria). Python 3 stdlib only.
-Sources:
-  - DataVic Recreation Sites (DEECA, CC BY 4.0) via opendata.maps.vic.gov.au WFS — campgrounds + closure status
-  - Parks Victoria / DEECA MapShare PublicAccess closures (road/seasonal/public land). Applied to DataVic sites only.
-  - OpenStreetMap campgrounds and towns committed in data/ (ODbL). No Parks Victoria closure data.
-  - BOM: linked only, never republished (RSS is personal/non-commercial use only)
-VicEmergency warnings are not fetched or republished. Camp pages link to emergency.vic.gov.au.
+"""Build CampConditions.au. Python 3 stdlib only.
+
+Each enabled state in config/states supplies its name, sources, regions, labels
+and page copy. Victoria is the only enabled state, so the pages stay under /vic/.
+New South Wales is in the config and is not fetched or rendered.
 """
-import json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as dt
+import importlib, json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
+import states as statecfg
 SITE = "https://campconditions.au"
-CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Campground details from DataVic and Explore Outdoors © State of Victoria (DEECA), CC BY 4.0, and Parks Victoria."
-PV_LABEL = "Paid – Parks Victoria (book ahead)"
-OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
-CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "dist")
 TZ = dt.timezone(dt.timedelta(hours=11))  # AEDT; good enough for display stamp
 NOW = dt.datetime.now(TZ)
 STAMP = NOW.strftime("%-d %B %Y, %-I:%M %p AEDT")
 SRC = {}
+STATE = None
+CREDIT = PV_LABEL = SAFETY = SLUG = ""
+LABELS, LINKS, COPY, REGIONS = {}, {}, {}, {}
+WFS = MS = ""
+
+def bind(state):
+    """Point the page templates at one state's config."""
+    global STATE, CREDIT, PV_LABEL, SAFETY, SLUG, LABELS, LINKS, COPY, REGIONS, WFS, MS
+    STATE = state
+    CREDIT = state.get("credit") or ""
+    LABELS = facts.state_labels(state["slug"])
+    LINKS = state.get("links") or {}
+    COPY = state.get("copy") or {}
+    SLUG = state["slug"]
+    PV_LABEL = LABELS.get("paid_book") or ""
+    SAFETY = state.get("safety_html") or ""
+    REGIONS = {key: (name, blurb) for key, name, blurb in statecfg.regions(state)}
+    rec = (state.get("sources") or {}).get("recreation_sites") or {}
+    clo = (state.get("sources") or {}).get("closures") or {}
+    WFS = rec.get("url") or ""
+    MS = clo.get("url_template") or ""
+
+bind(statecfg.enabled()[0])
+OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
+CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL}
 
 def fetch(name, url):
     try:
@@ -31,16 +51,6 @@ def fetch(name, url):
         d = json.loads(b); SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}; return d
     except Exception as e:
         SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
-
-WFS = "https://opendata.maps.vic.gov.au/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=open-data-platform:recweb_site&outputFormat=application/json&CQL_FILTER=camping='Y'"
-MS = "https://corp-gis.mapshare.vic.gov.au/arcgis/rest/services/Mapshare/PublicAccess/MapServer/{}/query?where=1%3D1&outFields=*&outSR=4326&f=geojson"
-
-rec = fetch("datavic_recreation_sites", WFS)
-closures = []
-for lid, lab in [(1, "Road crossing closure"), (2, "Public land road closure"), (4, "Seasonal road closure"), (6, "Public land closure")]:
-    d = fetch(f"parksvic_mapshare_layer_{lid}", MS.format(lid))
-    for f in (d or {}).get("features", []):
-        closures.append((lab, f))
 
 def coords(g):
     if not g: return
@@ -61,23 +71,8 @@ def km(a, b):
 def near(pt, g, r):
     return any(km(pt, c) <= r for i, c in enumerate(coords(g)) if i % 3 == 0)
 
-REGIONS = {
- "high-country": ("High Country", "Alpine and north-east Victoria — Mansfield, Bright, Dargo, Mitta Valley and the Ovens."),
- "gippsland": ("Gippsland", "East and West Gippsland — Erica, Heyfield, Briagolong, Orbost and the Snowy."),
- "yarra-ranges-central": ("Yarra Ranges & Central Highlands", "Marysville, Toolangi, Powelltown, Noojee and the forests east of Melbourne."),
- "goldfields-central": ("Goldfields & Central Victoria", "Bendigo, Ballarat, Daylesford, Castlemaine, Avoca and Inglewood."),
- "grampians-south-west": ("Grampians & South West", "Grampians (Gariwerd), Cavendish, Heywood, Casterton and the Wimmera."),
- "otways-surf-coast": ("Otways & Surf Coast", "Great Otway forests, Anglesea and Gellibrand."),
- "murray-mallee": ("Murray & Mallee", "Mildura, Cohuna, the Murray River and Mallee parks."),
-}
 def region(lon, lat):
-    if lat > -35.9: return "murray-mallee"
-    if lat < -38.2 and lon < 145: return "otways-surf-coast"
-    if lon < 143.6: return "grampians-south-west"
-    if lon < 145.3: return "goldfields-central"
-    if lon >= 146.0 and lat > -37.45: return "high-country"
-    if lon >= 145.9: return "gippsland"
-    return "yarra-ranges-central"
+    return statecfg.region_id(STATE, lon, lat)
 
 def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 # A leading "12 " is an index, not part of the name, unless the next word is a
@@ -99,23 +94,37 @@ def closure_info(lab, p):
     reason = clean(" ".join(str(x) for x in (p.get("status"), p.get("comments")) if x))
     reopen = msdate(p.get("seasonal_open_date") or p.get("reopen_date"))
     return {"type": lab, "name": name, "reason": reason, "reopens": reopen}
-camps, seen = [], set()
-for f in (rec or {}).get("features", []):
-    q = f["properties"]; g = f.get("geometry")
-    if q.get("published") != "Y" or not g: continue
-    lon, lat = g["coordinates"][:2]
-    s = slug(q["name"]); 
-    if s in seen: s = f"{s}-{q['serial_no']}"
-    seen.add(s)
-    closed = (q.get("clos_stat") or "").upper()
-    nearby_c = [closure_info(lab, c["properties"]) for lab, c in closures if c.get("geometry") and near((lon, lat), c["geometry"], 5)]
-    status = "closed" if "CLOSURE" in closed else ("check" if nearby_c else "open")
-    camps.append({"slug": s, "id": q["serial_no"], "name": q["name"].strip(), "lat": round(lat, 6), "lon": round(lon, 6), "region": region(lon, lat),
-        "status": status, "closure": {"status": q.get("clos_stat"), "desc": clean(q.get("clos_desc")), "reason": clean(q.get("clos_reas")), "start": q.get("clos_start"), "reopen": q.get("clos_open"), "outdated": bool(q.get("clos_open")) and q["clos_open"][:10] < NOW.date().isoformat()} if closed else None,
-        "access": clean(q.get("access_dsc")), "about": clean(q.get("comments")), "camping": clean(q.get("camping_c")), "caravans": clean(q.get("campervan_c")),
-        "site_class": q.get("site_class"), "dis_access": q.get("dis_access"), "managed_by": q.get("maintained_by"), "data_date": q.get("vers_date"),
-        "nearby_closures": nearby_c[:10], "source": "datavic", "category": "Park campground",
-        "needs_review": False})
+def load_official(seen):
+    """Campgrounds from the active state's official feed. Empty when that state has no feed yet."""
+    rec_src = (STATE.get("sources") or {}).get("recreation_sites") or {}
+    clo = (STATE.get("sources") or {}).get("closures") or {}
+    found, state_closures = [], []
+    if not rec_src.get("url"):
+        return found, state_closures
+    rec = fetch(rec_src["key"], rec_src["url"])
+    for layer in clo.get("layers") or []:
+        d = fetch(layer["key"], clo["url_template"].format(layer["id"]))
+        for feature in (d or {}).get("features", []):
+            state_closures.append((layer["label"], feature))
+    source_id = rec_src.get("source_id") or SLUG
+    category = LABELS.get("park_category") or ""
+    for f in (rec or {}).get("features", []):
+        q = f["properties"]; g = f.get("geometry")
+        if q.get("published") != "Y" or not g: continue
+        lon, lat = g["coordinates"][:2]
+        s = slug(q["name"]); 
+        if s in seen: s = f"{s}-{q['serial_no']}"
+        seen.add(s)
+        closed = (q.get("clos_stat") or "").upper()
+        nearby_c = [closure_info(lab, c["properties"]) for lab, c in state_closures if c.get("geometry") and near((lon, lat), c["geometry"], 5)]
+        status = "closed" if "CLOSURE" in closed else ("check" if nearby_c else "open")
+        found.append({"slug": s, "id": q["serial_no"], "name": q["name"].strip(), "lat": round(lat, 6), "lon": round(lon, 6), "region": region(lon, lat),
+            "status": status, "closure": {"status": q.get("clos_stat"), "desc": clean(q.get("clos_desc")), "reason": clean(q.get("clos_reas")), "start": q.get("clos_start"), "reopen": q.get("clos_open"), "outdated": bool(q.get("clos_open")) and q["clos_open"][:10] < NOW.date().isoformat()} if closed else None,
+            "access": clean(q.get("access_dsc")), "about": clean(q.get("comments")), "camping": clean(q.get("camping_c")), "caravans": clean(q.get("campervan_c")),
+            "site_class": q.get("site_class"), "dis_access": q.get("dis_access"), "managed_by": q.get("maintained_by"), "data_date": q.get("vers_date"),
+            "nearby_closures": nearby_c[:10], "source": source_id, "category": category, "state_slug": SLUG,
+            "needs_review": False})
+    return found, state_closures
 
 _FACT_PROTECTED = ("status", "closure", "nearby_closures", "id", "slug", "lat", "lon", "source", "region", "name")
 def _http(value):
@@ -190,7 +199,7 @@ def apply_row_facts(camp, row):
     for key, value in protected.items(): camp[key] = value
     return camp
 def load_datavic_enrichment():
-    path = os.path.join(ROOT, "data", "datavic-enrichment.json")
+    path = statecfg.path(STATE, "enrichment")
     if not os.path.isfile(path): return {}
     with open(path, encoding="utf-8") as handle: doc = json.load(handle)
     camps = doc.get("camps") if isinstance(doc, dict) else None
@@ -205,7 +214,8 @@ def apply_datavic_enrichment(camps):
     applied = mismatches = 0
     present = set()
     for camp in camps:
-        if camp.get("source") != "datavic": continue
+        source_id = ((STATE.get("sources") or {}).get("recreation_sites") or {}).get("source_id")
+        if camp.get("source") != source_id: continue
         camp_id = str(camp.get("id"))
         present.add(camp_id)
         extra = overlay.get(camp_id)
@@ -247,7 +257,7 @@ def apply_closed_override(camp, row):
         return False
     camp["status"] = "closed"
     camp["closure"] = {
-        "status": "CLOSURE (Parks Victoria website)",
+        "status": LABELS.get("closure_status") or "",
         "desc": wording,
         "reason": "",
         "start": None,
@@ -260,7 +270,10 @@ def apply_closed_override(camp, row):
 def load_osm(seen):
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import build_osm
-    path = os.path.join(ROOT, "data", "osm-camps-vic.json")
+    path = statecfg.path(STATE, "osm_camps")
+    if not path or not os.path.isfile(path):
+        print("Closure overrides applied: 0")
+        return []
     with open(path, encoding="utf-8") as handle:
         doc = json.load(handle)
     if isinstance(doc, dict): rows = doc.get("sites") or doc.get("camps") or []
@@ -287,14 +300,15 @@ def load_osm(seen):
             "lat": row["lat"], "lon": row["lon"], "region": region(row["lon"], row["lat"]),
             "status": "check", "closure": None, "access": "", "about": "", "camping": "", "caravans": "",
             "site_class": cat, "dis_access": None, "managed_by": "", "data_date": "",
-            "nearby_closures": [], "source": "osm", "category": cat, "needs_review": bool(row.get("needs_review"))}
+            "nearby_closures": [], "source": "osm", "category": cat, "state_slug": SLUG,
+            "needs_review": bool(row.get("needs_review"))}
         apply_row_facts(camp, row)
         if apply_closed_override(camp, row):
             overrides += 1
         if cat == "Free" and str(row.get("fee_type") or "").strip().lower() == "paid":
             camp["category"] = "Camping area"
             camp["site_class"] = "Camping area"
-        if cat == PV_LABEL and not camp.get("phone"): camp["phone"] = "13 1963"
+        if cat == PV_LABEL and not camp.get("phone"): camp["phone"] = LABELS.get("phone") or ""
         shown = strip_index_name(camp["name"])
         if shown != camp["name"]:
             # Slug stays on the original name so the old URL keeps working.
@@ -303,8 +317,15 @@ def load_osm(seen):
         extra.append(camp)
     print(f"Closure overrides applied: {overrides}")
     return extra
-camps.extend(load_osm(seen))
-apply_datavic_enrichment(camps)
+camps, seen, closures = [], set(), []
+for state in statecfg.enabled():
+    bind(state)
+    CAT_LABEL["park_campground"] = PV_LABEL
+    official, state_closures = load_official(seen)
+    camps.extend(official)
+    closures.extend(state_closures)
+    camps.extend(load_osm(seen))
+    apply_datavic_enrichment(camps)
 def assign_filters(camp):
     """Cost is the known fee. Type is the place filter, separate from the page label."""
     fee = str(camp.get("fee_type") or "").strip().lower()
@@ -318,7 +339,7 @@ def assign_filters(camp):
     if cat == "Showground": camp["type_filter"] = "Showground"
     elif cat in ("Council park", "Council park (leased)"): camp["type_filter"] = "Council"
     elif cat == "Rest area": camp["type_filter"] = "Rest area"
-    elif cat in ("Park campground", PV_LABEL): camp["type_filter"] = "Parks Victoria"
+    elif cat in (LABELS.get("park_category") or "", PV_LABEL): camp["type_filter"] = LABELS.get("type_filter") or ""
     else: camp["type_filter"] = ""
     return camp
 for camp in camps: assign_filters(camp)
@@ -337,8 +358,8 @@ def nearest_places(camp, towns, limit=8):
     return names
 def assign_page_names(camps):
     """Duplicate names get a nearest-place subtitle so the title and h1 differ."""
-    with open(os.path.join(ROOT, "data", "vic-towns.json"), encoding="utf-8") as handle:
-        towns = json.load(handle)
+    import towns as town_mod
+    towns = town_mod.load(STATE["slug"])
     groups = {}
     for camp in camps:
         groups.setdefault(camp["name"].casefold(), []).append(camp)
@@ -545,7 +566,10 @@ SHARE_JS = r"""<script>
 </script>"""
 def banner(on_home=False):
     href = "#newsletter" if on_home else "/#newsletter"
-    return f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span></a></div><div class="banner-row"><nav><a href="/vic/">Victoria</a><a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>Covering Victoria now</span><span class="soon-sep"> · </span><span>Other states coming soon</span></p>""" + SHARE_JS
+    nav_links = "".join(f'<a href="/{state["slug"]}/">{state["name"]}</a>' for state in statecfg.enabled())
+    cover = (STATE.get("banner") or {}).get("covering") or ""
+    coming = (STATE.get("banner") or {}).get("coming") or ""
+    return f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>""" + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -556,7 +580,6 @@ ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link r
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image.png">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
-SAFETY = '<div class="warn"><strong>Not an official warning service.</strong> This site does not republish VicEmergency warnings. Always check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>, the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology warnings for Victoria</a> and <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href="tel:000">000</a>. VicEmergency hotline <a href="tel:1800226226">1800 226 226</a>.</div>'
 A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type="button" id="a2hs-dismiss" aria-label="Dismiss add to home screen tip">×</button></div>
 <script>
 (function () {
@@ -634,7 +657,7 @@ FRESH_JS = r"""<script>
     if (c.source === "osm") {
       if (c.status === "closed" && c.closure && c.closure.desc) return c.closure.desc;
       if (c.category === "Showground") return "Call first";
-      if (c.category === PV) return "Book ahead — Parks Victoria";
+      if (c.category === PV) return "__BOOK_NOTE__";
       if (c.category === "Pub stay") return "Pub stay — check with the pub";
       return "Conditions: check with operator";
     }
@@ -656,7 +679,7 @@ FRESH_JS = r"""<script>
       var label = cl.desc || cl.reason || "Full closure";
       var reopen = cl.reopen ? " · Reopens " + esc(String(cl.reopen).slice(0, 10)) : " ";
       parts.push('<div class="warn"><strong>Closed:</strong> ' + esc(label) + reopen + "</div>");
-      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(String(cl.reopen || "").slice(0, 10)) + ') has passed. Check <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> or call 13 1963 before you go.</div>');
+      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(String(cl.reopen || "").slice(0, 10)) + ') has passed. Check <a href="__COC__">__CONDITIONS_NAME__</a> or call __PHONE__ before you go.</div>');
     }
     var nearby = c.nearby || [];
     if (nearby.length) {
@@ -688,7 +711,7 @@ FRESH_JS = r"""<script>
     return map;
   }
   function slugFromUrl(url) {
-    var match = String(url || "").match(/\/vic\/camp\/([^/]+)/);
+    var match = String(url || "").match(/\/__SLUG__\/camp\/([^/]+)/);
     return match ? decodeURIComponent(match[1]) : "";
   }
   function readPoints() {
@@ -837,10 +860,10 @@ FRESH_JS = r"""<script>
     });
   }
 })();
-</script>""".replace("__PV_LABEL__", PV_LABEL)
+</script>""".replace("__PV_LABEL__", PV_LABEL).replace("__BOOK_NOTE__", LABELS.get("book_ahead_note") or "").replace("__COC__", LINKS.get("conditions") or "").replace("__CONDITIONS_NAME__", LINKS.get("conditions_name") or "").replace("__PHONE__", LABELS.get("phone") or "").replace("__SLUG__", SLUG)
 def footer():
     return f"""<footer><p>{e(CREDIT)}</p>
-<p><strong>Data and attribution.</strong> Campground details from DataVic (<a href="https://discover.data.vic.gov.au/dataset/recreation-sites">Recreation Sites</a> and Recreation Assets) and <a href="https://www.exploreoutdoors.vic.gov.au/">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href="https://www.bom.gov.au/vic/warnings/">Bureau of Meteorology</a> (linked, not republished).</p>
+{COPY["footer_attribution"]}
 <p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
 {FRESH_JS}"""
@@ -848,9 +871,9 @@ def vicemergency_url(lat, lon):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
     pad = 0.2
     west, south, east, north = lon - pad, lat - pad, lon + pad, lat + pad
-    return f"https://emergency.vic.gov.au/respond/?bbox={west:.5f},{south:.5f},{east:.5f},{north:.5f}"
+    return f"{LINKS.get('emergency') or ''}?bbox={west:.5f},{south:.5f},{east:.5f},{north:.5f}"
 def vicemergency_button(c):
-    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"]))}">Check VicEmergency for warnings near this camp</a></p>'
+    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"]))}">{LINKS.get("emergency_button") or ""}</a></p>'
 def cdn(kind, href, integrity):
     if kind == "css":
         return f'<link rel="stylesheet" href="{href}" integrity="{integrity}" crossorigin="anonymous">'
@@ -866,11 +889,13 @@ def leaflet_head(cluster=False):
     return LEAFLET_CSS + (CLUSTER_CSS if cluster else "")
 def leaflet_foot(cluster=False):
     return LEAFLET_JS + (CLUSTER_JS if cluster else "") + '<script src="/map.js" defer></script>'
+def camp_url(c):
+    return f"/{c.get('state_slug') or SLUG}/camp/{c['slug']}/"
 def map_points(items):
     pts = []
     for c in items:
         cl = c.get("closure") or {}
-        pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": f"/vic/camp/{c['slug']}/", "slug": c["slug"], "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
+        pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": camp_url(c), "slug": c["slug"], "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
         if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
         for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
             value = c.get(field)
@@ -886,7 +911,7 @@ def flag_attr(c, field):
     return ""
 def filters_html(items):
     costs = (("free", "Known to be free/donation"), ("paid", "Known to be paid"))
-    types = ("Showground", "Council", "Rest area", "Parks Victoria")
+    types = ("Showground", "Council", "Rest area", LABELS.get("type_filter") or "")
     toggles = (("dogs", "Dogs OK"), ("caravans", "Known to suit caravans"), ("motorhomes", "Known to suit motorhomes"))
     cost_html = "".join(f'<label><input type="checkbox" name="cost" value="{key}"> {label}</label>' for key, label in costs)
     type_html = "".join(f'<label><input type="checkbox" name="type" value="{e(cat)}"> {e(cat)}</label>' for cat in types)
@@ -918,11 +943,11 @@ def directions(c):
     # traffic.vicroads.vic.gov.au does not resolve. The live VicTraffic map is
     # traffic.transport.vic.gov.au. Its app reads a disruption id query only,
     # not lat/lng or zoom, so this opens the main map.
-    roads = "https://traffic.transport.vic.gov.au/"
+    roads = LINKS.get("roads") or ""
     return (f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a> '
             f'<a class="btn" href="{toilets}" target="_blank" rel="noopener noreferrer">Find nearby toilets</a> '
             f'<a class="btn" href="{roads}" target="_blank" rel="noopener noreferrer">Check road closures</a></p>'
-            f'<p class="muted">Also check <a href="https://www.parks.vic.gov.au/coc-listing" target="_blank" rel="noopener noreferrer">Parks Victoria alerts</a> for park camps.</p>')
+            f'<p class="muted">{COPY.get("directions_note") or ""}</p>')
 MAP_JS = r"""(function () {
   var el = document.getElementById("camp-map");
   var raw = document.getElementById("camp-map-data");
@@ -998,7 +1023,7 @@ MAP_JS = r"""(function () {
     markers.forEach(function (m) { m.addTo(map); });
     if (markers.length === 1) map.setView([data[0].lat, data[0].lon], 13);
     else if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.08));
-    else map.setView([-36.8, 144.5], 6);
+    else map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
     return;
   }
   var group = L.markerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 42});
@@ -1102,12 +1127,12 @@ MAP_JS = r"""(function () {
     if (picked) showNearest();
     else if (fit && shownCount) {
       try { map.fitBounds(group.getBounds().pad(0.08)); } catch (err) {}
-    } else if (!shownCount) map.setView([-36.8, 144.5], 6);
+    } else if (!shownCount) map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
   }
   function loadTowns() {
     if (towns) return Promise.resolve(towns);
     if (!townsPromise) {
-      townsPromise = fetch("/vic-towns.json").then(function (r) { return r.json(); }).then(function (rows) {
+      townsPromise = fetch("__TOWNS_URL__").then(function (r) { return r.json(); }).then(function (rows) {
         towns = rows;
         return rows;
       });
@@ -1117,15 +1142,7 @@ MAP_JS = r"""(function () {
   function fold(s) {
     return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
   }
-  function regionName(lat, lon) {
-    if (lat > -35.9) return "Murray & Mallee";
-    if (lat < -38.2 && lon < 145) return "Otways & Surf Coast";
-    if (lon < 143.6) return "Grampians & South West";
-    if (lon < 145.3) return "Goldfields & Central Victoria";
-    if (lon >= 146.0 && lat > -37.45) return "High Country";
-    if (lon >= 145.9) return "Gippsland";
-    return "Yarra Ranges & Central Highlands";
-  }
+__REGION_FN__
   function matchScore(name, query) {
     var n = fold(name), q = fold(query);
     if (q.length < 2 || !n) return -1;
@@ -1449,7 +1466,7 @@ def badge(c):
         else: text = {"open": "No known issues", "closed": "Closed", "check": "Check conditions"}[status]
     return f'<span class="badge {status}">{text}</span>'
 def crumbs(items): return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i+1, "name": n, "item": SITE+u} for i, (n, u) in enumerate(items)]}
-NEWS = """<section class="box" id="newsletter"><h2>Get the free weekly Victoria digest</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region. We'll email a confirmation link first; you're not on the list until you click it.</p>
+NEWS = """<section class="box" id="newsletter"><h2>__NEWSLETTER_H2__</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region. We'll email a confirmation link first; you're not on the list until you click it.</p>
 <form id="digest-form" class="signup" action="/api/subscribe" method="post"><label for="digest-email">Your email</label><div class="signup-row"><input id="digest-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"> <button type="submit">Subscribe</button></div></form>
 <div id="digest-note" class="notice" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
 <p class="muted">We'll only use your email to send the CampConditions digest. We never sell or share it. <a href="/unsubscribe/">Unsubscribe any time</a>.</p>
@@ -1508,10 +1525,19 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
   if (location.hash === "#newsletter") openDigest();
 })();
 </script>
-</section>"""
+</section>""".replace("__NEWSLETTER_H2__", COPY.get("newsletter_h2") or "")
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
-open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(MAP_JS)
+def render_map_js():
+    fallback = STATE.get("map") or {}
+    lat, lon, zoom = fallback.get("fallback_lat"), fallback.get("fallback_lon"), fallback.get("fallback_zoom")
+    return (MAP_JS
+        .replace("__TOWNS_URL__", statecfg.public_file(STATE, "towns"))
+        .replace("__REGION_FN__", statecfg.js_region_function(STATE))
+        .replace("__MAP_LAT__", str(lat))
+        .replace("__MAP_LON__", str(lon))
+        .replace("__MAP_ZOOM__", str(zoom)))
+open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(render_map_js())
 shutil.copytree(os.path.join(ROOT, "assets", "brand"), os.path.join(OUT, "assets", "brand"))
 shutil.copyfile(os.path.join(ROOT, "assets", "brand", "site.webmanifest"), os.path.join(OUT, "site.webmanifest"))
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
@@ -1522,7 +1548,7 @@ def list_note(c):
         if c.get("status") == "closed" and (c.get("closure") or {}).get("desc"):
             return c["closure"]["desc"]
         if c.get("category") == "Showground": return "Call first"
-        if c.get("category") == PV_LABEL: return "Book ahead — Parks Victoria"
+        if c.get("category") == PV_LABEL: return LABELS.get("book_ahead_note") or ""
         if c.get("category") == "Pub stay": return "Pub stay — check with the pub"
         return "Conditions: check with operator"
     desc = (c.get("closure") or {}).get("desc") or ""
@@ -1530,7 +1556,7 @@ def list_note(c):
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
     return ""
 def row_attrs(c):
-    return (f'data-slug="{e(c["slug"])}" data-url="/vic/camp/{c["slug"]}/" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
+    return (f'data-slug="{e(c["slug"])}" data-url="{camp_url(c)}" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
             f'data-dogs="{flag_attr(c,"fac_dogs")}" '
             f'data-caravans="{flag_attr(c,"fac_caravans")}" data-motorhomes="{flag_attr(c,"fac_motorhomes")}"')
 def yn(value):
@@ -1544,8 +1570,8 @@ def osm_blocks(c):
     if c.get("category") == "Showground":
         bits = ["<p><strong>Call first.</strong></p>"]
     elif c.get("category") == PV_LABEL:
-        phone = c.get("phone") or "13 1963"
-        bits = [f'<p><strong>{e(PV_LABEL)}.</strong> Book ahead with Parks Victoria on <a href="{e(tel_href(phone))}">{e(phone)}</a>.</p>']
+        phone = c.get("phone") or LABELS.get("phone") or ""
+        bits = [f'<p><strong>{e(PV_LABEL)}.</strong> {LABELS.get("book_ahead_with") or ""} on <a href="{e(tel_href(phone))}">{e(phone)}</a>.</p>']
     elif c.get("category") == "Pub stay":
         bits = ["<p><strong>Pub stay.</strong> Conditions: check with operator.</p>"]
     else:
@@ -1630,32 +1656,35 @@ def datavic_facts(c):
     bits.append(facts_html(c, fill_unknown=False))
     if c.get("overlay_operator"): bits.append(f"<p>Operator: {e(c['overlay_operator'])}</p>")
     return "".join(bits)
-shutil.copyfile(os.path.join(ROOT, "data", "vic-towns.json"), os.path.join(OUT, "vic-towns.json"))
+for state in statecfg.enabled():
+    town_src = statecfg.path(state, "towns")
+    if town_src and os.path.isfile(town_src):
+        shutil.copyfile(town_src, os.path.join(OUT, os.path.basename(town_src)))
 n_osm = sum(c.get("source") == "osm" for c in camps)
 n_dv = len(camps) - n_osm
 
-# Home
-reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/vic/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
-home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(camps)} sites in Victoria, Australia."},
+# Home. Copy comes from the enabled state (Victoria only, for now).
+reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/{SLUG}/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
+home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
+faq_entities = [{"@type": "Question", "name": item.get("q") or "", "acceptedAnswer": {"@type": "Answer", "text": item.get("a") or ""}} for item in COPY.get("faq") or []]
+home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": COPY["website_description"].format(count=len(camps))},
            {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
-           {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [
-             {"@type": "Question", "name": "How do I know if a free camp in Victoria is open?", "acceptedAnswer": {"@type": "Answer", "text": "DEECA Recreation Sites pages show the closure status and nearby Parks Victoria road and seasonal closures. OpenStreetMap campgrounds are not in that closure feed: the page says to check with the operator, and showgrounds say to call first. CampConditions.au does not republish VicEmergency warnings. Check VicEmergency, Parks Victoria and the Bureau of Meteorology before you travel. In an emergency call 000. The VicEmergency hotline is 1800 226 226."}},
-             {"@type": "Question", "name": "How often is CampConditions.au updated?", "acceptedAnswer": {"@type": "Answer", "text": "The site rebuilds from DEECA and Parks Victoria sources several times a day. OpenStreetMap campgrounds and towns are refreshed weekly. Each page shows when it was built. Warning information is not included."}}]}]
-page("/", f"Victorian camp conditions — {len(camps)} sites | CampConditions.au", f"Closure status and nearby road closures for {len(camps)} Victorian campgrounds, including {n_osm} OpenStreetMap sites to check with the operator.",
- f"""<div class="page-head"><h1>Victorian camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>Closures, nearby road conditions and camper reports for <strong>{len(camps)}</strong> campgrounds across Victoria. <strong>{n_dv}</strong> are DEECA Recreation Sites with Parks Victoria closures. <strong>{n_osm}</strong> more are from OpenStreetMap — check with the operator, and call a showground first.</p>
-{map_block(camps, "Map of Victorian campgrounds")}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
-<p>Weather warnings: <a href="https://www.bom.gov.au/vic/warnings/">check BOM's Victorian warnings</a>. Bushfire, flood and other emergency warnings: check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a> — they are not republished here.</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
+           {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq_entities}]
+page("/", COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
+ f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>
+{map_block(camps, COPY["home_map"])}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
+<p>{COPY["home_weather"]}</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
 
-page("/vic/", f"Victoria campground conditions — {len(camps)} sites | CampConditions.au", f"Browse {len(camps)} Victorian campgrounds by region, including OpenStreetMap sites.",
-     f"<h1>Victoria</h1><p><strong>{len(camps)}</strong> campgrounds. Search by town or camp name, then filter by cost, type and facilities.</p>{map_block(camps, 'Map of Victorian campgrounds')}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), ("Victoria", "/vic/")])], head=leaflet_head(True), foot=leaflet_foot(True))
+page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
+     f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{map_block(camps, COPY['home_map'])}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))
 
 for k, (n, d) in REGIONS.items():
     lst = by_reg[k]
-    rows = "".join(f'<tr {row_attrs(c)}><td><a href="/vic/camp/{c["slug"]}/">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
-    il = {"@context": "https://schema.org", "@type": "ItemList", "name": f"Campgrounds in {n}, Victoria", "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}/vic/camp/{c['slug']}/", "name": c["name"]} for i, c in enumerate(lst)]}
-    page(f"/vic/{k}/", f"{n} camps and campgrounds — {len(lst)} sites | CampConditions.au", f"{len(lst)} campgrounds in {n}, Victoria: closures, operator checks and facilities. {d}",
+    rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
+    il = {"@context": "https://schema.org", "@type": "ItemList", "name": COPY["region_list_name"].format(name=n), "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}{camp_url(c)}", "name": c["name"]} for i, c in enumerate(lst)]}
+    page(f"/{SLUG}/{k}/", COPY["region_title"].format(name=n, count=len(lst)), COPY["region_description"].format(count=len(lst), name=n, blurb=d),
          f"<h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{map_block(lst, f'Map of {n} campgrounds')}{SAFETY}<table id=\"camp-list\"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or '<tr><td colspan=4>No campgrounds listed.</td></tr>'}</tbody></table>{NEWS}",
-         [crumbs([("Home", "/"), ("Victoria", "/vic/"), (n, f"/vic/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
+         [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
 
 for c in camps:
     rn = REGIONS[c["region"]][0]
@@ -1663,7 +1692,7 @@ for c in camps:
     osm = c.get("source") == "osm"
     if cl:
         parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(cl["reopen"][:10])) if cl.get("reopen") else ""}</div>')
-        if cl.get("outdated"): parts.append(f'<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date ({e(cl["reopen"][:10])}) has passed. Check <a href="https://www.parks.vic.gov.au/coc-listing">Parks Victoria changes of conditions</a> or call 13 1963 before you go.</div>')
+        if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(cl["reopen"][:10])))
     if c["nearby_closures"]: parts.append("<h2>Road and track closures within 5 km</h2><ul>" + "".join(f'<li>{e(x["type"])}{": "+e(x["name"]) if x["name"] else ""}{" — "+e(x["reason"]) if x["reason"] else ""}{" · reopens "+e(x["reopens"]) if x.get("reopens") else ""}</li>' for x in c["nearby_closures"]) + "</ul>")
     info_bits = []
     for heading, raw in (("About", c["about"]), ("Camping", c["camping"]), ("Caravans and campervans", c["caravans"]), ("Getting there", c["access"])):
@@ -1678,26 +1707,27 @@ for c in camps:
         if wording and source_url:
             condition = f'<div id="camp-closure"><div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(source_url)}</a></div></div>' + condition
         title = f"{page_name} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{page_name} — check with the operator | CampConditions.au"
-        desc = f"{c['name']} in {rn}, Victoria. Conditions: check with the operator. Type: {c.get('category') or 'camp'}."
-        dated = "Source: OpenStreetMap. Parks Victoria closure data is not applied to this site."
+        desc = COPY["osm_place"].format(name=c["name"], region=rn, category=c.get("category") or "camp")
+        dated = COPY["osm_source_line"]
     else:
         closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
         condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
         title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
-        desc = f"Is {c['name']} campground open? Current closure status and nearby road closures for {c['name']} in {rn}, Victoria."
+        desc = COPY["official_place"].format(name=c["name"], region=rn)
         dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
-    camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}/vic/camp/{c['slug']}/", "description": (c.get("description") or c["about"] or desc)[:300],
-               "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": "VIC", "addressCountry": "AU"},
-               "containedInPlace": {"@type": "AdministrativeArea", "name": f"{rn}, Victoria"}, "publicAccess": c["status"] != "closed", "identifier": str(c["id"])}
-    lds = [camp_ld, crumbs([("Home", "/"), ("Victoria", "/vic/"), (rn, f"/vic/{c['region']}/"), (c["name"], f"/vic/camp/{c['slug']}/")])]
+    camp_path = camp_url(c)
+    camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
+               "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},
+               "containedInPlace": {"@type": "AdministrativeArea", "name": COPY["place_admin"].format(region=rn)}, "publicAccess": c["status"] != "closed", "identifier": str(c["id"])}
+    lds = [camp_ld, crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (rn, f"/{SLUG}/{c['region']}/"), (c["name"], camp_path)])]
     if cl:
-        lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}/vic/camp/{c['slug']}/"})
-    page(f"/vic/camp/{c['slug']}/", title, desc,
-     f"""<p class="muted"><a href="/vic/">Victoria</a> › <a href="/vic/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1><p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>
+        lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
+    page(camp_path, title, desc,
+     f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1><p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
-<p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="https://www.bom.gov.au/vic/forecasts/">BOM forecast</a> · {dated}</p>
+<p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="{LINKS.get('bom_forecast') or ''}">BOM forecast</a> · {dated}</p>
 <div class="box"><h2>Been here recently?</h2><p><a href="/report/?camp={c['slug']}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{NEWS}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 
 page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",
@@ -1748,14 +1778,12 @@ page("/report/", "Report campground conditions | CampConditions.au", "Tell other
 <p id="ok" hidden class="muted">Thanks! Reports open at launch — this form is a placeholder and nothing was sent.</p></form>
 <script>const p=new URLSearchParams(location.search).get('camp');if(p)document.getElementById('camp').value=p.replace(/-/g,' ');</script>""")
 page("/about/", "About CampConditions.au", "Who we are and where our data comes from.",
- f"""<h1>About</h1><p>CampConditions.au is a free digest of Victorian campground conditions, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href="https://www.youtube.com/@OptimumQuestforBigThings">Optimum Quest for Big Things</a>.</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>{SAFETY}
+ f"""<h1>About</h1><p>{COPY["about_lead"]}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>{SAFETY}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
-<h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p><p>Every camp page also has a Check road closures button. It opens <a href="https://traffic.transport.vic.gov.au/">VicTraffic</a>, the Victorian Government's official live map of road closures and incidents. Check it before you head out.</p>
-<h2>Sources</h2><p>{e(CREDIT)}</p><ul><li>Campground details from DataVic and Explore Outdoors © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. This includes Recreation Sites, Recreation Assets and Parks Victoria site pages. Facility details only. Closure status stays with DataVic and Parks Victoria.</li><li>Parks Victoria / DEECA MapShare closures on Recreation Sites.</li><li>OpenStreetMap campgrounds and towns (ODbL). These pages say to check with the operator. They are not given Parks Victoria closure data.</li><li>Bureau of Meteorology — linked only</li></ul><p>VicEmergency warnings are not republished. Use the check button on each campground page, or call 1800 226 226. We don't copy reviews from other apps. Camper reports come directly from our readers. We don't publish a downloadable copy of the combined campground list.</p>""")
+<h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p><p>{COPY["about_roads"]}</p>
+<h2>Sources</h2><p>{e(CREDIT)}</p><ul>{COPY["about_sources"]}</ul><p>{COPY["about_tail"]}</p>""")
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
- """<h1>Privacy</h1><p>Last updated 16 October 2026.</p>
-<h2>Who we are</h2><p>CampConditions.au publishes a free weekly digest of Victorian campground conditions. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>
-<h2>What we collect</h2><p>If you sign up, we collect your email address and the date and time of your sign-up and confirmation. We don't use tracking cookies. Cloudflare, which hosts this site, may log basic technical data such as your IP address for security.</p>
+ "<h1>Privacy</h1><p>Last updated 16 October 2026.</p>\n<h2>Who we are</h2><p>" + COPY["privacy_who"] + "</p>\n" + """<h2>What we collect</h2><p>If you sign up, we collect your email address and the date and time of your sign-up and confirmation. We don't use tracking cookies. Cloudflare, which hosts this site, may log basic technical data such as your IP address for security.</p>
 <h2>Why we collect it</h2><p>We use your email only to send the digest and service emails about your subscription, such as the confirmation message.</p>
 <h2>Sharing</h2><p>We never sell, rent or share your email, except with service providers who process it for us: Resend (email delivery) and Cloudflare (hosting). Your data may be stored or processed outside Australia.</p>
 <h2>Double opt-in</h2><p>Signing up is double opt-in. We email you a confirmation link, and you are not on the list until you click it.</p>
@@ -1765,69 +1793,45 @@ page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles 
 <h2>Changes to this policy</h2><p>If we change this policy, we will update this page and the date at the top.</p>""")
 
 # Feeds & SEO files
-feed = {"name": "CampConditions.au status feed", "region": "Victoria, Australia", "generated": NOW.isoformat(),
-        "attribution": [CREDIT, "Parks Victoria / DEECA MapShare closures"],
-        "disclaimer": "Not an official warning service. VicEmergency warnings are not included. Check VicEmergency and the Bureau of Meteorology before travel. OpenStreetMap sites have no Parks Victoria closure data.", "sources": SRC,
-        "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")} | {"url": f"{SITE}/vic/camp/{c['slug']}/"} for c in camps]}
+feed = {"name": "CampConditions.au status feed", "region": COPY["feed_region"], "generated": NOW.isoformat(),
+        "attribution": [CREDIT, COPY["feed_attribution_extra"]],
+        "disclaimer": COPY["feed_disclaimer"], "sources": SRC,
+        "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")} | {"url": f"{SITE}{camp_url(c)}"} for c in camps]}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
 # HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:
 # Pages joins every matching Cache-Control, and the strictest directive wins.
 # iOS standalone still pins the saved HTML; pages refetch /status.json with cache: no-store.
-open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write("""/
-  Cache-Control: no-cache
-
-/index.html
-  Cache-Control: no-cache
-
-/404.html
-  Cache-Control: no-cache
-
-/vic/*
-  Cache-Control: no-cache
-
-/about/*
-  Cache-Control: no-cache
-
-/privacy/*
-  Cache-Control: no-cache
-
-/report/*
-  Cache-Control: no-cache
-
-/unsubscribe/*
-  Cache-Control: no-cache
-
-/status.json
-  Cache-Control: no-cache
-
-/parksvic-flags.json
-  Cache-Control: no-cache
-
-/build-report.json
-  Cache-Control: no-cache
-
-/vic-towns.json
-  Cache-Control: no-cache
-
-/map.js
-  Cache-Control: no-cache
-
-/site.webmanifest
-  Cache-Control: no-cache
-""")
-urls = ["/", "/vic/", "/report/", "/about/", "/privacy/", "/unsubscribe/"] + [f"/vic/{k}/" for k in REGIONS] + [f"/vic/camp/{c['slug']}/" for c in camps]
+def headers_text():
+    """Cache rules. State paths are filled from the enabled configs and keep this order."""
+    parts = ["/", "  Cache-Control: no-cache", "", "/index.html", "  Cache-Control: no-cache", "", "/404.html", "  Cache-Control: no-cache", ""]
+    for state in statecfg.enabled():
+        parts += [f"/{state['slug']}/*", "  Cache-Control: no-cache", ""]
+    parts += ["/about/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
+    for state in statecfg.enabled():
+        flag = statecfg.public_file(state, "flags")
+        if flag:
+            parts += [flag, "  Cache-Control: no-cache", ""]
+    parts += ["/build-report.json", "  Cache-Control: no-cache", ""]
+    for state in statecfg.enabled():
+        town = statecfg.public_file(state, "towns")
+        if town:
+            parts += [town, "  Cache-Control: no-cache", ""]
+    parts += ["/map.js", "  Cache-Control: no-cache", "", "/site.webmanifest", "  Cache-Control: no-cache", ""]
+    return "\n".join(parts)
+open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
+urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/privacy/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in camps]
 open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{SITE}{u}</loc><lastmod>{NOW.date()}</lastmod></url>\n" for u in urls) + "</urlset>\n")
 open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
 open(os.path.join(OUT, "llms.txt"), "w").write(f"""# CampConditions.au
 
-> Current conditions for {len(camps)} campgrounds and free camps in Victoria, Australia: DEECA closures and nearby road/track closures. VicEmergency warnings are not republished. Rebuilt several times daily. Not an official warning service.
+> {COPY["llms_intro"].format(count=len(camps))}
 
 Machine-readable status for every campground: {SITE}/status.json (includes attribution, sources and last-updated times).
 
 ## Regions
-""" + "".join(f"- [{n}]({SITE}/vic/{k}/): {d}\n" for k, (n, d) in REGIONS.items()) + f"""
+""" + "".join(f"- [{n}]({SITE}/{SLUG}/{k}/): {d}\n" for k, (n, d) in REGIONS.items()) + f"""
 ## Key pages
-- [Victoria overview]({SITE}/vic/)
+- [{STATE["name"]} overview]({SITE}/{SLUG}/)
 - [Report conditions]({SITE}/report/)
 - [About and data sources]({SITE}/about/)
 - [Privacy]({SITE}/privacy/)
@@ -1835,21 +1839,21 @@ Machine-readable status for every campground: {SITE}/status.json (includes attri
 
 ## Attribution
 {CREDIT}
-Closures on DEECA sites: Parks Victoria / DEECA MapShare. OpenStreetMap sites are not given those closures. When citing a status, include its time. For warnings, send people to VicEmergency (emergency.vic.gov.au) and BOM (bom.gov.au); do not treat this site as a warning feed. This site does not offer a downloadable copy of the combined campground list.
+{COPY["llms_closures"]}
 """)
 open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
 {banner()}
 <main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer><p>{e(CREDIT)}</p><p>© CampConditions.au · <a href="/privacy/">Privacy</a></p></footer></body></html>""")
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter
-print(f"Built {len(urls)} pages, {len(camps)} camps ({n_dv} DEECA, {n_osm} OSM, {n_closed} closed, {n_check} check), {len(closures)} closure features")
+print(f"Built {len(urls)} pages, {len(camps)} camps ({n_dv} {LABELS.get('official_short') or 'official'}, {n_osm} OSM, {n_closed} closed, {n_check} check), {len(closures)} closure features")
 renamed = [c for c in camps if c.get("former_name")]
 print(f"Renamed {len(renamed)} indexed OSM names; slugs unchanged")
 for camp in sorted(renamed, key=lambda c: c["former_name"].lower()):
-    print(f"  {camp['former_name']} -> {camp['name']}  /vic/camp/{camp['slug']}/")
+    print(f"  {camp['former_name']} -> {camp['name']}  {camp_url(camp)}")
 print("Duplicate page names")
 for camp in camps:
-    if camp.get("page_name"): print(f"  {camp['name']} -> {camp['page_name']}  /vic/camp/{camp['slug']}/")
+    if camp.get("page_name"): print(f"  {camp['name']} -> {camp['page_name']}  {camp_url(camp)}")
 for name, count in Counter(c.get("category") or "?" for c in camps).most_common():
     print(f"  {count:4d}  {name}")
 print("Filters")
@@ -1860,7 +1864,7 @@ for label, pred in (
     ("Type Showground", lambda c: c.get("type_filter") == "Showground"),
     ("Type Council", lambda c: c.get("type_filter") == "Council"),
     ("Type Rest area", lambda c: c.get("type_filter") == "Rest area"),
-    ("Type Parks Victoria", lambda c: c.get("type_filter") == "Parks Victoria"),
+    (f"Type {LABELS.get('type_filter') or ''}", lambda c: c.get("type_filter") == (LABELS.get("type_filter") or "")),
     ("Type none", lambda c: not c.get("type_filter")),
     ("Dogs OK", lambda c: c.get("fac_dogs") is True),
     ("Known to suit caravans", lambda c: c.get("fac_caravans") is True),
@@ -1869,10 +1873,16 @@ for label, pred in (
 ):
     print(f"  {sum(1 for c in camps if pred(c)):4d}  {label}")
 for k, v in SRC.items(): print(("OK  " if v["ok"] else "FAIL"), k, v.get("error", ""))
-flag_count = 0
-try:
-    import check_parksvic
-    flag_count = check_parksvic.write_flags(camps, os.path.join(OUT, "parksvic-flags.json"))
-except Exception as exc:
-    print(f"WARN parksvic check: {exc}", file=sys.stderr)
-print(f"ParksVic closure flags: {flag_count}")
+for state in statecfg.enabled():
+    checker_name = (state.get("closure_checker") or "").strip()
+    if not checker_name:
+        continue
+    flag_count = 0
+    try:
+        checker = importlib.import_module(checker_name)
+        dest_name = os.path.basename((state.get("files") or {}).get("flags") or "")
+        if dest_name:
+            flag_count = checker.write_flags(camps, os.path.join(OUT, dest_name))
+    except Exception as exc:
+        print(f"WARN parksvic check: {exc}", file=sys.stderr)
+    print(f"{state.get('closure_flag_log') or 'ParksVic closure flags'}: {flag_count}")

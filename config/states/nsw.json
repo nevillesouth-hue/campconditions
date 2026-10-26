@@ -1,0 +1,61 @@
+{
+ "slug": "nsw",
+ "name": "New South Wales",
+ "adjective": "New South Wales",
+ "abbrev": "NSW",
+ "enabled": false,
+ "banner": {
+  "covering": "",
+  "coming": ""
+ },
+ "credit": "",
+ "labels": {
+  "paid_book": "",
+  "book_ahead_note": "",
+  "book_ahead_with": "",
+  "type_filter": "",
+  "agency": "NSW National Parks and Wildlife Service",
+  "phone": "",
+  "official_short": "NPWS",
+  "park_category": ""
+ },
+ "files": {
+  "boundary": "",
+  "towns": "",
+  "osm_camps": "",
+  "osm_csv": "",
+  "enrichment": "",
+  "corrections": "",
+  "pending": "",
+  "flags": ""
+ },
+ "osm": {
+  "pbf_url": "",
+  "default_pbf": "",
+  "bbox": [],
+  "outside_note": ""
+ },
+ "leased_names": [],
+ "sources": {
+  "npws_visitor_areas": {
+   "url": "https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24",
+   "note": "NPWS Visitor Area layer. Not fetched until NSW data is added."
+  },
+  "npws_alerts_rss": {
+   "url": "https://www.nationalparks.nsw.gov.au/api/rssfeed/get",
+   "note": "NPWS alerts RSS. Not fetched until NSW data is added."
+  },
+  "rfs_fdr": {
+   "url": "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml",
+   "note": "NSW RFS fire danger ratings (fdrToban.xml). Not fetched until NSW data is added."
+  }
+ },
+ "closure_checker": "",
+ "safety_html": "",
+ "regions": {},
+ "region_rules": [],
+ "links": {},
+ "copy": {
+  "faq": []
+ }
+}

@@ -201,3 +201,9 @@ def override_expired(until, today):
     until = str(until or "").strip()
     today = str(today or "").strip()
     return bool(until) and bool(today) and until < today
+
+
+def state_labels(slug="vic"):
+    """Display labels for one state. Callers use these instead of a hardcoded agency name."""
+    import states
+    return dict(states.by_slug(slug).get("labels") or {})

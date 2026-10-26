@@ -32,18 +32,27 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import classify
+import states
 import towns
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "data")
-CORRECTIONS = os.path.join(DATA, "manual-corrections.json")
-BOUNDARY = os.path.join(DATA, "victoria-boundary.json")
-PENDING = os.path.join(DATA, "pending-osm.json")
-PUBLISHED = os.path.join(DATA, "osm-camps-vic.json")
-PBF_URL = "https://download.geofabrik.de/australia-oceania/australia/victoria-latest.osm.pbf"
-DEFAULT_PBF = os.environ.get("OSM_PBF") or "/tmp/osm/victoria-latest.osm.pbf"
-WFS = "https://opendata.maps.vic.gov.au/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typeNames=open-data-platform:recweb_site&outputFormat=application/json&CQL_FILTER=camping='Y'"
-BBOX = (140.90, -39.30, 150.10, -33.90)
+# Paths and the extract box come from the state config. Victoria is the only
+# enabled state, so this refresh still writes data/osm-camps-vic.json,
+# data/osm-camps-vic.csv, data/vic-towns.json and data/pending-osm.json.
+# manual-corrections.json is only read.
+_STATE = states.by_slug("vic")
+CORRECTIONS = states.path(_STATE, "corrections")
+BOUNDARY = states.path(_STATE, "boundary")
+PENDING = states.path(_STATE, "pending")
+PUBLISHED = states.path(_STATE, "osm_camps")
+CSV_PATH = states.path(_STATE, "osm_csv")
+TOWNS_PATH = states.path(_STATE, "towns")
+PBF_URL = (_STATE.get("osm") or {}).get("pbf_url") or ""
+DEFAULT_PBF = os.environ.get("OSM_PBF") or (_STATE.get("osm") or {}).get("default_pbf") or ""
+WFS = ((_STATE.get("sources") or {}).get("recreation_sites") or {}).get("url") or ""
+BBOX = tuple((_STATE.get("osm") or {}).get("bbox") or ())
+OUTSIDE_NOTE = ((_STATE.get("osm") or {}).get("outside_note") or "outside Victoria")
 DUPLICATE_M = 600
 _FILLED = {"name", "category", "operator", "description", "phone", "website", "email", "fee_type", "booking", "toilets", "lat", "lon", "source_url", "source_url2", "suits"}
 UA = "CampConditions.au/0.1 (+https://campconditions.au)"
@@ -314,10 +323,10 @@ def write_outputs(camps, town_rows):
         "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "sites": camps,
     }
-    with open(os.path.join(DATA, "osm-camps-vic.json"), "w", encoding="utf-8") as handle:
+    with open(PUBLISHED, "w", encoding="utf-8") as handle:
         json.dump(doc, handle, ensure_ascii=False, indent=1)
         handle.write("\n")
-    with open(os.path.join(DATA, "osm-camps-vic.csv"), "w", encoding="utf-8", newline="") as handle:
+    with open(CSV_PATH, "w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=FIELDS, extrasaction="ignore")
         writer.writeheader()
         for camp in camps:
@@ -325,7 +334,7 @@ def write_outputs(camps, town_rows):
             row["needs_review"] = "true" if camp.get("needs_review") else "false"
             writer.writerow(row)
     town_rows = sorted(town_rows, key=lambda row: (row["rank"], row["name"].lower(), row["lat"]))
-    with open(os.path.join(DATA, "vic-towns.json"), "w", encoding="utf-8") as handle:
+    with open(TOWNS_PATH, "w", encoding="utf-8") as handle:
         json.dump(town_rows, handle, ensure_ascii=False, separators=(",", ":"))
         handle.write("\n")
     from collections import Counter
@@ -399,7 +408,7 @@ def vet_camps(inside, outside, corrections, previous):
                 continue
             known = isinstance(record, dict) or osm_id in previous_by_id
             if outside_state and not known:
-                pending.append(_pending_row(camp, "outside Victoria"))
+                pending.append(_pending_row(camp, OUTSIDE_NOTE))
                 continue
             if not known:
                 pending.append(_pending_row(camp))
@@ -472,7 +481,7 @@ def refresh(pbf_path=None):
             inside.append(camp)
         else:
             outside.append(camp)
-    print(f"Classified camps {len(camps)}; inside Victoria {len(inside)}; outside {len(outside)}; place points {len(town_rows)}")
+    print(f"Classified camps {len(camps)}; inside {_STATE['name']} {len(inside)}; outside {len(outside)}; place points {len(town_rows)}")
     before = len(inside)
     inside = dedupe_internal(inside)
     after_internal = len(inside)

@@ -914,6 +914,12 @@ nsw_index = os.path.join(D, "nsw", "index.html")
 if os.path.isfile(nsw_index):
   nsw_html = open(nsw_index, encoding="utf-8").read()
   if "NPWS Visitor Area" not in nsw_html or "CC BY" not in nsw_html: bad.append(("nsw", "attribution"))
+  if home.count('class="banner-row"') != 2 or nsw_html.count('class="banner-row"') != 2: bad.append(("nav", "header rows"))
+  if 'class="state-pick"' not in home or 'aria-label="State: Victoria"' not in home or ">VIC <" not in home: bad.append(("/", "state picker"))
+  if 'href="/vic/" aria-current="page"' not in home or 'href="/nsw/">New South Wales</a>' not in home: bad.append(("/", "state menu"))
+  if 'href="/vic/">Victoria</a><a href="/nsw/">New South Wales</a>' in home: bad.append(("/", "state links"))
+  if 'class="state-pick"' not in nsw_html or 'aria-label="State: New South Wales"' not in nsw_html or ">NSW <" not in nsw_html: bad.append(("nsw", "state picker"))
+  if 'href="/nsw/" aria-current="page"' not in nsw_html or 'href="/vic/">Victoria</a>' not in nsw_html: bad.append(("nsw", "state menu"))
   nsw_camps = [c for c in feed["camps"] if "/nsw/camp/" in c.get("url", "")]
   npws = [c for c in nsw_camps if c.get("source") == "npws"]
   if len(npws) < 700: bad.append(("nsw", "npws count " + str(len(npws))))

@@ -690,12 +690,44 @@ SHARE_JS = r"""<script>
   });
 })();
 </script>"""
+STATE_PICK_CSS = """<style>
+.state-pick{position:relative;flex:0 0 auto;margin:0;line-height:1.2}
+.state-pick summary{list-style:none;cursor:pointer;color:#e8f0e9;font-weight:400;font-size:.95rem;white-space:nowrap;display:inline-flex;align-items:center;gap:.12rem;padding:0}
+.state-pick summary::-webkit-details-marker{display:none}
+.state-pick summary::marker{content:""}
+.state-pick summary:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.state-caret{font-size:.75em;line-height:1}
+.state-menu{position:absolute;z-index:40;left:0;top:calc(100% + .3rem);min-width:11.5rem;margin:0;padding:.2rem 0;background:#244a2e;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.state-menu a{display:block;padding:.45rem .75rem;color:#fff;font-size:.95rem;white-space:nowrap}
+.state-menu a[aria-current="page"]{font-weight:700}
+@media (max-width:860px){.state-pick summary{font-size:clamp(.78rem,2.4vw,.95rem)}}
+@media (max-width:420px){.state-pick summary{font-size:.74rem}.state-menu a{font-size:.9rem}}
+@media (max-width:370px){.state-pick summary{font-size:.7rem}}
+@media (max-width:480px){.soon{white-space:normal}}
+</style>"""
+def state_nav():
+    """One state keeps the plain link. Several states share a compact menu."""
+    states = statecfg.enabled()
+    if len(states) < 2:
+        return "".join(f'<a href="/{state["slug"]}/">{state["name"]}</a>' for state in states)
+    current = next((state for state in states if state.get("slug") == SLUG), states[0])
+    abbrev = current.get("abbrev") or current.get("name") or ""
+    options = []
+    for state in states:
+        current_attr = ' aria-current="page"' if state.get("slug") == current.get("slug") else ""
+        options.append(f'<a href="/{state["slug"]}/"{current_attr}>{e(state.get("name") or "")}</a>')
+    label = e(current.get("name") or abbrev)
+    return (f'<details class="state-pick"><summary aria-label="State: {label}">{e(abbrev)} '
+            f'<span class="state-caret" aria-hidden="true">▾</span></summary>'
+            f'<div class="state-menu">{"".join(options)}</div></details>')
 def banner(on_home=False):
     href = "#newsletter" if on_home else "/#newsletter"
-    nav_links = "".join(f'<a href="/{state["slug"]}/">{state["name"]}</a>' for state in statecfg.enabled())
+    states = statecfg.enabled()
+    nav_links = state_nav()
+    picker_css = STATE_PICK_CSS if len(states) > 1 else ""
     cover = (STATE.get("banner") or {}).get("covering") or ""
     coming = (STATE.get("banner") or {}).get("coming") or ""
-    return f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>""" + SHARE_JS
+    return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>""" + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
 <meta name="apple-mobile-web-app-capable" content="yes">

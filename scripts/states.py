@@ -30,8 +30,23 @@ def all_states():
 
 
 def enabled():
-    """States the build should emit. Order follows the config files."""
-    return [state for state in all_states() if state.get("enabled")]
+    """States the build should emit.
+
+    A state with enabled true is always included, in config-file order.
+    CAMPCONDITIONS_ENABLE may name extra slugs for a preview. That does not
+    change the enabled flag stored in the config file. Production does not
+    set the variable.
+    """
+    chosen = [state for state in all_states() if state.get("enabled")]
+    have = {state.get("slug") for state in chosen}
+    extra = os.environ.get("CAMPCONDITIONS_ENABLE") or ""
+    for slug in extra.split(","):
+        slug = slug.strip()
+        if not slug or slug in have:
+            continue
+        chosen.append(by_slug(slug))
+        have.add(slug)
+    return chosen
 
 
 def by_slug(slug):

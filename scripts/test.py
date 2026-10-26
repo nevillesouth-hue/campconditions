@@ -18,6 +18,7 @@ sm=re.findall(r"<loc>https://campconditions.au(.*?)</loc>",open(os.path.join(D,"
 for u in sm:
   if not os.path.isfile(os.path.join(D,u.lstrip("/"),"index.html")): bad.append(("sitemap",u))
 feed=json.load(open(os.path.join(D,"status.json")))
+vic_feed=[c for c in feed["camps"] if "/vic/camp/" in c.get("url","")]
 def map_data(where, html):
   m=re.search(r'<script type="application/json" id="camp-map-data">(.*?)</script>', html, re.S)
   if not m:
@@ -54,10 +55,10 @@ if 'action="/api/subscribe"' not in home or "nothing was sent" in home or 'id="n
   bad.append(("/", "newsletter form"))
 vic=open(os.path.join(D,"vic","index.html"), encoding="utf-8").read()
 home_pts, vic_pts=expect_map("/", home, True), expect_map("/vic/", vic, True)
-if len(home_pts)!=len(feed["camps"]) or len(vic_pts)!=len(feed["camps"]): bad.append(("overview", "map count"))
+if len(home_pts)!=len(vic_feed) or len(vic_pts)!=len(vic_feed): bad.append(("overview", "map count"))
 if not home_pts or not home_pts[0].get("slug"): bad.append(("overview", "map slug"))
 home_urls={p["url"] for p in home_pts}
-if home_urls!={c["url"].replace("https://campconditions.au","") for c in feed["camps"]}: bad.append(("overview","map urls"))
+if home_urls!={c["url"].replace("https://campconditions.au","") for c in vic_feed}: bad.append(("overview","map urls"))
 by_point = {p["url"]: p for p in home_pts}
 for p in home_pts:
   if p.get("cost") not in ("", "free", "paid") or p.get("type") not in ("", "Showground", "Council", "Rest area", "Parks Victoria"):
@@ -73,7 +74,7 @@ if sum(1 for p in home_pts if p.get("cost") == "free" and p.get("type") == "Park
 if "sha384-uIZNAcoEHVWMk8LrCSX95DJk6FQzH6zG00LQC9BykRY1UKKpkDzDhbDLYQ1Ho3mI" not in home or "crossorigin=" not in home: bad.append(("sri", "markercluster css"))
 if "sha384-uIZNAcoEHVWMk8LrCSX95DJk6FQzH6zG00LQC9BykRY1UKKpkDzDhbDLYQ1HoRdVx8nYU4LQ5eGzI" in home: bad.append(("sri", "old markercluster css hash"))
 by={}
-for c in feed["camps"]: by.setdefault(c["region"], []).append(c)
+for c in vic_feed: by.setdefault(c["region"], []).append(c)
 for name in os.listdir(os.path.join(D,"vic")):
   page=os.path.join(D,"vic",name,"index.html")
   if name=="camp" or not os.path.isfile(page): continue
@@ -319,6 +320,13 @@ sys.path.insert(0, os.path.join(root, "scripts"))
 import states
 if states.by_slug("vic").get("credit") != CREDIT: bad.append(("states", "credit"))
 if [state["slug"] for state in states.enabled()] != ["vic"]: bad.append(("states", "enabled"))
+os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
+try:
+  if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "preview enable"))
+  if states.by_slug("nsw").get("enabled"): bad.append(("states", "preview flag"))
+finally:
+  os.environ.pop("CAMPCONDITIONS_ENABLE", None)
+if [state["slug"] for state in states.enabled()] != ["vic"]: bad.append(("states", "enable reset"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
@@ -429,8 +437,8 @@ for flag in ("dogs", "caravans", "motorhomes", "hide-closed"):
 if 'input[name="cat"]' in mj or 'andFlags = ["self"' in mj: bad.append(("map.js", "old filters"))
 for bit in ('selected("type")', 'selected("cost")', 'data-flag="hide-closed"', 'obj.status === "closed"', '["dogs", "caravans", "motorhomes"]', "updateFilterStatus", "formatCount", "filter-count", "filter-empty", "filter-clear", "No camps match these filters", "refreshFilterButtons", "filters-open", "max-width: 640px", "aria-expanded", "invalidateSize", "filter-backdrop", "touchend"):
   if bit not in mj: bad.append(("map.js", "filter " + bit))
-osm = [c for c in feed["camps"] if c.get("source") == "osm"]
-dv = [c for c in feed["camps"] if c.get("source") == "datavic"]
+osm = [c for c in vic_feed if c.get("source") == "osm"]
+dv = [c for c in vic_feed if c.get("source") == "datavic"]
 if not osm or not dv: bad.append(("status.json", "both sources"))
 pmr = next((c for c in feed["camps"] if c.get("slug") == "princess-margaret-rose-caves-lower-glenelg-np"), None)
 if not pmr or pmr.get("status") != "closed" or pmr.get("source") != "osm":
@@ -466,7 +474,7 @@ for camp in osm:
     bad.append((camp.get("slug"), "osm closure"))
 if set(closed_notes) - {c.get("slug") for c in osm}:
   bad.append(("status.json", "missing closed override"))
-if str(len(feed["camps"])) not in home: bad.append(("/", "home count"))
+if str(len(vic_feed)) not in home: bad.append(("/", "home count"))
 shown = {"call": False, "operator": False, "review": False, "confirmed": False, "max": False, "unknown": False, "tel": False, "https": False, "pub": False, "park": False, "water": False, "checked": False, "source": False, "access": False, "follow": False, "dogs": False}
 PV = "Paid – Parks Victoria (book ahead)"
 for camp in osm:
@@ -901,6 +909,23 @@ preview = open(os.path.join(root, ".github", "workflows", "preview-more-sites.ym
 if "feature/more-sites" not in preview or "--branch=main" in preview or 'branches: [main]' in preview: bad.append(("preview-more-sites.yml", "branch"))
 if 'if [ "$branch" = "main" ]' not in preview: bad.append(("preview-more-sites.yml", "refuse main"))
 if "feature/more-sites" in wf or "17 */3 * * *" not in wf: bad.append(("build-deploy.yml", "production schedule"))
+if "CAMPCONDITIONS_ENABLE" in wf: bad.append(("build-deploy.yml", "preview enable"))
+nsw_index = os.path.join(D, "nsw", "index.html")
+if os.path.isfile(nsw_index):
+  nsw_html = open(nsw_index, encoding="utf-8").read()
+  if "NPWS Visitor Area" not in nsw_html or "CC BY" not in nsw_html: bad.append(("nsw", "attribution"))
+  nsw_camps = [c for c in feed["camps"] if "/nsw/camp/" in c.get("url", "")]
+  npws = [c for c in nsw_camps if c.get("source") == "npws"]
+  if len(npws) < 700: bad.append(("nsw", "npws count " + str(len(npws))))
+  for camp in npws:
+    if camp.get("status") != "check" or camp.get("closure"):
+      bad.append((camp.get("slug"), "npws status")); break
+  if npws:
+    sample = os.path.join(D, "nsw", "camp", npws[0]["slug"], "index.html")
+    if os.path.isfile(sample):
+      sample_html = open(sample, encoding="utf-8").read()
+      if "no road or track closures were found" in sample_html or "<h2>Facilities</h2>" in sample_html:
+        bad.append((npws[0]["slug"], "invented detail"))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken, {len(warnings)} warnings")
 for item in warnings: print("WARN", item)
 for item in bad[:20]: print(item)

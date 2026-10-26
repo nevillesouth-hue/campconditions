@@ -1796,6 +1796,9 @@ open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write("""/
 /status.json
   Cache-Control: no-cache
 
+/parksvic-flags.json
+  Cache-Control: no-cache
+
 /build-report.json
   Cache-Control: no-cache
 
@@ -1862,3 +1865,10 @@ for label, pred in (
 ):
     print(f"  {sum(1 for c in camps if pred(c)):4d}  {label}")
 for k, v in SRC.items(): print(("OK  " if v["ok"] else "FAIL"), k, v.get("error", ""))
+flag_count = 0
+try:
+    import check_parksvic
+    flag_count = check_parksvic.write_flags(camps, os.path.join(OUT, "parksvic-flags.json"))
+except Exception as exc:
+    print(f"WARN parksvic check: {exc}", file=sys.stderr)
+print(f"ParksVic closure flags: {flag_count}")

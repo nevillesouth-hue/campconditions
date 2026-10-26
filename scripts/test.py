@@ -734,6 +734,41 @@ kept, missing = build_osm.vet_camps(
 if not any(c.get("osm_id") == "n9" for c in kept) or any(c.get("osm_id") == "n8" for c in kept): bad.append(("vet", "missing kept"))
 if not any(row.get("id") == "n9" and row.get("note") == "missing id, needs remap" for row in missing): bad.append(("vet", "missing note"))
 if any(row.get("id") == "n8" for row in missing): bad.append(("vet", "exclusion logged missing"))
+import check_parksvic
+sample_html = """
+<p>Please note: Princess Margaret Rose Cave Campground remains closed for assessments and upgrade works.</p>
+<p>The gates closed at night.</p>
+<p>The campground is closed over the winter shoulder season.</p>
+<div class="quick-reference"><a href="#change-of-conditions">This area is closed</a></div>
+<p>These tracks will remain closed until further notice.</p>
+<p>The lookout is closed to visitors.</p>
+"""
+sample_found = check_parksvic.classify_html(sample_html)
+if sample_found["closed"] != ["Please note: Princess Margaret Rose Cave Campground remains closed for assessments and upgrade works."]:
+  bad.append(("check_parksvic", "closed sentence " + repr(sample_found["closed"])))
+if sample_found["seasonal"] != ["The campground is closed over the winter shoulder season."]:
+  bad.append(("check_parksvic", "seasonal sentence " + repr(sample_found["seasonal"])))
+sample_camp = {"slug": "example-camp", "name": "Example Camp", "osm_id": "n316599357", "id": "n316599357", "status": "check"}
+sample_page = {"error": "", "html": sample_html, "cached": True}
+sample_dest = os.path.join(tempfile.mkdtemp(), "parksvic-flags.json")
+sample_count = check_parksvic.write_flags([sample_camp], sample_dest, fetcher=lambda url: sample_page, sleeper=lambda _n: None, overall_seconds=5)
+if sample_camp["status"] != "check" or sample_count != 1:
+  bad.append(("check_parksvic", "status changed or flag count"))
+else:
+  sample_doc = json.load(open(sample_dest, encoding="utf-8"))
+  sample_flag = sample_doc["flags"][0]
+  if sample_flag.get("slug") != "example-camp" or "remains closed" not in sample_flag.get("sentence", "") or not sample_doc["seasonal"]:
+    bad.append(("check_parksvic", "flags file"))
+  if any(row.get("error") for row in sample_doc["errors"]):
+    bad.append(("check_parksvic", "unexpected error"))
+closed_camp = dict(sample_camp, status="closed")
+closed_count = check_parksvic.write_flags([closed_camp], sample_dest, fetcher=lambda url: sample_page, sleeper=lambda _n: None, overall_seconds=5)
+if closed_camp["status"] != "closed" or closed_count != 0:
+  bad.append(("check_parksvic", "closed camp flagged"))
+error_count = check_parksvic.write_flags([sample_camp], sample_dest, fetcher=lambda url: {"error": "403", "html": "", "cached": True}, sleeper=lambda _n: None, overall_seconds=5)
+error_doc = json.load(open(sample_dest, encoding="utf-8"))
+if error_count != 0 or not error_doc["errors"] or error_doc["errors"][0].get("error") != "403":
+  bad.append(("check_parksvic", "403"))
 if "20 18 * * 1" not in refresh: bad.append(("refresh-osm.yml", "weekly schedule"))
 preview = open(os.path.join(root, ".github", "workflows", "preview-more-sites.yml"), encoding="utf-8").read()
 if "feature/more-sites" not in preview or "--branch=main" in preview or 'branches: [main]' in preview: bad.append(("preview-more-sites.yml", "branch"))

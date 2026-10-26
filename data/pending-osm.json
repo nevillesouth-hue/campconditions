@@ -1,8 +1,76 @@
 {
  "note": "OpenStreetMap camps left off the map. A new id is published only after it has a record in manual-corrections.json.",
- "generated": "2026-10-19T22:42:31Z",
- "count": 1,
+ "generated": "2026-10-26T19:18:58Z",
+ "count": 5,
  "sites": [
+  {
+   "id": "n14317562635",
+   "name": "Bethanga Recreation Reserve",
+   "lat": -36.120113,
+   "lon": 147.099123,
+   "tags": {
+    "access": "customers",
+    "cabins": "no",
+    "camp_site": "standard",
+    "caravans": "yes",
+    "drinking_water": "yes",
+    "fee": "yes",
+    "group_only": "no",
+    "internet_access": "no",
+    "name": "Bethanga Recreation Reserve",
+    "nudism": "no",
+    "power_supply": "yes",
+    "reservation": "no",
+    "sanitary_dump_station": "no",
+    "shower": "yes",
+    "static_caravans": "no",
+    "tents": "yes",
+    "toilets": "yes",
+    "tourism": "camp_site"
+   }
+  },
+  {
+   "id": "n9587458802",
+   "name": "Dindi Mill",
+   "lat": -37.47929,
+   "lon": 145.563698,
+   "tags": {
+    "description": "The Dindi Mill camping area is located at the old historical sawmill site. The mill had a large workforce, mostly of adult males with a few family groups. Remnants of the mill still remain such as the large sawdust heap. Small camping sites and a pit toil",
+    "fee": "no",
+    "name": "Dindi Mill",
+    "source": "DELWP",
+    "tourism": "camp_site"
+   }
+  },
+  {
+   "id": "w1571253491",
+   "name": "Wannon Crossing Campground",
+   "lat": -37.433618,
+   "lon": 142.475625,
+   "tags": {
+    "access": "yes",
+    "addr:street": "Grampians Road",
+    "camp_site": "standard",
+    "capacity:tents": "5",
+    "fee": "no",
+    "name": "Wannon Crossing Campground",
+    "operator": "Parks Victoria",
+    "static_caravans": "no",
+    "tents": "yes",
+    "tourism": "camp_site",
+    "website": "https://www.parks.vic.gov.au/places-to-see/sites/wannon-crossing-campground",
+    "wikidata": "Q3365478"
+   },
+   "duplicate": "likely duplicate of n1010039365 Wannon Crossing Campground (Grampians (Gariwerd) National Park), 15 m"
+  },
+  {
+   "id": "n1010039365",
+   "name": "Wannon Crossing Campground (Grampians (Gariwerd) National Park)",
+   "lat": -37.433754,
+   "lon": 142.47565,
+   "tags": {},
+   "note": "missing id, needs remap"
+  },
   {
    "id": "n863349374",
    "name": "Wye River Beachfront Campground",

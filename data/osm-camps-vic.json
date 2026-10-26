@@ -1,7 +1,7 @@
 {
  "attribution": "© OpenStreetMap contributors, ODbL 1.0 (openstreetmap.org/copyright)",
  "count": 1326,
- "generated": "2026-10-19T22:42:31Z",
+ "generated": "2026-10-26T19:18:58Z",
  "sites": [
   {
    "name": "1 Wild Cherry Camp",
@@ -13157,7 +13157,12 @@
    "fee_type": "paid",
    "description": "Kiata campground in Little Desert National Park with toilets, tables and BBQs (Parks Victoria site; check booking/fees).",
    "source_url": "https://wimmeramalleetourism.com.au/images/WMTFreeCamping.pdf",
-   "checked_date": "2026-10-16"
+   "checked_date": "2026-10-16",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/kiata-camping-area",
+    "wording": "There are still some areas within the park which remain closed for recovery works such as: Kiata Campground",
+    "checked_date": "2026-10-26"
+   }
   },
   {
    "name": "Killarney Beach Camping Reserve",
@@ -13871,7 +13876,13 @@
    "source_note": "Parks Victoria campground page: Lake Catani Campground.",
    "description": "Lake Catani Campground - Mt Buffalo NP: camping area managed by Parks Victoria. Notes: toilets; bring your own drinking water.",
    "checked_date": "2026-10-17",
-   "fee_note": "book_ahead"
+   "fee_note": "book_ahead",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/mount-buffalo-national-park/where-to-stay/lake-catani-campground",
+    "wording": "Lake Catani Campground is CLOSED for all camping from August 31st until October 30th 2026.",
+    "until": "2026-10-30",
+    "checked_date": "2026-10-26"
+   }
   },
   {
    "name": "Lake Charlegrark Caravan Park",
@@ -18609,7 +18620,13 @@
    "booking": "no",
    "source_note": "PV Notley page: large open grassy campground, shelter, non-flushing toilets, fireplaces; suits caravans, camper trailers, motorhomes (drive-through sites); bookings not required; no bins or water. Maintenance works at the camping area 28 Sep - 30 Oct 2026.",
    "description": "Notley Campground in Greater Bendigo National Park: large open grassy campground with a shelter, non-flush toilets and fireplaces, and drive-through sites for caravans and motorhomes. No bookings needed. No water or bins. Parks Victoria lists maintenance works here until 30 October 2026.",
-   "checked_date": "2026-10-19"
+   "checked_date": "2026-10-19",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/greater-bendigo-national-park/where-to-stay/notley-campground-and-picnic-area",
+    "wording": "Notley Camping & Picnic Area - closed for upgrades",
+    "until": "2026-10-30",
+    "checked_date": "2026-10-26"
+   }
   },
   {
    "name": "Nug Nug Reserve",
@@ -20272,7 +20289,12 @@
    "source_note": "Parks Victoria campground page: Princess Margaret Rose Cave Campground.",
    "description": "Princess Margaret Rose Caves - Lower Glenelg NP: camping area managed by Parks Victoria. Notes: toilets.",
    "checked_date": "2026-10-17",
-   "fee_note": "book_ahead"
+   "fee_note": "book_ahead",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/lower-glenelg-national-park/where-to-stay/princess-margaret-rose-cave-campground",
+    "wording": "Please note: Princess Margaret Rose Cave Campground remains closed for assessments and upgrade works.",
+    "checked_date": "2026-10-26"
+   }
   },
   {
    "name": "Princetown Camping Reserve",
@@ -23596,6 +23618,12 @@
    "lon": 142.282034,
    "category": "free",
    "phone": "13 1963",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/strachans-campground",
+    "wording": "Strachans Campground will be closed to visitors between 13 April and 29 October 2026 while major upgrade works are completed.",
+    "until": "2026-10-29",
+    "checked_date": "2026-10-26"
+   },
    "osm_id": "new:strachans-campground-grampians-gariwerd-national-park"
   },
   {
@@ -24226,7 +24254,13 @@
    "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-camping-area",
    "checked_date": "2026-10-17",
    "fee_type": "free",
-   "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Facilities noted: toilets, fire pits."
+   "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Facilities noted: toilets, fire pits.",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-camping-area",
+    "wording": "Upper Teddington Reservoir - closed for maintenance",
+    "until": "2026-11-30",
+    "checked_date": "2026-10-26"
+   }
   },
   {
    "name": "Teddington Hut (Kara Kara National Park)",

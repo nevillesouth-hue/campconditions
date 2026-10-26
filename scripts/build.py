@@ -228,6 +228,31 @@ def apply_datavic_enrichment(camps):
         print(f"WARN datavic enrichment: {len(gone)} overlay site(s) no longer in the feed, so no page was built: {', '.join(gone)}", file=sys.stderr)
     print(f"DataVic enrichment applied to {applied} camps, {mismatches} slug mismatches")
     return applied
+def apply_closed_override(camp, row):
+    """Mark one OSM camp closed from a manual Parks Victoria page note.
+
+    Runs after apply_row_facts, which puts status and closure back. DataVic
+    camps never come through here.
+    """
+    override = row.get("closed_override")
+    if not isinstance(override, dict):
+        return False
+    source_url = str(override.get("source_url") or "").strip()
+    wording = str(override.get("wording") or "").strip()
+    if not source_url or not wording:
+        return False
+    camp["status"] = "closed"
+    camp["closure"] = {
+        "status": "CLOSURE (Parks Victoria website)",
+        "desc": wording,
+        "reason": "",
+        "start": None,
+        "reopen": None,
+        "outdated": False,
+        "source_url": source_url,
+        "checked": override.get("checked_date"),
+    }
+    return True
 def load_osm(seen):
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import build_osm
@@ -238,6 +263,7 @@ def load_osm(seen):
     else: rows = doc
     rows = build_osm.apply_corrections(rows, build_osm.load_corrections())
     extra = []
+    overrides = 0
     allowed = set(CAT_LABEL) | set(CAT_LABEL.values())
     for row in rows:
         name = (row.get("name") or "").strip()
@@ -259,6 +285,8 @@ def load_osm(seen):
             "site_class": cat, "dis_access": None, "managed_by": "", "data_date": "",
             "nearby_closures": [], "source": "osm", "category": cat, "needs_review": bool(row.get("needs_review"))}
         apply_row_facts(camp, row)
+        if apply_closed_override(camp, row):
+            overrides += 1
         if cat == "Free" and str(row.get("fee_type") or "").strip().lower() == "paid":
             camp["category"] = "Camping area"
             camp["site_class"] = "Camping area"
@@ -269,6 +297,7 @@ def load_osm(seen):
             camp["former_name"] = camp["name"]
             camp["name"] = shown
         extra.append(camp)
+    print(f"Closure overrides applied: {overrides}")
     return extra
 camps.extend(load_osm(seen))
 apply_datavic_enrichment(camps)
@@ -585,10 +614,10 @@ FRESH_JS = r"""<script>
     }
   }
   function badgeText(c) {
+    if (c.status === "closed") return "Closed";
     if (c.source === "osm" && c.category === "Showground") return "Call first";
     if (c.source === "osm" && c.category === PV) return "Book ahead";
     if (c.source === "osm") return "Check with operator";
-    if (c.status === "closed") return "Closed";
     if (c.status === "check") return "Check conditions";
     return "No known issues";
   }
@@ -599,6 +628,7 @@ FRESH_JS = r"""<script>
   }
   function listNote(c) {
     if (c.source === "osm") {
+      if (c.status === "closed" && c.closure && c.closure.desc) return c.closure.desc;
       if (c.category === "Showground") return "Call first";
       if (c.category === PV) return "Book ahead — Parks Victoria";
       if (c.category === "Pub stay") return "Pub stay — check with the pub";
@@ -610,7 +640,12 @@ FRESH_JS = r"""<script>
     return "";
   }
   function closureHtml(c) {
-    if (!c || c.source === "osm") return null;
+    if (!c) return null;
+    if (c.source === "osm") {
+      var ov = c.closure || null;
+      if (!ov || !ov.desc || !ov.source_url) return null;
+      return '<div class="warn"><strong>Closed:</strong> ' + esc(ov.desc) + ' <a href="' + esc(ov.source_url) + '">' + esc(ov.source_url) + "</a></div>";
+    }
     var parts = [];
     var cl = c.closure || null;
     if (cl) {
@@ -1403,7 +1438,8 @@ def badge(c):
         status, text = c, {"open": "No known issues", "closed": "Closed", "check": "Check conditions"}[c]
     else:
         status = c["status"]
-        if c.get("source") == "osm" and c.get("category") == "Showground": text = "Call first"
+        if status == "closed": text = "Closed"
+        elif c.get("source") == "osm" and c.get("category") == "Showground": text = "Call first"
         elif c.get("source") == "osm" and c.get("category") == PV_LABEL: text = "Book ahead"
         elif c.get("source") == "osm": text = "Check with operator"
         else: text = {"open": "No known issues", "closed": "Closed", "check": "Check conditions"}[status]
@@ -1479,6 +1515,8 @@ n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"
 
 def list_note(c):
     if c.get("source") == "osm":
+        if c.get("status") == "closed" and (c.get("closure") or {}).get("desc"):
+            return c["closure"]["desc"]
         if c.get("category") == "Showground": return "Call first"
         if c.get("category") == PV_LABEL: return "Book ahead — Parks Victoria"
         if c.get("category") == "Pub stay": return "Pub stay — check with the pub"
@@ -1631,6 +1669,10 @@ for c in camps:
     page_name = c.get("page_name") or c["name"]
     if osm:
         condition = osm_blocks(c)
+        wording = str((cl or {}).get("desc") or "").strip()
+        source_url = str((cl or {}).get("source_url") or "").strip()
+        if wording and source_url:
+            condition = f'<div id="camp-closure"><div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(source_url)}</a></div></div>' + condition
         title = f"{page_name} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{page_name} — check with the operator | CampConditions.au"
         desc = f"{c['name']} in {rn}, Victoria. Conditions: check with the operator. Type: {c.get('category') or 'camp'}."
         dated = "Source: OpenStreetMap. Parks Victoria closure data is not applied to this site."

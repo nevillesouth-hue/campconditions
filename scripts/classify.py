@@ -12,6 +12,8 @@ decide(tags) returns a site dict, or None when the feature is dropped.
 import json
 import re
 
+import states as _states
+
 CHAIN = re.compile(
     r"discovery|big ?4|nrma|ingenia|tasman holiday|g'?day|top parks?|holiday haven|aspen|reflections|"
     r"hampshire|breakfree|nature'?s? edge|family parks|lifestyle|resort|retirement|village|manufactured|over ?50",
@@ -23,15 +25,15 @@ EXCL = re.compile(
     re.I,
 )
 COUNCIL = re.compile(r"council|shire|city of|rural city|borough|committee|com\b|trust|foreshore|reserve|crown", re.I)
-LEASED = {
-    "marlo caravan park",
-    "orbost caravan park",
-    "bemm river caravan park",
-    "eagle point caravan park",
-    "omeo holiday park",
-    "eastern beach holiday park",
-    "bairnsdale riverside holiday park",
-}
+def leased_names(state_slug="vic"):
+    """Holiday parks treated as leased council parks. The list is per state."""
+    try:
+        return set(_states.by_slug(state_slug).get("leased_names") or [])
+    except KeyError:
+        return set()
+
+
+LEASED = leased_names("vic")
 CATEGORIES = ("free", "donation", "showground", "council_park", "council_park_leased", "rest_area")
 YES = ("yes", "designated", "leashed", "permissive")
 
@@ -66,8 +68,9 @@ def _overnight(tags):
     return "maxstay" in tags
 
 
-def decide(tags, name=None):
+def decide(tags, name=None, state_slug="vic"):
     """Return the curated site fields, or None if this feature is excluded."""
+    leased = LEASED if state_slug == "vic" else leased_names(state_slug)
     tags = dict(tags or {})
     name = (name if name is not None else tags.get("name") or "").strip()
     if not name or not re.search(r"[A-Za-z0-9]", name):
@@ -101,7 +104,7 @@ def decide(tags, name=None):
         review = tourism is None
     elif rest and tourism is None:
         category = "rest_area"
-    elif low in LEASED:
+    elif low in leased:
         category = "council_park_leased"
     elif tourism == "caravan_site":
         if COUNCIL.search(operator) or re.search(r"foreshore|reserve|recreation|showground", low):

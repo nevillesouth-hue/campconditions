@@ -315,6 +315,10 @@ if unsub_api.returncode != 0:
   bad.append(("unsubscribe api", (unsub_api.stderr or unsub_api.stdout)[-400:]))
 
 CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Campground details from DataVic and Explore Outdoors © State of Victoria (DEECA), CC BY 4.0, and Parks Victoria."
+sys.path.insert(0, os.path.join(root, "scripts"))
+import states
+if states.by_slug("vic").get("credit") != CREDIT: bad.append(("states", "credit"))
+if [state["slug"] for state in states.enabled()] != ["vic"]: bad.append(("states", "enabled"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
@@ -587,6 +591,17 @@ if facts.override_expired("2026-10-25", "2026-10-26") is not True: bad.append(("
 if facts.override_expired("2026-10-26", "2026-10-26") or facts.override_expired("2026-10-30", "2026-10-26") or facts.override_expired("", "2026-10-26"):
   bad.append(("facts", "until still current"))
 build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
+if "statecfg.enabled" not in build_src: bad.append(("build.py", "enabled states"))
+nsw = states.by_slug("nsw")
+if nsw.get("enabled"): bad.append(("states", "nsw enabled"))
+nsw_hooks = {
+    "npws_visitor_areas": "https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24",
+    "npws_alerts_rss": "https://www.nationalparks.nsw.gov.au/api/rssfeed/get",
+    "rfs_fdr": "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml",
+}
+for hook, url in nsw_hooks.items():
+    if ((nsw.get("sources") or {}).get(hook) or {}).get("url") != url: bad.append(("states", hook))
+    if url in build_src: bad.append(("build.py", "fetches " + hook))
 if "facts.override_expired" not in build_src or "Closure override expired:" not in build_src:
   bad.append(("build.py", "expired override"))
 suit_cases = [
@@ -611,7 +626,8 @@ dv_doc = json.load(open(dv_path, encoding="utf-8"))
 dv_camps = dv_doc.get("camps") or {}
 if len(dv_camps) != 353 or dv_doc.get("_meta", {}).get("count") != 353: bad.append(("datavic enrichment", "count"))
 build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
-if "datavic-enrichment.json" not in build_src or re.search(r"open\(\s*.*datavic-enrichment[^)]*[\"']w", build_src): bad.append(("build.py", "enrichment write"))
+if os.path.basename((states.by_slug("vic").get("files") or {}).get("enrichment") or "") != "datavic-enrichment.json": bad.append(("states", "enrichment path"))
+if re.search(r"open\(\s*.*datavic-enrichment[^)]*[\"']w", build_src): bad.append(("build.py", "enrichment write"))
 if "apply_row_facts" not in build_src or "_FACT_PROTECTED" not in build_src: bad.append(("build.py", "status guard"))
 def page_of(slug):
   path = os.path.join(D, "vic", "camp", slug, "index.html")

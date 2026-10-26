@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Rank Victorian place points. Towns (city, town, village) sort above localities."""
+"""Rank place points. Towns (city, town, village) sort above localities.
+
+The place file for a state lives in that state's config (data/vic-towns.json for Victoria).
+"""
 
 PLACE_RANK = {
     "city": 0,
@@ -16,6 +19,17 @@ def place_rank(tags):
     if place not in PLACE_RANK or not (tags.get("name") or "").strip():
         return None
     return PLACE_RANK[place]
+
+
+def data_path(slug="vic"):
+    import states
+    return states.path(states.by_slug(slug), "towns")
+
+
+def load(slug="vic"):
+    import json
+    with open(data_path(slug), encoding="utf-8") as handle:
+        return json.load(handle)
 
 
 def town_record(tags, lat, lon):

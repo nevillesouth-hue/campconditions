@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
-"""Weekly Victoria digest from status.json. Closures only — VicEmergency data is not read or listed.
+"""Weekly digest from status.json. Closures only — emergency warnings are not read or listed.
+
+Copy, region names and warning links come from the enabled state config.
+Victoria is the only enabled state, so the draft is still the Victoria digest.
 
 Writes draft files only (digest.html, digest.txt, meta.json). Nothing here sends email.
 The scheduled site rebuild must not call a mail API; sending is a separate, manual step.
 """
-import argparse, datetime as dt, html, json, os, re
+import argparse, datetime as dt, html, json, os, re, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import states
 
-REG = {
-    "high-country": "High Country",
-    "gippsland": "Gippsland",
-    "yarra-ranges-central": "Yarra Ranges & Central Highlands",
-    "goldfields-central": "Goldfields & Central Victoria",
-    "grampians-south-west": "Grampians & South West",
-    "otways-surf-coast": "Otways & Surf Coast",
-    "murray-mallee": "Murray & Mallee",
-}
+_STATE = states.enabled()[0]
+_COPY = _STATE.get("copy") or {}
+REG = {key: name for key, name, _blurb in states.regions(_STATE)}
 ap = argparse.ArgumentParser()
 ap.add_argument("--current", default=os.path.join("dist", "status.json"))
 ap.add_argument("--previous", default="")
@@ -30,17 +29,17 @@ prev_closed = {c["slug"] for c in prev["camps"] if c["status"] == "closed"} if p
 newly_closed = [c for c in closed if prev and c["slug"] not in prev_closed]
 reopened = [c for c in (prev["camps"] if prev else []) if c["status"] == "closed" and c["slug"] not in {x["slug"] for x in closed}]
 gen = dt.datetime.fromisoformat(cur["generated"]); date = gen.strftime("%-d %B %Y")
-subject = f"Victoria free camps this week: {len(closed)} closed" + (f", {len(newly_closed)} new" if prev else "")
+subject = _COPY["digest_subject"].format(closed=len(closed)) + (f", {len(newly_closed)} new" if prev else "")
 preview = "Closures, reopenings and stale records — region by region."
 
 F = "font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:22px;color:#222222;"
 def h2(t): return f'<tr><td style="{F}font-size:18px;line-height:26px;font-weight:bold;padding-top:18px;color:#2f5d3a;">{e(t)}</td></tr>'
 def para(s): return f'<tr><td style="{F}padding-top:8px;">{s}</td></tr>'
-rows = [para(f"G'day! Here's what's changed for Victorian free camps and campgrounds, {e(date)}.<br>"
+rows = [para(f"{_COPY['digest_intro'].format(date=e(date))}<br>"
              f"<strong>{len(closed)}</strong> of {len(camps)} campgrounds are closed.")]
 if prev: rows += [h2("Newly closed"), para("<br>".join(f"{link(c)} — {e((c['closure'] or {}).get('desc') or 'Closed')}" for c in newly_closed) or "None this week."),
                   h2("Reopened"), para("<br>".join(link(c) for c in reopened) or "None this week.")]
-rows.append(para('Warnings change quickly, so we don\'t list them here. <a href="https://emergency.vic.gov.au/respond/" style="color:#2f5d3a;">Check VicEmergency for warnings near your camp</a> and the <a href="https://www.bom.gov.au/vic/warnings/" style="color:#2f5d3a;">BOM warnings for Victoria</a> before you go.'))
+rows.append(para(_COPY["digest_warnings"]))
 rows.append(h2("Closed, by region"))
 for k, n in REG.items():
     cs = [c for c in closed if c["region"] == k]
@@ -48,11 +47,9 @@ for k, n in REG.items():
 rows.append(para('<span style="font-size:13px;color:#666666;">* Reopening date has passed — the closure record may be outdated.</span>'))
 rows.append(para('Been somewhere lately? <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'))
 UNSUB = "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}"
-foot = (f'Not an official warning service — always check <a href="https://emergency.vic.gov.au/" style="color:#666666;">VicEmergency</a> and the '
-        f'<a href="https://www.bom.gov.au/vic/warnings/" style="color:#666666;">BOM</a> before you travel. In an emergency call 000.<br>'
-        f'Campground data: DEECA Recreation Sites via DataVic (CC BY 4.0).<br>You’re getting this because you confirmed your subscription at campconditions.au. '
-        f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
-        f'<a href="{UNSUB}" style="color:#666666;">Unsubscribe</a>')
+foot = (_COPY["digest_footer"]
+        + f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
+        + f'<a href="{UNSUB}" style="color:#666666;">Unsubscribe</a>')
 body = "".join(rows) + f'<tr><td style="{F}font-size:12px;line-height:18px;color:#666666;padding-top:24px;">{foot}</td></tr>'
 doc = f"""<!DOCTYPE html><html lang="en-AU"><head><meta charset="utf-8"><title>{e(subject)}</title></head>
 <body style="margin:0;background:#fbfaf6;"><div style="display:none;max-height:0;overflow:hidden;">{e(preview)}</div>

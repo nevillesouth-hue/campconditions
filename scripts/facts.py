@@ -191,3 +191,13 @@ def fee_label(value, fee_note=None):
     if note == "permit":
         return "Permit required"
     return "Paid – contact for details"
+
+
+def override_expired(until, today):
+    """True when a YYYY-MM-DD end date is already past.
+
+    The end date itself still applies. A blank end date does not expire.
+    """
+    until = str(until or "").strip()
+    today = str(today or "").strip()
+    return bool(until) and bool(today) and until < today

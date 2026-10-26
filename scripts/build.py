@@ -241,6 +241,10 @@ def apply_closed_override(camp, row):
     wording = str(override.get("wording") or "").strip()
     if not source_url or not wording:
         return False
+    until = str(override.get("until") or "").strip()
+    if facts.override_expired(until, NOW.date().isoformat()):
+        print(f"Closure override expired: {camp.get('name')} until {until}")
+        return False
     camp["status"] = "closed"
     camp["closure"] = {
         "status": "CLOSURE (Parks Victoria website)",

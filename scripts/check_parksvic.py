@@ -31,7 +31,8 @@ SEASONAL_RE = re.compile(
     r"shoulder|\bseasonal\b|for the winter|over winter|during winter|winter season|off[ -]season",
     re.I,
 )
-ROAD_RE = re.compile(r"\b(?:roads?|tracks?|motor vehicles?)\b", re.I)
+ROAD_RE = re.compile(r"\b(?:roads?|tracks?|motor vehicles?|tk|rd)\b", re.I)
+NAME_STOP = {"campground", "camping", "campsite", "camp", "area", "areas", "the", "and", "national", "park", "parks", "reserve", "site", "sites", "victoria", "lake", "river", "creek", "track", "road", "upper", "lower", "north", "south", "east", "west", "mount", "with", "from"}
 CAMP_RE = re.compile(r"\bcamp(?:ground|site|ing)?s?\b", re.I)
 OTHER_RE = re.compile(r"\b(?:lookouts?|picnic|day visitor)\b", re.I)
 URL_RE = re.compile(r"https?://[^\s<>\"']+", re.I)
@@ -39,16 +40,21 @@ CAMPGROUND_BITS = ("campground", "camping", "where-to-stay", "campsite")
 SKIP_TAGS = {"script", "style", "noscript", "svg"}
 BLOCK_TAGS = {"p", "div", "li", "h1", "h2", "h3", "h4", "h5", "h6", "br", "tr", "section"}
 VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
-INTERESTING = ("explore__overview", "change-of-conditions__content", "change-of-conditions__title-text", "change-of-conditions__subtitle")
+def _name_tokens(name):
+    return {word for word in re.findall(r"[a-z0-9]+", (name or "").lower()) if len(word) > 3 and word not in NAME_STOP}
 
 
 class _Text(HTMLParser):
-    def __init__(self):
+    """Overview text, plus a change-of-conditions item only when it names this camp."""
+
+    def __init__(self, camp_name=""):
         super().__init__(convert_charrefs=True)
+        self.want = _name_tokens(camp_name)
         self.stack = []
-        self.saw_region = False
         self.region = []
         self.fallback = []
+        self.items = []
+        self.current = None
 
     def handle_starttag(self, tag, attrs):
         if tag in VOID_TAGS:
@@ -59,14 +65,22 @@ class _Text(HTMLParser):
         for key, value in attrs:
             if key == "class" and value:
                 classes = value
-        interesting = any(bit in classes for bit in INTERESTING)
-        if interesting:
-            self.saw_region = True
+        capture = None
+        if "explore__overview" in classes:
+            capture = "overview"
+        elif "change-of-conditions__item" in classes:
+            self.current = {"subtitle": [], "content": []}
+            self.items.append(self.current)
+            capture = "item"
+        elif "change-of-conditions__subtitle" in classes or "change-of-conditions__title-text" in classes:
+            capture = "subtitle"
+        elif "change-of-conditions__content" in classes:
+            capture = "content"
         self.stack.append({
             "tag": tag,
             "skip": tag in SKIP_TAGS,
             "quick": "quick-reference" in classes,
-            "interest": interesting,
+            "capture": capture,
             "block": tag in BLOCK_TAGS,
         })
         if tag in BLOCK_TAGS:
@@ -80,6 +94,8 @@ class _Text(HTMLParser):
             return
         while len(self.stack) > idx:
             flags = self.stack.pop()
+            if flags["capture"] == "item":
+                self.current = None
             if flags["block"]:
                 self._add("\n")
 
@@ -89,19 +105,30 @@ class _Text(HTMLParser):
     def _blocked(self):
         return any(item["skip"] or item["quick"] for item in self.stack)
 
-    def _interest(self):
-        return any(item["interest"] for item in self.stack)
+    def _capture(self):
+        caps = [item["capture"] for item in self.stack if item["capture"]]
+        return caps[-1] if caps else ""
 
     def _add(self, data):
         if self._blocked():
             return
         self.fallback.append(data)
-        if self._interest():
+        capture = self._capture()
+        if capture == "overview":
             self.region.append(data)
+        elif self.current is not None and capture in ("subtitle", "content"):
+            self.current[capture].append(data)
 
     def text(self):
-        parts = self.region if self.saw_region else self.fallback
-        return html.unescape("".join(parts)).replace("\xa0", " ")
+        parts = list(self.region)
+        for item in self.items:
+            subtitle = "".join(item["subtitle"])
+            if self.want and (self.want & _name_tokens(subtitle)):
+                parts.append("\n")
+                parts.extend(item["subtitle"])
+                parts.extend(item["content"])
+        chosen = parts if parts else self.fallback
+        return html.unescape("".join(chosen)).replace("\xa0", " ")
 
 
 def sentences(text):
@@ -119,11 +146,11 @@ def sentences(text):
     return found
 
 
-def classify_html(page):
+def classify_html(page, camp_name=""):
     """Return closure sentences and seasonal sentences from one HTML page."""
     closed, seasonal = [], []
     try:
-        parser = _Text()
+        parser = _Text(camp_name)
         parser.feed(page or "")
         parser.close()
         extracted = parser.text()
@@ -298,7 +325,7 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
         if page.get("error"):
             errors.append(_record(camp, url, checked, error=str(page["error"])))
             continue
-        found = classify_html(page.get("html") or "")
+        found = classify_html(page.get("html") or "", camp.get("name") or "")
         if camp.get("status") != "closed" and found["closed"]:
             flags.append(_record(camp, url, checked, sentence=" ".join(found["closed"])))
         for sentence in found["seasonal"]:

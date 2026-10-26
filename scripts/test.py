@@ -136,7 +136,7 @@ for r, _, fs in os.walk(D):
         if re.search(r"\bosom\b", blob): bad.append((os.path.join(r, f)[len(D):], needle))
       elif needle.lower() in blob:
         # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
-        if needle == "fire danger" and f"{os.sep}vic{os.sep}camp{os.sep}" in os.path.join(r, f):
+        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in os.path.join(r, f) or f == "parksvic-flags.json"):
           continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
@@ -748,6 +748,20 @@ if sample_found["closed"] != ["Please note: Princess Margaret Rose Cave Campgrou
   bad.append(("check_parksvic", "closed sentence " + repr(sample_found["closed"])))
 if sample_found["seasonal"] != ["The campground is closed over the winter shoulder season."]:
   bad.append(("check_parksvic", "seasonal sentence " + repr(sample_found["seasonal"])))
+named_html = """
+<div class="explore__overview"><p>Stapylton Campground is open all year.</p></div>
+<div class="change-of-conditions__item">
+  <h4 class="change-of-conditions__subtitle">Strachans Campground</h4>
+  <div class="change-of-conditions__content"><p>Strachans Campground is closed for upgrades.</p></div>
+</div>
+<div class="change-of-conditions__item">
+  <h4 class="change-of-conditions__subtitle">Stapylton Campground</h4>
+  <div class="change-of-conditions__content"><p>Stapylton Campground remains closed for upgrade works.</p></div>
+</div>
+"""
+named_found = check_parksvic.classify_html(named_html, "Stapylton Campground")
+if named_found["closed"] != ["Stapylton Campground remains closed for upgrade works."]:
+  bad.append(("check_parksvic", "named alert " + repr(named_found["closed"])))
 sample_camp = {"slug": "example-camp", "name": "Example Camp", "osm_id": "n316599357", "id": "n316599357", "status": "check"}
 sample_page = {"error": "", "html": sample_html, "cached": True}
 sample_dest = os.path.join(tempfile.mkdtemp(), "parksvic-flags.json")

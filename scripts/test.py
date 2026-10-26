@@ -439,8 +439,29 @@ else:
     bad.append(("princess-margaret-rose-caves-lower-glenelg-np", "closure box"))
   if (pmr.get("closure") or {}).get("desc") != note or (pmr.get("closure") or {}).get("source_url") != src:
     bad.append(("princess-margaret-rose-caves-lower-glenelg-np", "closure feed"))
-if any(c.get("nearby_closures") for c in osm) or any((c.get("status") != "check" or c.get("closure")) and c.get("slug") != "princess-margaret-rose-caves-lower-glenelg-np" for c in osm):
-  bad.append(("status.json", "osm must not get parks vic closures"))
+closed_notes = {
+  "princess-margaret-rose-caves-lower-glenelg-np": "Please note: Princess Margaret Rose Cave Campground remains closed for assessments and upgrade works.",
+  "strachans-campground-grampians-gariwerd-national-park": "Strachans Campground will be closed to visitors between 13 April and 29 October 2026 while major upgrade works are completed.",
+  "lake-catani-campground-mt-buffalo-np": "Lake Catani Campground is CLOSED for all camping from August 31st until October 30th 2026.",
+  "notley-picnic-and-camping-area": "Notley Camping & Picnic Area - closed for upgrades",
+  "teddington-camping-area-kara-kara-national-park": "Upper Teddington Reservoir - closed for maintenance",
+  "kiata-campground": "There are still some areas within the park which remain closed for recovery works such as: Kiata Campground",
+}
+if any(c.get("nearby_closures") for c in osm):
+  bad.append(("status.json", "osm nearby closures"))
+for camp in osm:
+  note = closed_notes.get(camp.get("slug"))
+  if note:
+    if camp.get("status") != "closed" or (camp.get("closure") or {}).get("desc") != note or not (camp.get("closure") or {}).get("source_url"):
+      bad.append((camp.get("slug"), "closed override"))
+    else:
+      page = open(os.path.join(D, "vic", "camp", camp["slug"], "index.html"), encoding="utf-8").read()
+      if note not in page or 'id="camp-closure"' not in page:
+        bad.append((camp.get("slug"), "closure box"))
+  elif camp.get("status") != "check" or camp.get("closure"):
+    bad.append((camp.get("slug"), "osm closure"))
+if set(closed_notes) - {c.get("slug") for c in osm}:
+  bad.append(("status.json", "missing closed override"))
 if str(len(feed["camps"])) not in home: bad.append(("/", "home count"))
 shown = {"call": False, "operator": False, "review": False, "confirmed": False, "max": False, "unknown": False, "tel": False, "https": False, "pub": False, "park": False, "water": False, "checked": False, "source": False, "access": False, "follow": False, "dogs": False}
 PV = "Paid – Parks Victoria (book ahead)"
@@ -562,6 +583,12 @@ if corrections.get("w204763505", {}).get("name") != "Wye River Beachfront Campgr
 if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 500:
   bad.append(("corrections", "new sites"))
 import facts
+if facts.override_expired("2026-10-25", "2026-10-26") is not True: bad.append(("facts", "expired until"))
+if facts.override_expired("2026-10-26", "2026-10-26") or facts.override_expired("2026-10-30", "2026-10-26") or facts.override_expired("", "2026-10-26"):
+  bad.append(("facts", "until still current"))
+build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
+if "facts.override_expired" not in build_src or "Closure override expired:" not in build_src:
+  bad.append(("build.py", "expired override"))
 suit_cases = [
   ("tent|caravan|motorhome", (True, True, True)),
   ("tents, caravans", (True, True, None)),
@@ -764,17 +791,74 @@ if named_found["closed"] != ["Stapylton Campground remains closed for upgrade wo
   bad.append(("check_parksvic", "named alert " + repr(named_found["closed"])))
 area_html = """
 <div class="change-of-conditions__item">
-  <h4 class="change-of-conditions__subtitle">River Murray Reserve access changes</h4>
-  <div class="change-of-conditions__content"><p>In the interest of visitor safety, this area is closed until further notice.</p></div>
+  <h3 class="change-of-conditions__title-text">No Vehicle access to Farley Bend</h3>
+  <div class="change-of-conditions__content"><p>This section of the River Murray reserve is closed to vehicles due to the poor and unsafe condition of the roads.</p><p>In the interest of visitor safety, this area is closed until further notice.</p></div>
 </div>
 <div class="change-of-conditions__item">
-  <h4 class="change-of-conditions__subtitle">Strachans Campground</h4>
+  <h3 class="change-of-conditions__title-text">Strachans Campground</h3>
   <div class="change-of-conditions__content"><p>Strachans Campground is closed for upgrades.</p></div>
 </div>
 """
-area_found = check_parksvic.classify_html(area_html, "Abbotsford Bend Camping Area (Murray River)")
-if area_found["closed"] != ["In the interest of visitor safety, this area is closed until further notice."]:
-  bad.append(("check_parksvic", "this area " + repr(area_found["closed"])))
+abbotsford_found = check_parksvic.classify_html(area_html, "Abbotsford Bend Camping Area (Murray River)")
+if abbotsford_found["closed"]:
+  bad.append(("check_parksvic", "shared murray notice " + repr(abbotsford_found["closed"])))
+farley_found = check_parksvic.classify_html(area_html, "Farley Bend Camping Area Site 2")
+if farley_found["closed"] != ["In the interest of visitor safety, this area is closed until further notice."]:
+  bad.append(("check_parksvic", "farley " + repr(farley_found["closed"])))
+if check_parksvic.site_phrase("Farley Bend Camping Area Site 2") != "farley bend":
+  bad.append(("check_parksvic", "farley phrase"))
+if not check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see/sites/desert-discovery-walk---kiata-to-mallee-camp"):
+  bad.append(("check_parksvic", "camp url"))
+if check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park"):
+  bad.append(("check_parksvic", "park url"))
+facility_html = """
+<div class="change-of-conditions__item">
+  <h3 class="change-of-conditions__title-text">The Gums campground Communal BBQ closed</h3>
+  <div class="change-of-conditions__content"><p>The Gums campground communal BBQ is closed. Nearest alternative BBQ is Jehosaphat Gully.</p><p>The toilets are closed.</p><p>The picnic shelter is closed.</p><p>The shower is closed.</p><p>The dump point is closed.</p></div>
+</div>
+"""
+facility_found = check_parksvic.classify_html(facility_html, "The Gums Campground (Kinglake National Park)")
+if facility_found["closed"]:
+  bad.append(("check_parksvic", "facility " + repr(facility_found["closed"])))
+kiata_html = """
+<div class="change-of-conditions__item">
+  <h3 class="change-of-conditions__title-text">Park Areas Closed - Little Desert NP</h3>
+  <div class="change-of-conditions__content">
+    <p>The Eastern Block of the Little Desert NP remains closed following the fire.</p>
+    <p>Areas within the park that were not impacted by the fire and remain open are:</p>
+    <ul><li>Kiata Sanctuary Picnic Ground</li></ul>
+    <p>There are still some areas within the park which remain closed for recovery works such as:</p>
+    <ul>
+      <li>Eastern Block including Stringybark walk</li>
+      <li>Kiata Campground</li>
+      <li>Desert Discovery Walk</li>
+    </ul>
+    <p>Broughton's Waterhole and Stan's Camp have reopened.</p>
+  </div>
+</div>
+"""
+kiata_found = check_parksvic.classify_html(kiata_html, "Kiata Campground")
+kiata_sentence = "There are still some areas within the park which remain closed for recovery works such as: Kiata Campground"
+if kiata_found["closed"] != [kiata_sentence]:
+  bad.append(("check_parksvic", "kiata list " + repr(kiata_found["closed"])))
+for other_name in ("Yellow Gum Walkers Camp", "Broughton's Waterhole Camping Area (Little Desert National Park)", "Stan's Camp (Little Desert National Park)"):
+  other_found = check_parksvic.classify_html(kiata_html, other_name)
+  if other_found["closed"]:
+    bad.append(("check_parksvic", "open list " + other_name + " " + repr(other_found["closed"])))
+wrapped_html = """
+<div class="change-of-conditions__item">
+  <h3 class="change-of-conditions__title-text">Strachans Campground Closed for Upgrades</h3>
+  <div class="change-of-conditions__content"><p>Strachans Campground will
+be closed to visitors between 13 April and 29 October 2026 while major upgrade
+works are completed.</p><p>Alternative campgrounds such as Buandik or Boreang Campgrounds can be booked.</p></div>
+</div>
+"""
+wrapped_found = check_parksvic.classify_html(wrapped_html, "Strachans Campground (Grampians (Gariwerd) National Park)")
+if wrapped_found["closed"] != ["Strachans Campground Closed for Upgrades", "Strachans Campground will be closed to visitors between 13 April and 29 October 2026 while major upgrade works are completed."]:
+  bad.append(("check_parksvic", "wrapped " + repr(wrapped_found["closed"])))
+buandik_found = check_parksvic.classify_html(wrapped_html, "Buandik Campground")
+if buandik_found["closed"]:
+  bad.append(("check_parksvic", "alternative camp " + repr(buandik_found["closed"])))
 sample_camp = {"slug": "example-camp", "name": "Example Camp", "osm_id": "n316599357", "id": "n316599357", "status": "check"}
 sample_page = {"error": "", "html": sample_html, "cached": True}
 sample_dest = os.path.join(tempfile.mkdtemp(), "parksvic-flags.json")

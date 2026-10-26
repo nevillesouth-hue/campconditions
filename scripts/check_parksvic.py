@@ -35,6 +35,14 @@ ROAD_RE = re.compile(r"\b(?:roads?|tracks?|motor vehicles?|tk|rd)\b", re.I)
 NAME_STOP = {"campground", "camping", "campsite", "camp", "area", "areas", "the", "and", "national", "park", "parks", "reserve", "site", "sites", "victoria", "lake", "river", "creek", "track", "road", "upper", "lower", "north", "south", "east", "west", "mount", "with", "from"}
 CAMP_RE = re.compile(r"\bcamp(?:ground|site|ing)?s?\b", re.I)
 OTHER_RE = re.compile(r"\b(?:lookouts?|picnic|day visitor)\b", re.I)
+FACILITY_RE = re.compile(
+    r"\b(?:bbqs?|barbecues?|barbeques?|toilets?|toilet blocks?|picnic shelters?|fireplaces?|showers?|dump points?)\b",
+    re.I,
+)
+CAMP_ITSELF_RE = re.compile(
+    r"\b(?:campgrounds?|camping areas?|campsites?|camp sites?)\s+(?:is|are|remains?|remain|will be)\s+closed\b",
+    re.I,
+)
 URL_RE = re.compile(r"https?://[^\s<>\"']+", re.I)
 CAMPGROUND_BITS = ("campground", "camping", "where-to-stay", "campsite")
 SKIP_TAGS = {"script", "style", "noscript", "svg"}
@@ -45,19 +53,78 @@ def _name_tokens(name):
 
 
 def site_phrase(name):
-    """Distinctive site name, without the park in parentheses or after a dash."""
+    """Distinctive site name, without the park in parentheses or after a dash.
+
+    A trailing "site 3" is dropped so "Farley Bend Camping Area Site 3" still
+    matches an alert titled for Farley Bend.
+    """
     head = (name or "").split("(")[0].split(" - ")[0]
+    head = re.sub(r"\bsite\s+\d+\b", " ", head, flags=re.I)
     head = re.sub(r"\b(campgrounds?|camping areas?|camping sites?|bush camps?|picnic(?: and camping)? areas?|camps?)\b", " ", head, flags=re.I)
     return re.sub(r"[^a-z0-9]+", " ", head.lower()).strip()
 
 
-def _item_applies(subtitle, content, phrase):
-    """An alert counts when its heading names this camp, or it says this area is closed."""
-    title = re.sub(r"\s+", " ", subtitle).lower()
-    body = re.sub(r"\s+", " ", content).lower()
-    if phrase and phrase in title:
-        return True
-    return bool(re.search(r"\bthis (?:area|campground|camping area|campsite|camp site) is closed\b", body))
+def _phrase_in(phrase, text):
+    if not phrase:
+        return False
+    flat = re.sub(r"[^a-z0-9]+", " ", (text or "").lower()).strip()
+    return f" {phrase} " in f" {flat} "
+
+
+def _introduces_list(sentence):
+    return bool(re.search(r"(?::|\bsuch as)\s*$", sentence or "", re.I))
+
+
+def _list_item(line):
+    """A short bullet, not the next prose sentence or a new list introduction."""
+    if not line or len(line) > 180:
+        return False
+    if re.search(r"[.!?]\s*$", line):
+        return False
+    if _introduces_list(line) or CLOSED_RE.search(line):
+        return False
+    return True
+
+
+def closure_units(text):
+    """Sentences, keeping bullets that follow a line ending in ':' or 'such as'."""
+    text = re.sub(r"[ \t\r\f\v]+", " ", text or "")
+    text = re.sub(r" *\n+ *", "\n", text)
+    lines = []
+    for line in text.split("\n"):
+        line = re.sub(r"\s+", " ", line).strip(" \t-–—•")
+        if line:
+            lines.append(line)
+    units = []
+    index = 0
+    while index < len(lines):
+        parts = [bit.strip(" \t-–—") for bit in re.split(r"(?<=[.!?])\s+", lines[index]) if bit.strip(" \t-–—")]
+        if not parts:
+            index += 1
+            continue
+        last = parts[-1]
+        if _introduces_list(last):
+            items = []
+            nxt = index + 1
+            while nxt < len(lines) and _list_item(lines[nxt]):
+                items.append(lines[nxt])
+                nxt += 1
+            for earlier in parts[:-1]:
+                units.append((earlier, []))
+            units.append((last, items))
+            index = nxt
+            continue
+        for part in parts:
+            units.append((part, []))
+        index += 1
+    return units
+
+
+def _facility_only(sentence):
+    """A toilet, BBQ, picnic shelter or similar, rather than the camp itself."""
+    if not FACILITY_RE.search(sentence or ""):
+        return False
+    return not CAMP_ITSELF_RE.search(sentence or "")
 
 
 class _Text(HTMLParser):
@@ -129,7 +196,8 @@ class _Text(HTMLParser):
                 self._add("\n")
 
     def handle_data(self, data):
-        self._add(data)
+        # Source wraps mid-sentence. Block tags still insert the line breaks.
+        self._add(data.replace("\r", " ").replace("\n", " "))
 
     def _blocked(self):
         return any(item["skip"] or item["quick"] for item in self.stack)
@@ -153,11 +221,23 @@ class _Text(HTMLParser):
         for item in self.items:
             subtitle = "".join(item["subtitle"])
             content = "".join(item["content"])
-            if _item_applies(subtitle, content, self.phrase):
+            title = re.sub(r"\s+", " ", subtitle).lower()
+            if not self.phrase or self.phrase in title:
                 parts.append("\n")
                 parts.append(subtitle)
                 parts.append("\n")
                 parts.append(content)
+                continue
+            for sentence, bullets in closure_units(content):
+                if not CLOSED_RE.search(sentence):
+                    continue
+                matched = [bit for bit in bullets if _phrase_in(self.phrase, bit)]
+                if _phrase_in(self.phrase, sentence):
+                    parts.append("\n")
+                    parts.append(sentence if not matched else sentence.rstrip() + " " + matched[0])
+                elif matched:
+                    parts.append("\n")
+                    parts.append(sentence.rstrip() + " " + matched[0])
         chosen = parts if self.saw_structure else self.fallback
         return html.unescape("".join(chosen)).replace("\xa0", " ")
 
@@ -194,6 +274,8 @@ def classify_html(page, camp_name=""):
             continue
         if re.search(r"\bmay be closed\b|fire danger rating", sentence, re.I):
             continue
+        if _facility_only(sentence):
+            continue
         if ROAD_RE.search(sentence) and not CAMP_RE.search(sentence):
             continue
         if OTHER_RE.search(sentence) and not CAMP_RE.search(sentence):
@@ -215,7 +297,9 @@ def campground_url(value):
     parts = urllib.parse.urlsplit(raw)
     if "parks.vic.gov.au" not in parts.netloc.lower():
         return ""
-    if not any(bit in parts.path.lower() for bit in CAMPGROUND_BITS):
+    path = parts.path.lower()
+    # Some camp pages say "bush-camp" or "mallee-camp" rather than campground.
+    if not any(bit in path for bit in CAMPGROUND_BITS) and not re.search(r"(?:^|[-/])camps?(?:$|[-/])", path):
         return ""
     return urllib.parse.urlunsplit((parts.scheme or "https", parts.netloc, parts.path.rstrip("/"), "", ""))
 

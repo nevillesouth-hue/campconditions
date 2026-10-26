@@ -5,24 +5,25 @@
  "abbrev": "NSW",
  "enabled": false,
  "banner": {
-  "covering": "",
-  "coming": ""
+  "covering": "New South Wales preview",
+  "coming": "Victoria remains the live site"
  },
- "credit": "",
+ "credit": "NPWS Visitor Area camping areas, CC BY, from the NSW environment map service. Other campgrounds © OpenStreetMap contributors (ODbL).",
  "labels": {
   "paid_book": "",
   "book_ahead_note": "",
   "book_ahead_with": "",
-  "type_filter": "",
+  "type_filter": "NPWS",
   "agency": "NSW National Parks and Wildlife Service",
   "phone": "",
   "official_short": "NPWS",
-  "park_category": ""
+  "park_category": "Camping Area",
+  "closure_status": ""
  },
  "files": {
   "boundary": "",
   "towns": "",
-  "osm_camps": "",
+  "osm_camps": "data/osm-camps-nsw.json",
   "osm_csv": "",
   "enrichment": "",
   "corrections": "",
@@ -30,8 +31,8 @@
   "flags": ""
  },
  "osm": {
-  "pbf_url": "",
-  "default_pbf": "",
+  "pbf_url": "https://download.geofabrik.de/australia-oceania/australia/new-south-wales-latest.osm.pbf",
+  "default_pbf": "/tmp/osm/new-south-wales-latest.osm.pbf",
   "bbox": [],
   "outside_note": ""
  },
@@ -39,7 +40,24 @@
  "sources": {
   "npws_visitor_areas": {
    "url": "https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24",
-   "note": "NPWS Visitor Area layer. Not fetched until NSW data is added."
+   "key": "npws_visitor_areas",
+   "source_id": "npws",
+   "camping_subtype": 5001,
+   "asset_style": {
+    "1": "Bush Camping Area C1",
+    "2": "Basic Camping Area C2",
+    "3": "Medium Camping Area C3",
+    "4": "Major Campground C4"
+   },
+   "asset_type": {
+    "1": "Vehicle Based",
+    "2": "Remote Walk-in",
+    "3": "Short Walk-in",
+    "4": "Boat",
+    "9990": "Other",
+    "9999": "Unknown"
+   },
+   "note": "NPWS Visitor Area layer. Camping areas only (SubtypeCD 5001) are fetched when this state is built. Day use areas and cemeteries are not. CC BY. The layer has no fee, facility or closure fields."
   },
   "npws_alerts_rss": {
    "url": "https://www.nationalparks.nsw.gov.au/api/rssfeed/get",
@@ -51,11 +69,78 @@
   }
  },
  "closure_checker": "",
- "safety_html": "",
- "regions": {},
- "region_rules": [],
- "links": {},
+ "safety_html": "<div class=\"warn\"><strong>Not an official warning service.</strong> This site does not republish NSW Rural Fire Service or SES warnings. Always check the <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology warnings for New South Wales</a> before you travel. In an emergency call <a href=\"tel:000\">000</a>.</div>",
+ "regions": {
+  "nsw": {
+   "name": "New South Wales",
+   "blurb": "Camping areas from the NPWS Visitor Area layer, plus OpenStreetMap camps kept by the published classification rules. Fees and facilities are shown only when that source records them."
+  }
+ },
+ "region_rules": [
+  {
+   "id": "nsw"
+  }
+ ],
+ "links": {
+  "emergency": "https://www.rfs.nsw.gov.au/",
+  "emergency_bbox": false,
+  "emergency_name": "NSW Rural Fire Service",
+  "emergency_button": "Check NSW RFS warnings",
+  "bom_warnings": "https://www.bom.gov.au/nsw/warnings/",
+  "bom_forecast": "https://www.bom.gov.au/nsw/forecasts/",
+  "conditions": "https://www.nationalparks.nsw.gov.au/",
+  "conditions_name": "NSW National Parks and Wildlife Service",
+  "roads": "https://www.livetraffic.com/",
+  "roads_name": "Live Traffic NSW"
+ },
  "copy": {
-  "faq": []
+  "home_title": "New South Wales camp conditions — {count} sites | CampConditions.au",
+  "home_description": "NPWS camping areas and OpenStreetMap camps in New South Wales. {count} sites. Fees and facilities are left blank where the source does not record them.",
+  "home_h1": "New South Wales camp conditions",
+  "home_intro": "A preview of <strong>{count}</strong> camping areas in New South Wales. <strong>{official}</strong> come from the NPWS Visitor Area layer. <strong>{osm}</strong> come from OpenStreetMap.",
+  "home_map": "Map of New South Wales campgrounds",
+  "home_weather": "Weather warnings: <a href=\"https://www.bom.gov.au/nsw/warnings/\">check BOM's New South Wales warnings</a>. Bushfire and other emergency warnings: check the <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>. They are not republished here.",
+  "website_description": "Camp and campground conditions for {count} sites in New South Wales, Australia.",
+  "state_title": "New South Wales campground conditions — {count} sites | CampConditions.au",
+  "state_description": "Browse {count} New South Wales camping areas from the NPWS Visitor Area layer and OpenStreetMap.",
+  "state_h1": "New South Wales",
+  "state_intro": "<strong>{count}</strong> camping areas. The NPWS Visitor Area layer does not include fees, facilities or closure status. Those fields are left blank.",
+  "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
+  "region_description": "{count} camping areas in {name}. {blurb}",
+  "region_list_name": "Campgrounds in {name}",
+  "newsletter_h2": "Get the free weekly New South Wales digest",
+  "osm_place": "{name} in {region}, New South Wales. Conditions: check with the operator. Type: {category}.",
+  "official_place": "{name} in {region}, New South Wales. NPWS Visitor Area camping record. Open or closed status, fees and facilities are not in this layer.",
+  "osm_source_line": "Source: OpenStreetMap contributors (ODbL). Closure status is not applied to this site.",
+  "place_admin": "{region}, New South Wales",
+  "feed_region": "New South Wales, Australia",
+  "feed_attribution_extra": "NPWS Visitor Area camping areas, CC BY. Fees, facilities and closures are not in that layer.",
+  "feed_disclaimer": "Not an official warning service. NSW Rural Fire Service warnings are not included. NPWS Visitor Area records do not include open or closed status, fees or facilities. OpenStreetMap sites are included only where the published classification keeps them.",
+  "llms_intro": "Preview list of {count} camping areas in New South Wales from the NPWS Visitor Area layer and OpenStreetMap. Closure, fee and facility values are omitted where the source does not provide them.",
+  "llms_closures": "NPWS alerts and NSW RFS fire danger ratings are not loaded. Do not treat a blank status as open.",
+  "footer_attribution": "<p><strong>Data and attribution.</strong> Camping areas from the <a href=\"https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24\">NPWS Visitor Area layer</a> (camping areas only), CC BY. That layer does not include fees, facilities or closure status, so those are left blank. Other campgrounds: OpenStreetMap contributors (ODbL). Warnings are linked, not republished: <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology</a>.</p>",
+  "directions_note": "The Visitor Area layer does not include closures. Check NSW RFS and Live Traffic before you travel.",
+  "outdated_html": "",
+  "about_lead": "CampConditions.au lists New South Wales camping areas from the NPWS Visitor Area layer and OpenStreetMap.",
+  "about_roads": "Each camp page links to <a href=\"https://www.livetraffic.com/\">Live Traffic NSW</a>.",
+  "about_sources": "<li>NPWS Visitor Area camping areas, CC BY. Camping areas only. No fee, facility or closure fields.</li><li>OpenStreetMap campgrounds (ODbL).</li>",
+  "about_tail": "NSW Rural Fire Service warnings are not republished.",
+  "privacy_who": "CampConditions.au publishes campground conditions. Contact us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a>.",
+  "digest_subject": "New South Wales camps this week",
+  "digest_intro": "Here's the New South Wales preview list, {date}.",
+  "digest_warnings": "Warnings are not listed here. Check the NSW Rural Fire Service and the Bureau of Meteorology before you go.",
+  "digest_footer": "Not an official warning service. ",
+  "faq": [
+   {
+    "q": "Does the NPWS Visitor Area layer say if a camp is open?",
+    "a": "No. The camping-area points have a name, a location, an asset id, and coded type and style. They do not include open or closed status, fees or facilities. Those are left blank. NPWS alerts are not loaded on this preview."
+   }
+  ]
+ },
+ "closure_flag_log": "",
+ "map": {
+  "fallback_lat": -32.5,
+  "fallback_lon": 147.0,
+  "fallback_zoom": 6
  }
 }

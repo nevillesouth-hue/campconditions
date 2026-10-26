@@ -759,9 +759,22 @@ named_html = """
   <div class="change-of-conditions__content"><p>Stapylton Campground remains closed for upgrade works.</p></div>
 </div>
 """
-named_found = check_parksvic.classify_html(named_html, "Stapylton Campground")
+named_found = check_parksvic.classify_html(named_html, "Stapylton Campground (Grampians (Gariwerd) National Park)")
 if named_found["closed"] != ["Stapylton Campground remains closed for upgrade works."]:
   bad.append(("check_parksvic", "named alert " + repr(named_found["closed"])))
+area_html = """
+<div class="change-of-conditions__item">
+  <h4 class="change-of-conditions__subtitle">River Murray Reserve access changes</h4>
+  <div class="change-of-conditions__content"><p>In the interest of visitor safety, this area is closed until further notice.</p></div>
+</div>
+<div class="change-of-conditions__item">
+  <h4 class="change-of-conditions__subtitle">Strachans Campground</h4>
+  <div class="change-of-conditions__content"><p>Strachans Campground is closed for upgrades.</p></div>
+</div>
+"""
+area_found = check_parksvic.classify_html(area_html, "Abbotsford Bend Camping Area (Murray River)")
+if area_found["closed"] != ["In the interest of visitor safety, this area is closed until further notice."]:
+  bad.append(("check_parksvic", "this area " + repr(area_found["closed"])))
 sample_camp = {"slug": "example-camp", "name": "Example Camp", "osm_id": "n316599357", "id": "n316599357", "status": "check"}
 sample_page = {"error": "", "html": sample_html, "cached": True}
 sample_dest = os.path.join(tempfile.mkdtemp(), "parksvic-flags.json")

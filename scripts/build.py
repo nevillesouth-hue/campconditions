@@ -1907,10 +1907,6 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
   const form = ev.target;
   const note = document.getElementById("digest-note");
   const button = form.querySelector("button");
-  note.hidden = false;
-  note.className = "notice";
-  note.textContent = "One moment…";
-  button.disabled = true;
   const show = (kind, message) => {
     note.hidden = false;
     note.className = "notice " + kind;
@@ -1918,6 +1914,17 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
     note.focus();
     note.scrollIntoView({ behavior: "smooth", block: "center" });
   };
+  const stateBoxes = form.querySelectorAll('input[name="states"]');
+  let pickedState = false;
+  stateBoxes.forEach((box) => { if (box.checked) pickedState = true; });
+  if (stateBoxes.length && !pickedState) {
+    show("err", "Choose at least one state so we know which digest to send.");
+    return;
+  }
+  note.hidden = false;
+  note.className = "notice";
+  note.textContent = "One moment…";
+  button.disabled = true;
   try {
     const res = await fetch("/api/subscribe", { method: "POST", body: new FormData(form), headers: { accept: "text/plain" } });
     const text = (await res.text()).replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
@@ -1956,14 +1963,17 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
 })();
 </script>
 </section>"""
-def news_section(heading=None):
+def news_section(heading=None, preselect=None):
+    """Pre-tick the state being browsed. An empty preselect leaves every box clear."""
     title = (COPY.get("newsletter_h2") or "") if heading is None else heading
     html_form = NEWS.replace("__NEWSLETTER_H2__", title)
     if len(statecfg.enabled()) < 2:
         return html_form
+    if preselect is None:
+        preselect = SLUG
     boxes = []
     for state in statecfg.enabled():
-        picked = state.get("slug") == ("nsw" if SLUG == "nsw" else "vic")
+        picked = state.get("slug") == preselect
         checked = " checked" if picked else ""
         boxes.append(
             '<label style="display:inline-flex;align-items:center;gap:.35rem;font-weight:700;min-height:44px;margin:0">'
@@ -2439,7 +2449,7 @@ if multi_state:
     page("/", "Camp conditions | CampConditions.au",
          f"Closures and camp conditions for {len(all_rows)} campgrounds in Victoria and New South Wales.",
          f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>
-{map_block(all_rows, "Map of Victorian and New South Wales campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest")}""",
+{map_block(all_rows, "Map of Victorian and New South Wales campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
 
 

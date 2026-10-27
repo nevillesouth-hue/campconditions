@@ -1,4 +1,4 @@
-import os,re,json,sys,html,math,subprocess,tempfile,urllib.parse
+import gzip,os,re,json,sys,html,math,subprocess,tempfile,urllib.parse
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
@@ -667,6 +667,16 @@ dv_before = os.path.getmtime(dv_path)
 dv_doc = json.load(open(dv_path, encoding="utf-8"))
 dv_camps = dv_doc.get("camps") or {}
 if len(dv_camps) != 353 or dv_doc.get("_meta", {}).get("count") != 353: bad.append(("datavic enrichment", "count"))
+cache_path = os.path.join(root, "data", "recweb-camping-cache.json.gz")
+try:
+  with gzip.open(cache_path, "rt", encoding="utf-8") as handle:
+    cached_feed = json.load(handle)
+  cached_features = cached_feed.get("features") or []
+except Exception as exc:
+  cached_features = []
+  bad.append(("datavic cache", str(exc)[:120]))
+if len(cached_features) < 342 or any((f.get("properties") or {}).get("camping") != "Y" for f in cached_features):
+  bad.append(("datavic cache", len(cached_features)))
 build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
 if os.path.basename((states.by_slug("vic").get("files") or {}).get("enrichment") or "") != "datavic-enrichment.json": bad.append(("states", "enrichment path"))
 if re.search(r"open\(\s*.*datavic-enrichment[^)]*[\"']w", build_src): bad.append(("build.py", "enrichment write"))

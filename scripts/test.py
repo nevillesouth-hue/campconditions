@@ -20,6 +20,38 @@ for u in sm:
   if not os.path.isfile(os.path.join(D,u.lstrip("/"),"index.html")): bad.append(("sitemap",u))
 feed=json.load(open(os.path.join(D,"status.json")))
 vic_feed=[c for c in feed["camps"] if "/vic/camp/" in c.get("url","")]
+_STATUS_FROM = {"o": "open", "k": "check", "x": "closed"}
+_STATE_FROM = {"v": ("vic", "Victoria"), "n": ("nsw", "New South Wales")}
+def expand_map_point(pt):
+  if isinstance(pt, dict):
+    return pt
+  if not isinstance(pt, list) or len(pt) < 6:
+    return pt
+  st = pt[5] or ""
+  slug_state, state_name = _STATE_FROM.get(st, ("", ""))
+  slug = pt[4] or ""
+  out = {
+    "name": pt[0], "lat": pt[1], "lon": pt[2],
+    "status": _STATUS_FROM.get(pt[3], pt[3]),
+    "slug": slug,
+    "url": f"/{slug_state}/camp/{slug}/" if slug_state and slug else "",
+    "cat": pt[6] if len(pt) > 6 and pt[6] else "",
+    "type": pt[7] if len(pt) > 7 and pt[7] else "",
+    "cost": pt[8] if len(pt) > 8 and pt[8] else "",
+  }
+  if state_name:
+    out["stateName"] = state_name
+  if len(pt) > 9 and pt[9] in (0, 1):
+    out["dogs"] = pt[9]
+  if len(pt) > 10 and pt[10] in (0, 1):
+    out["caravans"] = pt[10]
+  if len(pt) > 11 and pt[11] in (0, 1):
+    out["motorhomes"] = pt[11]
+  if len(pt) > 12 and pt[12]:
+    out["reg"] = pt[12]
+  if len(pt) > 13 and pt[13]:
+    out["note"] = pt[13]
+  return out
 def map_data(where, html, vic_only=True):
   m=re.search(r'<script type="application/json" id="camp-map-data"([^>]*)>(.*?)</script>', html, re.S)
   if not m:
@@ -35,6 +67,7 @@ def map_data(where, html, vic_only=True):
     bad.append((where, f"map json {ex}")); return []
   if not isinstance(data, list):
     bad.append((where, "map data not a list")); return []
+  data = [expand_map_point(pt) for pt in data]
   for i, pt in enumerate(data):
     if not all(k in pt for k in ("name","lat","lon","status","url")):
       bad.append((where, f"map point {i} fields")); break
@@ -1052,7 +1085,7 @@ if os.path.isfile(nsw_index):
   nsw_map = open(os.path.join(D, "map-nsw.js"), encoding="utf-8").read()
   if 'fetch("/nsw-towns.json")' not in nsw_map or "vic-towns.json" in nsw_map: bad.append(("map-nsw.js", "town file"))
   if 'fetch("/nsw-place-points.json")' not in nsw_map or "bestTownD <= 40" not in nsw_map: bad.append(("map-nsw.js", "place labels"))
-  if 'fetch("/vic-towns.json")' not in mj or "nsw-place-points.json" in mj or "bestTownD" in mj or "chunkedLoading" in mj or "stateName" in mj: bad.append(("map.js", "victoria towns"))
+  if 'fetch("/vic-towns.json")' not in mj or "nsw-place-points.json" in mj or "bestTownD" in mj or "chunkedLoading" in mj or "camp.stateName" in mj: bad.append(("map.js", "victoria towns"))
   home_map = open(os.path.join(D, "map-home.js"), encoding="utf-8").read()
   if 'fetch("/vic-towns.json")' not in home_map or 'fetch("/nsw-towns.json")' not in home_map: bad.append(("map-home.js", "towns"))
   if "nsw-place-points.json" in home_map or "bestTownD" in home_map: bad.append(("map-home.js", "nsw places"))
@@ -1106,7 +1139,22 @@ if os.path.isfile(nsw_index):
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
   if "Terms of use" not in terms or "as is, without warranty" not in terms or "Victoria." not in terms or "New South Wales." not in terms or "governing law" in terms.lower(): bad.append(("terms", "wording"))
   if "NPWS" not in about or "NSW Rural Fire Service" not in about or "Spatial Services" not in about or "livetraffic.com" not in about: bad.append(("about", "nsw credits"))
-  if about.count("DataVic and Explore Outdoors") != 2: bad.append(("about", "duplicated datavic credit"))
+  if about.count("DataVic and Explore Outdoors") != 1: bad.append(("about", "datavic credit"))
+  if 'id="vic-sources"' not in about or 'id="nsw-sources"' not in about: bad.append(("about", "source anchors"))
+  home_footer = home.split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  vic_footer = vic.split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  nsw_footer = nsw_html.split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  if home_footer.count("<p>") != 3 or 'href="/about/#vic-sources"' not in home_footer or 'href="/about/#nsw-sources"' not in home_footer:
+    bad.append(("/", "footer lines"))
+  if vic_footer.count("<p>") != 2 or 'href="/about/#vic-sources"' not in vic_footer or "nsw-sources" in vic_footer:
+    bad.append(("/vic/", "footer lines"))
+  if nsw_footer.count("<p>") != 2 or 'href="/about/#nsw-sources"' not in nsw_footer or "vic-sources" in nsw_footer:
+    bad.append(("/nsw/", "footer lines"))
+  if "Data and attribution" in home_footer or "Data and attribution" in vic_footer or "Data and attribution" in nsw_footer:
+    bad.append(("footer", "long attribution"))
+  home_map_file = open(os.path.join(D, "map-points", "home.json"), "rb").read()
+  if not home_map_file.startswith(b"[[") or len(gzip.compress(home_map_file)) > 110000:
+    bad.append(("home.json", f"raw {len(home_map_file)} gzip {len(gzip.compress(home_map_file))}"))
   if feed.get("region") != "Victoria and New South Wales, Australia": bad.append(("status.json", feed.get("region")))
   joined = " ".join(feed.get("attribution") or [])
   if "Victoria:" not in feed.get("disclaimer", "") or "New South Wales:" not in feed.get("disclaimer", ""): bad.append(("status.json", "disclaimer"))
@@ -1173,6 +1221,37 @@ if os.path.isfile(nsw_index):
     if not any(token in main for token in ratings): bad.append((camp["slug"], "fire rating")); break
     if main.count('class="banner-row"'): bad.append((camp["slug"], "banner in page")); break
   if fire_pages < 1: bad.append(("nsw", "no fire danger line"))
+  districts = ("Central", "East Gippsland", "Mallee", "North Central", "North East", "Northern Country", "South West", "West and South Gippsland", "Wimmera")
+  cfa_pages = 0
+  for camp in vic_feed:
+    page = os.path.join(D, "vic", "camp", camp["slug"], "index.html")
+    if not os.path.isfile(page):
+      continue
+    html_page = open(page, encoding="utf-8").read()
+    main = html_page.split("<main>", 1)[-1]
+    if html_page.count('class="banner-row"') != 2: bad.append((camp["slug"], "header rows")); break
+    if "Check CFA fire danger" not in main:
+      continue
+    cfa_pages += 1
+    if '<h2 class="fire-head"' not in main or ">Fire Ratings</h2>" not in main or "Total fire ban:" not in main:
+      bad.append((camp["slug"], "cfa heading")); break
+    if "fdrToban.xml" in main or "Check Live Traffic NSW" in main:
+      bad.append((camp["slug"], "nsw fire on victoria")); break
+    link = re.search(r'href="(https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/[a-z-]+-fire-district)"', main)
+    if not link: bad.append((camp["slug"], "cfa deep link")); break
+    if not any(name + ":" in main for name in districts): bad.append((camp["slug"], "cfa district")); break
+    if "https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml" not in html_page or "CC BY 4.0" not in html_page:
+      bad.append((camp["slug"], "cfa attribution")); break
+  if cfa_pages < 1200: bad.append(("vic", f"cfa fire lines {cfa_pages}"))
+  import cfa_conditions
+  sample_rss = """<?xml version="1.0"?><rss version="2.0"><channel><item><title>Day</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Today, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: MODERATE&lt;/p&gt;</description></item><item><title>Next</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Tomorrow, example.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: HIGH&lt;/p&gt;</description></item><item><title>Skip</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Fri, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: EXTREME&lt;/p&gt;</description></item></channel></rss>"""
+  sample_parsed = cfa_conditions.parse_cfa(sample_rss)
+  sample_today = sample_parsed["today"].get("mallee") or {}
+  if sample_today.get("today") != "Moderate" or sample_today.get("ban_today") != "No - restrictions may apply":
+    bad.append(("cfa parse", str(sample_today)))
+  if (sample_parsed["tomorrow"].get("mallee") or {}).get("today") != "High" or "extreme" in json.dumps(sample_parsed).lower():
+    bad.append(("cfa parse", "day window"))
+  if "Country Fire Authority" not in " ".join(feed.get("attribution") or []): bad.append(("status.json", "cfa credit"))
   if "Total fire ban:" in home or "NPWS alerts:" in home or "Official NPWS wording" in home: bad.append(("/", "nsw conditions on victoria"))
   if npws:
     sample = os.path.join(D, "nsw", "camp", npws[0]["slug"], "index.html")

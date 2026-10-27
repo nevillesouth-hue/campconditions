@@ -1,7 +1,7 @@
 """Load per-state configuration. Only enabled states are built.
 
-Victoria is the only enabled state. New South Wales is present so the next
-step can fill its sources without another structural change.
+Victoria and New South Wales are both enabled. Victoria stays first so the
+shared map script, the digest draft and the about page remain Victorian.
 """
 import json
 import os
@@ -32,10 +32,10 @@ def all_states():
 def enabled():
     """States the build should emit.
 
-    A state with enabled true is always included, in config-file order.
-    CAMPCONDITIONS_ENABLE may name extra slugs for a preview. That does not
-    change the enabled flag stored in the config file. Production does not
-    set the variable.
+    A state with enabled true is always included. Production does not set
+    CAMPCONDITIONS_ENABLE; that variable only adds extra slugs for a preview
+    and does not change the flag stored in the config file. Victoria is
+    ordered first. Later states follow by slug.
     """
     chosen = [state for state in all_states() if state.get("enabled")]
     have = {state.get("slug") for state in chosen}
@@ -46,6 +46,7 @@ def enabled():
             continue
         chosen.append(by_slug(slug))
         have.add(slug)
+    chosen.sort(key=lambda state: (state.get("slug") != "vic", state.get("slug") or ""))
     return chosen
 
 

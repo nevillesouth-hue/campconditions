@@ -5,7 +5,7 @@ Each enabled state in config/states supplies its name, sources, regions, labels
 and page copy. Victoria is the only enabled state, so the pages stay under /vic/.
 New South Wales is in the config and is not fetched or rendered.
 """
-import importlib, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
+import importlib, io, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
 import states as statecfg
@@ -109,6 +109,70 @@ def closure_info(lab, p):
     reason = clean(" ".join(str(x) for x in (p.get("status"), p.get("comments")) if x))
     reopen = msdate(p.get("seasonal_open_date") or p.get("reopen_date"))
     return {"type": lab, "name": name, "reason": reason, "reopens": reopen}
+# Last full camping='Y' response. On 27 Oct 2026 the column was still in the
+# schema and null on every feature, so the filter returned nothing. A live
+# response of at least this many sites replaces the file. A smaller non-zero
+# response is left for the tests to reject, and does not overwrite the file.
+RECREATION_CACHE = os.path.join(ROOT, "data", "recweb-camping-cache.json.gz")
+RECREATION_CACHE_MIN = 342
+
+def _recreation_cache_bytes(doc):
+    payload = json.dumps(doc, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    buf = io.BytesIO()
+    with gzip.GzipFile(fileobj=buf, mode="wb", mtime=0) as handle:
+        handle.write(payload)
+    return buf.getvalue()
+
+def _load_recreation_cache():
+    if not os.path.isfile(RECREATION_CACHE):
+        return None
+    try:
+        with gzip.open(RECREATION_CACHE, "rt", encoding="utf-8") as handle:
+            doc = json.load(handle)
+    except Exception as exc:
+        print("WARN recreation cache", exc, file=sys.stderr)
+        return None
+    if not (doc or {}).get("features"):
+        return None
+    return doc
+
+def _save_recreation_cache(doc):
+    try:
+        body = _recreation_cache_bytes(doc)
+        current = b""
+        if os.path.isfile(RECREATION_CACHE):
+            with open(RECREATION_CACHE, "rb") as handle:
+                current = handle.read()
+        if current == body:
+            return
+        os.makedirs(os.path.dirname(RECREATION_CACHE), exist_ok=True)
+        tmp = RECREATION_CACHE + ".tmp"
+        with open(tmp, "wb") as handle:
+            handle.write(body)
+        os.replace(tmp, RECREATION_CACHE)
+    except Exception as exc:
+        print("WARN recreation cache write", exc, file=sys.stderr)
+
+def _recreation_sites_or_cache(name, doc):
+    """Use the live camping feed, or the last full response when that feed is empty."""
+    features = (doc or {}).get("features") or []
+    if len(features) >= RECREATION_CACHE_MIN:
+        _save_recreation_cache(doc)
+        return doc
+    if features:
+        return doc
+    cached = _load_recreation_cache()
+    cached_n = len((cached or {}).get("features") or [])
+    if not cached_n:
+        return doc
+    print(f"WARN {name}: camping filter returned no features; using cached recreation sites ({cached_n})", file=sys.stderr)
+    info = dict(SRC.get(name) or {"ok": True, "url": ""})
+    info["ok"] = True
+    info["fallback"] = "cached recreation sites; live camping filter returned no features"
+    info["fallback_features"] = cached_n
+    SRC[name] = info
+    return cached
+
 def load_official(seen):
     """Campgrounds from the active state's official feed. Empty when that state has no feed yet."""
     rec_src = (STATE.get("sources") or {}).get("recreation_sites") or {}
@@ -116,7 +180,7 @@ def load_official(seen):
     found, state_closures = [], []
     if not rec_src.get("url"):
         return found, state_closures
-    rec = fetch(rec_src["key"], rec_src["url"])
+    rec = _recreation_sites_or_cache(rec_src["key"], fetch(rec_src["key"], rec_src["url"]))
     for layer in clo.get("layers") or []:
         d = fetch(layer["key"], clo["url_template"].format(layer["id"]))
         for feature in (d or {}).get("features", []):

@@ -12,6 +12,7 @@ for r,_,fs in os.walk(D):
       tgt=os.path.join(D,h.lstrip("/"));
       if not (os.path.isfile(tgt) or os.path.isfile(os.path.join(tgt,"index.html"))): bad.append((p[len(D):],h))
     if "<title>" not in t or not re.search(r"lang=[\"']en-AU", t): bad.append((p,"meta"))
+    if "paid daily digest" in t or "about $5 a month" in t: bad.append((p[len(D):], "paid digest line"))
 for f in ["sitemap.xml","robots.txt","llms.txt","status.json"]: assert os.path.isfile(os.path.join(D,f)),f
 json.load(open(os.path.join(D,"status.json")))
 sm=re.findall(r"<loc>https://campconditions.au(.*?)</loc>",open(os.path.join(D,"sitemap.xml")).read())

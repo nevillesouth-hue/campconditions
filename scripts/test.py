@@ -127,8 +127,11 @@ for c in vic_feed: by.setdefault(c["region"], []).append(c)
 for name in os.listdir(os.path.join(D,"vic")):
   page=os.path.join(D,"vic",name,"index.html")
   if name=="camp" or not os.path.isfile(page): continue
-  pts=expect_map(f"/vic/{name}/", open(page, encoding="utf-8").read(), True)
+  region_html=open(page, encoding="utf-8").read()
+  pts=expect_map(f"/vic/{name}/", region_html, True)
   if len(pts)!=len(by.get(name, [])): bad.append((f"/vic/{name}/", "region map count"))
+  if 'name="states" value="vic" checked' not in region_html or 'name="states" value="nsw" checked' in region_html:
+    bad.append((f"/vic/{name}/", "signup states"))
 page_titles=[]
 for slug in os.listdir(os.path.join(D,"vic","camp")):
   page=os.path.join(D,"vic","camp",slug,"index.html")
@@ -148,6 +151,8 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "emergency hotline"))
     if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in html_page:
       bad.append((slug, "newsletter button"))
+    if 'name="states" value="vic" checked' not in html_page or 'name="states" value="nsw" checked' in html_page:
+      bad.append((slug, "signup states"))
     if 'href="https://traffic.transport.vic.gov.au/"' not in html_page or "Check road closures" not in html_page or html_page.find("Find nearby toilets") > html_page.find("Check road closures"):
       bad.append((slug, "road closures"))
     if "traffic.vicroads.vic.gov.au" in html_page or "https://traffic.transport.vic.gov.au/?" in html_page:
@@ -268,15 +273,22 @@ else:
 confirm = subprocess.run(["node", "--input-type=module", "-e", """
 import { confirmationMessage } from "./functions/api/subscribe.js";
 const unsub = "https://campconditions.au/api/unsubscribe?e=reader%40example.com&t=abc";
-const m = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc", unsub);
-const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe", unsub];
+const link = "https://campconditions.au/api/confirm?token=abc";
+const m = confirmationMessage("https://campconditions.au", link, unsub, ["vic"], "reader@example.com");
+const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe"];
+const ask = "Please confirm you'd like updates sent to reader@example.com.";
 for (const blob of [m.html, m.text]) {
   for (const bit of need) if (!blob.includes(bit)) { console.error("missing " + bit); process.exit(1); }
   if (blob.includes("mailto:campconditions@outlook.com?subject=Unsubscribe")) process.exit(1);
   if (blob.includes("Victoria digest")) process.exit(1);
 }
+if (!m.text.includes(ask) || !m.html.includes(ask.replace(/'/g, "&#39;"))) process.exit(1);
+if (!m.text.includes(unsub) || !m.html.includes(unsub.replace(/&/g, "&amp;"))) process.exit(1);
 if (!m.html.includes("digest for Victoria") || !m.text.includes("digest for Victoria")) process.exit(1);
-const both = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc", unsub, ["nsw", "vic"]);
+if (!m.html.includes("background:#2f5d3a") || !m.html.includes(">Confirm my subscription</a>")) process.exit(1);
+if (m.html.split("api/confirm?token=abc").length < 4) process.exit(1);
+if (!m.text.includes("Confirm my subscription:\\n" + link)) process.exit(1);
+const both = confirmationMessage("https://campconditions.au", link, unsub, ["nsw", "vic"], "reader@example.com");
 if (!both.html.includes("digest for Victoria and New South Wales") || both.text.includes("Victoria digest")) process.exit(1);
 if (m.html.includes("api.resend.com")) process.exit(1);
 if (m.headers["List-Unsubscribe"] !== "<" + unsub + ">") process.exit(1);
@@ -1051,13 +1063,18 @@ if os.path.isfile(nsw_index):
   if 'class="state-pick"' not in home or 'aria-label="All states"' not in home or ">All <" not in home: bad.append(("/", "national header"))
   if '<p class="soon">' in home or '<p class="soon">' in vic or '<p class="soon">' in nsw_html: bad.append(("/", "soon bar"))
   if "html.filters-locked .leaflet-control-container" not in home or "html.filters-locked .leaflet-control-container" not in vic or "html.filters-locked .leaflet-control-container" not in nsw_html: bad.append(("filters", "cover"))
-  if 'name="states" value="vic" checked' not in home or 'name="choose_states" value="1"' not in home or 'name="states" value="nsw" checked' in home or "Get the free weekly digest" not in home: bad.append(("/", "signup states"))
+  signup_msg = "Choose at least one state so we know which digest to send."
+  if 'name="states" value="vic"' not in home or 'name="states" value="nsw"' not in home or 'name="states" value="vic" checked' in home or 'name="states" value="nsw" checked' in home or 'name="choose_states" value="1"' not in home or signup_msg not in home or "Get the free weekly digest" not in home: bad.append(("/", "signup states"))
+  for shared in ("about", "privacy", "terms", "report", "unsubscribe"):
+    shared_html = open(os.path.join(D, shared, "index.html"), encoding="utf-8").read()
+    if 'name="states" value="vic" checked' in shared_html or 'name="states" value="nsw" checked' in shared_html:
+      bad.append((shared, "signup states"))
   if home.find('id="camp-map"') < 0 or home.find('id="newsletter"') < home.find('id="camp-map"'): bad.append(("/", "newsletter above the map"))
   if 'value="NPWS"' not in home or 'value="Parks Victoria"' not in home: bad.append(("/", "type filters"))
   if 'class="state-pick"' not in vic or 'aria-label="State: Victoria"' not in vic or ">VIC <" not in vic: bad.append(("/vic/", "state picker"))
   if 'href="/vic/" aria-current="page"' not in vic or 'href="/nsw/">New South Wales</a>' not in vic: bad.append(("/vic/", "state menu"))
-  if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic: bad.append(("/vic/", "signup states"))
-  if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html: bad.append(("nsw", "signup states"))
+  if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic or signup_msg not in vic: bad.append(("/vic/", "signup states"))
+  if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html or signup_msg not in nsw_html: bad.append(("nsw", "signup states"))
   if 'href="/vic/">Victoria</a><a href="/nsw/">New South Wales</a>' not in home: bad.append(("/", "state menu"))
   if 'src="/map-home.js"' in vic or 'src="/map.js"' not in vic: bad.append(("/vic/", "map script"))
   if 'class="state-pick"' not in nsw_html or 'aria-label="State: New South Wales"' not in nsw_html or ">NSW <" not in nsw_html: bad.append(("nsw", "state picker"))
@@ -1203,6 +1220,8 @@ if os.path.isfile(nsw_index):
     if not os.path.isfile(page):
       continue
     html_page = open(page, encoding="utf-8").read()
+    if 'name="states" value="nsw" checked' not in html_page or 'name="states" value="vic" checked' in html_page:
+      bad.append((camp["slug"], "signup states")); break
     main = html_page.split("<main>", 1)[-1]
     if html_page.count('class="banner-row"') != 2: bad.append((camp["slug"], "header rows")); break
     if "Total fire ban:" in html_page.split("<main>", 1)[0]: bad.append((camp["slug"], "fire in header")); break

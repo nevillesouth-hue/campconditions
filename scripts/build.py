@@ -43,8 +43,11 @@ bind(statecfg.enabled()[0])
 OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
 CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL, "osm_camp": "Camp"}
 
-def _read_response(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"})
+def _read_response(url, headers=None):
+    base = {"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"}
+    if headers:
+        base.update(headers)
+    req = urllib.request.Request(url, headers=base)
     with urllib.request.urlopen(req, timeout=90) as r:
         b = r.read()
         if r.headers.get("Content-Encoding") == "gzip" or b[:2] == b"\x1f\x8b":
@@ -59,10 +62,10 @@ def fetch(name, url):
     except Exception as e:
         SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
 
-def fetch_text(name, url):
+def fetch_text(name, url, headers=None):
     """Bytes of a non-JSON feed. A failure is recorded and returns nothing."""
     try:
-        body = _read_response(url)
+        body = _read_response(url, headers)
         SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}
         return body
     except Exception as e:
@@ -661,7 +664,7 @@ for state, official, osm_rows, state_closures in loaded:
         nsw_conditions.apply(state_camps, sources, fetch, fetch_text)
     if sources.get("cfa_fdr") and sources.get("cfa_tfb_districts"):
         import cfa_conditions
-        cfa_conditions.apply(state_camps, sources, fetch, fetch_text)
+        cfa_conditions.apply(state_camps, sources, fetch, fetch_text, SRC)
     for camp in state_camps:
         assign_filters(camp)
     town_path = statecfg.path(state, "towns")
@@ -2224,6 +2227,10 @@ def fire_line(c):
     if fire.get("tomorrow"):
         sentence += f", {fire['tomorrow']} tomorrow"
     sentence += f". Total fire ban: {ban}."
+    if fire.get("issued"):
+        sentence += f" Issued {fire['issued']}."
+    if fire.get("fetched"):
+        sentence += f" Fetched {fire['fetched']}."
     bits = ['<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>',
             f'<p class="muted fire-line" style="margin:.05rem 0 .55rem">{e(sentence)}</p>']
     page_url = str(fire.get("page_url") or "")

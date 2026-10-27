@@ -925,12 +925,21 @@ if os.path.isfile(nsw_index):
   if "Spatial Services" not in nsw_html or "Creative Commons Attribution 4.0" not in nsw_html: bad.append(("nsw", "town attribution"))
   nsw_map = open(os.path.join(D, "map-nsw.js"), encoding="utf-8").read()
   if 'fetch("/nsw-towns.json")' not in nsw_map or "vic-towns.json" in nsw_map: bad.append(("map-nsw.js", "town file"))
-  if 'fetch("/vic-towns.json")' not in mj: bad.append(("map.js", "victoria towns"))
+  if 'fetch("/nsw-place-points.json")' not in nsw_map or "bestTownD <= 40" not in nsw_map: bad.append(("map-nsw.js", "place labels"))
+  if 'fetch("/vic-towns.json")' not in mj or "nsw-place-points.json" in mj or "bestTownD" in mj: bad.append(("map.js", "victoria towns"))
   nsw_towns = json.load(open(os.path.join(D, "nsw-towns.json"), encoding="utf-8"))
   town_names = {row.get("name", "").casefold() for row in nsw_towns}
-  for required in ("Narrandera", "Dubbo", "Tumut"):
+  for required in ("Narrandera", "Dubbo", "Tumut", "Goulburn", "Gillenbah"):
     if required.casefold() not in town_names: bad.append(("nsw-towns.json", required))
   if any(row.get("lat") is None or row.get("lon") is None or not row.get("name") for row in nsw_towns): bad.append(("nsw-towns.json", "blank coordinate"))
+  if any(row["name"] == "Canberra" for row in nsw_towns): bad.append(("nsw-towns.json", "Canberra"))
+  places = json.load(open(os.path.join(D, "nsw-place-points.json"), encoding="utf-8"))
+  place_by = {row["name"]: row for row in places}
+  for required, kind in (("Goulburn", "city"), ("Wagga Wagga", "city"), ("Albury", "city"), ("Orange", "city"), ("Bathurst", "city"), ("Tamworth", "city"), ("Armidale", "city"), ("Broken Hill", "city"), ("Port Macquarie", "town"), ("Coffs Harbour", "city"), ("Narrandera", "town"), ("Gillenbah", "locality")):
+    row = place_by.get(required)
+    if not row or row.get("place") != kind: bad.append(("nsw-place-points.json", required))
+    search = next((item for item in nsw_towns if item["name"] == required), None)
+    if required != "Gillenbah" and (not search or search.get("place") != kind): bad.append(("nsw-towns.json", required + " class"))
   def town_km(lat1, lon1, lat2, lon2):
     radius = math.pi / 180
     dlat, dlon = (lat2 - lat1) * radius, (lon2 - lon1) * radius
@@ -945,8 +954,16 @@ if os.path.isfile(nsw_index):
   narrandera = next(row for row in nsw_towns if row["name"] == "Narrandera")
   if not any(camp["name"].startswith("Brewery Flat") for camp in nearest_camps(narrandera)): bad.append(("Narrandera", "Brewery Flat"))
   brewery = next(camp for camp in nsw_camps if camp["name"].startswith("Brewery Flat"))
-  brewery_town = nearest_town(brewery["lat"], brewery["lon"])["name"]
-  if brewery_town != "Gillenbah": bad.append(("Brewery Flat", brewery_town))
+  import towns as town_mod
+  brewery_label, brewery_km = town_mod.nearest_label(brewery["lat"], brewery["lon"], places)
+  if brewery_label != "Narrandera": bad.append(("Brewery Flat", brewery_label))
+  brewery_page = open(os.path.join(D, "nsw", "camp", brewery["slug"], "index.html"), encoding="utf-8").read()
+  if "Near Narrandera" not in brewery_page or "Near Gillenbah" in brewery_page: bad.append(("Brewery Flat", "page label"))
+  for place_name in ("Goulburn", "Wagga Wagga", "Albury", "Orange", "Bathurst", "Tamworth", "Armidale", "Broken Hill", "Port Macquarie", "Coffs Harbour"):
+    place = next(row for row in nsw_towns if row["name"] == place_name)
+    closest = nearest_camps(place, 1)[0]
+    gap = town_km(place["lat"], place["lon"], closest["lat"], closest["lon"])
+    if gap > 15: bad.append((place_name, closest["name"] + " " + str(round(gap, 1))))
   for place_name in ("Dubbo", "Tumut"):
     place = next(row for row in nsw_towns if row["name"] == place_name)
     closest = nearest_camps(place, 1)[0]

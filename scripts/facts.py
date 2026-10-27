@@ -6,6 +6,9 @@ display text and are never turned into a fee.
 """
 import datetime as dt
 import re
+from zoneinfo import ZoneInfo
+
+MELBOURNE = ZoneInfo("Australia/Melbourne")
 
 _MONEY_PARENS = re.compile(r"\(\s*\$\s*\d[\d,]*(?:\.\d+)?[^)]*\)")
 _MONEY = re.compile(r"\$\s*\d[\d,]*(?:\.\d+)?")
@@ -91,6 +94,42 @@ def stay_label(value, nights=None):
     if isinstance(nights, int) and 0 < nights <= 365:
         return f"{nights} night" if nights == 1 else f"{nights} nights"
     return ""
+
+
+def melbourne_date(value):
+    """Calendar day in Australia/Melbourne. A date-only string stays on that day."""
+    if value in (None, ""):
+        return None
+    if isinstance(value, dt.datetime):
+        when = value
+    elif isinstance(value, dt.date):
+        return value
+    elif isinstance(value, (int, float)) and not isinstance(value, bool):
+        seconds = float(value) / 1000.0 if abs(value) > 10_000_000_000 else float(value)
+        when = dt.datetime.fromtimestamp(seconds, dt.timezone.utc)
+    else:
+        raw = str(value).strip()
+        if not raw:
+            return None
+        if "T" not in raw and len(raw) >= 10 and raw[4] == "-" and raw[7] == "-":
+            try:
+                return dt.date.fromisoformat(raw[:10])
+            except ValueError:
+                return None
+        if raw.endswith("Z"):
+            raw = raw[:-1] + "+00:00"
+        try:
+            when = dt.datetime.fromisoformat(raw)
+        except ValueError:
+            return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=dt.timezone.utc)
+    return when.astimezone(MELBOURNE).date()
+
+
+def melbourne_iso(value):
+    day = melbourne_date(value)
+    return day.isoformat() if day else ""
 
 
 def checked_phrase(value):

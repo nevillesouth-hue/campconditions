@@ -5,7 +5,7 @@ Each enabled state in config/states supplies its name, sources, regions, labels
 and page copy. Victoria is the only enabled state, so the pages stay under /vic/.
 New South Wales is in the config and is not fetched or rendered.
 """
-import importlib, json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as dt
+import importlib, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
 import states as statecfg
@@ -1070,16 +1070,25 @@ def footer():
 <p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
 {FRESH_JS}"""
-def vicemergency_url(lat, lon):
+def vicemergency_url(lat, lon, name="", slug=""):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
     base = LINKS.get("emergency") or ""
+    if LINKS.get("emergency_fdr"):
+        # The RFS fire danger map reads fullAddress, lat, lng and placeId together, then centres at zoom 8. Fires Near Me ignores location parameters.
+        query = urllib.parse.urlencode({
+            "fullAddress": name or "Camp",
+            "lat": lat,
+            "lng": lon,
+            "placeId": slug or "camp",
+        })
+        return "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans?" + query
     if LINKS.get("emergency_bbox") is False:
         return base
     pad = 0.2
     west, south, east, north = lon - pad, lat - pad, lon + pad, lat + pad
     return f"{base}?bbox={west:.5f},{south:.5f},{east:.5f},{north:.5f}"
 def vicemergency_button(c):
-    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"]))}">{LINKS.get("emergency_button") or ""}</a></p>'
+    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"], c.get("page_name") or c.get("name") or "", c.get("slug") or ""))}">{LINKS.get("emergency_button") or ""}</a></p>'
 def cdn(kind, href, integrity):
     if kind == "css":
         return f'<link rel="stylesheet" href="{href}" integrity="{integrity}" crossorigin="anonymous">'
@@ -1820,7 +1829,7 @@ def fire_line(c):
     if fire.get("tomorrow"):
         sentence += f", {fire['tomorrow']} tomorrow"
     sentence += f". Total fire ban: {ban}."
-    return f'<p class="muted">{e(sentence)} <a href="{e(url)}">NSW RFS</a></p>'
+    return '<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>' + f'<p class="muted fire-line" style="margin:.05rem 0 .55rem">{e(sentence)}</p>'
 def alert_notes_html(c):
     rows, seen = [], set()
     for alert in c.get("alerts") or []:

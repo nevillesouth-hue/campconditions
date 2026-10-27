@@ -1,4 +1,4 @@
-import os,re,json,sys,html,math,subprocess,tempfile
+import os,re,json,sys,html,math,subprocess,tempfile,urllib.parse
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
@@ -1037,7 +1037,17 @@ if os.path.isfile(nsw_index):
     if "Total fire ban:" not in main:
       continue
     fire_pages += 1
-    if "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml" not in main: bad.append((camp["slug"], "fire source")); break
+    if '<h2 class="fire-head"' not in main or ">Fire Ratings</h2>" not in main: bad.append((camp["slug"], "fire heading")); break
+    if ">NSW RFS</a>" in main: bad.append((camp["slug"], "inline rfs link")); break
+    if "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml" not in html_page: bad.append((camp["slug"], "fire source")); break
+    if "© State of New South Wales (NSW Rural Fire Service)." not in html_page: bad.append((camp["slug"], "rfs attribution")); break
+    loc = re.search(r"Location: (-?\d+(?:\.\d+)?), (-?\d+(?:\.\d+)?)", main)
+    link = re.search(r'href="(https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans\?[^"]+)"', main)
+    href = html.unescape(link.group(1)) if link else ""
+    query = urllib.parse.parse_qs(urllib.parse.urlparse(href).query)
+    same = loc and query.get("lat") and query.get("lng") and abs(float(query["lat"][0]) - float(loc.group(1))) < 1e-6 and abs(float(query["lng"][0]) - float(loc.group(2))) < 1e-6
+    if not same or "fullAddress" not in query or not query.get("placeId"):
+      bad.append((camp["slug"], "rfs deep link")); break
     if not any(token in main for token in ratings): bad.append((camp["slug"], "fire rating")); break
     if main.count('class="banner-row"'): bad.append((camp["slug"], "banner in page")); break
   if fire_pages < 1: bad.append(("nsw", "no fire danger line"))

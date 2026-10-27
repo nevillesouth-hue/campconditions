@@ -2,10 +2,10 @@
 """Build CampConditions.au. Python 3 stdlib only.
 
 Each enabled state in config/states supplies its name, sources, regions, labels
-and page copy. Victoria is the only enabled state, so the pages stay under /vic/.
-New South Wales is in the config and is not fetched or rendered.
+and page copy. Victoria and New South Wales are both enabled. Victoria stays
+the primary state: /map.js, the about page and the top-level digest draft.
 """
-import importlib, io, json, math, os, re, html, shutil, sys, urllib.request, gzip, datetime as dt
+import importlib, io, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
 import states as statecfg
@@ -40,15 +40,30 @@ def bind(state):
 
 bind(statecfg.enabled()[0])
 OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
-CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL}
+CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL, "osm_camp": "Camp"}
+
+def _read_response(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"})
+    with urllib.request.urlopen(req, timeout=90) as r:
+        b = r.read()
+        if r.headers.get("Content-Encoding") == "gzip" or b[:2] == b"\x1f\x8b":
+            b = gzip.decompress(b)
+    return b
 
 def fetch(name, url):
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            b = r.read()
-            if r.headers.get("Content-Encoding") == "gzip" or b[:2] == b"\x1f\x8b": b = gzip.decompress(b)
-        d = json.loads(b); SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}; return d
+        d = json.loads(_read_response(url))
+        SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}
+        return d
+    except Exception as e:
+        SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
+
+def fetch_text(name, url):
+    """Bytes of a non-JSON feed. A failure is recorded and returns nothing."""
+    try:
+        body = _read_response(url)
+        SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}
+        return body
     except Exception as e:
         SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
 
@@ -189,6 +204,90 @@ def load_official(seen):
             "nearby_closures": nearby_c[:10], "source": source_id, "category": category, "state_slug": SLUG,
             "needs_review": False})
     return found, state_closures
+
+def _coded_label(table, code):
+    """Domain label for a coded value. Unknown and missing codes stay blank."""
+    if not isinstance(table, dict) or code in (None, ""):
+        return ""
+    label = str(table.get(str(code)) or "").strip()
+    if not label or label.lower() == "unknown":
+        return ""
+    return label
+
+def load_npws(seen):
+    """Camping areas from the NPWS Visitor Area layer. No fees or facilities are filled in.
+
+    The layer URL and the camping subtype come from the state config. Day use
+    areas and cemeteries are a different subtype and are not requested.
+    """
+    src = (STATE.get("sources") or {}).get("npws_visitor_areas") or {}
+    base = str(src.get("url") or "").strip()
+    subtype = src.get("camping_subtype")
+    if not base or subtype in (None, ""):
+        return []
+    import urllib.parse
+    import build_osm
+    found = []
+    offset = 0
+    key = src.get("key") or "npws_visitor_areas"
+    source_id = src.get("source_id") or "npws"
+    category_fallback = LABELS.get("park_category") or ""
+    while True:
+        query = urllib.parse.urlencode({
+            "where": f"SubtypeCD={int(subtype)}",
+            "outFields": "OBJECTID,SubtypeCD,SAPEquipID,SAPFLID,AssetName,AssetType,AssetStyle",
+            "returnGeometry": "true",
+            "outSR": "4326",
+            "f": "json",
+            "resultOffset": str(offset),
+            "resultRecordCount": "5000",
+        })
+        doc = fetch(key, base.rstrip("/") + "/query?" + query)
+        features = (doc or {}).get("features") or []
+        for feature in features:
+            attrs = feature.get("attributes") or {}
+            geom = feature.get("geometry") or {}
+            name = str(attrs.get("AssetName") or "").strip()
+            if not name or "x" not in geom or "y" not in geom:
+                continue
+            lon, lat = float(geom["x"]), float(geom["y"])
+            if build_osm.in_state(lat, lon):
+                print(f"NPWS point inside Victoria, skipped: {name}")
+                continue
+            style = _coded_label(src.get("asset_style"), attrs.get("AssetStyle"))
+            kind = _coded_label(src.get("asset_type"), attrs.get("AssetType"))
+            flid = str(attrs.get("SAPFLID") or "").strip()
+            oid = attrs.get("OBJECTID")
+            s = slug(name)
+            if s in seen:
+                tail = slug(flid) or (str(oid) if oid is not None else "npws")
+                s = f"{s}-{tail}"[:90].strip("-")
+            n = 2
+            base_slug = s
+            while s in seen:
+                s = f"{base_slug}-{n}"
+                n += 1
+            seen.add(s)
+            camp = {"slug": s, "id": oid if oid is not None else (flid or s), "name": name,
+                "lat": round(lat, 6), "lon": round(lon, 6), "region": region(lon, lat),
+                "status": "check", "closure": None, "access": "", "about": "", "camping": "", "caravans": "",
+                "site_class": style, "dis_access": None, "managed_by": "", "data_date": "",
+                "nearby_closures": [], "source": source_id, "category": style or category_fallback, "state_slug": SLUG,
+                "needs_review": False}
+            if style:
+                camp["asset_style"] = style
+            if kind:
+                camp["asset_type"] = kind
+            if flid:
+                camp["source_ref"] = flid
+            found.append(camp)
+        if not features or not (doc or {}).get("exceededTransferLimit"):
+            break
+        offset += len(features)
+        if offset > 20000:
+            break
+    print(f"NPWS camping areas: {len(found)}")
+    return found
 
 _FACT_PROTECTED = ("status", "closure", "nearby_closures", "id", "slug", "lat", "lon", "source", "region", "name")
 def _http(value):
@@ -342,7 +441,9 @@ def load_osm(seen):
         doc = json.load(handle)
     if isinstance(doc, dict): rows = doc.get("sites") or doc.get("camps") or []
     else: rows = doc
-    rows = build_osm.apply_corrections(rows, build_osm.load_corrections())
+    corr_path = statecfg.path(STATE, "corrections")
+    if corr_path:
+        rows = build_osm.apply_corrections(rows, build_osm.load_corrections(corr_path))
     extra = []
     overrides = 0
     allowed = set(CAT_LABEL) | set(CAT_LABEL.values())
@@ -382,16 +483,22 @@ def load_osm(seen):
     print(f"Closure overrides applied: {overrides}")
     return extra
 camps, seen, closures = [], set(), []
+loaded = []
 for state in statecfg.enabled():
     bind(state)
     CAT_LABEL["park_campground"] = PV_LABEL
-    official, state_closures = load_official(seen)
-    camps.extend(official)
-    closures.extend(state_closures)
-    camps.extend(load_osm(seen))
-    apply_datavic_enrichment(camps)
+    visitor = (STATE.get("sources") or {}).get("npws_visitor_areas") or {}
+    if visitor.get("url") and visitor.get("camping_subtype") not in (None, ""):
+        official, state_closures = load_npws(seen), []
+    else:
+        official, state_closures = load_official(seen)
+    loaded.append((state, official, load_osm(seen), state_closures))
 def assign_filters(camp):
     """Cost is the known fee. Type is the place filter, separate from the page label."""
+    if camp.get("source") == "npws":
+        camp["cost"] = ""
+        camp["type_filter"] = LABELS.get("type_filter") or ""
+        return camp
     fee = str(camp.get("fee_type") or "").strip().lower()
     cat = camp.get("category") or ""
     if fee == "paid" or cat in (PV_LABEL, "Camping area"):
@@ -406,7 +513,6 @@ def assign_filters(camp):
     elif cat in (LABELS.get("park_category") or "", PV_LABEL): camp["type_filter"] = LABELS.get("type_filter") or ""
     else: camp["type_filter"] = ""
     return camp
-for camp in camps: assign_filters(camp)
 def nearest_places(camp, towns, limit=8):
     scored = []
     for town in towns:
@@ -420,6 +526,24 @@ def nearest_places(camp, towns, limit=8):
         names.append((dist, place_name))
         if len(names) >= limit: break
     return names
+def assign_near_places(camps):
+    """NSW camp pages name the nearest city or town, not a closer locality.
+
+    The place file is official PlacePoint rows. Victoria has no file, so its
+    pages are unchanged. A locality is used only when no city or town is
+    within 40 km.
+    """
+    places_path = statecfg.path(STATE, "places")
+    if not places_path or not os.path.isfile(places_path):
+        return
+    import towns as town_mod
+    places = json.load(open(places_path, encoding="utf-8"))
+    for camp in camps:
+        name, dist = town_mod.nearest_label(camp["lat"], camp["lon"], places)
+        if not name or name.casefold() == camp["name"].casefold():
+            continue
+        camp["near_place"] = name
+        camp["near_km"] = round(dist, 1)
 def assign_page_names(camps):
     """Duplicate names get a nearest-place subtitle so the title and h1 differ."""
     import towns as town_mod
@@ -432,7 +556,10 @@ def assign_page_names(camps):
         choices = {id(camp): nearest_places(camp, towns) for camp in group}
         used = set()
         for camp in sorted(group, key=lambda camp: choices[id(camp)][0][0]):
-            place = next((name for dist, name in choices[id(camp)] if name.casefold() not in used), choices[id(camp)][0][1])
+            if camp.get("near_place"):
+                place = camp["near_place"]
+            else:
+                place = next((name for dist, name in choices[id(camp)] if name.casefold() not in used), choices[id(camp)][0][1])
             used.add(place.casefold())
             camp["page_name"] = f"{camp['name']}, near {place}"
         labels = {}
@@ -454,8 +581,48 @@ def assign_page_names(camps):
             else:
                 for index, camp in enumerate(ordered, 1):
                     camp["page_name"] += f" ({index})"
-assign_page_names(camps)
+def disambiguate_names(group):
+    """Duplicate names with no towns file keep the source id, which is a real field."""
+    groups = {}
+    for camp in group:
+        groups.setdefault(camp["name"].casefold(), []).append(camp)
+    for rows in groups.values():
+        if len(rows) < 2:
+            continue
+        for camp in rows:
+            ref = str(camp.get("source_ref") or camp.get("id") or "").strip()
+            if ref:
+                camp["page_name"] = f"{camp['name']} ({ref})"
+by_state = {}
+for state, official, osm_rows, state_closures in loaded:
+    bind(state)
+    visitor = (state.get("sources") or {}).get("npws_visitor_areas") or {}
+    if official and visitor.get("url"):
+        import build_osm
+        before = len(osm_rows)
+        osm_rows = build_osm.dedupe_datavic(osm_rows, official)
+        print(f"OSM camps near an NPWS point left out: {before - len(osm_rows)}")
+    state_camps = official + osm_rows
+    if statecfg.path(state, "enrichment"):
+        apply_datavic_enrichment(state_camps)
+    sources = state.get("sources") or {}
+    if sources.get("npws_alerts_rss") or sources.get("rfs_fdr"):
+        import nsw_conditions
+        nsw_conditions.apply(state_camps, sources, fetch, fetch_text)
+    for camp in state_camps:
+        assign_filters(camp)
+    town_path = statecfg.path(state, "towns")
+    if town_path and os.path.isfile(town_path):
+        assign_near_places(state_camps)
+        assign_page_names(state_camps)
+    else:
+        disambiguate_names(state_camps)
+    camps.extend(state_camps)
+    closures.extend(state_closures)
+    by_state[state["slug"]] = state_camps
 camps.sort(key=lambda c: c["name"].lower())
+for rows in by_state.values():
+    rows.sort(key=lambda c: c["name"].lower())
 
 # ---------- rendering ----------
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
@@ -469,7 +636,7 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 .digest-cta:hover{background:#ffd36a;color:#1a1208}
 .digest-cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .digest-icon{display:block;flex:0 0 auto;width:14px;height:14px}
-.digest-cta-short,.digest-cta-narrow{display:none}
+.digest-cta-short,.digest-cta-narrow{display:none}.digest-cta-mini{display:none}
 .soon{margin:0;padding:6px 1rem;text-align:center;font-size:16px;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
 .soon-sep{font-weight:700}
 @media (max-width:720px){.soon{font-size:15px;padding:6px .5rem;white-space:nowrap}}
@@ -479,6 +646,7 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 @media (max-width:640px){.digest-cta-long{display:none}.digest-cta-short{display:inline}}
 @media (max-width:420px){.brand{font-size:clamp(1.12rem,5vw,1.35rem)}.digest-cta{padding:.2rem .4rem;gap:.2rem;min-height:0}.digest-cta-short{display:none}.digest-cta-narrow{display:inline}nav{gap:.12rem .32rem}nav a{font-size:.74rem}}
 @media (max-width:370px){nav{gap:.1rem .26rem}nav a{font-size:.7rem}}
+@media (max-width:359px){.digest-cta{padding:.1rem .28rem;gap:.12rem;font-size:.68rem}.digest-icon{width:12px;height:12px}.digest-cta-narrow{display:none}.digest-cta-mini{display:inline}}
 main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
 .page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem .75rem;margin:.1rem 0 .15rem}
 .page-head h1{margin:0;flex:1 1 auto}.head-counts{margin:0;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
@@ -628,12 +796,66 @@ SHARE_JS = r"""<script>
   });
 })();
 </script>"""
-def banner(on_home=False):
+STATE_PICK_CSS = """<style>
+.state-pick{position:relative;flex:0 0 auto;margin:0;line-height:1}
+.state-pick summary{list-style:none;cursor:pointer;color:#fff;font-weight:700;font-size:.95rem;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:.28rem;min-height:44px;padding:0 .45rem;border:1px solid rgba(255,255,255,.85);border-radius:6px;background:rgba(255,255,255,.14)}
+.state-pick summary::-webkit-details-marker{display:none}
+.state-pick summary::marker{content:""}
+.state-pick summary:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.state-caret{display:block;width:16px;height:16px;flex:0 0 auto;transition:transform .15s ease}
+.state-pick[open] .state-caret{transform:rotate(180deg)}
+.state-menu{position:absolute;z-index:40;left:0;top:calc(100% + .3rem);min-width:11.5rem;margin:0;padding:.2rem 0;background:#244a2e;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.state-menu a{display:block;padding:.45rem .75rem;color:#fff;font-size:.95rem;white-space:nowrap}
+.state-menu a[aria-current="page"]{font-weight:700}
+@media (max-width:860px){.state-pick summary{font-size:clamp(.78rem,2.4vw,.95rem)}}
+@media (max-width:420px){.state-pick summary{font-size:.74rem;padding:0 .32rem;gap:.16rem}.state-menu a{font-size:.9rem}}
+@media (max-width:370px){.state-pick summary{font-size:.72rem;padding:0 .26rem}nav{gap:.08rem .16rem}}
+@media (max-width:480px){.soon{white-space:normal}}
+</style>"""
+# Leaflet panes use z-index 1000, above the sheet's 660, so zoom and clusters paint
+# through the open Filters panel. Injected only while more than one state is built,
+# so the Victoria-only pages stay unchanged.
+FILTER_COVER_CSS = """<style>
+html.filters-locked .leaflet-control-container{display:none!important}
+html.filters-locked .share-btn{visibility:hidden}
+.finder.filters-open{z-index:2000}
+.finder.filters-open .town-search,.finder.filters-open > .filters-all{visibility:hidden}
+@media (max-width:640px){
+.filter-backdrop:not([hidden]){z-index:1900}
+.finder.filters-open .filters{z-index:2001;left:0;right:0;width:auto;max-width:none;margin:0;border-radius:0;box-sizing:border-box}
+}
+</style>"""
+def state_nav(national=False):
+    """One state keeps the plain link. Several states share a compact menu."""
+    states = statecfg.enabled()
+    if len(states) < 2:
+        return "".join(f'<a href="/{state["slug"]}/">{state["name"]}</a>' for state in states)
+    caret = ('<svg class="state-caret" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">'
+             '<path d="M3.2 6.2 8 11l4.8-4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+    if national:
+        options = "".join(f'<a href="/{state["slug"]}/">{e(state.get("name") or "")}</a>' for state in states)
+        return (f'<details class="state-pick"><summary aria-label="All states">All '
+                f'{caret}</summary><div class="state-menu">{options}</div></details>')
+    current = next((state for state in states if state.get("slug") == SLUG), states[0])
+    abbrev = current.get("abbrev") or current.get("name") or ""
+    options = []
+    for state in states:
+        current_attr = ' aria-current="page"' if state.get("slug") == current.get("slug") else ""
+        options.append(f'<a href="/{state["slug"]}/"{current_attr}>{e(state.get("name") or "")}</a>')
+    label = e(current.get("name") or abbrev)
+    return (f'<details class="state-pick"><summary aria-label="State: {label}">{e(abbrev)} '
+            f'{caret}</summary>'
+            f'<div class="state-menu">{"".join(options)}</div></details>')
+def banner(on_home=False, national=False):
     href = "#newsletter" if on_home else "/#newsletter"
-    nav_links = "".join(f'<a href="/{state["slug"]}/">{state["name"]}</a>' for state in statecfg.enabled())
+    states = statecfg.enabled()
+    multi = len(states) > 1
+    nav_links = state_nav(national)
+    picker_css = (STATE_PICK_CSS + FILTER_COVER_CSS) if multi else ""
     cover = (STATE.get("banner") or {}).get("covering") or ""
     coming = (STATE.get("banner") or {}).get("coming") or ""
-    return f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>""" + SHARE_JS
+    soon = "" if multi else f"""<p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>"""
+    return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header>""" + soon + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -931,13 +1153,25 @@ def footer():
 <p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
 {FRESH_JS}"""
-def vicemergency_url(lat, lon):
+def vicemergency_url(lat, lon, name="", slug=""):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
+    base = LINKS.get("emergency") or ""
+    if LINKS.get("emergency_fdr"):
+        # The RFS fire danger map reads fullAddress, lat, lng and placeId together, then centres at zoom 8. Fires Near Me ignores location parameters.
+        query = urllib.parse.urlencode({
+            "fullAddress": name or "Camp",
+            "lat": lat,
+            "lng": lon,
+            "placeId": slug or "camp",
+        })
+        return "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans?" + query
+    if LINKS.get("emergency_bbox") is False:
+        return base
     pad = 0.2
     west, south, east, north = lon - pad, lat - pad, lon + pad, lat + pad
-    return f"{LINKS.get('emergency') or ''}?bbox={west:.5f},{south:.5f},{east:.5f},{north:.5f}"
+    return f"{base}?bbox={west:.5f},{south:.5f},{east:.5f},{north:.5f}"
 def vicemergency_button(c):
-    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"]))}">{LINKS.get("emergency_button") or ""}</a></p>'
+    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"], c.get("page_name") or c.get("name") or "", c.get("slug") or ""))}">{LINKS.get("emergency_button") or ""}</a></p>'
 def cdn(kind, href, integrity):
     if kind == "css":
         return f'<link rel="stylesheet" href="{href}" integrity="{integrity}" crossorigin="anonymous">'
@@ -951,8 +1185,14 @@ CLUSTER_CSS = (
 CLUSTER_JS = cdn("js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js", "sha384-SIh+qcEBNMda8tT+rx66aCBuWtVYMVzRABqhK4eeQh4pjDHoRdVx8nYU4LQ5eGzI")
 def leaflet_head(cluster=False):
     return LEAFLET_CSS + (CLUSTER_CSS if cluster else "")
+def map_script_src():
+    """Victoria keeps /map.js. Each other built state has its own town search."""
+    slug = STATE.get("slug") or ""
+    if slug and slug != primary["slug"]:
+        return f"/map-{slug}.js"
+    return "/map.js"
 def leaflet_foot(cluster=False):
-    return LEAFLET_JS + (CLUSTER_JS if cluster else "") + '<script src="/map.js" defer></script>'
+    return LEAFLET_JS + (CLUSTER_JS if cluster else "") + f'<script src="{map_script_src()}" defer></script>'
 def camp_url(c):
     return f"/{c.get('state_slug') or SLUG}/camp/{c['slug']}/"
 def map_points(items):
@@ -961,6 +1201,9 @@ def map_points(items):
         cl = c.get("closure") or {}
         pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": camp_url(c), "slug": c["slug"], "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
         if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
+        if len(statecfg.enabled()) > 1:
+            slug = c.get("state_slug") or SLUG
+            pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales"}.get(slug, slug)
         for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
             value = c.get(field)
             if value is True: pt[key] = 1
@@ -973,9 +1216,10 @@ def flag_attr(c, field):
     if value is True: return "1"
     if value is False: return "0"
     return ""
-def filters_html(items):
+def filters_html(items, types=None):
     costs = (("free", "Known to be free/donation"), ("paid", "Known to be paid"))
-    types = ("Showground", "Council", "Rest area", LABELS.get("type_filter") or "")
+    if types is None:
+        types = ("Showground", "Council", "Rest area", LABELS.get("type_filter") or "")
     toggles = (("dogs", "Dogs OK"), ("caravans", "Known to suit caravans"), ("motorhomes", "Known to suit motorhomes"))
     cost_html = "".join(f'<label><input type="checkbox" name="cost" value="{key}"> {label}</label>' for key, label in costs)
     type_html = "".join(f'<label><input type="checkbox" name="type" value="{e(cat)}"> {e(cat)}</label>' for cat in types)
@@ -993,10 +1237,10 @@ def filters_html(items):
 <button type="button" class="filter-btn filters-all" id="filters-all" aria-expanded="false" aria-controls="camp-filters"><span class="filter-btn-label">Filters</span></button>
 <div class="filters" id="camp-filters"><div class="filter-sheet-top"><p class="filter-sheet-title" id="filter-sheet-title">Filters</p><button type="button" class="filter-sheet-close" id="filter-sheet-close" aria-label="Close filters">×</button></div><div class="filter-sheet-body">{pop("cost", "Cost", cost_panel)}{pop("type", "Type", type_panel)}{pop("facilities", "Facilities", fac_panel)}<div class="filter-status"><label class="hide-closed"><input type="checkbox" data-flag="hide-closed"> Hide closed</label><span class="filter-status-rule" aria-hidden="true"></span><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p></div></div><div class="filter-sheet-bottom"><button type="button" class="filter-done" id="filter-done">Show {total} camps</button></div></div></div>
 <div id="town-results" aria-live="polite"></div>'''
-def map_block(items, label, small=False):
+def map_block(items, label, small=False, types=None):
     cls = "map map-sm" if small else "map"
     legend = "" if small else LEGEND
-    tools = "" if small else filters_html(items)
+    tools = "" if small else filters_html(items, types)
     empty = "" if small else '<p id="filter-empty" class="filter-empty" hidden>No camps match these filters. <a href="#camp-filters" id="filter-clear">Clear filters</a></p>'
     return f'{tools}{empty}<div id="camp-map" class="{cls}" role="region" aria-label="{e(label)}"></div>{legend}<script type="application/json" id="camp-map-data">{map_points(items)}</script>'
 def directions(c):
@@ -1090,7 +1334,7 @@ MAP_JS = r"""(function () {
     else map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
     return;
   }
-  var group = L.markerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 42});
+  var group = L.markerClusterGroup(__CLUSTER__);
   map.addLayer(group);
   var picked = null;
   var towns = null;
@@ -1177,28 +1421,14 @@ MAP_JS = r"""(function () {
     refreshFilterButtons();
   }
   function redraw(fit) {
-    group.clearLayers();
-    var shownCount = 0;
-    data.forEach(function (p, i) {
-      if (!matches(p)) return;
-      group.addLayer(markers[i]);
-      shownCount += 1;
-    });
-    document.querySelectorAll("#camp-list tbody tr[data-url]").forEach(function (row) {
-      row.hidden = !matches(row.dataset);
-    });
-    updateFilterStatus(shownCount);
-    if (picked) showNearest();
-    else if (fit && shownCount) {
-      try { map.fitBounds(group.getBounds().pad(0.08)); } catch (err) {}
-    } else if (!shownCount) map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
+__REDRAW_BODY__
   }
   function loadTowns() {
     if (towns) return Promise.resolve(towns);
     if (!townsPromise) {
       townsPromise = fetch("__TOWNS_URL__").then(function (r) { return r.json(); }).then(function (rows) {
         towns = rows;
-        return rows;
+        __AFTER_TOWNS__
       });
     }
     return townsPromise;
@@ -1223,15 +1453,7 @@ __REGION_FN__
     if (n.indexOf(q) === 0) return 1;
     return partial ? 3 : 2;
   }
-  function nearestTown(lat, lon) {
-    if (!towns || !towns.length) return null;
-    var best = null, bestD = Infinity, i, d;
-    for (i = 0; i < towns.length; i++) {
-      d = kmBetween(lat, lon, towns[i].lat, towns[i].lon);
-      if (d < bestD) { bestD = d; best = towns[i]; }
-    }
-    return best;
-  }
+__NEAREST_FN__
   function byRank(a, b) {
     if (a.score !== b.score) return a.score - b.score;
     if (a.rank !== b.rank) return a.rank - b.rank;
@@ -1275,7 +1497,7 @@ __REGION_FN__
   function campMeta(camp) {
     var bits = [];
     if (camp.cat) bits.push(camp.cat);
-    bits.push(regionName(camp.lat, camp.lon));
+    bits.push(__REGION_BIT__);
     var near = nearestTown(camp.lat, camp.lon);
     if (near && fold(near.name) !== fold(camp.name)) bits.push("near " + near.name);
     return bits.join(" · ");
@@ -1502,9 +1724,12 @@ def external_blank(html):
         if "target=" in tag: return tag
         return tag[:-1] + ' target="_blank" rel="noopener noreferrer">'
     return re.sub(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>', repl, html)
-def page(path, title, desc, body, extra_ld=(), head="", foot=""):
+def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     canon = SITE + path
     built = NOW.isoformat()
+    if on_home is None:
+        on_home = path == "/"
+    national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
@@ -1512,7 +1737,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
 <meta name="campconditions-built" content="{built}">
 {STANDALONE_BOOT}
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
-{banner(path == "/")}
+{banner(on_home, national)}
 {FRESH_BAR}
 <main>{body}</main>{footer()}{foot}</body></html>"""
     h = external_blank(h)
@@ -1589,19 +1814,174 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
   if (location.hash === "#newsletter") openDigest();
 })();
 </script>
-</section>""".replace("__NEWSLETTER_H2__", COPY.get("newsletter_h2") or "")
+</section>"""
+def news_section(heading=None):
+    title = (COPY.get("newsletter_h2") or "") if heading is None else heading
+    html_form = NEWS.replace("__NEWSLETTER_H2__", title)
+    if len(statecfg.enabled()) < 2:
+        return html_form
+    boxes = []
+    for state in statecfg.enabled():
+        picked = state.get("slug") == ("nsw" if SLUG == "nsw" else "vic")
+        checked = " checked" if picked else ""
+        boxes.append(
+            '<label style="display:inline-flex;align-items:center;gap:.35rem;font-weight:700;min-height:44px;margin:0">'
+            f'<input type="checkbox" name="states" value="{e(state["slug"])}"{checked} style="width:1.15rem;height:1.15rem;margin:0"> {e(state.get("abbrev") or state["name"])}</label>'
+        )
+    field = (
+        '<fieldset style="border:0;margin:0 0 .45rem;padding:0;display:flex;flex-wrap:wrap;gap:.15rem .85rem;align-items:center">'
+        '<legend style="font-weight:700;padding:0;margin:0 .35rem 0 0">States</legend>'
+        + "".join(boxes)
+        + '<input type="hidden" name="choose_states" value="1"></fieldset>'
+    )
+    return html_form.replace('<label for="digest-email">Your email</label>', field + '<label for="digest-email">Your email</label>', 1)
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
-def render_map_js():
+primary = next(state for state in statecfg.enabled() if state.get("enabled"))
+bind(primary)
+VIC_NEAREST_FN = """  function nearestTown(lat, lon) {
+    if (!towns || !towns.length) return null;
+    var best = null, bestD = Infinity, i, d;
+    for (i = 0; i < towns.length; i++) {
+      d = kmBetween(lat, lon, towns[i].lat, towns[i].lon);
+      if (d < bestD) { bestD = d; best = towns[i]; }
+    }
+    return best;
+  }"""
+NSW_NEAREST_FN = """  var places = null;
+  function nearestTown(lat, lon) {
+    var rows = (places && places.length) ? places : (towns || []);
+    if (!rows.length) return null;
+    var bestTown = null, bestTownD = Infinity, best = null, bestD = Infinity, i, d, row;
+    for (i = 0; i < rows.length; i++) {
+      row = rows[i];
+      d = kmBetween(lat, lon, row.lat, row.lon);
+      if (d < bestD) { bestD = d; best = row; }
+      if ((row.place === "city" || row.place === "town") && d < bestTownD) { bestTownD = d; bestTown = row; }
+    }
+    if (bestTown && bestTownD <= 40) return bestTown;
+    return best;
+  }"""
+NSW_AFTER_TOWNS = """return fetch("__PLACES_URL__").then(function (r) { return r.json(); }).then(function (labelRows) {
+          places = labelRows;
+          return towns;
+        }, function () { return towns; });"""
+REDRAW_BODY = """    group.clearLayers();
+    var shownCount = 0;
+    data.forEach(function (p, i) {
+      if (!matches(p)) return;
+      group.addLayer(markers[i]);
+      shownCount += 1;
+    });
+    document.querySelectorAll("#camp-list tbody tr[data-url]").forEach(function (row) {
+      row.hidden = !matches(row.dataset);
+    });
+    updateFilterStatus(shownCount);
+    if (picked) showNearest();
+    else if (fit && shownCount) {
+      try { map.fitBounds(group.getBounds().pad(0.08)); } catch (err) {}
+    } else if (!shownCount) map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);"""
+HOME_REDRAW_BODY = """    group.clearLayers();
+    var shown = [];
+    var shownCount = 0;
+    data.forEach(function (p, i) {
+      if (!matches(p)) return;
+      shown.push(markers[i]);
+      shownCount += 1;
+    });
+    document.querySelectorAll("#camp-list tbody tr[data-url]").forEach(function (row) {
+      row.hidden = !matches(row.dataset);
+    });
+    updateFilterStatus(shownCount);
+    if (picked) showNearest();
+    if (!shownCount) {
+      map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
+      return;
+    }
+    if (fit && !picked) {
+      try {
+        map.fitBounds(L.latLngBounds(shown.map(function (marker) { return marker.getLatLng(); })).pad(0.08));
+      } catch (err) {}
+    }
+    group.addLayers(shown);"""
+def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", region_bit="regionName(camp.lat, camp.lon)", redraw_body=None, after=None, towns_url=None, lat=None, lon=None, zoom=None, nearest=None):
     fallback = STATE.get("map") or {}
-    lat, lon, zoom = fallback.get("fallback_lat"), fallback.get("fallback_lon"), fallback.get("fallback_zoom")
+    if lat is None: lat = fallback.get("fallback_lat")
+    if lon is None: lon = fallback.get("fallback_lon")
+    if zoom is None: zoom = fallback.get("fallback_zoom")
+    if towns_url is None: towns_url = statecfg.public_file(STATE, "towns")
+    if redraw_body is None: redraw_body = REDRAW_BODY
+    if after is None or nearest is None:
+        places_url = statecfg.public_file(STATE, "places")
+        if places_url:
+            nearest, after = NSW_NEAREST_FN, NSW_AFTER_TOWNS.replace("__PLACES_URL__", places_url)
+        else:
+            nearest, after = VIC_NEAREST_FN, "return rows;"
     return (MAP_JS
-        .replace("__TOWNS_URL__", statecfg.public_file(STATE, "towns"))
+        .replace("__REDRAW_BODY__", redraw_body)
+        .replace("__TOWNS_URL__", towns_url)
         .replace("__REGION_FN__", statecfg.js_region_function(STATE))
         .replace("__MAP_LAT__", str(lat))
         .replace("__MAP_LON__", str(lon))
-        .replace("__MAP_ZOOM__", str(zoom)))
-open(os.path.join(OUT, "map.js"), "w", encoding="utf-8").write(render_map_js())
+        .replace("__MAP_ZOOM__", str(zoom))
+        .replace("__AFTER_TOWNS__", after)
+        .replace("__NEAREST_FN__", nearest)
+        .replace("__CLUSTER__", cluster)
+        .replace("__REGION_BIT__", region_bit))
+def home_town_after():
+    """Victoria's town file is fetched first. Other states are appended and tagged."""
+    urls, tags = [], []
+    for state in statecfg.enabled():
+        if state["slug"] == primary["slug"]:
+            continue
+        url = statecfg.public_file(state, "towns")
+        if not url:
+            continue
+        urls.append(url)
+        tags.append(state.get("abbrev") or state["name"])
+    fetches = ", ".join(
+        'fetch("%s").then(function (r) { return r.json(); }, function () { return []; })' % url
+        for url in urls
+    )
+    return (
+        "var tags = %s;\n"
+        "        return Promise.all([%s]).then(function (lists) {\n"
+        "          lists.forEach(function (list, i) {\n"
+        "            (list || []).forEach(function (town) {\n"
+        "              var copy = {}, key;\n"
+        "              for (key in town) if (Object.prototype.hasOwnProperty.call(town, key)) copy[key] = town[key];\n"
+        "              if (tags[i]) copy.place = copy.place ? (copy.place + \" \\u00b7 \" + tags[i]) : tags[i];\n"
+        "              rows.push(copy);\n"
+        "            });\n"
+        "          });\n"
+        "          towns = rows;\n"
+        "          return rows;\n"
+        "        });" % (json.dumps(tags, ensure_ascii=False), fetches)
+    )
+def write_map_js(state):
+    bind(state)
+    name = "map.js" if state["slug"] == primary["slug"] else f"map-{state['slug']}.js"
+    open(os.path.join(OUT, name), "w", encoding="utf-8").write(render_map_js())
+def write_home_map_js():
+    """One map script for the national page. /map.js stays the Victorian search."""
+    bind(primary)
+    script = render_map_js(
+        cluster="{showCoverageOnHover: false, maxClusterRadius: 42, chunkedLoading: true, chunkInterval: 40, chunkDelay: 16}",
+        region_bit="camp.stateName || regionName(camp.lat, camp.lon)",
+        redraw_body=HOME_REDRAW_BODY,
+        after=home_town_after(),
+        towns_url=statecfg.public_file(primary, "towns"),
+        lat=-35.2,
+        lon=146.2,
+        zoom=5,
+        nearest=VIC_NEAREST_FN,
+    )
+    open(os.path.join(OUT, "map-home.js"), "w", encoding="utf-8").write(script)
+write_map_js(primary)
+for state in statecfg.enabled():
+    if state["slug"] != primary["slug"]:
+        write_map_js(state)
+bind(primary)
 shutil.copytree(os.path.join(ROOT, "assets", "brand"), os.path.join(OUT, "assets", "brand"))
 shutil.copyfile(os.path.join(ROOT, "assets", "brand", "site.webmanifest"), os.path.join(OUT, "site.webmanifest"))
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
@@ -1611,14 +1991,45 @@ def list_note(c):
     if c.get("source") == "osm":
         if c.get("status") == "closed" and (c.get("closure") or {}).get("desc"):
             return c["closure"]["desc"]
+        if c.get("alerts"):
+            return c["alerts"][0].get("heading") or ""
         if c.get("category") == "Showground": return "Call first"
         if c.get("category") == PV_LABEL: return LABELS.get("book_ahead_note") or ""
         if c.get("category") == "Pub stay": return "Pub stay — check with the pub"
         return "Conditions: check with operator"
     desc = (c.get("closure") or {}).get("desc") or ""
     if desc: return desc
+    if c.get("alerts"):
+        return c["alerts"][0].get("heading") or ""
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
     return ""
+def fire_line(c):
+    """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon."""
+    fire = c.get("fire") or {}
+    district, today, ban = fire.get("district") or "", fire.get("today") or "", fire.get("ban_today") or ""
+    url = fire.get("source_url") or ""
+    if not district or not today or not ban or not str(url).startswith("https://"):
+        return ""
+    sentence = f"{district}: {today} today"
+    if fire.get("tomorrow"):
+        sentence += f", {fire['tomorrow']} tomorrow"
+    sentence += f". Total fire ban: {ban}."
+    return '<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>' + f'<p class="muted fire-line" style="margin:.05rem 0 .55rem">{e(sentence)}</p>'
+def alert_notes_html(c):
+    rows, seen = [], set()
+    for alert in c.get("alerts") or []:
+        heading = str(alert.get("heading") or "").strip()
+        if not heading or (c.get("status") == "closed" and heading.lower().startswith("closed parks")):
+            continue
+        key = heading.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        url = str(alert.get("url") or "")
+        rows.append(f'<a href="{e(url)}">{e(heading)}</a>' if url.startswith("https://") else e(heading))
+    if not rows:
+        return ""
+    return '<p class="muted">NPWS alerts: ' + "; ".join(rows) + ".</p>"
 def row_attrs(c):
     return (f'data-slug="{e(c["slug"])}" data-url="{camp_url(c)}" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
             f'data-dogs="{flag_attr(c,"fac_dogs")}" '
@@ -1721,78 +2132,153 @@ def datavic_facts(c):
     if c.get("overlay_operator"): bits.append(f"<p>Operator: {e(c['overlay_operator'])}</p>")
     return "".join(bits)
 for state in statecfg.enabled():
-    town_src = statecfg.path(state, "towns")
-    if town_src and os.path.isfile(town_src):
-        shutil.copyfile(town_src, os.path.join(OUT, os.path.basename(town_src)))
-n_osm = sum(c.get("source") == "osm" for c in camps)
-n_dv = len(camps) - n_osm
-
-# Home. Copy comes from the enabled state (Victoria only, for now).
-reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/{SLUG}/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
-home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
-faq_entities = [{"@type": "Question", "name": item.get("q") or "", "acceptedAnswer": {"@type": "Answer", "text": item.get("a") or ""}} for item in COPY.get("faq") or []]
-home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": COPY["website_description"].format(count=len(camps))},
-           {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
-           {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq_entities}]
-page("/", COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
- f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>
+    for key in ("towns", "places"):
+        src = statecfg.path(state, key)
+        if src and os.path.isfile(src):
+            shutil.copyfile(src, os.path.join(OUT, os.path.basename(src)))
+def emit_state(state, camps, include_home):
+    """Write one state's pages. Home is the Victoria page, so only the primary state includes it."""
+    bind(state)
+    by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
+    n_closed = sum(c["status"] == "closed" for c in camps)
+    n_check = sum(c["status"] == "check" for c in camps)
+    n_osm = sum(c.get("source") == "osm" for c in camps)
+    n_dv = len(camps) - n_osm
+    reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/{SLUG}/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
+    home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
+    faq_entities = [{"@type": "Question", "name": item.get("q") or "", "acceptedAnswer": {"@type": "Answer", "text": item.get("a") or ""}} for item in COPY.get("faq") or []]
+    def full_home(path, on_home):
+        home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + path, "inLanguage": "en-AU", "description": COPY["website_description"].format(count=len(camps))},
+                   {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
+                   {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq_entities}]
+        page(path, COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
+         f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>
 {map_block(camps, COPY["home_map"])}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
-<p>{COPY["home_weather"]}</p>{NEWS}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
-
-page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
-     f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{map_block(camps, COPY['home_map'])}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))
-
-for k, (n, d) in REGIONS.items():
-    lst = by_reg[k]
-    rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
-    il = {"@context": "https://schema.org", "@type": "ItemList", "name": COPY["region_list_name"].format(name=n), "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}{camp_url(c)}", "name": c["name"]} for i, c in enumerate(lst)]}
-    page(f"/{SLUG}/{k}/", COPY["region_title"].format(name=n, count=len(lst)), COPY["region_description"].format(count=len(lst), name=n, blurb=d),
-         f"<h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{map_block(lst, f'Map of {n} campgrounds')}{SAFETY}<table id=\"camp-list\"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or '<tr><td colspan=4>No campgrounds listed.</td></tr>'}</tbody></table>{NEWS}",
-         [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
-
-for c in camps:
-    rn = REGIONS[c["region"]][0]
-    cl = c["closure"]; parts = []
-    osm = c.get("source") == "osm"
-    if cl:
-        parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(cl["reopen"][:10])) if cl.get("reopen") else ""}</div>')
-        if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(cl["reopen"][:10])))
-    if c["nearby_closures"]: parts.append("<h2>Road and track closures within 5 km</h2><ul>" + "".join(f'<li>{e(x["type"])}{": "+e(x["name"]) if x["name"] else ""}{" — "+e(x["reason"]) if x["reason"] else ""}{" · reopens "+e(x["reopens"]) if x.get("reopens") else ""}</li>' for x in c["nearby_closures"]) + "</ul>")
-    info_bits = []
-    for heading, raw in (("About", c["about"]), ("Camping", c["camping"]), ("Caravans and campervans", c["caravans"]), ("Getting there", c["access"])):
-        text = facts.without_prices(raw)
-        if text: info_bits.append(f"<h2>{heading}</h2><p>{e(text)}</p>")
-    info = "".join(info_bits)
-    page_name = c.get("page_name") or c["name"]
-    if osm:
-        condition = osm_blocks(c)
-        wording = str((cl or {}).get("desc") or "").strip()
-        source_url = str((cl or {}).get("source_url") or "").strip()
-        if wording and source_url:
-            condition = f'<div id="camp-closure"><div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(source_url)}</a></div></div>' + condition
-        title = f"{page_name} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{page_name} — check with the operator | CampConditions.au"
-        desc = COPY["osm_place"].format(name=c["name"], region=rn, category=c.get("category") or "camp")
-        dated = COPY["osm_source_line"]
+<p>{COPY["home_weather"]}</p>{news_section()}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
+    multi = len(statecfg.enabled()) > 1
+    state_is_home = multi and state.get("slug") == primary["slug"] and not include_home
+    if include_home:
+        full_home("/", True)
+    if state_is_home:
+        full_home(f"/{SLUG}/", True)
     else:
-        closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
-        condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
-        title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
-        desc = COPY["official_place"].format(name=c["name"], region=rn)
-        dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
-    camp_path = camp_url(c)
-    camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
-               "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},
-               "containedInPlace": {"@type": "AdministrativeArea", "name": COPY["place_admin"].format(region=rn)}, "publicAccess": c["status"] != "closed", "identifier": str(c["id"])}
-    lds = [camp_ld, crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (rn, f"/{SLUG}/{c['region']}/"), (c["name"], camp_path)])]
-    if cl:
-        lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
-    page(camp_path, title, desc,
-     f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1><p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>
+        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{map_block(camps, COPY['home_map'])}{SAFETY}<div class='grid'>{reg_cards}</div>"
+        if multi:
+            state_body += news_section()
+        page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
+             state_body, [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))
+    for k, (n, d) in REGIONS.items():
+        lst = by_reg[k]
+        rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
+        il = {"@context": "https://schema.org", "@type": "ItemList", "name": COPY["region_list_name"].format(name=n), "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}{camp_url(c)}", "name": c["name"]} for i, c in enumerate(lst)]}
+        page(f"/{SLUG}/{k}/", COPY["region_title"].format(name=n, count=len(lst)), COPY["region_description"].format(count=len(lst), name=n, blurb=d),
+             f"<h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{map_block(lst, f'Map of {n} campgrounds')}{SAFETY}<table id=\"camp-list\"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or '<tr><td colspan=4>No campgrounds listed.</td></tr>'}</tbody></table>{news_section()}",
+             [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
+    for c in camps:
+        rn = REGIONS[c["region"]][0]
+        cl = c["closure"]; parts = []
+        osm = c.get("source") == "osm"
+        if cl:
+            parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(cl["reopen"][:10])) if cl.get("reopen") else ""}</div>')
+            if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(cl["reopen"][:10])))
+        if c["nearby_closures"]: parts.append("<h2>Road and track closures within 5 km</h2><ul>" + "".join(f'<li>{e(x["type"])}{": "+e(x["name"]) if x["name"] else ""}{" — "+e(x["reason"]) if x["reason"] else ""}{" · reopens "+e(x["reopens"]) if x.get("reopens") else ""}</li>' for x in c["nearby_closures"]) + "</ul>")
+        info_bits = []
+        for heading, raw in (("About", c["about"]), ("Camping", c["camping"]), ("Caravans and campervans", c["caravans"]), ("Getting there", c["access"])):
+            text = facts.without_prices(raw)
+            if text: info_bits.append(f"<h2>{heading}</h2><p>{e(text)}</p>")
+        info = "".join(info_bits)
+        page_name = c.get("page_name") or c["name"]
+        if osm:
+            condition = osm_blocks(c)
+            wording = str((cl or {}).get("desc") or "").strip()
+            source_url = str((cl or {}).get("source_url") or "").strip()
+            if wording and source_url:
+                link_text = "NPWS alert" if c.get("state_slug") == "nsw" else source_url
+                condition = f'<div id="camp-closure"><div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(link_text)}</a></div></div>' + condition
+            notes = alert_notes_html(c)
+            if notes:
+                condition += notes
+            title = f"{page_name} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{page_name} — check with the operator | CampConditions.au"
+            desc = COPY["osm_place"].format(name=c["name"], region=rn, category=c.get("category") or "camp")
+            dated = COPY["osm_source_line"]
+        elif c.get("source") == "npws":
+            bits = []
+            if cl and (cl.get("desc") or cl.get("reason")):
+                url = str(cl.get("source_url") or "")
+                link = f' <a href="{e(url)}">NPWS alert</a>' if url.startswith("https://") else ""
+                bits.append(f'<div class="warn"><strong>Closed:</strong> {e(cl.get("desc") or cl.get("reason"))}{link}</div>')
+            else:
+                bits.append("<p><strong>No status in this layer.</strong> The NPWS Visitor Area record does not include open or closed status, fees or facilities.</p>")
+            notes = alert_notes_html(c)
+            if notes:
+                bits.append(notes)
+            if c.get("asset_style"):
+                bits.append(f"<p>Visitor area style: {e(c['asset_style'])}</p>")
+            if c.get("asset_type"):
+                bits.append(f"<p>Visitor area type: {e(c['asset_type'])}</p>")
+            if c.get("source_ref"):
+                bits.append(f"<p>Asset id: {e(c['source_ref'])}</p>")
+            condition = "".join(bits)
+            title = f"{page_name} | CampConditions.au"
+            desc = COPY["official_place"].format(name=c["name"], region=rn)
+            feed = str(c.get("alerts_feed") or "")
+            dated = "Source: NPWS Visitor Area layer (camping areas)"
+            if c.get("alerts_checked") and feed.startswith("https://"):
+                dated += f'. <a href="{e(feed)}">NPWS alerts</a>'
+        else:
+            closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
+            condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
+            title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
+            desc = COPY["official_place"].format(name=c["name"], region=rn)
+            dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
+        camp_path = camp_url(c)
+        camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
+                   "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},
+                   "containedInPlace": {"@type": "AdministrativeArea", "name": COPY["place_admin"].format(region=rn)}, "publicAccess": c["status"] != "closed", "identifier": str(c["id"])}
+        lds = [camp_ld, crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (rn, f"/{SLUG}/{c['region']}/"), (c["name"], camp_path)])]
+        if cl:
+            lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
+        page(camp_path, title, desc,
+         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="{LINKS.get('bom_forecast') or ''}">BOM forecast</a> · {dated}</p>
-<div class="box"><h2>Been here recently?</h2><p><a href="/report/?camp={c['slug']}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{NEWS}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
+<div class="box"><h2>Been here recently?</h2><p><a href="/report/?camp={c['slug']}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
+multi_state = len(statecfg.enabled()) > 1
+emit_state(primary, by_state[primary["slug"]], not multi_state)
+for state in statecfg.enabled():
+    if state["slug"] == primary["slug"]:
+        continue
+    emit_state(state, by_state[state["slug"]], False)
+bind(primary)
+if multi_state:
+    all_rows = []
+    for state in statecfg.enabled():
+        all_rows.extend(by_state[state["slug"]])
+    home_closed = sum(c["status"] == "closed" for c in all_rows)
+    home_check = sum(c["status"] == "check" for c in all_rows)
+    type_labels, seen_types = [], set()
+    for label in ("Showground", "Council", "Rest area"):
+        type_labels.append(label)
+        seen_types.add(label)
+    for state in statecfg.enabled():
+        label = (facts.state_labels(state["slug"]).get("type_filter") or "").strip()
+        if label and label not in seen_types:
+            type_labels.append(label)
+            seen_types.add(label)
+    names = " and ".join(state["name"] for state in statecfg.enabled())
+    safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
+    browse = '<p>Browse <a href="/vic/">Victoria</a> or <a href="/nsw/">New South Wales</a>.</p>'
+    write_home_map_js()
+    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in Victoria and New South Wales."},
+                   {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
+    page("/", "Camp conditions | CampConditions.au",
+         f"Closures and camp conditions for {len(all_rows)} campgrounds in Victoria and New South Wales.",
+         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>
+{map_block(all_rows, "Map of Victorian and New South Wales campgrounds", types=tuple(type_labels))}{safety}{browse}{news_section("Get the free weekly digest")}""",
+         national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
+
 
 page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",
  """<h1>Unsubscribe</h1>
@@ -1857,8 +2343,15 @@ page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles 
 <h2>Changes to this policy</h2><p>If we change this policy, we will update this page and the date at the top.</p>""")
 
 # Feeds & SEO files
+bind(primary)
+home_camps = by_state[primary["slug"]]
+attribution = [CREDIT, COPY["feed_attribution_extra"]]
+if len(statecfg.enabled()) > 1:
+    for state in statecfg.enabled():
+        if state["slug"] != primary["slug"] and state.get("credit"):
+            attribution.append(state["credit"])
 feed = {"name": "CampConditions.au status feed", "region": COPY["feed_region"], "generated": NOW.isoformat(),
-        "attribution": [CREDIT, COPY["feed_attribution_extra"]],
+        "attribution": attribution,
         "disclaimer": COPY["feed_disclaimer"], "sources": SRC,
         "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")} | {"url": f"{SITE}{camp_url(c)}"} for c in camps]}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
@@ -1877,18 +2370,35 @@ def headers_text():
             parts += [flag, "  Cache-Control: no-cache", ""]
     parts += ["/build-report.json", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
-        town = statecfg.public_file(state, "towns")
-        if town:
-            parts += [town, "  Cache-Control: no-cache", ""]
-    parts += ["/map.js", "  Cache-Control: no-cache", "", "/site.webmanifest", "  Cache-Control: no-cache", ""]
+        for key in ("towns", "places"):
+            town = statecfg.public_file(state, key)
+            if town:
+                parts += [town, "  Cache-Control: no-cache", ""]
+    parts += ["/map.js", "  Cache-Control: no-cache", ""]
+    if len(statecfg.enabled()) > 1:
+        parts += ["/map-home.js", "  Cache-Control: no-cache", ""]
+    for state in statecfg.enabled():
+        if state["slug"] == primary["slug"]:
+            continue
+        parts += [f"/map-{state['slug']}.js", "  Cache-Control: no-cache", ""]
+    parts += ["/site.webmanifest", "  Cache-Control: no-cache", ""]
     return "\n".join(parts)
 open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
-urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/privacy/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in camps]
+urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/privacy/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
+if len(statecfg.enabled()) > 1:
+    for state in statecfg.enabled():
+        if state["slug"] == primary["slug"]:
+            continue
+        bind(state)
+        urls.append(f"/{SLUG}/")
+        urls += [f"/{SLUG}/{k}/" for k in REGIONS]
+        urls += [camp_url(c) for c in by_state[state["slug"]]]
+    bind(primary)
 open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{SITE}{u}</loc><lastmod>{NOW.date()}</lastmod></url>\n" for u in urls) + "</urlset>\n")
 open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
 open(os.path.join(OUT, "llms.txt"), "w").write(f"""# CampConditions.au
 
-> {COPY["llms_intro"].format(count=len(camps))}
+> {COPY["llms_intro"].format(count=len(home_camps))}
 
 Machine-readable status for every campground: {SITE}/status.json (includes attribution, sources and last-updated times).
 
@@ -1910,6 +2420,10 @@ open(os.path.join(OUT, "404.html"), "w").write(f"""<!doctype html><html lang="en
 <main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer><p>{e(CREDIT)}</p><p>© CampConditions.au · <a href="/privacy/">Privacy</a></p></footer></body></html>""")
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter
+n_osm = sum(c.get("source") == "osm" for c in camps)
+n_dv = len(camps) - n_osm
+n_closed = sum(c["status"] == "closed" for c in camps)
+n_check = sum(c["status"] == "check" for c in camps)
 print(f"Built {len(urls)} pages, {len(camps)} camps ({n_dv} {LABELS.get('official_short') or 'official'}, {n_osm} OSM, {n_closed} closed, {n_check} check), {len(closures)} closure features")
 renamed = [c for c in camps if c.get("former_name")]
 print(f"Renamed {len(renamed)} indexed OSM names; slugs unchanged")

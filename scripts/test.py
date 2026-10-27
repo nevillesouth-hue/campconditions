@@ -54,10 +54,12 @@ home=open(os.path.join(D,"index.html"), encoding="utf-8").read()
 if 'action="/api/subscribe"' not in home or "nothing was sent" in home or 'id="newsletter"' not in home:
   bad.append(("/", "newsletter form"))
 vic=open(os.path.join(D,"vic","index.html"), encoding="utf-8").read()
-national = 'id="state-jump"' in home
+national = os.path.isfile(os.path.join(D, "nsw", "index.html"))
 overview = vic if national else home
 if national:
-  if 'id="camp-map"' in home or 'src="/map.js"' in home: bad.append(("/", "national map"))
+  if 'id="state-jump"' in home: bad.append(("/", "state jump cards"))
+  if 'src="/map.js"' in home or 'src="/map-home.js"' not in home or 'id="camp-map"' not in home: bad.append(("/", "national map"))
+  if "leaflet.markercluster" not in home: bad.append(("/", "national cluster"))
   home_pts = expect_map("/vic/", overview, True)
   vic_pts = home_pts
 else:
@@ -146,7 +148,7 @@ for r, _, fs in os.walk(D):
         # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
         rel = os.path.join(r, f)
         # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating.
-        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json"):
+        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json" or (national and os.path.dirname(rel) == D and f == "index.html")):
           continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
@@ -370,7 +372,12 @@ if [state["slug"] for state in states.enabled()] != ["vic"]: bad.append(("states
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
-if "Covering Victoria now" not in overview or "Other states coming soon" not in overview or 'class="soon"' not in overview or "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
+if "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
+  bad.append(("/", "banner"))
+if national:
+  if 'class="soon"' in home or 'class="soon"' in overview or "Covering Victoria now" in home or "Covering Victoria now" in overview or "Other states coming soon" in home:
+    bad.append(("/", "soon bar"))
+elif "Covering Victoria now" not in overview or "Other states coming soon" not in overview or 'class="soon"' not in overview:
   bad.append(("/", "banner"))
 if 'class="digest-cta" href="#newsletter" aria-label="Free weekly newsletter"' not in home or "Free weekly newsletter" not in home or "Free newsletter" not in home or 'class="digest-icon"' not in home or 'aria-hidden="true"' not in home:
   bad.append(("/", "newsletter button"))
@@ -439,7 +446,7 @@ for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon
   if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
 if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):
   bad.append(("optimum-quest-logo.webp", "still present"))
-if overview.find("<nav>") > overview.find('class="soon"') or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "justify-content:flex-end" in home or ".digest-cta{order:2;margin-left:auto" not in home:
+if ((not national) and overview.find("<nav>") > overview.find('class="soon"')) or home.find("<nav>") < 0 or "justify-content:flex-start" not in home or "justify-content:flex-end" in home or ".digest-cta{order:2;margin-left:auto" not in home:
   bad.append(("/", "nav alignment"))
 if "download" in about.lower() and "osm-camps" in about.lower(): bad.append(("about", "combined download"))
 page_js = open(os.path.join(root, "functions", "_lib", "page.js"), encoding="utf-8").read()
@@ -997,14 +1004,19 @@ if os.path.isfile(nsw_index):
   nsw_html = open(nsw_index, encoding="utf-8").read()
   if "NPWS Visitor Area" not in nsw_html or "CC BY" not in nsw_html: bad.append(("nsw", "attribution"))
   if home.count('class="banner-row"') != 2 or nsw_html.count('class="banner-row"') != 2 or vic.count('class="banner-row"') != 2: bad.append(("nav", "header rows"))
-  if 'id="state-jump"' not in home or "<strong>VIC</strong>" not in home or "<strong>NSW</strong>" not in home or 'href="/vic/"' not in home or 'href="/nsw/"' not in home: bad.append(("/", "state jump"))
-  if 'class="state-pick"' in home or '<p class="soon">' in home: bad.append(("/", "national header"))
+  if 'id="state-jump"' in home or "<strong>VIC</strong>" in home or "<strong>NSW</strong>" in home: bad.append(("/", "state jump"))
+  if 'class="state-pick"' not in home or 'aria-label="All states"' not in home or ">All <" not in home: bad.append(("/", "national header"))
+  if '<p class="soon">' in home or '<p class="soon">' in vic or '<p class="soon">' in nsw_html: bad.append(("/", "soon bar"))
+  if "html.filters-locked .leaflet-control-container" not in home or "html.filters-locked .leaflet-control-container" not in vic or "html.filters-locked .leaflet-control-container" not in nsw_html: bad.append(("filters", "cover"))
   if 'name="states" value="vic" checked' not in home or 'name="choose_states" value="1"' not in home or 'name="states" value="nsw" checked' in home or "Get the free weekly digest" not in home: bad.append(("/", "signup states"))
+  if home.find('id="camp-map"') < 0 or home.find('id="newsletter"') < home.find('id="camp-map"'): bad.append(("/", "newsletter above the map"))
+  if 'value="NPWS"' not in home or 'value="Parks Victoria"' not in home: bad.append(("/", "type filters"))
   if 'class="state-pick"' not in vic or 'aria-label="State: Victoria"' not in vic or ">VIC <" not in vic: bad.append(("/vic/", "state picker"))
   if 'href="/vic/" aria-current="page"' not in vic or 'href="/nsw/">New South Wales</a>' not in vic: bad.append(("/vic/", "state menu"))
   if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic: bad.append(("/vic/", "signup states"))
   if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html: bad.append(("nsw", "signup states"))
-  if 'href="/vic/">Victoria</a><a href="/nsw/">New South Wales</a>' in home: bad.append(("/", "state links"))
+  if 'href="/vic/">Victoria</a><a href="/nsw/">New South Wales</a>' not in home: bad.append(("/", "state menu"))
+  if 'src="/map-home.js"' in vic or 'src="/map.js"' not in vic: bad.append(("/vic/", "map script"))
   if 'class="state-pick"' not in nsw_html or 'aria-label="State: New South Wales"' not in nsw_html or ">NSW <" not in nsw_html: bad.append(("nsw", "state picker"))
   if 'href="/nsw/" aria-current="page"' not in nsw_html or 'href="/vic/">Victoria</a>' not in nsw_html: bad.append(("nsw", "state menu"))
   if 'src="/map-nsw.js"' not in nsw_html or 'src="/map.js"' in nsw_html: bad.append(("nsw", "town script"))
@@ -1032,7 +1044,18 @@ if os.path.isfile(nsw_index):
   nsw_map = open(os.path.join(D, "map-nsw.js"), encoding="utf-8").read()
   if 'fetch("/nsw-towns.json")' not in nsw_map or "vic-towns.json" in nsw_map: bad.append(("map-nsw.js", "town file"))
   if 'fetch("/nsw-place-points.json")' not in nsw_map or "bestTownD <= 40" not in nsw_map: bad.append(("map-nsw.js", "place labels"))
-  if 'fetch("/vic-towns.json")' not in mj or "nsw-place-points.json" in mj or "bestTownD" in mj: bad.append(("map.js", "victoria towns"))
+  if 'fetch("/vic-towns.json")' not in mj or "nsw-place-points.json" in mj or "bestTownD" in mj or "chunkedLoading" in mj or "stateName" in mj: bad.append(("map.js", "victoria towns"))
+  home_map = open(os.path.join(D, "map-home.js"), encoding="utf-8").read()
+  if 'fetch("/vic-towns.json")' not in home_map or 'fetch("/nsw-towns.json")' not in home_map: bad.append(("map-home.js", "towns"))
+  if "nsw-place-points.json" in home_map or "bestTownD" in home_map: bad.append(("map-home.js", "nsw places"))
+  if "chunkedLoading: true" not in home_map or "camp.stateName || regionName" not in home_map or "addLayers" not in home_map: bad.append(("map-home.js", "cluster"))
+  raw_home = re.search(r'<script type="application/json" id="camp-map-data">(.*?)</script>', home, re.S)
+  home_map_pts = json.loads(raw_home.group(1)) if raw_home else []
+  vic_n = sum(str(p.get("url", "")).startswith("/vic/camp/") for p in home_map_pts)
+  nsw_n = sum(str(p.get("url", "")).startswith("/nsw/camp/") for p in home_map_pts)
+  if vic_n != len(vic_feed) or nsw_n < 1 or vic_n + nsw_n != len(home_map_pts): bad.append(("/", f"national points {vic_n}+{nsw_n}"))
+  if any(p.get("stateName") not in ("Victoria", "New South Wales") for p in home_map_pts): bad.append(("/", "stateName"))
+  if '"stateName"' not in overview: bad.append(("/vic/", "stateName on combined build"))
   nsw_towns = json.load(open(os.path.join(D, "nsw-towns.json"), encoding="utf-8"))
   town_names = {row.get("name", "").casefold() for row in nsw_towns}
   for required in ("Narrandera", "Dubbo", "Tumut", "Goulburn", "Gillenbah"):

@@ -812,11 +812,30 @@ STATE_PICK_CSS = """<style>
 @media (max-width:370px){.state-pick summary{font-size:.72rem;padding:0 .26rem}nav{gap:.08rem .16rem}}
 @media (max-width:480px){.soon{white-space:normal}}
 </style>"""
-def state_nav():
+# Leaflet panes use z-index 1000, above the sheet's 660, so zoom and clusters paint
+# through the open Filters panel. Injected only while more than one state is built,
+# so the Victoria-only pages stay unchanged.
+FILTER_COVER_CSS = """<style>
+html.filters-locked .leaflet-control-container{display:none!important}
+html.filters-locked .share-btn{visibility:hidden}
+.finder.filters-open{z-index:2000}
+.finder.filters-open .town-search,.finder.filters-open > .filters-all{visibility:hidden}
+@media (max-width:640px){
+.filter-backdrop:not([hidden]){z-index:1900}
+.finder.filters-open .filters{z-index:2001;left:0;right:0;width:auto;max-width:none;margin:0;border-radius:0;box-sizing:border-box}
+}
+</style>"""
+def state_nav(national=False):
     """One state keeps the plain link. Several states share a compact menu."""
     states = statecfg.enabled()
     if len(states) < 2:
         return "".join(f'<a href="/{state["slug"]}/">{state["name"]}</a>' for state in states)
+    caret = ('<svg class="state-caret" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">'
+             '<path d="M3.2 6.2 8 11l4.8-4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>')
+    if national:
+        options = "".join(f'<a href="/{state["slug"]}/">{e(state.get("name") or "")}</a>' for state in states)
+        return (f'<details class="state-pick"><summary aria-label="All states">All '
+                f'{caret}</summary><div class="state-menu">{options}</div></details>')
     current = next((state for state in states if state.get("slug") == SLUG), states[0])
     abbrev = current.get("abbrev") or current.get("name") or ""
     options = []
@@ -824,19 +843,18 @@ def state_nav():
         current_attr = ' aria-current="page"' if state.get("slug") == current.get("slug") else ""
         options.append(f'<a href="/{state["slug"]}/"{current_attr}>{e(state.get("name") or "")}</a>')
     label = e(current.get("name") or abbrev)
-    caret = ('<svg class="state-caret" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">'
-             '<path d="M3.2 6.2 8 11l4.8-4.8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>')
     return (f'<details class="state-pick"><summary aria-label="State: {label}">{e(abbrev)} '
             f'{caret}</summary>'
             f'<div class="state-menu">{"".join(options)}</div></details>')
 def banner(on_home=False, national=False):
     href = "#newsletter" if on_home else "/#newsletter"
     states = statecfg.enabled()
-    nav_links = "" if national else state_nav()
-    picker_css = "" if national else (STATE_PICK_CSS if len(states) > 1 else "")
+    multi = len(states) > 1
+    nav_links = state_nav(national)
+    picker_css = (STATE_PICK_CSS + FILTER_COVER_CSS) if multi else ""
     cover = (STATE.get("banner") or {}).get("covering") or ""
     coming = (STATE.get("banner") or {}).get("coming") or ""
-    soon = "" if national else f"""<p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>"""
+    soon = "" if multi else f"""<p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>"""
     return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header>""" + soon + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
@@ -1183,6 +1201,9 @@ def map_points(items):
         cl = c.get("closure") or {}
         pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": camp_url(c), "slug": c["slug"], "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
         if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
+        if len(statecfg.enabled()) > 1:
+            slug = c.get("state_slug") or SLUG
+            pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales"}.get(slug, slug)
         for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
             value = c.get(field)
             if value is True: pt[key] = 1
@@ -1195,9 +1216,10 @@ def flag_attr(c, field):
     if value is True: return "1"
     if value is False: return "0"
     return ""
-def filters_html(items):
+def filters_html(items, types=None):
     costs = (("free", "Known to be free/donation"), ("paid", "Known to be paid"))
-    types = ("Showground", "Council", "Rest area", LABELS.get("type_filter") or "")
+    if types is None:
+        types = ("Showground", "Council", "Rest area", LABELS.get("type_filter") or "")
     toggles = (("dogs", "Dogs OK"), ("caravans", "Known to suit caravans"), ("motorhomes", "Known to suit motorhomes"))
     cost_html = "".join(f'<label><input type="checkbox" name="cost" value="{key}"> {label}</label>' for key, label in costs)
     type_html = "".join(f'<label><input type="checkbox" name="type" value="{e(cat)}"> {e(cat)}</label>' for cat in types)
@@ -1215,10 +1237,10 @@ def filters_html(items):
 <button type="button" class="filter-btn filters-all" id="filters-all" aria-expanded="false" aria-controls="camp-filters"><span class="filter-btn-label">Filters</span></button>
 <div class="filters" id="camp-filters"><div class="filter-sheet-top"><p class="filter-sheet-title" id="filter-sheet-title">Filters</p><button type="button" class="filter-sheet-close" id="filter-sheet-close" aria-label="Close filters">×</button></div><div class="filter-sheet-body">{pop("cost", "Cost", cost_panel)}{pop("type", "Type", type_panel)}{pop("facilities", "Facilities", fac_panel)}<div class="filter-status"><label class="hide-closed"><input type="checkbox" data-flag="hide-closed"> Hide closed</label><span class="filter-status-rule" aria-hidden="true"></span><p id="filter-count" class="filter-count" aria-live="polite">Showing {total} of {total} camps</p></div></div><div class="filter-sheet-bottom"><button type="button" class="filter-done" id="filter-done">Show {total} camps</button></div></div></div>
 <div id="town-results" aria-live="polite"></div>'''
-def map_block(items, label, small=False):
+def map_block(items, label, small=False, types=None):
     cls = "map map-sm" if small else "map"
     legend = "" if small else LEGEND
-    tools = "" if small else filters_html(items)
+    tools = "" if small else filters_html(items, types)
     empty = "" if small else '<p id="filter-empty" class="filter-empty" hidden>No camps match these filters. <a href="#camp-filters" id="filter-clear">Clear filters</a></p>'
     return f'{tools}{empty}<div id="camp-map" class="{cls}" role="region" aria-label="{e(label)}"></div>{legend}<script type="application/json" id="camp-map-data">{map_points(items)}</script>'
 def directions(c):
@@ -1312,7 +1334,7 @@ MAP_JS = r"""(function () {
     else map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
     return;
   }
-  var group = L.markerClusterGroup({showCoverageOnHover: false, maxClusterRadius: 42});
+  var group = L.markerClusterGroup(__CLUSTER__);
   map.addLayer(group);
   var picked = null;
   var towns = null;
@@ -1399,21 +1421,7 @@ MAP_JS = r"""(function () {
     refreshFilterButtons();
   }
   function redraw(fit) {
-    group.clearLayers();
-    var shownCount = 0;
-    data.forEach(function (p, i) {
-      if (!matches(p)) return;
-      group.addLayer(markers[i]);
-      shownCount += 1;
-    });
-    document.querySelectorAll("#camp-list tbody tr[data-url]").forEach(function (row) {
-      row.hidden = !matches(row.dataset);
-    });
-    updateFilterStatus(shownCount);
-    if (picked) showNearest();
-    else if (fit && shownCount) {
-      try { map.fitBounds(group.getBounds().pad(0.08)); } catch (err) {}
-    } else if (!shownCount) map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
+__REDRAW_BODY__
   }
   function loadTowns() {
     if (towns) return Promise.resolve(towns);
@@ -1489,7 +1497,7 @@ __NEAREST_FN__
   function campMeta(camp) {
     var bits = [];
     if (camp.cat) bits.push(camp.cat);
-    bits.push(regionName(camp.lat, camp.lon));
+    bits.push(__REGION_BIT__);
     var near = nearestTown(camp.lat, camp.lon);
     if (near && fold(near.name) !== fold(camp.name)) bits.push("near " + near.name);
     return bits.join(" · ");
@@ -1858,26 +1866,117 @@ NSW_AFTER_TOWNS = """return fetch("__PLACES_URL__").then(function (r) { return r
           places = labelRows;
           return towns;
         }, function () { return towns; });"""
-def render_map_js():
+REDRAW_BODY = """    group.clearLayers();
+    var shownCount = 0;
+    data.forEach(function (p, i) {
+      if (!matches(p)) return;
+      group.addLayer(markers[i]);
+      shownCount += 1;
+    });
+    document.querySelectorAll("#camp-list tbody tr[data-url]").forEach(function (row) {
+      row.hidden = !matches(row.dataset);
+    });
+    updateFilterStatus(shownCount);
+    if (picked) showNearest();
+    else if (fit && shownCount) {
+      try { map.fitBounds(group.getBounds().pad(0.08)); } catch (err) {}
+    } else if (!shownCount) map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);"""
+HOME_REDRAW_BODY = """    group.clearLayers();
+    var shown = [];
+    var shownCount = 0;
+    data.forEach(function (p, i) {
+      if (!matches(p)) return;
+      shown.push(markers[i]);
+      shownCount += 1;
+    });
+    document.querySelectorAll("#camp-list tbody tr[data-url]").forEach(function (row) {
+      row.hidden = !matches(row.dataset);
+    });
+    updateFilterStatus(shownCount);
+    if (picked) showNearest();
+    if (!shownCount) {
+      map.setView([__MAP_LAT__, __MAP_LON__], __MAP_ZOOM__);
+      return;
+    }
+    if (fit && !picked) {
+      try {
+        map.fitBounds(L.latLngBounds(shown.map(function (marker) { return marker.getLatLng(); })).pad(0.08));
+      } catch (err) {}
+    }
+    group.addLayers(shown);"""
+def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", region_bit="regionName(camp.lat, camp.lon)", redraw_body=None, after=None, towns_url=None, lat=None, lon=None, zoom=None, nearest=None):
     fallback = STATE.get("map") or {}
-    lat, lon, zoom = fallback.get("fallback_lat"), fallback.get("fallback_lon"), fallback.get("fallback_zoom")
-    places_url = statecfg.public_file(STATE, "places")
-    if places_url:
-        nearest, after = NSW_NEAREST_FN, NSW_AFTER_TOWNS.replace("__PLACES_URL__", places_url)
-    else:
-        nearest, after = VIC_NEAREST_FN, "return rows;"
+    if lat is None: lat = fallback.get("fallback_lat")
+    if lon is None: lon = fallback.get("fallback_lon")
+    if zoom is None: zoom = fallback.get("fallback_zoom")
+    if towns_url is None: towns_url = statecfg.public_file(STATE, "towns")
+    if redraw_body is None: redraw_body = REDRAW_BODY
+    if after is None or nearest is None:
+        places_url = statecfg.public_file(STATE, "places")
+        if places_url:
+            nearest, after = NSW_NEAREST_FN, NSW_AFTER_TOWNS.replace("__PLACES_URL__", places_url)
+        else:
+            nearest, after = VIC_NEAREST_FN, "return rows;"
     return (MAP_JS
-        .replace("__TOWNS_URL__", statecfg.public_file(STATE, "towns"))
+        .replace("__REDRAW_BODY__", redraw_body)
+        .replace("__TOWNS_URL__", towns_url)
         .replace("__REGION_FN__", statecfg.js_region_function(STATE))
         .replace("__MAP_LAT__", str(lat))
         .replace("__MAP_LON__", str(lon))
         .replace("__MAP_ZOOM__", str(zoom))
         .replace("__AFTER_TOWNS__", after)
-        .replace("__NEAREST_FN__", nearest))
+        .replace("__NEAREST_FN__", nearest)
+        .replace("__CLUSTER__", cluster)
+        .replace("__REGION_BIT__", region_bit))
+def home_town_after():
+    """Victoria's town file is fetched first. Other states are appended and tagged."""
+    urls, tags = [], []
+    for state in statecfg.enabled():
+        if state["slug"] == primary["slug"]:
+            continue
+        url = statecfg.public_file(state, "towns")
+        if not url:
+            continue
+        urls.append(url)
+        tags.append(state.get("abbrev") or state["name"])
+    fetches = ", ".join(
+        'fetch("%s").then(function (r) { return r.json(); }, function () { return []; })' % url
+        for url in urls
+    )
+    return (
+        "var tags = %s;\n"
+        "        return Promise.all([%s]).then(function (lists) {\n"
+        "          lists.forEach(function (list, i) {\n"
+        "            (list || []).forEach(function (town) {\n"
+        "              var copy = {}, key;\n"
+        "              for (key in town) if (Object.prototype.hasOwnProperty.call(town, key)) copy[key] = town[key];\n"
+        "              if (tags[i]) copy.place = copy.place ? (copy.place + \" \\u00b7 \" + tags[i]) : tags[i];\n"
+        "              rows.push(copy);\n"
+        "            });\n"
+        "          });\n"
+        "          towns = rows;\n"
+        "          return rows;\n"
+        "        });" % (json.dumps(tags, ensure_ascii=False), fetches)
+    )
 def write_map_js(state):
     bind(state)
     name = "map.js" if state["slug"] == primary["slug"] else f"map-{state['slug']}.js"
     open(os.path.join(OUT, name), "w", encoding="utf-8").write(render_map_js())
+def write_home_map_js():
+    """One map script for the national page. /map.js stays the Victorian search."""
+    bind(primary)
+    script = render_map_js(
+        cluster="{showCoverageOnHover: false, maxClusterRadius: 42, chunkedLoading: true, chunkInterval: 40, chunkDelay: 16}",
+        region_bit="camp.stateName || regionName(camp.lat, camp.lon)",
+        redraw_body=HOME_REDRAW_BODY,
+        after=home_town_after(),
+        towns_url=statecfg.public_file(primary, "towns"),
+        lat=-35.2,
+        lon=146.2,
+        zoom=5,
+        nearest=VIC_NEAREST_FN,
+    )
+    open(os.path.join(OUT, "map-home.js"), "w", encoding="utf-8").write(script)
 write_map_js(primary)
 for state in statecfg.enabled():
     if state["slug"] != primary["slug"]:
@@ -2154,21 +2253,31 @@ for state in statecfg.enabled():
     emit_state(state, by_state[state["slug"]], False)
 bind(primary)
 if multi_state:
-    cards = []
+    all_rows = []
     for state in statecfg.enabled():
-        rows = by_state[state["slug"]]
-        abbrev = e(state.get("abbrev") or state["name"])
-        cards.append(
-            f'<a href="/{state["slug"]}/" aria-label="{e(state["name"])}, {len(rows)} camps" style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.05rem;min-height:44px;padding:.4rem .65rem;border:1px solid #2f5d3a;border-radius:8px;background:#fff;color:#1a1a1a;text-decoration:none;line-height:1.2">'
-            f'<strong>{abbrev}</strong>'
-            f'<span style="font-size:.8rem;font-weight:600;color:#333">{e(state["name"])}</span>'
-            f'<span style="font-size:.8rem;font-weight:700">{len(rows)} camps</span></a>'
-        )
-    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": "Camp and campground conditions for Victoria and New South Wales."},
+        all_rows.extend(by_state[state["slug"]])
+    home_closed = sum(c["status"] == "closed" for c in all_rows)
+    home_check = sum(c["status"] == "check" for c in all_rows)
+    type_labels, seen_types = [], set()
+    for label in ("Showground", "Council", "Rest area"):
+        type_labels.append(label)
+        seen_types.add(label)
+    for state in statecfg.enabled():
+        label = (facts.state_labels(state["slug"]).get("type_filter") or "").strip()
+        if label and label not in seen_types:
+            type_labels.append(label)
+            seen_types.add(label)
+    names = " and ".join(state["name"] for state in statecfg.enabled())
+    safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
+    browse = '<p>Browse <a href="/vic/">Victoria</a> or <a href="/nsw/">New South Wales</a>.</p>'
+    write_home_map_js()
+    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in Victoria and New South Wales."},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
-    page("/", "Camp conditions by state | CampConditions.au", "CampConditions.au lists campgrounds in Victoria and New South Wales. Pick a state.",
-         f'<h1 style="margin:.15rem 0 .2rem">Camp conditions</h1><p style="margin:0 0 .45rem">Pick a state for campgrounds, closures and the official warnings to check.</p><div id="state-jump" style="display:flex;flex-wrap:nowrap;gap:.5rem">{"".join(cards)}</div>{news_section("Get the free weekly digest")}',
-         national_ld)
+    page("/", "Camp conditions | CampConditions.au",
+         f"Closures and camp conditions for {len(all_rows)} campgrounds in Victoria and New South Wales.",
+         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>
+{map_block(all_rows, "Map of Victorian and New South Wales campgrounds", types=tuple(type_labels))}{safety}{browse}{news_section("Get the free weekly digest")}""",
+         national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
 
 
 page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",
@@ -2266,6 +2375,8 @@ def headers_text():
             if town:
                 parts += [town, "  Cache-Control: no-cache", ""]
     parts += ["/map.js", "  Cache-Control: no-cache", ""]
+    if len(statecfg.enabled()) > 1:
+        parts += ["/map-home.js", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
         if state["slug"] == primary["slug"]:
             continue

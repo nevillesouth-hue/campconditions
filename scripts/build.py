@@ -1867,7 +1867,6 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
   }
 });
 </script>
-<p class="muted">Coming soon: a paid daily digest with instant alerts for camps you've saved (about $5 a month).</p>
 <script>
 (function () {
   const email = document.getElementById("digest-email");

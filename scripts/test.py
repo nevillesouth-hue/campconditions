@@ -137,7 +137,9 @@ for r, _, fs in os.walk(D):
         if re.search(r"\bosom\b", blob): bad.append((os.path.join(r, f)[len(D):], needle))
       elif needle.lower() in blob:
         # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
-        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in os.path.join(r, f) or f == "parksvic-flags.json"):
+        rel = os.path.join(r, f)
+        # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating.
+        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json"):
           continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
@@ -610,6 +612,38 @@ nsw_hooks = {
 for hook, url in nsw_hooks.items():
     if ((nsw.get("sources") or {}).get(hook) or {}).get("url") != url: bad.append(("states", hook))
     if url in build_src: bad.append(("build.py", "fetches " + hook))
+if "nsw_conditions" not in build_src or "fetch_text" not in build_src: bad.append(("build.py", "nsw conditions"))
+import nsw_conditions as nswcond
+_square = {"title": "Test National Park", "title_norm": "test national park", "name_norm": "test", "abbrev": "np", "prep": nswcond._prepare([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])}
+if not nswcond._contains(_square["prep"], 0.5, 0.5) or nswcond._contains(_square["prep"], 2, 2): bad.append(("nsw", "point in polygon"))
+_rss = """<?xml version="1.0"?><rss><channel>
+<item><title>Test National Park</title><link>https://www.nationalparks.nsw.gov.au/visit-a-park/parks/test/local-alerts</link>
+<category>Closed parks</category><description>&lt;strong&gt;Closed parks: Test National Park closed&lt;/strong&gt;&lt;br/&gt;Test National Park is closed to the public.</description></item>
+<item><title>Kinchega National Park</title><link>https://www.nationalparks.nsw.gov.au/visit-a-park/parks/kinchega/local-alerts</link>
+<category>Closed parks</category><description>&lt;strong&gt;Closed parks: No Solid Fuel Fires in Kinchega National Park&lt;/strong&gt;&lt;br/&gt;A park fire ban is in place. Solid fuel fires are prohibited.</description></item>
+<item><title>Bournda National Park</title><link>https://www.nationalparks.nsw.gov.au/visit-a-park/parks/bournda/local-alerts</link>
+<category>Closed areas</category><description>&lt;strong&gt;Closed areas: Hobart Beach Campground Closure&lt;/strong&gt;&lt;br/&gt;Hobart Beach Campground is closed from Sunday.</description></item>
+<item><title>Murray Valley National Park</title><link>https://www.nationalparks.nsw.gov.au/visit-a-park/parks/murray/local-alerts</link>
+<category>Closed areas</category><description>&lt;strong&gt;Closed areas: Millewa Campgrounds CLOSED due to flooding&lt;/strong&gt;Millewa National Park campgrounds are CLOSED:&lt;ul&gt;&lt;li&gt;Wire Fence Landing campground&lt;/li&gt;&lt;/ul&gt;Millewa National Park campgrounds are OPEN:&lt;ul&gt;&lt;li&gt;McLaurens campground&lt;/li&gt;&lt;/ul&gt;</description></item>
+</channel></rss>"""
+_items = nswcond.parse_rss(_rss)
+def _reserve(title, code):
+    label = nswcond.TYPE_LABEL[code]
+    name = title[: -len(label)].strip()
+    return {"title": title, "title_norm": nswcond.norm(title), "name_norm": nswcond.norm(name), "abbrev": nswcond.BULLET_ABBREV.get(code, "")}
+_by = {item["title"]: item for item in _items}
+if not nswcond.closure_for(_reserve("Test National Park", "NP"), "Any Camp", _by["Test National Park"]): bad.append(("alerts", "whole park"))
+if nswcond.closure_for(_reserve("Kinchega National Park", "NP"), "Any Camp", _by["Kinchega National Park"]): bad.append(("alerts", "fire ban closed"))
+if not nswcond.closure_for(_reserve("Bournda National Park", "NP"), "Hobart Beach Campground", _by["Bournda National Park"]): bad.append(("alerts", "named camp"))
+if nswcond.closure_for(_reserve("Bournda National Park", "NP"), "Other Campground", _by["Bournda National Park"]): bad.append(("alerts", "other camp"))
+_millewa = _reserve("Millewa National Park", "NP")
+_index = nswcond.index_closures([_by["Murray Valley National Park"]], [_millewa, _reserve("Murray Valley National Park", "NP")])
+if not nswcond.lookup_closure(_index, _millewa, "Wire Fence Landing Campground"): bad.append(("alerts", "named in another park"))
+if nswcond.lookup_closure(_index, _millewa, "McLaurens Campground"): bad.append(("alerts", "open list"))
+_fdr = nswcond.parse_fdr(b"<FireDangerMap><District><Name>Illawarra/Shoalhaven</Name><DangerLevelToday>HIGH</DangerLevelToday><DangerLevelTomorrow>EXTREME</DangerLevelTomorrow><FireBanToday>No</FireBanToday><FireBanTomorrow>Yes</FireBanTomorrow></District></FireDangerMap>")
+_row = _fdr.get("illawarrashoalhaven") or {}
+if _row.get("today") != "High" or _row.get("tomorrow") != "Extreme" or _row.get("ban_today") != "No": bad.append(("fdr", "parse"))
+if nswcond.parse_rss(b"") or nswcond.parse_fdr(b"not xml"): bad.append(("feeds", "empty"))
 if "facts.override_expired" not in build_src or "Closure override expired:" not in build_src:
   bad.append(("build.py", "expired override"))
 suit_cases = [
@@ -980,15 +1014,43 @@ if os.path.isfile(nsw_index):
     if place.casefold() not in town_names: bad.append((camp["slug"], "near " + place)); break
   npws = [c for c in nsw_camps if c.get("source") == "npws"]
   if len(npws) < 700: bad.append(("nsw", "npws count " + str(len(npws))))
+  ratings = ("None", "No Rating", "Moderate", "High", "Extreme", "Catastrophic")
+  closed_npws = []
   for camp in npws:
-    if camp.get("status") != "check" or camp.get("closure"):
+    closure = camp.get("closure") or {}
+    if camp.get("status") == "closed":
+      if not str(closure.get("desc") or "").strip() or not str(closure.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):
+        bad.append((camp.get("slug"), "closed without alert")); break
+      closed_npws.append(camp)
+    elif camp.get("status") != "check" or closure:
       bad.append((camp.get("slug"), "npws status")); break
+  if len(closed_npws) < 1: bad.append(("nsw", "no alert closure"))
+  fire_pages = 0
+  for camp in nsw_camps:
+    page = os.path.join(D, "nsw", "camp", camp["slug"], "index.html")
+    if not os.path.isfile(page):
+      continue
+    html_page = open(page, encoding="utf-8").read()
+    main = html_page.split("<main>", 1)[-1]
+    if html_page.count('class="banner-row"') != 2: bad.append((camp["slug"], "header rows")); break
+    if "Total fire ban:" in html_page.split("<main>", 1)[0]: bad.append((camp["slug"], "fire in header")); break
+    if "Total fire ban:" not in main:
+      continue
+    fire_pages += 1
+    if "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml" not in main: bad.append((camp["slug"], "fire source")); break
+    if not any(token in main for token in ratings): bad.append((camp["slug"], "fire rating")); break
+    if main.count('class="banner-row"'): bad.append((camp["slug"], "banner in page")); break
+  if fire_pages < 1: bad.append(("nsw", "no fire danger line"))
+  if "Total fire ban:" in home or "NPWS alerts" in home: bad.append(("/", "nsw conditions on victoria"))
   if npws:
     sample = os.path.join(D, "nsw", "camp", npws[0]["slug"], "index.html")
     if os.path.isfile(sample):
       sample_html = open(sample, encoding="utf-8").read()
       if "no road or track closures were found" in sample_html or "<h2>Facilities</h2>" in sample_html:
         bad.append((npws[0]["slug"], "invented detail"))
+  if closed_npws:
+    closed_html = open(os.path.join(D, "nsw", "camp", closed_npws[0]["slug"], "index.html"), encoding="utf-8").read()
+    if "NPWS alert" not in closed_html or "badge closed" not in closed_html: bad.append((closed_npws[0]["slug"], "closed page"))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken, {len(warnings)} warnings")
 for item in warnings: print("WARN", item)
 for item in bad[:20]: print(item)

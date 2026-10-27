@@ -829,14 +829,15 @@ def state_nav():
     return (f'<details class="state-pick"><summary aria-label="State: {label}">{e(abbrev)} '
             f'{caret}</summary>'
             f'<div class="state-menu">{"".join(options)}</div></details>')
-def banner(on_home=False):
+def banner(on_home=False, national=False):
     href = "#newsletter" if on_home else "/#newsletter"
     states = statecfg.enabled()
-    nav_links = state_nav()
-    picker_css = STATE_PICK_CSS if len(states) > 1 else ""
+    nav_links = "" if national else state_nav()
+    picker_css = "" if national else (STATE_PICK_CSS if len(states) > 1 else "")
     cover = (STATE.get("banner") or {}).get("covering") or ""
     coming = (STATE.get("banner") or {}).get("coming") or ""
-    return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header><p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>""" + SHARE_JS
+    soon = "" if national else f"""<p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>"""
+    return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report conditions</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header>""" + soon + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1715,9 +1716,12 @@ def external_blank(html):
         if "target=" in tag: return tag
         return tag[:-1] + ' target="_blank" rel="noopener noreferrer">'
     return re.sub(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>', repl, html)
-def page(path, title, desc, body, extra_ld=(), head="", foot=""):
+def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     canon = SITE + path
     built = NOW.isoformat()
+    if on_home is None:
+        on_home = path == "/"
+    national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
@@ -1725,7 +1729,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot=""):
 <meta name="campconditions-built" content="{built}">
 {STANDALONE_BOOT}
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
-{banner(path == "/")}
+{banner(on_home, national)}
 {FRESH_BAR}
 <main>{body}</main>{footer()}{foot}</body></html>"""
     h = external_blank(h)
@@ -1803,8 +1807,26 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
 })();
 </script>
 </section>"""
-def news_section():
-    return NEWS.replace("__NEWSLETTER_H2__", COPY.get("newsletter_h2") or "")
+def news_section(heading=None):
+    title = (COPY.get("newsletter_h2") or "") if heading is None else heading
+    html_form = NEWS.replace("__NEWSLETTER_H2__", title)
+    if len(statecfg.enabled()) < 2:
+        return html_form
+    boxes = []
+    for state in statecfg.enabled():
+        picked = state.get("slug") == ("nsw" if SLUG == "nsw" else "vic")
+        checked = " checked" if picked else ""
+        boxes.append(
+            '<label style="display:inline-flex;align-items:center;gap:.35rem;font-weight:700;min-height:44px;margin:0">'
+            f'<input type="checkbox" name="states" value="{e(state["slug"])}"{checked} style="width:1.15rem;height:1.15rem;margin:0"> {e(state.get("abbrev") or state["name"])}</label>'
+        )
+    field = (
+        '<fieldset style="border:0;margin:0 0 .45rem;padding:0;display:flex;flex-wrap:wrap;gap:.15rem .85rem;align-items:center">'
+        '<legend style="font-weight:700;padding:0;margin:0 .35rem 0 0">States</legend>'
+        + "".join(boxes)
+        + '<input type="hidden" name="choose_states" value="1"></fieldset>'
+    )
+    return html_form.replace('<label for="digest-email">Your email</label>', field + '<label for="digest-email">Your email</label>', 1)
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 primary = next(state for state in statecfg.enabled() if state.get("enabled"))
@@ -2024,18 +2046,28 @@ def emit_state(state, camps, include_home):
     n_osm = sum(c.get("source") == "osm" for c in camps)
     n_dv = len(camps) - n_osm
     reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/{SLUG}/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
-    if include_home:
-        home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
-        faq_entities = [{"@type": "Question", "name": item.get("q") or "", "acceptedAnswer": {"@type": "Answer", "text": item.get("a") or ""}} for item in COPY.get("faq") or []]
-        home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": COPY["website_description"].format(count=len(camps))},
+    home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
+    faq_entities = [{"@type": "Question", "name": item.get("q") or "", "acceptedAnswer": {"@type": "Answer", "text": item.get("a") or ""}} for item in COPY.get("faq") or []]
+    def full_home(path, on_home):
+        home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + path, "inLanguage": "en-AU", "description": COPY["website_description"].format(count=len(camps))},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
                    {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq_entities}]
-        page("/", COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
+        page(path, COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
          f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>
 {map_block(camps, COPY["home_map"])}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
-<p>{COPY["home_weather"]}</p>{news_section()}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True))
-    page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
-         f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{map_block(camps, COPY['home_map'])}{SAFETY}<div class='grid'>{reg_cards}</div>", [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))
+<p>{COPY["home_weather"]}</p>{news_section()}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
+    multi = len(statecfg.enabled()) > 1
+    state_is_home = multi and state.get("slug") == primary["slug"] and not include_home
+    if include_home:
+        full_home("/", True)
+    if state_is_home:
+        full_home(f"/{SLUG}/", True)
+    else:
+        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{map_block(camps, COPY['home_map'])}{SAFETY}<div class='grid'>{reg_cards}</div>"
+        if multi:
+            state_body += news_section()
+        page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
+             state_body, [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))
     for k, (n, d) in REGIONS.items():
         lst = by_reg[k]
         rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
@@ -2114,12 +2146,29 @@ def emit_state(state, camps, include_home):
 {condition}{SAFETY}{info}
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="{LINKS.get('bom_forecast') or ''}">BOM forecast</a> · {dated}</p>
 <div class="box"><h2>Been here recently?</h2><p><a href="/report/?camp={c['slug']}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
-emit_state(primary, by_state[primary["slug"]], True)
+multi_state = len(statecfg.enabled()) > 1
+emit_state(primary, by_state[primary["slug"]], not multi_state)
 for state in statecfg.enabled():
     if state["slug"] == primary["slug"]:
         continue
     emit_state(state, by_state[state["slug"]], False)
 bind(primary)
+if multi_state:
+    cards = []
+    for state in statecfg.enabled():
+        rows = by_state[state["slug"]]
+        abbrev = e(state.get("abbrev") or state["name"])
+        cards.append(
+            f'<a href="/{state["slug"]}/" aria-label="{e(state["name"])}, {len(rows)} camps" style="flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:.05rem;min-height:44px;padding:.4rem .65rem;border:1px solid #2f5d3a;border-radius:8px;background:#fff;color:#1a1a1a;text-decoration:none;line-height:1.2">'
+            f'<strong>{abbrev}</strong>'
+            f'<span style="font-size:.8rem;font-weight:600;color:#333">{e(state["name"])}</span>'
+            f'<span style="font-size:.8rem;font-weight:700">{len(rows)} camps</span></a>'
+        )
+    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": "Camp and campground conditions for Victoria and New South Wales."},
+                   {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
+    page("/", "Camp conditions by state | CampConditions.au", "CampConditions.au lists campgrounds in Victoria and New South Wales. Pick a state.",
+         f'<h1 style="margin:.15rem 0 .2rem">Camp conditions</h1><p style="margin:0 0 .45rem">Pick a state for campgrounds, closures and the official warnings to check.</p><div id="state-jump" style="display:flex;flex-wrap:nowrap;gap:.5rem">{"".join(cards)}</div>{news_section("Get the free weekly digest")}',
+         national_ld)
 
 
 page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",

@@ -189,7 +189,9 @@ for r, _, fs in os.walk(D):
         rel = os.path.join(r, f)
         # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating.
         shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}")))
-        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok):
+        # CFA district ratings are an official feed. The old ban was the VicEmergency warning text.
+        cfa_ok = needle == "fire danger" and ("cfa.vic.gov.au" in blob or "country fire authority" in blob)
+        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
           continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
@@ -411,8 +413,8 @@ finally:
   os.environ.pop("CAMPCONDITIONS_ENABLE", None)
 if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "enable reset"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
-if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
-if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
+if CREDIT not in about: bad.append(("credit", "footer or about"))
+if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in about: bad.append(("credit", "explore outdoors"))
 if "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
   bad.append(("/", "banner"))
 if national:

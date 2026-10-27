@@ -1290,7 +1290,9 @@ if os.path.isfile(nsw_index):
     if not any(name + ":" in main for name in districts): bad.append((camp["slug"], "cfa district")); break
     if "https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml" not in html_page or "CC BY 4.0" not in html_page:
       bad.append((camp["slug"], "cfa attribution")); break
-  if cfa_pages < 1200: bad.append(("vic", f"cfa fire lines {cfa_pages}"))
+  cfa_ok = ((feed.get("sources") or {}).get("cfa_fdr") or {}).get("ok")
+  if cfa_pages < 1200 and cfa_ok: bad.append(("vic", f"cfa fire lines {cfa_pages}"))
+  if cfa_pages < 1200 and not cfa_ok: warnings.append(("vic", f"cfa feed unavailable; fire lines {cfa_pages}"))
   import cfa_conditions
   sample_rss = """<?xml version="1.0"?><rss version="2.0"><channel><item><title>Day</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Today, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: MODERATE&lt;/p&gt;</description></item><item><title>Next</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Tomorrow, example.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: HIGH&lt;/p&gt;</description></item><item><title>Skip</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Fri, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: EXTREME&lt;/p&gt;</description></item></channel></rss>"""
   sample_parsed = cfa_conditions.parse_cfa(sample_rss)

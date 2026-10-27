@@ -30,9 +30,35 @@ function sameHex(a, b) {
   return diff === 0;
 }
 
-export async function makeToken(email, secret, ttlSec = 60 * 60 * 48) {
+export const STATE_ORDER = ["vic", "nsw"];
+const STATE_LABELS = { vic: "Victoria", nsw: "New South Wales" };
+
+export function chosenStates(raw) {
+  const list = Array.isArray(raw) ? raw : String(raw == null ? "" : raw).split(/[,\s]+/);
+  const have = new Set();
+  for (const item of list) {
+    const slug = String(item || "").trim().toLowerCase();
+    if (STATE_ORDER.includes(slug)) have.add(slug);
+  }
+  return STATE_ORDER.filter((slug) => have.has(slug));
+}
+
+export function statePhrase(states) {
+  const labels = (states && states.length ? states : ["vic"]).map((slug) => STATE_LABELS[slug] || slug);
+  if (labels.length <= 1) return labels[0] || "Victoria";
+  if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
+  return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
+}
+
+export async function makeToken(email, secret, ttlSec = 60 * 60 * 48, states) {
   const exp = Math.floor(Date.now() / 1000) + ttlSec;
-  const payload = `${email.toLowerCase()}|${exp}`;
+  const normal = email.toLowerCase();
+  let payload = `${normal}|${exp}`;
+  if (arguments.length >= 4) {
+    const picked = chosenStates(states);
+    if (!picked.length) return "";
+    payload = `${normal}|${exp}|${picked.join(",")}`;
+  }
   return `${b64url(payload)}.${await hmacHex(secret, payload)}`;
 }
 
@@ -60,14 +86,20 @@ export function listUnsubscribeHeaders(url) {
 
 export async function readToken(token, secret) {
   if (!token || !token.includes(".")) return null;
-  const [body, sig] = token.split(".");
+  const dot = token.indexOf(".");
+  const body = token.slice(0, dot);
+  const sig = token.slice(dot + 1);
+  if (!sig || sig.includes(".")) return null;
   let payload;
   try { payload = b64urlDecode(body); } catch { return null; }
   if (!sameHex(await hmacHex(secret, payload), sig)) return null;
-  const cut = payload.lastIndexOf("|");
-  if (cut < 1) return null;
-  const email = payload.slice(0, cut);
-  const exp = Number(payload.slice(cut + 1));
+  const parts = payload.split("|");
+  if (parts.length !== 2 && parts.length !== 3) return null;
+  const email = parts[0];
+  const exp = Number(parts[1]);
   if (!EMAIL_RE.test(email) || !Number.isFinite(exp) || exp < Date.now() / 1000) return null;
-  return email;
+  if (parts.length === 2) return { email, states: ["vic"], explicit: false };
+  const states = chosenStates(parts[2]);
+  if (!states.length || states.join(",") !== parts[2]) return null;
+  return { email, states, explicit: true };
 }

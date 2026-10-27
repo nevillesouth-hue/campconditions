@@ -361,14 +361,14 @@ CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Campgro
 sys.path.insert(0, os.path.join(root, "scripts"))
 import states
 if states.by_slug("vic").get("credit") != CREDIT: bad.append(("states", "credit"))
-if [state["slug"] for state in states.enabled()] != ["vic"]: bad.append(("states", "enabled"))
+if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "enabled"))
+if not states.by_slug("nsw").get("enabled") or not states.by_slug("vic").get("enabled"): bad.append(("states", "flags"))
 os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
 try:
   if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "preview enable"))
-  if states.by_slug("nsw").get("enabled"): bad.append(("states", "preview flag"))
 finally:
   os.environ.pop("CAMPCONDITIONS_ENABLE", None)
-if [state["slug"] for state in states.enabled()] != ["vic"]: bad.append(("states", "enable reset"))
+if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "enable reset"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
@@ -648,7 +648,7 @@ if facts.override_expired("2026-10-26", "2026-10-26") or facts.override_expired(
 build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
 if "statecfg.enabled" not in build_src: bad.append(("build.py", "enabled states"))
 nsw = states.by_slug("nsw")
-if nsw.get("enabled"): bad.append(("states", "nsw enabled"))
+if not nsw.get("enabled"): bad.append(("states", "nsw enabled"))
 nsw_hooks = {
     "npws_visitor_areas": "https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24",
     "npws_alerts_rss": "https://www.nationalparks.nsw.gov.au/api/rssfeed/get",

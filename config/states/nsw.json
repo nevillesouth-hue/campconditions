@@ -3,7 +3,7 @@
  "name": "New South Wales",
  "adjective": "New South Wales",
  "abbrev": "NSW",
- "enabled": false,
+ "enabled": true,
  "banner": {
   "covering": "New South Wales preview",
   "coming": "Victoria remains the live site"

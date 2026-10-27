@@ -2,8 +2,8 @@
 """Build CampConditions.au. Python 3 stdlib only.
 
 Each enabled state in config/states supplies its name, sources, regions, labels
-and page copy. Victoria is the only enabled state, so the pages stay under /vic/.
-New South Wales is in the config and is not fetched or rendered.
+and page copy. Victoria and New South Wales are both enabled. Victoria stays
+the primary state: /map.js, the about page and the top-level digest draft.
 """
 import importlib, io, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))

@@ -70,15 +70,23 @@
   },
   "npws_alerts_rss": {
    "url": "https://www.nationalparks.nsw.gov.au/api/rssfeed/get",
-   "note": "NPWS alerts RSS. Not fetched until NSW data is added."
+   "note": "NPWS alerts RSS, channel NSW National Parks – Fires, floods and park closures. Fetched when this state is built. A camp is marked closed only where the alert text records a closure of its reserve or of that campground. Other alerts are notes and the status stays check. If the feed is unavailable, status stays check."
+  },
+  "npws_reserves": {
+   "url": "https://portal.spatial.nsw.gov.au/server/rest/services/NSW_Administrative_Boundaries_Theme_multiCRS/FeatureServer/6",
+   "note": "NPWS reserve polygons, NSW Spatial Services. reservetype is paired on this layer with classsubtype: 1 NP National Park, 2 NR Nature Reserve, 3 HS Historic Site, 4 RP Regional Park, 5 KC Karst Conservation Reserve, 6 AA Aboriginal Area, 7 SC State Conservation Area. Those class labels are the cadastre ClassSubtype renderer. A camp is matched by point in polygon, then to an RSS item with the same reserve name. Fetched when this state is built."
   },
   "rfs_fdr": {
    "url": "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml",
-   "note": "NSW RFS fire danger ratings (fdrToban.xml). Not fetched until NSW data is added."
+   "note": "NSW RFS fire danger ratings and Total Fire Ban feed. DangerLevelToday and FireBanToday are shown for the fire weather district that contains the camp. Fetched when this state is built. If the feed is unavailable, the line is omitted."
+  },
+  "rfs_fire_areas": {
+   "url": "https://portal.data.nsw.gov.au/arcgis/rest/services/Hosted/NSW_Fire_Area/FeatureServer/0",
+   "note": "NSW fire weather area polygons. The firearea name matches a district Name in fdrToban.xml (slash spacing ignored). The combined ratings-and-boundaries FeatureServer was not used because its query returns a database error. Fetched when this state is built."
   }
  },
  "closure_checker": "",
- "safety_html": "<div class=\"warn\"><strong>Not an official warning service.</strong> This site does not republish NSW Rural Fire Service or SES warnings. Always check the <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology warnings for New South Wales</a> before you travel. In an emergency call <a href=\"tel:000\">000</a>.</div>",
+ "safety_html": "<div class=\"warn\"><strong>Not an official warning service.</strong> A camp page can show the NSW RFS fire danger rating and Total Fire Ban status for that camp's fire weather district. It does not republish incident warnings. Always check the <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology warnings for New South Wales</a> before you travel. In an emergency call <a href=\"tel:000\">000</a>.</div>",
  "regions": {
   "nsw": {
    "name": "New South Wales",
@@ -113,27 +121,27 @@
   "state_title": "New South Wales campground conditions — {count} sites | CampConditions.au",
   "state_description": "Browse {count} New South Wales camping areas from the NPWS Visitor Area layer and OpenStreetMap.",
   "state_h1": "New South Wales",
-  "state_intro": "<strong>{count}</strong> camping areas. The NPWS Visitor Area layer does not include fees, facilities or closure status. Those fields are left blank.",
+  "state_intro": "<strong>{count}</strong> camping areas. Fees and facilities are left blank. A camp is marked closed only where an NPWS alert records a closure. Otherwise the status stays check.",
   "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
   "region_description": "{count} camping areas in {name}. {blurb}",
   "region_list_name": "Campgrounds in {name}",
   "newsletter_h2": "Get the free weekly New South Wales digest",
   "osm_place": "{name} in {region}, New South Wales. Conditions: check with the operator. Type: {category}.",
-  "official_place": "{name} in {region}, New South Wales. NPWS Visitor Area camping record. Open or closed status, fees and facilities are not in this layer.",
-  "osm_source_line": "Source: OpenStreetMap contributors (ODbL). Closure status is not applied to this site.",
+  "official_place": "{name} in {region}, New South Wales. NPWS Visitor Area camping record. Closed only where an NPWS alert applies. Fees and facilities are not in this layer.",
+  "osm_source_line": "Source: OpenStreetMap contributors (ODbL). A closure is shown only where an NPWS alert applies to this place.",
   "place_admin": "{region}, New South Wales",
   "feed_region": "New South Wales, Australia",
-  "feed_attribution_extra": "NPWS Visitor Area camping areas, CC BY. Fees, facilities and closures are not in that layer.",
-  "feed_disclaimer": "Not an official warning service. NSW Rural Fire Service warnings are not included. NPWS Visitor Area records do not include open or closed status, fees or facilities. OpenStreetMap sites are included only where the published classification keeps them.",
-  "llms_intro": "Preview list of {count} camping areas in New South Wales from the NPWS Visitor Area layer and OpenStreetMap. Closure, fee and facility values are omitted where the source does not provide them.",
-  "llms_closures": "NPWS alerts and NSW RFS fire danger ratings are not loaded. Do not treat a blank status as open.",
-  "footer_attribution": "<p><strong>Data and attribution.</strong> Camping areas from the <a href=\"https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24\">NPWS Visitor Area layer</a> (camping areas only), CC BY. That layer does not include fees, facilities or closure status, so those are left blank. Other campgrounds: OpenStreetMap contributors (ODbL). Town search: gazetted suburb and locality boundaries, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. The nearest town on each camp page uses the PlacePoint layer's placetype (City or Town, otherwise the nearest place within the published types), Creative Commons, same publisher. For current information go to <a href=\"https://www.spatial.nsw.gov.au/\">spatial.nsw.gov.au</a>. Warnings are linked, not republished: <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology</a>.</p>",
-  "directions_note": "The Visitor Area layer does not include closures. Check NSW RFS and Live Traffic before you travel.",
+  "feed_attribution_extra": "NPWS Visitor Area camping areas, CC BY. Closures come from the NPWS alerts RSS where the alert applies. Fees and facilities are not in the Visitor Area layer.",
+  "feed_disclaimer": "Not an official warning service. Incident warnings are not included. A camp is closed only where the NPWS alerts RSS records a closure. Fire danger rating and Total Fire Ban status are the camp's NSW fire weather district from the RFS feed. Do not treat check as open.",
+  "llms_intro": "Preview list of {count} camping areas in New South Wales from the NPWS Visitor Area layer and OpenStreetMap. A camp is closed only where an NPWS alert records a closure. Fees and facilities are omitted where the source does not provide them.",
+  "llms_closures": "Closures are taken from the NPWS alerts RSS (https://www.nationalparks.nsw.gov.au/api/rssfeed/get) where the alert text closes that reserve or that campground. Other alerts are notes and the status stays check. Fire danger rating and Total Fire Ban status are the camp's fire weather district from the NSW RFS feed https://www.rfs.nsw.gov.au/feeds/fdrToban.xml, placed with the NSW fire area polygons. Do not treat a check status as open. If a feed is unavailable, that part is left off.",
+  "footer_attribution": "<p><strong>Data and attribution.</strong> Camping areas from the <a href=\"https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24\">NPWS Visitor Area layer</a> (camping areas only), CC BY. That layer does not include fees or facilities, so those are left blank. Closures and alert notes are from the <a href=\"https://www.nationalparks.nsw.gov.au/api/rssfeed/get\">NPWS alerts feed</a>, matched to <a href=\"https://portal.spatial.nsw.gov.au/server/rest/services/NSW_Administrative_Boundaries_Theme_multiCRS/FeatureServer/6\">NPWS reserve polygons</a> (NSW Spatial Services). A camp is marked closed only where that alert records a closure. Fire danger rating and Total Fire Ban status are the camp's district from the <a href=\"https://www.rfs.nsw.gov.au/feeds/fdrToban.xml\">NSW RFS fire danger feed</a>, using <a href=\"https://portal.data.nsw.gov.au/arcgis/rest/services/Hosted/NSW_Fire_Area/FeatureServer/0\">NSW fire area</a> boundaries. Other campgrounds: OpenStreetMap contributors (ODbL). Town search: gazetted suburb and locality boundaries, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. The nearest town on each camp page uses the PlacePoint layer's placetype (City or Town, otherwise the nearest place within the published types), Creative Commons, same publisher. For current information go to <a href=\"https://www.spatial.nsw.gov.au/\">spatial.nsw.gov.au</a>. Incident warnings are linked, not republished: <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology</a>.</p>",
+  "directions_note": "Check NSW RFS and Live Traffic before you travel.",
   "outdated_html": "",
   "about_lead": "CampConditions.au lists New South Wales camping areas from the NPWS Visitor Area layer and OpenStreetMap.",
   "about_roads": "Each camp page links to <a href=\"https://www.livetraffic.com/\">Live Traffic NSW</a>.",
-  "about_sources": "<li>NPWS Visitor Area camping areas, CC BY. Camping areas only. No fee, facility or closure fields.</li><li>OpenStreetMap campgrounds (ODbL).</li><li>Town search: gazetted suburb and locality boundaries, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. A city or town is pinned on the PlacePoint coordinate.</li><li>Nearest town on a camp page: PlacePoint placetype City or Town (within 40 km), otherwise the nearest PlacePoint locality, suburb or village. Creative Commons, same publisher.</li>",
-  "about_tail": "NSW Rural Fire Service warnings are not republished.",
+  "about_sources": "<li>NPWS Visitor Area camping areas, CC BY. Camping areas only. No fee or facility fields.</li><li>NPWS alerts RSS for closures and notes. A camp is closed only where the alert text closes that reserve or that campground. Reserve boundaries: NSW Spatial Services NPWSReserve polygons.</li><li>NSW RFS fire danger ratings and Total Fire Ban status from fdrToban.xml, for the NSW fire area that contains the camp.</li><li>OpenStreetMap campgrounds (ODbL).</li><li>Town search: gazetted suburb and locality boundaries, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. A city or town is pinned on the PlacePoint coordinate.</li><li>Nearest town on a camp page: PlacePoint placetype City or Town (within 40 km), otherwise the nearest PlacePoint locality, suburb or village. Creative Commons, same publisher.</li>",
+  "about_tail": "NSW Rural Fire Service incident warnings are not republished. The district fire danger rating and Total Fire Ban status are the RFS feed values.",
   "privacy_who": "CampConditions.au publishes campground conditions. Contact us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a>.",
   "digest_subject": "New South Wales camps this week",
   "digest_intro": "Here's the New South Wales preview list, {date}.",
@@ -142,7 +150,7 @@
   "faq": [
    {
     "q": "Does the NPWS Visitor Area layer say if a camp is open?",
-    "a": "No. The camping-area points have a name, a location, an asset id, and coded type and style. They do not include open or closed status, fees or facilities. Those are left blank. NPWS alerts are not loaded on this preview."
+    "a": "The camping-area points do not include open or closed status, fees or facilities. Fees and facilities stay blank. This preview reads the NPWS alerts feed: a camp is marked closed only where that alert records a closure of the reserve or of that campground. Every other camp stays check. The camp page also shows its NSW fire weather district fire danger rating and Total Fire Ban status from the RFS feed."
    }
   ]
  },

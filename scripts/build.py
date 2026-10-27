@@ -42,13 +42,28 @@ bind(statecfg.enabled()[0])
 OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
 CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL, "osm_camp": "Camp"}
 
+def _read_response(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"})
+    with urllib.request.urlopen(req, timeout=90) as r:
+        b = r.read()
+        if r.headers.get("Content-Encoding") == "gzip" or b[:2] == b"\x1f\x8b":
+            b = gzip.decompress(b)
+    return b
+
 def fetch(name, url):
     try:
-        req = urllib.request.Request(url, headers={"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"})
-        with urllib.request.urlopen(req, timeout=60) as r:
-            b = r.read()
-            if r.headers.get("Content-Encoding") == "gzip" or b[:2] == b"\x1f\x8b": b = gzip.decompress(b)
-        d = json.loads(b); SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}; return d
+        d = json.loads(_read_response(url))
+        SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}
+        return d
+    except Exception as e:
+        SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
+
+def fetch_text(name, url):
+    """Bytes of a non-JSON feed. A failure is recorded and returns nothing."""
+    try:
+        body = _read_response(url)
+        SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}
+        return body
     except Exception as e:
         SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
 
@@ -526,6 +541,10 @@ for state, official, osm_rows, state_closures in loaded:
     state_camps = official + osm_rows
     if statecfg.path(state, "enrichment"):
         apply_datavic_enrichment(state_camps)
+    sources = state.get("sources") or {}
+    if sources.get("npws_alerts_rss") or sources.get("rfs_fdr"):
+        import nsw_conditions
+        nsw_conditions.apply(state_camps, sources, fetch, fetch_text)
     for camp in state_camps:
         assign_filters(camp)
     town_path = statecfg.path(state, "towns")
@@ -1778,14 +1797,45 @@ def list_note(c):
     if c.get("source") == "osm":
         if c.get("status") == "closed" and (c.get("closure") or {}).get("desc"):
             return c["closure"]["desc"]
+        if c.get("alerts"):
+            return c["alerts"][0].get("heading") or ""
         if c.get("category") == "Showground": return "Call first"
         if c.get("category") == PV_LABEL: return LABELS.get("book_ahead_note") or ""
         if c.get("category") == "Pub stay": return "Pub stay — check with the pub"
         return "Conditions: check with operator"
     desc = (c.get("closure") or {}).get("desc") or ""
     if desc: return desc
+    if c.get("alerts"):
+        return c["alerts"][0].get("heading") or ""
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
     return ""
+def fire_line(c):
+    """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon."""
+    fire = c.get("fire") or {}
+    district, today, ban = fire.get("district") or "", fire.get("today") or "", fire.get("ban_today") or ""
+    url = fire.get("source_url") or ""
+    if not district or not today or not ban or not str(url).startswith("https://"):
+        return ""
+    sentence = f"{district}: {today} today"
+    if fire.get("tomorrow"):
+        sentence += f", {fire['tomorrow']} tomorrow"
+    sentence += f". Total fire ban: {ban}."
+    return f'<p class="muted">{e(sentence)} <a href="{e(url)}">NSW RFS</a></p>'
+def alert_notes_html(c):
+    rows, seen = [], set()
+    for alert in c.get("alerts") or []:
+        heading = str(alert.get("heading") or "").strip()
+        if not heading or (c.get("status") == "closed" and heading.lower().startswith("closed parks")):
+            continue
+        key = heading.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        url = str(alert.get("url") or "")
+        rows.append(f'<a href="{e(url)}">{e(heading)}</a>' if url.startswith("https://") else e(heading))
+    if not rows:
+        return ""
+    return '<p class="muted">NPWS alerts: ' + "; ".join(rows) + ".</p>"
 def row_attrs(c):
     return (f'data-slug="{e(c["slug"])}" data-url="{camp_url(c)}" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
             f'data-dogs="{flag_attr(c,"fac_dogs")}" '
@@ -1939,12 +1989,25 @@ def emit_state(state, camps, include_home):
             wording = str((cl or {}).get("desc") or "").strip()
             source_url = str((cl or {}).get("source_url") or "").strip()
             if wording and source_url:
-                condition = f'<div id="camp-closure"><div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(source_url)}</a></div></div>' + condition
+                link_text = "NPWS alert" if c.get("state_slug") == "nsw" else source_url
+                condition = f'<div id="camp-closure"><div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(link_text)}</a></div></div>' + condition
+            notes = alert_notes_html(c)
+            if notes:
+                condition += notes
             title = f"{page_name} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{page_name} — check with the operator | CampConditions.au"
             desc = COPY["osm_place"].format(name=c["name"], region=rn, category=c.get("category") or "camp")
             dated = COPY["osm_source_line"]
         elif c.get("source") == "npws":
-            bits = ["<p><strong>No status in this layer.</strong> The NPWS Visitor Area record does not include open or closed status, fees or facilities.</p>"]
+            bits = []
+            if cl and (cl.get("desc") or cl.get("reason")):
+                url = str(cl.get("source_url") or "")
+                link = f' <a href="{e(url)}">NPWS alert</a>' if url.startswith("https://") else ""
+                bits.append(f'<div class="warn"><strong>Closed:</strong> {e(cl.get("desc") or cl.get("reason"))}{link}</div>')
+            else:
+                bits.append("<p><strong>No status in this layer.</strong> The NPWS Visitor Area record does not include open or closed status, fees or facilities.</p>")
+            notes = alert_notes_html(c)
+            if notes:
+                bits.append(notes)
             if c.get("asset_style"):
                 bits.append(f"<p>Visitor area style: {e(c['asset_style'])}</p>")
             if c.get("asset_type"):
@@ -1954,7 +2017,10 @@ def emit_state(state, camps, include_home):
             condition = "".join(bits)
             title = f"{page_name} | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)
+            feed = str(c.get("alerts_feed") or "")
             dated = "Source: NPWS Visitor Area layer (camping areas)"
+            if c.get("alerts_checked") and feed.startswith("https://"):
+                dated += f'. <a href="{e(feed)}">NPWS alerts</a>'
         else:
             closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
             condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
@@ -1969,7 +2035,7 @@ def emit_state(state, camps, include_home):
         if cl:
             lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
         page(camp_path, title, desc,
-         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>
+         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}

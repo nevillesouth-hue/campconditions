@@ -160,6 +160,7 @@ def parse_rss(payload):
             "title": title,
             "title_norm": norm(title),
             "link": link,
+            "published": (node.findtext("pubDate") or "").strip(),
             "sections": sections_from_html(node.findtext("description") or ""),
         })
     return items
@@ -464,7 +465,7 @@ def alert_notes(item):
         if key in seen:
             continue
         seen.add(key)
-        notes.append({"heading": heading, "url": item["link"]})
+        notes.append({"heading": heading, "url": item["link"], "published": item.get("published") or ""})
     return notes
 
 
@@ -599,6 +600,7 @@ def apply_alert_records(camps, reserve_records, items):
     """Set closure, notes and alerts_checked from already parsed official records."""
     grid = _index(reserve_records)
     by_title = _items_by_title(items)
+    published_by_link = {item["link"]: item.get("published") or "" for item in items}
     index = index_closures(items, reserve_records)
     matched_titles = {record["title_norm"] for record in reserve_records}
     closed_titles = []
@@ -638,6 +640,7 @@ def apply_alert_records(camps, reserve_records, items):
                     "reopen": "",
                     "outdated": False,
                     "source_url": url,
+                    "source_published": published_by_link.get(url) or "",
                 }
                 closed += 1
         if camp.get("alerts") or str((camp.get("closure") or {}).get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):

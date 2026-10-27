@@ -697,6 +697,33 @@ if corrections.get("w204763505", {}).get("name") != "Wye River Beachfront Campgr
 if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 500:
   bad.append(("corrections", "new sites"))
 import facts
+if facts.melbourne_iso("2026-12-23T13:00:00Z") != "2026-12-24": bad.append(("facts", "ingrams reopen"))
+if facts.melbourne_iso("2027-01-31T13:00:00Z") != "2027-02-01": bad.append(("facts", "pine start"))
+if facts.melbourne_iso("2027-05-27T14:00:00Z") != "2027-05-28": bad.append(("facts", "pine reopen"))
+if facts.melbourne_iso("2027-03-04T13:00:00Z") != "2027-03-05": bad.append(("facts", "island reopen"))
+if facts.melbourne_iso("2026-12-17T13:00:00Z") != "2026-12-18": bad.append(("facts", "parkers reopen"))
+if facts.melbourne_iso("2026-04-29T14:00:00Z") != "2026-04-30": bad.append(("facts", "ingrams start"))
+if facts.melbourne_iso("2026-12-24") != "2026-12-24": bad.append(("facts", "date only"))
+if facts.melbourne_iso("2026-10-26T00:00:00Z") != "2026-10-26": bad.append(("facts", "midnight utc"))
+vic_state = states.by_slug("vic")
+for lon, lat, expect in (
+    (145.919769, -37.117335, "high-country"),
+    (145.978398, -37.138147, "high-country"),
+    (145.986529, -37.142244, "high-country"),
+    (145.963204, -37.125222, "high-country"),
+    (145.980006, -37.138937, "high-country"),
+    (145.968092, -37.264264, "high-country"),
+    (145.857745, -37.140024, "high-country"),
+    (145.84056, -37.17667, "high-country"),
+    (146.306821, -37.944886, "gippsland"),
+    (146.4, -37.98, "gippsland"),
+    (145.98, -36.55, "gippsland"),
+):
+    got = states.region_id(vic_state, lon, lat)
+    if got != expect: bad.append(("regions", f"{lon},{lat} {got}"))
+vic_js = states.js_region_function(vic_state)
+if "lon >= 145.89 && lon < 146.0 && lat > -37.4 && lat < -37.05" not in vic_js: bad.append(("regions", "eildon js"))
+if "lon >= 145.83 && lon < 145.89 && lat > -37.2 && lat < -37.1" not in vic_js: bad.append(("regions", "fraser js"))
 if facts.override_expired("2026-10-25", "2026-10-26") is not True: bad.append(("facts", "expired until"))
 if facts.override_expired("2026-10-26", "2026-10-26") or facts.override_expired("2026-10-30", "2026-10-26") or facts.override_expired("", "2026-10-26"):
   bad.append(("facts", "until still current"))
@@ -1283,6 +1310,70 @@ if os.path.isfile(nsw_index):
   if closed_npws:
     closed_html = open(os.path.join(D, "nsw", "camp", closed_npws[0]["slug"], "index.html"), encoding="utf-8").read()
     if "NPWS alert" not in closed_html or "badge closed" not in closed_html or "Official NPWS wording" not in closed_html or "Alert dated" not in closed_html: bad.append((closed_npws[0]["slug"], "closed page"))
+by_slug = {c["slug"]: c for c in vic_feed}
+for slug, region in (
+    ("parkers-pines", "high-country"), ("ewarts-flat", "high-country"), ("taylors", "high-country"),
+    ("the-island", "high-country"), ("wentworths", "high-country"), ("ingrams", "gippsland"),
+):
+    camp = by_slug.get(slug)
+    if not camp or camp.get("region") != region: bad.append((slug, (camp or {}).get("region")))
+for name, region in (
+    ("Jerusalem Creek Campground", "high-country"),
+    ("Mountaineer Creek Camping Area (Lake Eildon National Park)", "high-country"),
+    ("Candlebark Campground", "high-country"),
+    ("Lakeside Campground", "high-country"),
+    ("Devils Cove Campground", "high-country"),
+    ("Barnewall Plains Camping Area", "high-country"),
+    ("O'Tooles Flat", "high-country"),
+    ("Running Creek Track", "high-country"),
+):
+    camp = next((c for c in feed["camps"] if c.get("name") == name), None)
+    if camp and camp.get("region") != region: bad.append((name, camp.get("region")))
+parkers = by_slug.get("parkers-pines") or {}
+if parkers.get("status") != "closed" or (parkers.get("closure") or {}).get("reopen") != "2026-12-18":
+    bad.append(("parkers-pines", parkers.get("status"), (parkers.get("closure") or {}).get("reopen")))
+if parkers.get("upcoming_closure"): bad.append(("parkers-pines", "upcoming"))
+ingrams = by_slug.get("ingrams") or {}
+if ingrams.get("status") != "closed" or (ingrams.get("closure") or {}).get("reopen") != "2026-12-24":
+    bad.append(("ingrams", ingrams.get("status"), (ingrams.get("closure") or {}).get("reopen")))
+for slug, reopen in (("ewarts-flat", "2027-05-28"), ("taylors", "2027-05-28"), ("wentworths", "2027-05-28"), ("the-island", "2027-03-05")):
+    camp = by_slug.get(slug) or {}
+    upcoming = camp.get("upcoming_closure") or {}
+    if camp.get("status") == "closed" or camp.get("closure") or upcoming.get("start") != "2027-02-01" or upcoming.get("reopen") != reopen:
+        bad.append((slug, camp.get("status"), upcoming.get("start"), upcoming.get("reopen")))
+for camp in feed["camps"]:
+    upcoming = camp.get("upcoming_closure") or None
+    closure = camp.get("closure") or {}
+    if upcoming and camp.get("status") == "closed": bad.append((camp.get("slug"), "future closure still closed"))
+    for record in (upcoming, closure):
+        if not record: continue
+        for key in ("start", "reopen"):
+            value = record.get(key) or ""
+            if isinstance(value, str) and "T" in value: bad.append((camp.get("slug"), key, value))
+def camp_html(slug):
+    path = os.path.join(D, "vic", "camp", slug, "index.html")
+    return open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
+ingrams_html = camp_html("ingrams")
+ingrams_block = ingrams_html.split('id="camp-closure"', 1)[-1][:900] if ingrams_html else ""
+ingrams_line = re.search(r'<p class="status-line" data-camp="ingrams">(.*?)</p>', ingrams_html or "")
+if "Reopens 2026-12-24" not in ingrams_block or "2026-12-23" in ingrams_block or "Upcoming closure" in ingrams_block:
+    bad.append(("ingrams", "page date"))
+if not ingrams_line or "badge closed" not in ingrams_line.group(1) or 'href="/vic/gippsland/"' not in ingrams_html:
+    bad.append(("ingrams", "page status"))
+parkers_html = camp_html("parkers-pines")
+parkers_block = parkers_html.split('id="camp-closure"', 1)[-1][:900] if parkers_html else ""
+if "Reopens 2026-12-18" not in parkers_block or "2026-12-17" in parkers_block or 'href="/vic/high-country/"' not in parkers_html:
+    bad.append(("parkers-pines", "page"))
+for slug, reopen in (("ewarts-flat", "2027-05-28"), ("taylors", "2027-05-28"), ("wentworths", "2027-05-28"), ("the-island", "2027-03-05")):
+    page_html = camp_html(slug)
+    block = page_html.split('id="camp-closure"', 1)[-1][:1100] if page_html else ""
+    line = re.search(r'<p class="status-line" data-camp="%s">(.*?)</p>' % re.escape(slug), page_html or "")
+    if "Upcoming closure" not in block or "Starts 2027-02-01" not in block or "Reopens " + reopen not in block:
+        bad.append((slug, "upcoming notice"))
+    if not line or "badge closed" in line.group(1) or 'href="/vic/high-country/"' not in page_html:
+        bad.append((slug, "still listed closed"))
+    if "function melbourneDay" not in page_html or "upcoming_closure" not in page_html:
+        bad.append((slug, "refresh script"))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken, {len(warnings)} warnings")
 for item in warnings: print("WARN", item)
 for item in bad[:20]: print(item)

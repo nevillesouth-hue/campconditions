@@ -12,9 +12,9 @@ import states as statecfg
 SITE = "https://campconditions.au"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "dist")
-TZ = dt.timezone(dt.timedelta(hours=11))  # AEDT; good enough for display stamp
+TZ = facts.MELBOURNE
 NOW = dt.datetime.now(TZ)
-STAMP = NOW.strftime("%-d %B %Y, %-I:%M %p AEDT")
+STAMP = NOW.strftime("%-d %B %Y, %-I:%M %p %Z")
 MAP_V = NOW.strftime("%Y%m%d%H%M")
 SRC = {}
 STATE = None
@@ -100,16 +100,25 @@ def strip_index_name(name):
     return name[match.start(2):]
 e = lambda s: html.escape(str(s or ""), quote=True)
 def feed_date(value):
-    """Day month year from an RSS pubDate. Empty when the feed has no date."""
+    """Day month year in Australia/Melbourne. Empty when the feed has no date."""
     raw = str(value or "").strip()
     if not raw:
         return ""
+    when = None
     try:
         from email.utils import parsedate_to_datetime
         when = parsedate_to_datetime(raw)
     except (TypeError, ValueError, IndexError, OverflowError):
+        when = None
+    if when is not None:
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=dt.timezone.utc)
+        day = when.astimezone(facts.MELBOURNE).date()
+    else:
+        day = facts.melbourne_date(raw)
+    if not day:
         return ""
-    return f"{when.day} {when.strftime('%B %Y')}"
+    return f"{day.day} {day.strftime('%B %Y')}"
 def feed_iso(value):
     raw = str(value or "").strip()
     if not raw:
@@ -122,8 +131,27 @@ def feed_iso(value):
 def clean(s): return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()
 
 def msdate(v):
-    try: return dt.datetime.fromtimestamp(v/1000, TZ).strftime("%-d %b %Y")
+    day = facts.melbourne_date(v)
+    try: return day.strftime("%-d %b %Y") if day else ""
     except Exception: return ""
+def closure_record(q):
+    """Parks Victoria closure. A start after today is upcoming, not closed yet.
+
+    Start and reopen are Australia/Melbourne calendar days. A missing start
+    is treated as already in effect.
+    """
+    start = facts.melbourne_iso(q.get("clos_start"))
+    reopen = facts.melbourne_iso(q.get("clos_open"))
+    today = NOW.date().isoformat()
+    upcoming = bool(start) and start > today
+    return {
+        "status": q.get("clos_stat"),
+        "desc": clean(q.get("clos_desc")),
+        "reason": clean(q.get("clos_reas")),
+        "start": start or None,
+        "reopen": reopen or None,
+        "outdated": bool(reopen) and reopen < today and not upcoming,
+    }, upcoming
 def closure_info(lab, p):
     name = (p.get("cross_name") or p.get("ezi_road_name_label") or p.get("name") or "").strip()
     if name.lower() == "unnamed": name = "Unnamed track"
@@ -217,11 +245,12 @@ def load_official(seen):
         seen.add(s)
         closed = (q.get("clos_stat") or "").upper()
         nearby_c = [closure_info(lab, c["properties"]) for lab, c in state_closures if c.get("geometry") and near((lon, lat), c["geometry"], 5)]
-        status = "closed" if "CLOSURE" in closed else ("check" if nearby_c else "open")
+        record, upcoming = closure_record(q) if "CLOSURE" in closed else (None, False)
+        status = "closed" if record and not upcoming else ("check" if nearby_c else "open")
         found.append({"slug": s, "id": q["serial_no"], "name": q["name"].strip(), "lat": round(lat, 6), "lon": round(lon, 6), "region": region(lon, lat),
-            "status": status, "closure": {"status": q.get("clos_stat"), "desc": clean(q.get("clos_desc")), "reason": clean(q.get("clos_reas")), "start": q.get("clos_start"), "reopen": q.get("clos_open"), "outdated": bool(q.get("clos_open")) and q["clos_open"][:10] < NOW.date().isoformat()} if closed else None,
+            "status": status, "closure": None if upcoming else record, "upcoming_closure": record if upcoming else None,
             "access": clean(q.get("access_dsc")), "about": clean(q.get("comments")), "camping": clean(q.get("camping_c")), "caravans": clean(q.get("campervan_c")),
-            "site_class": q.get("site_class"), "dis_access": q.get("dis_access"), "managed_by": q.get("maintained_by"), "data_date": q.get("vers_date"),
+            "site_class": q.get("site_class"), "dis_access": q.get("dis_access"), "managed_by": q.get("maintained_by"), "data_date": facts.melbourne_iso(q.get("vers_date")) or str(q.get("vers_date") or "")[:10],
             "nearby_closures": nearby_c[:10], "source": source_id, "category": category, "state_slug": SLUG,
             "needs_review": False})
     return found, state_closures
@@ -973,8 +1002,26 @@ FRESH_JS = r"""<script>
     }
     var desc = c.closure && c.closure.desc ? c.closure.desc : "";
     if (desc) return desc;
+    if (c.upcoming && (c.upcoming.desc || c.upcoming.start)) return "Upcoming closure";
     if (c.nearby && c.nearby.length) return c.nearby.length + " road closures nearby";
     return "";
+  }
+  function melbourneDay(value) {
+    var raw = String(value || "");
+    if (!raw) return "";
+    if (raw.indexOf("T") === -1) return raw.slice(0, 10);
+    var d = new Date(raw);
+    if (isNaN(d.getTime())) return raw.slice(0, 10);
+    try {
+      var y = "", m = "", day = "";
+      new Intl.DateTimeFormat("en-CA", { timeZone: "Australia/Melbourne", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d).forEach(function (part) {
+        if (part.type === "year") y = part.value;
+        if (part.type === "month") m = part.value;
+        if (part.type === "day") day = part.value;
+      });
+      if (y && m && day) return y + "-" + m + "-" + day;
+    } catch (err) {}
+    return raw.slice(0, 10);
   }
   function closureHtml(c) {
     if (!c) return null;
@@ -985,11 +1032,18 @@ FRESH_JS = r"""<script>
     }
     var parts = [];
     var cl = c.closure || null;
+    var up = c.upcoming || null;
     if (cl) {
       var label = cl.desc || cl.reason || "Full closure";
-      var reopen = cl.reopen ? " · Reopens " + esc(String(cl.reopen).slice(0, 10)) : " ";
+      var reopen = cl.reopen ? " · Reopens " + esc(melbourneDay(cl.reopen)) : " ";
       parts.push('<div class="warn"><strong>Closed:</strong> ' + esc(label) + reopen + "</div>");
-      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(String(cl.reopen || "").slice(0, 10)) + ') has passed. Check <a href="__COC__">__CONDITIONS_NAME__</a> or call __PHONE__ before you go.</div>');
+      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(melbourneDay(cl.reopen || "")) + ') has passed. Check <a href="__COC__">__CONDITIONS_NAME__</a> or call __PHONE__ before you go.</div>');
+    } else if (up) {
+      var upLabel = up.desc || up.reason || "Closure";
+      var when = "";
+      if (up.start) when += " · Starts " + esc(melbourneDay(up.start));
+      if (up.reopen) when += " · Reopens " + esc(melbourneDay(up.reopen));
+      parts.push('<div class="warn"><strong>Upcoming closure:</strong> ' + esc(upLabel) + when + "</div>");
     }
     var nearby = c.nearby || [];
     if (nearby.length) {
@@ -1014,6 +1068,7 @@ FRESH_JS = r"""<script>
         source: c.source,
         category: c.category,
         closure: c.closure || null,
+        upcoming: c.upcoming_closure || null,
         nearby: c.nearby_closures || [],
         region: c.region
       };
@@ -2151,6 +2206,9 @@ def list_note(c):
         return "Conditions: check with operator"
     desc = (c.get("closure") or {}).get("desc") or ""
     if desc: return desc
+    upcoming = c.get("upcoming_closure") or {}
+    if upcoming.get("desc") or upcoming.get("start"):
+        return "Upcoming closure"
     if c.get("alerts"):
         return c["alerts"][0].get("heading") or ""
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
@@ -2342,11 +2400,21 @@ def emit_state(state, camps, include_home):
              [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
     for c in camps:
         rn = REGIONS[c["region"]][0]
-        cl = c["closure"]; parts = []
+        cl = c.get("closure"); parts = []
         osm = c.get("source") == "osm"
         if cl:
-            parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(cl["reopen"][:10])) if cl.get("reopen") else ""}</div>')
-            if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(cl["reopen"][:10])))
+            parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(str(cl["reopen"])[:10])) if cl.get("reopen") else ""}</div>')
+            if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(str(cl["reopen"])[:10])))
+        else:
+            upcoming = c.get("upcoming_closure") or None
+            if upcoming:
+                label = upcoming.get("desc") or upcoming.get("reason") or "Closure"
+                when = ""
+                if upcoming.get("start"):
+                    when += " · Starts " + e(str(upcoming["start"])[:10])
+                if upcoming.get("reopen"):
+                    when += " · Reopens " + e(str(upcoming["reopen"])[:10])
+                parts.append(f'<div class="warn"><strong>Upcoming closure:</strong> {e(label)}{when}</div>')
         if c["nearby_closures"]: parts.append("<h2>Road and track closures within 5 km</h2><ul>" + "".join(f'<li>{e(x["type"])}{": "+e(x["name"]) if x["name"] else ""}{" — "+e(x["reason"]) if x["reason"] else ""}{" · reopens "+e(x["reopens"]) if x.get("reopens") else ""}</li>' for x in c["nearby_closures"]) + "</ul>")
         info_bits = []
         for heading, raw in (("About", c["about"]), ("Camping", c["camping"]), ("Caravans and campervans", c["caravans"]), ("Getting there", c["access"])):
@@ -2585,10 +2653,17 @@ if len(statecfg.enabled()) > 1:
 else:
     feed_region = COPY["feed_region"]
     feed_disclaimer = COPY["feed_disclaimer"]
+def status_camp(c):
+    row = {k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")}
+    row["url"] = f"{SITE}{camp_url(c)}"
+    upcoming = c.get("upcoming_closure")
+    if upcoming:
+        row["upcoming_closure"] = upcoming
+    return row
 feed = {"name": "CampConditions.au status feed", "region": feed_region, "generated": NOW.isoformat(),
         "attribution": attribution,
         "disclaimer": feed_disclaimer, "sources": SRC,
-        "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")} | {"url": f"{SITE}{camp_url(c)}"} for c in camps]}
+        "camps": [status_camp(c) for c in camps]}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
 # HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:
 # Pages joins every matching Cache-Control, and the strictest directive wins.

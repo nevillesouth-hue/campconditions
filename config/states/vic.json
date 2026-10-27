@@ -158,6 +158,20 @@
    "id": "high-country"
   },
   {
+   "lon_gte": 145.89,
+   "lon_lt": 146.0,
+   "lat_gt": -37.4,
+   "lat_lt": -37.05,
+   "id": "high-country"
+  },
+  {
+   "lon_gte": 145.83,
+   "lon_lt": 145.89,
+   "lat_gt": -37.2,
+   "lat_lt": -37.1,
+   "id": "high-country"
+  },
+  {
    "lon_gte": 145.9,
    "id": "gippsland"
   },

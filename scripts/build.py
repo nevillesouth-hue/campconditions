@@ -447,6 +447,24 @@ def nearest_places(camp, towns, limit=8):
         names.append((dist, place_name))
         if len(names) >= limit: break
     return names
+def assign_near_places(camps):
+    """NSW camp pages name the nearest city or town, not a closer locality.
+
+    The place file is official PlacePoint rows. Victoria has no file, so its
+    pages are unchanged. A locality is used only when no city or town is
+    within 40 km.
+    """
+    places_path = statecfg.path(STATE, "places")
+    if not places_path or not os.path.isfile(places_path):
+        return
+    import towns as town_mod
+    places = json.load(open(places_path, encoding="utf-8"))
+    for camp in camps:
+        name, dist = town_mod.nearest_label(camp["lat"], camp["lon"], places)
+        if not name or name.casefold() == camp["name"].casefold():
+            continue
+        camp["near_place"] = name
+        camp["near_km"] = round(dist, 1)
 def assign_page_names(camps):
     """Duplicate names get a nearest-place subtitle so the title and h1 differ."""
     import towns as town_mod
@@ -459,7 +477,10 @@ def assign_page_names(camps):
         choices = {id(camp): nearest_places(camp, towns) for camp in group}
         used = set()
         for camp in sorted(group, key=lambda camp: choices[id(camp)][0][0]):
-            place = next((name for dist, name in choices[id(camp)] if name.casefold() not in used), choices[id(camp)][0][1])
+            if camp.get("near_place"):
+                place = camp["near_place"]
+            else:
+                place = next((name for dist, name in choices[id(camp)] if name.casefold() not in used), choices[id(camp)][0][1])
             used.add(place.casefold())
             camp["page_name"] = f"{camp['name']}, near {place}"
         labels = {}
@@ -509,6 +530,7 @@ for state, official, osm_rows, state_closures in loaded:
         assign_filters(camp)
     town_path = statecfg.path(state, "towns")
     if town_path and os.path.isfile(town_path):
+        assign_near_places(state_camps)
         assign_page_names(state_camps)
     else:
         disambiguate_names(state_camps)
@@ -1305,7 +1327,7 @@ MAP_JS = r"""(function () {
     if (!townsPromise) {
       townsPromise = fetch("__TOWNS_URL__").then(function (r) { return r.json(); }).then(function (rows) {
         towns = rows;
-        return rows;
+        __AFTER_TOWNS__
       });
     }
     return townsPromise;
@@ -1330,15 +1352,7 @@ __REGION_FN__
     if (n.indexOf(q) === 0) return 1;
     return partial ? 3 : 2;
   }
-  function nearestTown(lat, lon) {
-    if (!towns || !towns.length) return null;
-    var best = null, bestD = Infinity, i, d;
-    for (i = 0; i < towns.length; i++) {
-      d = kmBetween(lat, lon, towns[i].lat, towns[i].lon);
-      if (d < bestD) { bestD = d; best = towns[i]; }
-    }
-    return best;
-  }
+__NEAREST_FN__
   function byRank(a, b) {
     if (a.score !== b.score) return a.score - b.score;
     if (a.rank !== b.rank) return a.rank - b.rank;
@@ -1703,15 +1717,49 @@ def news_section():
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
 primary = next(state for state in statecfg.enabled() if state.get("enabled"))
 bind(primary)
+VIC_NEAREST_FN = """  function nearestTown(lat, lon) {
+    if (!towns || !towns.length) return null;
+    var best = null, bestD = Infinity, i, d;
+    for (i = 0; i < towns.length; i++) {
+      d = kmBetween(lat, lon, towns[i].lat, towns[i].lon);
+      if (d < bestD) { bestD = d; best = towns[i]; }
+    }
+    return best;
+  }"""
+NSW_NEAREST_FN = """  var places = null;
+  function nearestTown(lat, lon) {
+    var rows = (places && places.length) ? places : (towns || []);
+    if (!rows.length) return null;
+    var bestTown = null, bestTownD = Infinity, best = null, bestD = Infinity, i, d, row;
+    for (i = 0; i < rows.length; i++) {
+      row = rows[i];
+      d = kmBetween(lat, lon, row.lat, row.lon);
+      if (d < bestD) { bestD = d; best = row; }
+      if ((row.place === "city" || row.place === "town") && d < bestTownD) { bestTownD = d; bestTown = row; }
+    }
+    if (bestTown && bestTownD <= 40) return bestTown;
+    return best;
+  }"""
+NSW_AFTER_TOWNS = """return fetch("__PLACES_URL__").then(function (r) { return r.json(); }).then(function (labelRows) {
+          places = labelRows;
+          return towns;
+        }, function () { return towns; });"""
 def render_map_js():
     fallback = STATE.get("map") or {}
     lat, lon, zoom = fallback.get("fallback_lat"), fallback.get("fallback_lon"), fallback.get("fallback_zoom")
+    places_url = statecfg.public_file(STATE, "places")
+    if places_url:
+        nearest, after = NSW_NEAREST_FN, NSW_AFTER_TOWNS.replace("__PLACES_URL__", places_url)
+    else:
+        nearest, after = VIC_NEAREST_FN, "return rows;"
     return (MAP_JS
         .replace("__TOWNS_URL__", statecfg.public_file(STATE, "towns"))
         .replace("__REGION_FN__", statecfg.js_region_function(STATE))
         .replace("__MAP_LAT__", str(lat))
         .replace("__MAP_LON__", str(lon))
-        .replace("__MAP_ZOOM__", str(zoom)))
+        .replace("__MAP_ZOOM__", str(zoom))
+        .replace("__AFTER_TOWNS__", after)
+        .replace("__NEAREST_FN__", nearest))
 def write_map_js(state):
     bind(state)
     name = "map.js" if state["slug"] == primary["slug"] else f"map-{state['slug']}.js"
@@ -1840,9 +1888,10 @@ def datavic_facts(c):
     if c.get("overlay_operator"): bits.append(f"<p>Operator: {e(c['overlay_operator'])}</p>")
     return "".join(bits)
 for state in statecfg.enabled():
-    town_src = statecfg.path(state, "towns")
-    if town_src and os.path.isfile(town_src):
-        shutil.copyfile(town_src, os.path.join(OUT, os.path.basename(town_src)))
+    for key in ("towns", "places"):
+        src = statecfg.path(state, key)
+        if src and os.path.isfile(src):
+            shutil.copyfile(src, os.path.join(OUT, os.path.basename(src)))
 def emit_state(state, camps, include_home):
     """Write one state's pages. Home is the Victoria page, so only the primary state includes it."""
     bind(state)
@@ -1920,7 +1969,7 @@ def emit_state(state, camps, include_home):
         if cl:
             lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": NOW.isoformat(), "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
         page(camp_path, title, desc,
-         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1><p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>
+         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
@@ -2024,9 +2073,10 @@ def headers_text():
             parts += [flag, "  Cache-Control: no-cache", ""]
     parts += ["/build-report.json", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
-        town = statecfg.public_file(state, "towns")
-        if town:
-            parts += [town, "  Cache-Control: no-cache", ""]
+        for key in ("towns", "places"):
+            town = statecfg.public_file(state, key)
+            if town:
+                parts += [town, "  Cache-Control: no-cache", ""]
     parts += ["/map.js", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
         if state["slug"] == primary["slug"]:

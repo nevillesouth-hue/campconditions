@@ -23,6 +23,7 @@
  "files": {
   "boundary": "",
   "towns": "data/nsw-towns.json",
+  "places": "data/nsw-place-points.json",
   "osm_camps": "data/osm-camps-nsw.json",
   "osm_csv": "",
   "enrichment": "",
@@ -61,7 +62,11 @@
   },
   "nsw_suburbs": {
    "url": "https://portal.spatial.nsw.gov.au/server/rest/services/NSW_Administrative_Boundaries_Theme_multiCRS/FeatureServer/2",
-   "note": "Gazetted suburb and locality boundaries from NSW Spatial Services (Geographical Names Board). Creative Commons Attribution 4.0. Town search uses each polygon centroid. Not fetched during the site build; data/nsw-towns.json is prepared by scripts/fetch_nsw_towns.py."
+   "note": "Gazetted suburb and locality boundaries from NSW Spatial Services (Geographical Names Board). Creative Commons Attribution 4.0. Town search lists every suburb. A name that is also a PlacePoint city or town is pinned on that official point, not the suburb-polygon centroid. Not fetched during the site build; data/nsw-towns.json is prepared by scripts/fetch_nsw_towns.py."
+  },
+  "nsw_place_points": {
+   "url": "https://portal.spatial.nsw.gov.au/server/rest/services/NSW_Features_of_Interest_Category_multiCRS/FeatureServer/1",
+   "note": "PlacePoint layer, NSW Spatial Services, GDA2020. placetype domain DmT_PlaceType: 2 City, 3 Town, 4 Village, 5 Locality, 6 Suburb. Camp pages prefer the nearest City or Town within 40 km, and use the nearest place of any of those types only when no city or town is that close. Creative Commons. © State of New South Wales (Spatial Services, Department of Customer Service). Prepared by scripts/fetch_nsw_towns.py into data/nsw-place-points.json."
   },
   "npws_alerts_rss": {
    "url": "https://www.nationalparks.nsw.gov.au/api/rssfeed/get",
@@ -122,12 +127,12 @@
   "feed_disclaimer": "Not an official warning service. NSW Rural Fire Service warnings are not included. NPWS Visitor Area records do not include open or closed status, fees or facilities. OpenStreetMap sites are included only where the published classification keeps them.",
   "llms_intro": "Preview list of {count} camping areas in New South Wales from the NPWS Visitor Area layer and OpenStreetMap. Closure, fee and facility values are omitted where the source does not provide them.",
   "llms_closures": "NPWS alerts and NSW RFS fire danger ratings are not loaded. Do not treat a blank status as open.",
-  "footer_attribution": "<p><strong>Data and attribution.</strong> Camping areas from the <a href=\"https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24\">NPWS Visitor Area layer</a> (camping areas only), CC BY. That layer does not include fees, facilities or closure status, so those are left blank. Other campgrounds: OpenStreetMap contributors (ODbL). Towns and localities: gazetted suburb and locality centroids, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. For current information go to <a href=\"https://www.spatial.nsw.gov.au/\">spatial.nsw.gov.au</a>. Warnings are linked, not republished: <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology</a>.</p>",
+  "footer_attribution": "<p><strong>Data and attribution.</strong> Camping areas from the <a href=\"https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24\">NPWS Visitor Area layer</a> (camping areas only), CC BY. That layer does not include fees, facilities or closure status, so those are left blank. Other campgrounds: OpenStreetMap contributors (ODbL). Town search: gazetted suburb and locality boundaries, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. The nearest town on each camp page uses the PlacePoint layer's placetype (City or Town, otherwise the nearest place within the published types), Creative Commons, same publisher. For current information go to <a href=\"https://www.spatial.nsw.gov.au/\">spatial.nsw.gov.au</a>. Warnings are linked, not republished: <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology</a>.</p>",
   "directions_note": "The Visitor Area layer does not include closures. Check NSW RFS and Live Traffic before you travel.",
   "outdated_html": "",
   "about_lead": "CampConditions.au lists New South Wales camping areas from the NPWS Visitor Area layer and OpenStreetMap.",
   "about_roads": "Each camp page links to <a href=\"https://www.livetraffic.com/\">Live Traffic NSW</a>.",
-  "about_sources": "<li>NPWS Visitor Area camping areas, CC BY. Camping areas only. No fee, facility or closure fields.</li><li>OpenStreetMap campgrounds (ODbL).</li><li>Towns and localities: gazetted suburb and locality centroids, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0.</li>",
+  "about_sources": "<li>NPWS Visitor Area camping areas, CC BY. Camping areas only. No fee, facility or closure fields.</li><li>OpenStreetMap campgrounds (ODbL).</li><li>Town search: gazetted suburb and locality boundaries, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. A city or town is pinned on the PlacePoint coordinate.</li><li>Nearest town on a camp page: PlacePoint placetype City or Town (within 40 km), otherwise the nearest PlacePoint locality, suburb or village. Creative Commons, same publisher.</li>",
   "about_tail": "NSW Rural Fire Service warnings are not republished.",
   "privacy_who": "CampConditions.au publishes campground conditions. Contact us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a>.",
   "digest_subject": "New South Wales camps this week",

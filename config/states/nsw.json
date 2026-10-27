@@ -29,7 +29,8 @@
   "enrichment": "",
   "corrections": "",
   "pending": "",
-  "flags": ""
+  "flags": "",
+  "tourism_regions": "data/nsw-tourism-regions.json"
  },
  "osm": {
   "pbf_url": "https://download.geofabrik.de/australia-oceania/australia/new-south-wales-latest.osm.pbf",
@@ -80,6 +81,10 @@
    "url": "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml",
    "note": "NSW RFS fire danger ratings and Total Fire Ban feed. DangerLevelToday and FireBanToday are shown for the fire weather district that contains the camp. Fetched when this state is built. If the feed is unavailable, the line is omitted."
   },
+  "abs_tourism_regions": {
+   "url": "https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/TR/FeatureServer/0",
+   "note": "ABS ASGS Edition 3 Tourism Regions 2021, New South Wales only. CC BY 4.0. An approximation of Tourism Research Australia regions, not a Destination Network boundary and not a legal boundary. Prepared into data/nsw-tourism-regions.json. A camp is grouped by the polygon that contains it."
+  },
   "rfs_fire_areas": {
    "url": "https://portal.data.nsw.gov.au/arcgis/rest/services/Hosted/NSW_Fire_Area/FeatureServer/0",
    "note": "NSW fire weather area polygons. The firearea name matches a district Name in fdrToban.xml (slash spacing ignored). The combined ratings-and-boundaries FeatureServer was not used because its query returns a database error. Fetched when this state is built."
@@ -88,16 +93,60 @@
  "closure_checker": "",
  "safety_html": "<div class=\"warn\"><strong>Not an official warning service.</strong> A camp page can show the NSW RFS fire danger rating and Total Fire Ban status for that camp's fire weather district. It does not republish incident warnings. Always check the <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology warnings for New South Wales</a> before you travel. In an emergency call <a href=\"tel:000\">000</a>.</div>",
  "regions": {
-  "nsw": {
-   "name": "New South Wales",
-   "blurb": "Camping areas from the NPWS Visitor Area layer, plus OpenStreetMap camps kept by the published classification rules. Fees and facilities are shown only when that source records them."
+  "north-coast-nsw": {
+   "name": "North Coast NSW",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "new-england-north-west": {
+   "name": "New England North West",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "hunter": {
+   "name": "Hunter",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "central-coast": {
+   "name": "Central Coast",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "sydney": {
+   "name": "Sydney",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "blue-mountains": {
+   "name": "Blue Mountains",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "central-nsw": {
+   "name": "Central NSW",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "capital-country": {
+   "name": "Capital Country",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "south-coast": {
+   "name": "South Coast",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "snowy-mountains": {
+   "name": "Snowy Mountains",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "riverina": {
+   "name": "Riverina",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "the-murray": {
+   "name": "The Murray",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
+  },
+  "outback-nsw": {
+   "name": "Outback NSW",
+   "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Destination Network boundary."
   }
  },
- "region_rules": [
-  {
-   "id": "nsw"
-  }
- ],
+ "region_rules": [],
  "links": {
   "emergency": "https://www.rfs.nsw.gov.au/",
   "emergency_bbox": false,
@@ -134,6 +183,11 @@
   "feed_region": "New South Wales, Australia",
   "feed_attribution_extra": "NPWS Visitor Area camping areas, CC BY. Closures come from the NPWS alerts RSS where the alert applies. Fees and facilities are not in the Visitor Area layer.",
   "feed_disclaimer": "Not an official warning service. Incident warnings are not included. A camp is closed only where the NPWS alerts RSS records a closure. Fire danger rating and Total Fire Ban status are the camp's NSW fire weather district from the RFS feed. Do not treat check as open.",
+  "status_credits": [
+   "© State of New South Wales (NSW Rural Fire Service). Fire danger ratings and Total Fire Ban status from https://www.rfs.nsw.gov.au/feeds/fdrToban.xml.",
+   "Town search and NPWS reserve polygons: © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0.",
+   "Road closures: Live Traffic NSW, https://www.livetraffic.com/, linked from camp pages and not copied into this feed."
+  ],
   "llms_intro": "Preview list of {count} camping areas in New South Wales from the NPWS Visitor Area layer and OpenStreetMap. A camp is closed only where an NPWS alert records a closure. Fees and facilities are omitted where the source does not provide them.",
   "llms_closures": "Closures are taken from the NPWS alerts RSS (https://www.nationalparks.nsw.gov.au/api/rssfeed/get) where the alert text closes that reserve or that campground. Other alerts are notes and the status stays check. Fire danger rating and Total Fire Ban status are the camp's fire weather district from the NSW RFS feed https://www.rfs.nsw.gov.au/feeds/fdrToban.xml, placed with the NSW fire area polygons. Do not treat a check status as open. If a feed is unavailable, that part is left off.",
   "footer_attribution": "<p><strong>Data and attribution.</strong> Camping areas from the <a href=\"https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24\">NPWS Visitor Area layer</a> (camping areas only), CC BY. That layer does not include fees or facilities, so those are left blank. Closures and alert notes are from the <a href=\"https://www.nationalparks.nsw.gov.au/api/rssfeed/get\">NPWS alerts feed</a>, matched to <a href=\"https://portal.spatial.nsw.gov.au/server/rest/services/NSW_Administrative_Boundaries_Theme_multiCRS/FeatureServer/6\">NPWS reserve polygons</a> (NSW Spatial Services). A camp is marked closed only where that alert records a closure. Fire danger rating and Total Fire Ban status are the camp's district from the <a href=\"https://www.rfs.nsw.gov.au/feeds/fdrToban.xml\">NSW RFS fire danger feed</a>, using <a href=\"https://portal.data.nsw.gov.au/arcgis/rest/services/Hosted/NSW_Fire_Area/FeatureServer/0\">NSW fire area</a> boundaries. © State of New South Wales (NSW Rural Fire Service). Other campgrounds: OpenStreetMap contributors (ODbL). Town search: gazetted suburb and locality boundaries, © State of New South Wales (Spatial Services, Department of Customer Service), Creative Commons Attribution 4.0. The nearest town on each camp page uses the PlacePoint layer's placetype (City or Town, otherwise the nearest place within the published types), Creative Commons, same publisher. For current information go to <a href=\"https://www.spatial.nsw.gov.au/\">spatial.nsw.gov.au</a>. Incident warnings are linked, not republished: <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>, <a href=\"https://www.ses.nsw.gov.au/\">NSW SES</a> and the <a href=\"https://www.bom.gov.au/nsw/warnings/\">Bureau of Meteorology</a>.</p>",

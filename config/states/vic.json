@@ -84,7 +84,7 @@
   "cfa_fdr": {
    "url": "https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml",
    "button": "Check CFA fire danger",
-   "note": "CFA Total Fire Ban and Fire Danger Rating forecast for all of Victoria. DataVic dataset cfa-data-feeds-for-incidents-total-fire-bans-fire-danger-ratings-and-latest-news, Country Fire Authority, CC BY 4.0. The item that begins with Today is today and the item that begins with Tomorrow is tomorrow. Later days in the feed are not shown. Each district page URL is the link published on that district's CFA page. Fetched when this state is built. If the feed cannot be read, the line is omitted.",
+   "note": "CFA Total Fire Ban and Fire Danger Rating forecast for all of Victoria. DataVic dataset cfa-data-feeds-for-incidents-total-fire-bans-fire-danger-ratings-and-latest-news, Country Fire Authority, CC BY 4.0. Each item is kept on the calendar day named in its text. Each district page URL is the link published on that district's CFA page. Fetched when this state is built. If the live feed cannot be read, the last successful parse is reused when it was fetched under 24 hours ago and still covers today or tomorrow in Australia/Melbourne. Otherwise the line is omitted. status.json sources.cfa_fdr stays ok false when the live fetch failed, including when a cached forecast is shown.",
    "pages": {
     "Central": "https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/central-fire-district",
     "East Gippsland": "https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/east-gippsland-fire-district",

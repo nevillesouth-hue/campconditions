@@ -24,6 +24,16 @@ jobs:
           path: data/.parksvic-cache
           key: parksvic-pages-${{ github.run_id }}
           restore-keys: parksvic-pages-
+      - name: Keep the committed CFA forecast beside any restored cache
+        run: |
+          if [ -f data/cfa-fdr-cache.json ]; then
+            cp data/cfa-fdr-cache.json data/cfa-fdr-cache.committed.json
+          fi
+      - uses: actions/cache/restore@v4
+        with:
+          path: data/cfa-fdr-cache.json
+          key: cfa-fdr-${{ github.run_id }}
+          restore-keys: cfa-fdr-
       - name: Build from live sources
         run: python3 scripts/build.py
       - uses: actions/cache/save@v4
@@ -31,6 +41,11 @@ jobs:
         with:
           path: data/.parksvic-cache
           key: parksvic-pages-${{ github.run_id }}
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: data/cfa-fdr-cache.json
+          key: cfa-fdr-${{ github.run_id }}
       - name: Test (links, JSON-LD, sitemap)
         run: python3 scripts/test.py
       - name: Deploy Cloudflare Pages preview

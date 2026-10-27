@@ -1290,9 +1290,13 @@ if os.path.isfile(nsw_index):
     if not any(name + ":" in main for name in districts): bad.append((camp["slug"], "cfa district")); break
     if "https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml" not in html_page or "CC BY 4.0" not in html_page:
       bad.append((camp["slug"], "cfa attribution")); break
-  cfa_ok = ((feed.get("sources") or {}).get("cfa_fdr") or {}).get("ok")
-  if cfa_pages < 1200 and cfa_ok: bad.append(("vic", f"cfa fire lines {cfa_pages}"))
-  if cfa_pages < 1200 and not cfa_ok: warnings.append(("vic", f"cfa feed unavailable; fire lines {cfa_pages}"))
+    if "Issued " not in main and "Fetched " not in main: bad.append((camp["slug"], "cfa issued")); break
+  cfa_src = (feed.get("sources") or {}).get("cfa_fdr") or {}
+  cfa_ok = cfa_src.get("ok")
+  if not cfa_src.get("url") or "ok" not in cfa_src: bad.append(("status.json", "cfa source"))
+  if not cfa_ok and not (cfa_src.get("error") or cfa_src.get("fallback")): bad.append(("status.json", "cfa failure hidden"))
+  if cfa_pages < 1200 and (cfa_ok or cfa_src.get("fallback")): bad.append(("vic", f"cfa fire lines {cfa_pages}"))
+  if cfa_pages < 1200 and not cfa_ok and not cfa_src.get("fallback"): warnings.append(("vic", f"cfa feed unavailable; fire lines {cfa_pages}"))
   import cfa_conditions
   sample_rss = """<?xml version="1.0"?><rss version="2.0"><channel><item><title>Day</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Today, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: MODERATE&lt;/p&gt;</description></item><item><title>Next</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Tomorrow, example.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: HIGH&lt;/p&gt;</description></item><item><title>Skip</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Fri, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: EXTREME&lt;/p&gt;</description></item></channel></rss>"""
   sample_parsed = cfa_conditions.parse_cfa(sample_rss)
@@ -1301,6 +1305,20 @@ if os.path.isfile(nsw_index):
     bad.append(("cfa parse", str(sample_today)))
   if (sample_parsed["tomorrow"].get("mallee") or {}).get("today") != "High" or "extreme" in json.dumps(sample_parsed).lower():
     bad.append(("cfa parse", "day window"))
+  dated_rss = """<?xml version="1.0"?><rss version="2.0"><channel><item><title>Day</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Today, Wed, 28 Oct 2026 is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;br/&gt;Bureau of Meteorology forecast issued at: Wednesday, 28 October 2026 05:30 AM&lt;/p&gt;&lt;p&gt;Mallee: MODERATE&lt;/p&gt;</description></item><item><title>Next</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Tomorrow, Thu, 29 Oct 2026.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: HIGH&lt;/p&gt;</description></item></channel></rss>"""
+  dated = cfa_conditions.forecast_days(dated_rss)
+  if (dated.get("2026-10-28") or {}).get("issued") != "Wednesday, 28 October 2026 05:30 AM": bad.append(("cfa parse", "issued"))
+  if ((dated.get("2026-10-28") or {}).get("districts") or {}).get("mallee", {}).get("rating") != "Moderate": bad.append(("cfa parse", "dated today"))
+  if ((dated.get("2026-10-29") or {}).get("districts") or {}).get("mallee", {}).get("rating") != "High": bad.append(("cfa parse", "dated tomorrow"))
+  fresh_now = __import__("datetime").datetime(2026, 10, 28, 18, 0, tzinfo=facts.MELBOURNE)
+  fresh = {"fetched": "2026-10-28T08:39:00+11:00", "days": dated}
+  fresh_window = cfa_conditions.cache_window(fresh, fresh_now)
+  if not fresh_window or not fresh_window[0] or not fresh_window[1]: bad.append(("cfa cache", "fresh window"))
+  old = {"fetched": "2026-10-27T08:00:00+11:00", "days": dated}
+  if cfa_conditions.cache_window(old, fresh_now) is not None: bad.append(("cfa cache", "over 24 hours"))
+  other_day = {"fetched": "2026-10-28T08:39:00+11:00", "days": {"2026-10-11": dated["2026-10-28"]}}
+  if cfa_conditions.cache_window(other_day, fresh_now) is not None: bad.append(("cfa cache", "other day"))
+  if cfa_conditions.fetched_phrase("2026-10-28T08:39:00+11:00") != "28 October 2026, 8:39 AM AEDT": bad.append(("cfa cache", "fetched phrase"))
   if "Country Fire Authority" not in " ".join(feed.get("attribution") or []): bad.append(("status.json", "cfa credit"))
   if "Total fire ban:" in home or "NPWS alerts:" in home or "Official NPWS wording" in home: bad.append(("/", "nsw conditions on victoria"))
   if npws:

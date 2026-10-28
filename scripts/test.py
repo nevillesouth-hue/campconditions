@@ -20,6 +20,38 @@ for u in sm:
   if not os.path.isfile(os.path.join(D,u.lstrip("/"),"index.html")): bad.append(("sitemap",u))
 feed=json.load(open(os.path.join(D,"status.json")))
 vic_feed=[c for c in feed["camps"] if "/vic/camp/" in c.get("url","")]
+_STATUS_FROM = {"o": "open", "k": "check", "x": "closed"}
+_STATE_FROM = {"v": ("vic", "Victoria"), "n": ("nsw", "New South Wales")}
+def expand_map_point(pt):
+  if isinstance(pt, dict):
+    return pt
+  if not isinstance(pt, list) or len(pt) < 6:
+    return pt
+  st = pt[5] or ""
+  slug_state, state_name = _STATE_FROM.get(st, ("", ""))
+  slug = pt[4] or ""
+  out = {
+    "name": pt[0], "lat": pt[1], "lon": pt[2],
+    "status": _STATUS_FROM.get(pt[3], pt[3]),
+    "slug": slug,
+    "url": f"/{slug_state}/camp/{slug}/" if slug_state and slug else "",
+    "cat": pt[6] if len(pt) > 6 and pt[6] else "",
+    "type": pt[7] if len(pt) > 7 and pt[7] else "",
+    "cost": pt[8] if len(pt) > 8 and pt[8] else "",
+  }
+  if state_name:
+    out["stateName"] = state_name
+  if len(pt) > 9 and pt[9] in (0, 1):
+    out["dogs"] = pt[9]
+  if len(pt) > 10 and pt[10] in (0, 1):
+    out["caravans"] = pt[10]
+  if len(pt) > 11 and pt[11] in (0, 1):
+    out["motorhomes"] = pt[11]
+  if len(pt) > 12 and pt[12]:
+    out["reg"] = pt[12]
+  if len(pt) > 13 and pt[13]:
+    out["note"] = pt[13]
+  return out
 def map_data(where, html, vic_only=True):
   m=re.search(r'<script type="application/json" id="camp-map-data"([^>]*)>(.*?)</script>', html, re.S)
   if not m:
@@ -35,6 +67,7 @@ def map_data(where, html, vic_only=True):
     bad.append((where, f"map json {ex}")); return []
   if not isinstance(data, list):
     bad.append((where, "map data not a list")); return []
+  data = [expand_map_point(pt) for pt in data]
   for i, pt in enumerate(data):
     if not all(k in pt for k in ("name","lat","lon","status","url")):
       bad.append((where, f"map point {i} fields")); break
@@ -94,8 +127,11 @@ for c in vic_feed: by.setdefault(c["region"], []).append(c)
 for name in os.listdir(os.path.join(D,"vic")):
   page=os.path.join(D,"vic",name,"index.html")
   if name=="camp" or not os.path.isfile(page): continue
-  pts=expect_map(f"/vic/{name}/", open(page, encoding="utf-8").read(), True)
+  region_html=open(page, encoding="utf-8").read()
+  pts=expect_map(f"/vic/{name}/", region_html, True)
   if len(pts)!=len(by.get(name, [])): bad.append((f"/vic/{name}/", "region map count"))
+  if 'name="states" value="vic" checked' not in region_html or 'name="states" value="nsw" checked' in region_html:
+    bad.append((f"/vic/{name}/", "signup states"))
 page_titles=[]
 for slug in os.listdir(os.path.join(D,"vic","camp")):
   page=os.path.join(D,"vic","camp",slug,"index.html")
@@ -115,6 +151,8 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "emergency hotline"))
     if 'class="digest-cta" href="/#newsletter" aria-label="Free weekly newsletter"' not in html_page:
       bad.append((slug, "newsletter button"))
+    if 'name="states" value="vic" checked' not in html_page or 'name="states" value="nsw" checked' in html_page:
+      bad.append((slug, "signup states"))
     if 'href="https://traffic.transport.vic.gov.au/"' not in html_page or "Check road closures" not in html_page or html_page.find("Find nearby toilets") > html_page.find("Check road closures"):
       bad.append((slug, "road closures"))
     if "traffic.vicroads.vic.gov.au" in html_page or "https://traffic.transport.vic.gov.au/?" in html_page:
@@ -156,7 +194,9 @@ for r, _, fs in os.walk(D):
         rel = os.path.join(r, f)
         # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating.
         shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}")))
-        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok):
+        # CFA district ratings are an official feed. The old ban was the VicEmergency warning text.
+        cfa_ok = needle == "fire danger" and ("cfa.vic.gov.au" in blob or "country fire authority" in blob)
+        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
           continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
@@ -233,15 +273,22 @@ else:
 confirm = subprocess.run(["node", "--input-type=module", "-e", """
 import { confirmationMessage } from "./functions/api/subscribe.js";
 const unsub = "https://campconditions.au/api/unsubscribe?e=reader%40example.com&t=abc";
-const m = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc", unsub);
-const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe", unsub];
+const link = "https://campconditions.au/api/confirm?token=abc";
+const m = confirmationMessage("https://campconditions.au", link, unsub, ["vic"], "reader@example.com");
+const need = ["CampConditions.au", "https://campconditions.au/privacy/", "Unsubscribe"];
+const ask = "Please confirm you'd like updates sent to reader@example.com.";
 for (const blob of [m.html, m.text]) {
   for (const bit of need) if (!blob.includes(bit)) { console.error("missing " + bit); process.exit(1); }
   if (blob.includes("mailto:campconditions@outlook.com?subject=Unsubscribe")) process.exit(1);
   if (blob.includes("Victoria digest")) process.exit(1);
 }
+if (!m.text.includes(ask) || !m.html.includes(ask.replace(/'/g, "&#39;"))) process.exit(1);
+if (!m.text.includes(unsub) || !m.html.includes(unsub.replace(/&/g, "&amp;"))) process.exit(1);
 if (!m.html.includes("digest for Victoria") || !m.text.includes("digest for Victoria")) process.exit(1);
-const both = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc", unsub, ["nsw", "vic"]);
+if (!m.html.includes("background:#2f5d3a") || !m.html.includes(">Confirm my subscription</a>")) process.exit(1);
+if (m.html.split("api/confirm?token=abc").length < 4) process.exit(1);
+if (!m.text.includes("Confirm my subscription:\\n" + link)) process.exit(1);
+const both = confirmationMessage("https://campconditions.au", link, unsub, ["nsw", "vic"], "reader@example.com");
 if (!both.html.includes("digest for Victoria and New South Wales") || both.text.includes("Victoria digest")) process.exit(1);
 if (m.html.includes("api.resend.com")) process.exit(1);
 if (m.headers["List-Unsubscribe"] !== "<" + unsub + ">") process.exit(1);
@@ -378,8 +425,8 @@ finally:
   os.environ.pop("CAMPCONDITIONS_ENABLE", None)
 if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "enable reset"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
-if CREDIT not in home or CREDIT not in about: bad.append(("credit", "footer or about"))
-if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in home: bad.append(("credit", "explore outdoors"))
+if CREDIT not in about: bad.append(("credit", "footer or about"))
+if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in about: bad.append(("credit", "explore outdoors"))
 if "font-size:1.7rem" not in home or "font-weight:700" not in home or 'class="brand"' not in home or 'class="logo"' not in home or "font-size:2.4rem" not in home:
   bad.append(("/", "banner"))
 if national:
@@ -650,6 +697,33 @@ if corrections.get("w204763505", {}).get("name") != "Wye River Beachfront Campgr
 if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 500:
   bad.append(("corrections", "new sites"))
 import facts
+if facts.melbourne_iso("2026-12-23T13:00:00Z") != "2026-12-24": bad.append(("facts", "ingrams reopen"))
+if facts.melbourne_iso("2027-01-31T13:00:00Z") != "2027-02-01": bad.append(("facts", "pine start"))
+if facts.melbourne_iso("2027-05-27T14:00:00Z") != "2027-05-28": bad.append(("facts", "pine reopen"))
+if facts.melbourne_iso("2027-03-04T13:00:00Z") != "2027-03-05": bad.append(("facts", "island reopen"))
+if facts.melbourne_iso("2026-12-17T13:00:00Z") != "2026-12-18": bad.append(("facts", "parkers reopen"))
+if facts.melbourne_iso("2026-04-29T14:00:00Z") != "2026-04-30": bad.append(("facts", "ingrams start"))
+if facts.melbourne_iso("2026-12-24") != "2026-12-24": bad.append(("facts", "date only"))
+if facts.melbourne_iso("2026-10-26T00:00:00Z") != "2026-10-26": bad.append(("facts", "midnight utc"))
+vic_state = states.by_slug("vic")
+for lon, lat, expect in (
+    (145.919769, -37.117335, "high-country"),
+    (145.978398, -37.138147, "high-country"),
+    (145.986529, -37.142244, "high-country"),
+    (145.963204, -37.125222, "high-country"),
+    (145.980006, -37.138937, "high-country"),
+    (145.968092, -37.264264, "high-country"),
+    (145.857745, -37.140024, "high-country"),
+    (145.84056, -37.17667, "high-country"),
+    (146.306821, -37.944886, "gippsland"),
+    (146.4, -37.98, "gippsland"),
+    (145.98, -36.55, "gippsland"),
+):
+    got = states.region_id(vic_state, lon, lat)
+    if got != expect: bad.append(("regions", f"{lon},{lat} {got}"))
+vic_js = states.js_region_function(vic_state)
+if "lon >= 145.89 && lon < 146.0 && lat > -37.4 && lat < -37.05" not in vic_js: bad.append(("regions", "eildon js"))
+if "lon >= 145.83 && lon < 145.89 && lat > -37.2 && lat < -37.1" not in vic_js: bad.append(("regions", "fraser js"))
 if facts.override_expired("2026-10-25", "2026-10-26") is not True: bad.append(("facts", "expired until"))
 if facts.override_expired("2026-10-26", "2026-10-26") or facts.override_expired("2026-10-30", "2026-10-26") or facts.override_expired("", "2026-10-26"):
   bad.append(("facts", "until still current"))
@@ -1016,13 +1090,18 @@ if os.path.isfile(nsw_index):
   if 'class="state-pick"' not in home or 'aria-label="All states"' not in home or ">All <" not in home: bad.append(("/", "national header"))
   if '<p class="soon">' in home or '<p class="soon">' in vic or '<p class="soon">' in nsw_html: bad.append(("/", "soon bar"))
   if "html.filters-locked .leaflet-control-container" not in home or "html.filters-locked .leaflet-control-container" not in vic or "html.filters-locked .leaflet-control-container" not in nsw_html: bad.append(("filters", "cover"))
-  if 'name="states" value="vic" checked' not in home or 'name="choose_states" value="1"' not in home or 'name="states" value="nsw" checked' in home or "Get the free weekly digest" not in home: bad.append(("/", "signup states"))
+  signup_msg = "Choose at least one state so we know which digest to send."
+  if 'name="states" value="vic"' not in home or 'name="states" value="nsw"' not in home or 'name="states" value="vic" checked' in home or 'name="states" value="nsw" checked' in home or 'name="choose_states" value="1"' not in home or signup_msg not in home or "Get the free weekly digest" not in home: bad.append(("/", "signup states"))
+  for shared in ("about", "privacy", "terms", "report", "unsubscribe"):
+    shared_html = open(os.path.join(D, shared, "index.html"), encoding="utf-8").read()
+    if 'name="states" value="vic" checked' in shared_html or 'name="states" value="nsw" checked' in shared_html:
+      bad.append((shared, "signup states"))
   if home.find('id="camp-map"') < 0 or home.find('id="newsletter"') < home.find('id="camp-map"'): bad.append(("/", "newsletter above the map"))
   if 'value="NPWS"' not in home or 'value="Parks Victoria"' not in home: bad.append(("/", "type filters"))
   if 'class="state-pick"' not in vic or 'aria-label="State: Victoria"' not in vic or ">VIC <" not in vic: bad.append(("/vic/", "state picker"))
   if 'href="/vic/" aria-current="page"' not in vic or 'href="/nsw/">New South Wales</a>' not in vic: bad.append(("/vic/", "state menu"))
-  if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic: bad.append(("/vic/", "signup states"))
-  if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html: bad.append(("nsw", "signup states"))
+  if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic or signup_msg not in vic: bad.append(("/vic/", "signup states"))
+  if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html or signup_msg not in nsw_html: bad.append(("nsw", "signup states"))
   if 'href="/vic/">Victoria</a><a href="/nsw/">New South Wales</a>' not in home: bad.append(("/", "state menu"))
   if 'src="/map-home.js"' in vic or 'src="/map.js"' not in vic: bad.append(("/vic/", "map script"))
   if 'class="state-pick"' not in nsw_html or 'aria-label="State: New South Wales"' not in nsw_html or ">NSW <" not in nsw_html: bad.append(("nsw", "state picker"))
@@ -1052,7 +1131,7 @@ if os.path.isfile(nsw_index):
   nsw_map = open(os.path.join(D, "map-nsw.js"), encoding="utf-8").read()
   if 'fetch("/nsw-towns.json")' not in nsw_map or "vic-towns.json" in nsw_map: bad.append(("map-nsw.js", "town file"))
   if 'fetch("/nsw-place-points.json")' not in nsw_map or "bestTownD <= 40" not in nsw_map: bad.append(("map-nsw.js", "place labels"))
-  if 'fetch("/vic-towns.json")' not in mj or "nsw-place-points.json" in mj or "bestTownD" in mj or "chunkedLoading" in mj or "stateName" in mj: bad.append(("map.js", "victoria towns"))
+  if 'fetch("/vic-towns.json")' not in mj or "nsw-place-points.json" in mj or "bestTownD" in mj or "chunkedLoading" in mj or "camp.stateName" in mj: bad.append(("map.js", "victoria towns"))
   home_map = open(os.path.join(D, "map-home.js"), encoding="utf-8").read()
   if 'fetch("/vic-towns.json")' not in home_map or 'fetch("/nsw-towns.json")' not in home_map: bad.append(("map-home.js", "towns"))
   if "nsw-place-points.json" in home_map or "bestTownD" in home_map: bad.append(("map-home.js", "nsw places"))
@@ -1106,7 +1185,22 @@ if os.path.isfile(nsw_index):
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
   if "Terms of use" not in terms or "as is, without warranty" not in terms or "Victoria." not in terms or "New South Wales." not in terms or "governing law" in terms.lower(): bad.append(("terms", "wording"))
   if "NPWS" not in about or "NSW Rural Fire Service" not in about or "Spatial Services" not in about or "livetraffic.com" not in about: bad.append(("about", "nsw credits"))
-  if about.count("DataVic and Explore Outdoors") != 2: bad.append(("about", "duplicated datavic credit"))
+  if about.count("DataVic and Explore Outdoors") != 1: bad.append(("about", "datavic credit"))
+  if 'id="vic-sources"' not in about or 'id="nsw-sources"' not in about: bad.append(("about", "source anchors"))
+  home_footer = home.split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  vic_footer = vic.split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  nsw_footer = nsw_html.split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  if home_footer.count("<p>") != 3 or 'href="/about/#vic-sources"' not in home_footer or 'href="/about/#nsw-sources"' not in home_footer:
+    bad.append(("/", "footer lines"))
+  if vic_footer.count("<p>") != 2 or 'href="/about/#vic-sources"' not in vic_footer or "nsw-sources" in vic_footer:
+    bad.append(("/vic/", "footer lines"))
+  if nsw_footer.count("<p>") != 2 or 'href="/about/#nsw-sources"' not in nsw_footer or "vic-sources" in nsw_footer:
+    bad.append(("/nsw/", "footer lines"))
+  if "Data and attribution" in home_footer or "Data and attribution" in vic_footer or "Data and attribution" in nsw_footer:
+    bad.append(("footer", "long attribution"))
+  home_map_file = open(os.path.join(D, "map-points", "home.json"), "rb").read()
+  if not home_map_file.startswith(b"[[") or len(gzip.compress(home_map_file)) > 110000:
+    bad.append(("home.json", f"raw {len(home_map_file)} gzip {len(gzip.compress(home_map_file))}"))
   if feed.get("region") != "Victoria and New South Wales, Australia": bad.append(("status.json", feed.get("region")))
   joined = " ".join(feed.get("attribution") or [])
   if "Victoria:" not in feed.get("disclaimer", "") or "New South Wales:" not in feed.get("disclaimer", ""): bad.append(("status.json", "disclaimer"))
@@ -1153,6 +1247,8 @@ if os.path.isfile(nsw_index):
     if not os.path.isfile(page):
       continue
     html_page = open(page, encoding="utf-8").read()
+    if 'name="states" value="nsw" checked' not in html_page or 'name="states" value="vic" checked' in html_page:
+      bad.append((camp["slug"], "signup states")); break
     main = html_page.split("<main>", 1)[-1]
     if html_page.count('class="banner-row"') != 2: bad.append((camp["slug"], "header rows")); break
     if "Total fire ban:" in html_page.split("<main>", 1)[0]: bad.append((camp["slug"], "fire in header")); break
@@ -1173,6 +1269,57 @@ if os.path.isfile(nsw_index):
     if not any(token in main for token in ratings): bad.append((camp["slug"], "fire rating")); break
     if main.count('class="banner-row"'): bad.append((camp["slug"], "banner in page")); break
   if fire_pages < 1: bad.append(("nsw", "no fire danger line"))
+  districts = ("Central", "East Gippsland", "Mallee", "North Central", "North East", "Northern Country", "South West", "West and South Gippsland", "Wimmera")
+  cfa_pages = 0
+  for camp in vic_feed:
+    page = os.path.join(D, "vic", "camp", camp["slug"], "index.html")
+    if not os.path.isfile(page):
+      continue
+    html_page = open(page, encoding="utf-8").read()
+    main = html_page.split("<main>", 1)[-1]
+    if html_page.count('class="banner-row"') != 2: bad.append((camp["slug"], "header rows")); break
+    if "Check CFA fire danger" not in main:
+      continue
+    cfa_pages += 1
+    if '<h2 class="fire-head"' not in main or ">Fire Ratings</h2>" not in main or "Total fire ban:" not in main:
+      bad.append((camp["slug"], "cfa heading")); break
+    if "fdrToban.xml" in main or "Check Live Traffic NSW" in main:
+      bad.append((camp["slug"], "nsw fire on victoria")); break
+    link = re.search(r'href="(https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings/[a-z-]+-fire-district)"', main)
+    if not link: bad.append((camp["slug"], "cfa deep link")); break
+    if not any(name + ":" in main for name in districts): bad.append((camp["slug"], "cfa district")); break
+    if "https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml" not in html_page or "CC BY 4.0" not in html_page:
+      bad.append((camp["slug"], "cfa attribution")); break
+    if "Issued " not in main and "Fetched " not in main: bad.append((camp["slug"], "cfa issued")); break
+  cfa_src = (feed.get("sources") or {}).get("cfa_fdr") or {}
+  cfa_ok = cfa_src.get("ok")
+  if not cfa_src.get("url") or "ok" not in cfa_src: bad.append(("status.json", "cfa source"))
+  if not cfa_ok and not (cfa_src.get("error") or cfa_src.get("fallback")): bad.append(("status.json", "cfa failure hidden"))
+  if cfa_pages < 1200 and (cfa_ok or cfa_src.get("fallback")): bad.append(("vic", f"cfa fire lines {cfa_pages}"))
+  if cfa_pages < 1200 and not cfa_ok and not cfa_src.get("fallback"): warnings.append(("vic", f"cfa feed unavailable; fire lines {cfa_pages}"))
+  import cfa_conditions
+  sample_rss = """<?xml version="1.0"?><rss version="2.0"><channel><item><title>Day</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Today, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: MODERATE&lt;/p&gt;</description></item><item><title>Next</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Tomorrow, example.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: HIGH&lt;/p&gt;</description></item><item><title>Skip</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Fri, example is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: YES&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: EXTREME&lt;/p&gt;</description></item></channel></rss>"""
+  sample_parsed = cfa_conditions.parse_cfa(sample_rss)
+  sample_today = sample_parsed["today"].get("mallee") or {}
+  if sample_today.get("today") != "Moderate" or sample_today.get("ban_today") != "No - restrictions may apply":
+    bad.append(("cfa parse", str(sample_today)))
+  if (sample_parsed["tomorrow"].get("mallee") or {}).get("today") != "High" or "extreme" in json.dumps(sample_parsed).lower():
+    bad.append(("cfa parse", "day window"))
+  dated_rss = """<?xml version="1.0"?><rss version="2.0"><channel><item><title>Day</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Today, Wed, 28 Oct 2026 is not currently a day of Total Fire Ban.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;br/&gt;Bureau of Meteorology forecast issued at: Wednesday, 28 October 2026 05:30 AM&lt;/p&gt;&lt;p&gt;Mallee: MODERATE&lt;/p&gt;</description></item><item><title>Next</title><link>https://www.cfa.vic.gov.au/example</link><description>&lt;p&gt;Tomorrow, Thu, 29 Oct 2026.&lt;/p&gt;&lt;p&gt;Mallee: NO - RESTRICTIONS MAY APPLY&lt;/p&gt;&lt;p&gt;Fire Danger Ratings&lt;/p&gt;&lt;p&gt;Mallee: HIGH&lt;/p&gt;</description></item></channel></rss>"""
+  dated = cfa_conditions.forecast_days(dated_rss)
+  if (dated.get("2026-10-28") or {}).get("issued") != "Wednesday, 28 October 2026 05:30 AM": bad.append(("cfa parse", "issued"))
+  if ((dated.get("2026-10-28") or {}).get("districts") or {}).get("mallee", {}).get("rating") != "Moderate": bad.append(("cfa parse", "dated today"))
+  if ((dated.get("2026-10-29") or {}).get("districts") or {}).get("mallee", {}).get("rating") != "High": bad.append(("cfa parse", "dated tomorrow"))
+  fresh_now = __import__("datetime").datetime(2026, 10, 28, 18, 0, tzinfo=facts.MELBOURNE)
+  fresh = {"fetched": "2026-10-28T08:39:00+11:00", "days": dated}
+  fresh_window = cfa_conditions.cache_window(fresh, fresh_now)
+  if not fresh_window or not fresh_window[0] or not fresh_window[1]: bad.append(("cfa cache", "fresh window"))
+  old = {"fetched": "2026-10-27T08:00:00+11:00", "days": dated}
+  if cfa_conditions.cache_window(old, fresh_now) is not None: bad.append(("cfa cache", "over 24 hours"))
+  other_day = {"fetched": "2026-10-28T08:39:00+11:00", "days": {"2026-10-11": dated["2026-10-28"]}}
+  if cfa_conditions.cache_window(other_day, fresh_now) is not None: bad.append(("cfa cache", "other day"))
+  if cfa_conditions.fetched_phrase("2026-10-28T08:39:00+11:00") != "28 October 2026, 8:39 AM AEDT": bad.append(("cfa cache", "fetched phrase"))
+  if "Country Fire Authority" not in " ".join(feed.get("attribution") or []): bad.append(("status.json", "cfa credit"))
   if "Total fire ban:" in home or "NPWS alerts:" in home or "Official NPWS wording" in home: bad.append(("/", "nsw conditions on victoria"))
   if npws:
     sample = os.path.join(D, "nsw", "camp", npws[0]["slug"], "index.html")
@@ -1183,6 +1330,70 @@ if os.path.isfile(nsw_index):
   if closed_npws:
     closed_html = open(os.path.join(D, "nsw", "camp", closed_npws[0]["slug"], "index.html"), encoding="utf-8").read()
     if "NPWS alert" not in closed_html or "badge closed" not in closed_html or "Official NPWS wording" not in closed_html or "Alert dated" not in closed_html: bad.append((closed_npws[0]["slug"], "closed page"))
+by_slug = {c["slug"]: c for c in vic_feed}
+for slug, region in (
+    ("parkers-pines", "high-country"), ("ewarts-flat", "high-country"), ("taylors", "high-country"),
+    ("the-island", "high-country"), ("wentworths", "high-country"), ("ingrams", "gippsland"),
+):
+    camp = by_slug.get(slug)
+    if not camp or camp.get("region") != region: bad.append((slug, (camp or {}).get("region")))
+for name, region in (
+    ("Jerusalem Creek Campground", "high-country"),
+    ("Mountaineer Creek Camping Area (Lake Eildon National Park)", "high-country"),
+    ("Candlebark Campground", "high-country"),
+    ("Lakeside Campground", "high-country"),
+    ("Devils Cove Campground", "high-country"),
+    ("Barnewall Plains Camping Area", "high-country"),
+    ("O'Tooles Flat", "high-country"),
+    ("Running Creek Track", "high-country"),
+):
+    camp = next((c for c in feed["camps"] if c.get("name") == name), None)
+    if camp and camp.get("region") != region: bad.append((name, camp.get("region")))
+parkers = by_slug.get("parkers-pines") or {}
+if parkers.get("status") != "closed" or (parkers.get("closure") or {}).get("reopen") != "2026-12-18":
+    bad.append(("parkers-pines", parkers.get("status"), (parkers.get("closure") or {}).get("reopen")))
+if parkers.get("upcoming_closure"): bad.append(("parkers-pines", "upcoming"))
+ingrams = by_slug.get("ingrams") or {}
+if ingrams.get("status") != "closed" or (ingrams.get("closure") or {}).get("reopen") != "2026-12-24":
+    bad.append(("ingrams", ingrams.get("status"), (ingrams.get("closure") or {}).get("reopen")))
+for slug, reopen in (("ewarts-flat", "2027-05-28"), ("taylors", "2027-05-28"), ("wentworths", "2027-05-28"), ("the-island", "2027-03-05")):
+    camp = by_slug.get(slug) or {}
+    upcoming = camp.get("upcoming_closure") or {}
+    if camp.get("status") == "closed" or camp.get("closure") or upcoming.get("start") != "2027-02-01" or upcoming.get("reopen") != reopen:
+        bad.append((slug, camp.get("status"), upcoming.get("start"), upcoming.get("reopen")))
+for camp in feed["camps"]:
+    upcoming = camp.get("upcoming_closure") or None
+    closure = camp.get("closure") or {}
+    if upcoming and camp.get("status") == "closed": bad.append((camp.get("slug"), "future closure still closed"))
+    for record in (upcoming, closure):
+        if not record: continue
+        for key in ("start", "reopen"):
+            value = record.get(key) or ""
+            if isinstance(value, str) and "T" in value: bad.append((camp.get("slug"), key, value))
+def camp_html(slug):
+    path = os.path.join(D, "vic", "camp", slug, "index.html")
+    return open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
+ingrams_html = camp_html("ingrams")
+ingrams_block = ingrams_html.split('id="camp-closure"', 1)[-1][:900] if ingrams_html else ""
+ingrams_line = re.search(r'<p class="status-line" data-camp="ingrams">(.*?)</p>', ingrams_html or "")
+if "Reopens 2026-12-24" not in ingrams_block or "2026-12-23" in ingrams_block or "Upcoming closure" in ingrams_block:
+    bad.append(("ingrams", "page date"))
+if not ingrams_line or "badge closed" not in ingrams_line.group(1) or 'href="/vic/gippsland/"' not in ingrams_html:
+    bad.append(("ingrams", "page status"))
+parkers_html = camp_html("parkers-pines")
+parkers_block = parkers_html.split('id="camp-closure"', 1)[-1][:900] if parkers_html else ""
+if "Reopens 2026-12-18" not in parkers_block or "2026-12-17" in parkers_block or 'href="/vic/high-country/"' not in parkers_html:
+    bad.append(("parkers-pines", "page"))
+for slug, reopen in (("ewarts-flat", "2027-05-28"), ("taylors", "2027-05-28"), ("wentworths", "2027-05-28"), ("the-island", "2027-03-05")):
+    page_html = camp_html(slug)
+    block = page_html.split('id="camp-closure"', 1)[-1][:1100] if page_html else ""
+    line = re.search(r'<p class="status-line" data-camp="%s">(.*?)</p>' % re.escape(slug), page_html or "")
+    if "Upcoming closure" not in block or "Starts 2027-02-01" not in block or "Reopens " + reopen not in block:
+        bad.append((slug, "upcoming notice"))
+    if not line or "badge closed" in line.group(1) or 'href="/vic/high-country/"' not in page_html:
+        bad.append((slug, "still listed closed"))
+    if "function melbourneDay" not in page_html or "upcoming_closure" not in page_html:
+        bad.append((slug, "refresh script"))
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken, {len(warnings)} warnings")
 for item in warnings: print("WARN", item)
 for item in bad[:20]: print(item)

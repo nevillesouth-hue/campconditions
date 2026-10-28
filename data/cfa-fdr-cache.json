@@ -1,0 +1,106 @@
+{
+  "days": {
+    "2026-10-28": {
+      "districts": {
+        "central": {
+          "ban": "No - restrictions may apply",
+          "district": "Central",
+          "rating": "No rating"
+        },
+        "eastgippsland": {
+          "ban": "No - restrictions may apply",
+          "district": "East Gippsland",
+          "rating": "No rating"
+        },
+        "mallee": {
+          "ban": "No - restrictions may apply",
+          "district": "Mallee",
+          "rating": "Moderate"
+        },
+        "northcentral": {
+          "ban": "No - restrictions may apply",
+          "district": "North Central",
+          "rating": "No rating"
+        },
+        "northeast": {
+          "ban": "No - restrictions may apply",
+          "district": "North East",
+          "rating": "No rating"
+        },
+        "northerncountry": {
+          "ban": "No - restrictions may apply",
+          "district": "Northern Country",
+          "rating": "No rating"
+        },
+        "southwest": {
+          "ban": "No - restrictions may apply",
+          "district": "South West",
+          "rating": "No rating"
+        },
+        "westandsouthgippsland": {
+          "ban": "No - restrictions may apply",
+          "district": "West and South Gippsland",
+          "rating": "No rating"
+        },
+        "wimmera": {
+          "ban": "No - restrictions may apply",
+          "district": "Wimmera",
+          "rating": "No rating"
+        }
+      },
+      "issued": ""
+    },
+    "2026-10-29": {
+      "districts": {
+        "central": {
+          "ban": "",
+          "district": "Central",
+          "rating": "No rating"
+        },
+        "eastgippsland": {
+          "ban": "",
+          "district": "East Gippsland",
+          "rating": "Moderate"
+        },
+        "mallee": {
+          "ban": "",
+          "district": "Mallee",
+          "rating": "No rating"
+        },
+        "northcentral": {
+          "ban": "",
+          "district": "North Central",
+          "rating": "No rating"
+        },
+        "northeast": {
+          "ban": "",
+          "district": "North East",
+          "rating": "No rating"
+        },
+        "northerncountry": {
+          "ban": "",
+          "district": "Northern Country",
+          "rating": "No rating"
+        },
+        "southwest": {
+          "ban": "",
+          "district": "South West",
+          "rating": "No rating"
+        },
+        "westandsouthgippsland": {
+          "ban": "",
+          "district": "West and South Gippsland",
+          "rating": "No rating"
+        },
+        "wimmera": {
+          "ban": "",
+          "district": "Wimmera",
+          "rating": "No rating"
+        }
+      },
+      "issued": ""
+    }
+  },
+  "fetched": "2026-10-28T08:39:00+11:00",
+  "source_url": "https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml"
+}

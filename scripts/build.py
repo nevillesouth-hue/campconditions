@@ -1030,8 +1030,25 @@ FRESH_JS = r"""<script>
     if (!c) return null;
     if (c.source === "osm") {
       var ov = c.closure || null;
+      var upOsm = !ov && c.upcoming;
+      if (upOsm && upOsm.desc && upOsm.source_url && String(upOsm.source_url).indexOf("nationalparks.nsw.gov.au") !== -1) {
+        var upWhen = "";
+        if (upOsm.start) upWhen += " · Starts " + esc(melbourneDay(upOsm.start));
+        if (upOsm.reopen) upWhen += " · Reopens " + esc(melbourneDay(upOsm.reopen));
+        return '<div class="warn"><strong>Upcoming closure:</strong> ' + esc(upOsm.desc) + upWhen + ' <span class="muted">Official NPWS wording.</span> <a href="' + esc(upOsm.source_url) + '">NPWS alert</a></div>';
+      }
       if (!ov || !ov.desc || !ov.source_url) return null;
       return '<div class="warn"><strong>Closed:</strong> ' + esc(ov.desc) + ' <a href="' + esc(ov.source_url) + '">' + esc(ov.source_url) + "</a></div>";
+    }
+    if (c.source === "npws") {
+      var npwsUp = !c.closure && c.upcoming;
+      var npwsBlock = c.closure || c.upcoming || null;
+      if (!npwsBlock || !npwsBlock.desc) return null;
+      var npwsWhen = "";
+      if (npwsUp && npwsBlock.start) npwsWhen += " · Starts " + esc(melbourneDay(npwsBlock.start));
+      if (npwsBlock.reopen) npwsWhen += " · Reopens " + esc(melbourneDay(npwsBlock.reopen));
+      var npwsLink = npwsBlock.source_url ? ' <a href="' + esc(npwsBlock.source_url) + '">NPWS alert</a>' : "";
+      return '<div class="warn"><strong>' + (npwsUp ? "Upcoming closure:" : "Closed:") + "</strong> " + esc(npwsBlock.desc) + npwsWhen + ' <span class="muted">Official NPWS wording.</span>' + npwsLink + "</div>";
     }
     var parts = [];
     var cl = c.closure || null;
@@ -2238,23 +2255,32 @@ def fire_line(c):
     if page_url.startswith("https://") and label:
         bits.append(f'<p><a class="btn-alert" href="{e(page_url)}">{e(label)}</a></p>')
     return "".join(bits)
-def official_npws_closure(desc, url, published):
-    """Quoted NPWS alert text, labelled, with the feed date when the item has one."""
+def official_npws_closure(desc, url, published, start=None, reopen=None, upcoming=False):
+    """Quoted NPWS alert text. A future start is an upcoming notice, not Closed."""
     when = feed_date(published)
     dated = f" Alert dated {e(when)}." if when else ""
     link = f' <a href="{e(url)}">NPWS alert</a>' if str(url).startswith("https://") else ""
-    return f'<div class="warn"><strong>Closed:</strong> {e(desc)} <span class="muted">Official NPWS wording.{dated}</span>{link}</div>'
+    label = "Upcoming closure" if upcoming else "Closed"
+    extra = ""
+    if upcoming and start:
+        extra += " · Starts " + e(str(start)[:10])
+    if reopen:
+        extra += " · Reopens " + e(str(reopen)[:10])
+    return f'<div class="warn"><strong>{label}:</strong> {e(desc)}{extra} <span class="muted">Official NPWS wording.{dated}</span>{link}</div>'
 def alert_notes_html(c):
     rows, seen = [], set()
     for alert in c.get("alerts") or []:
         heading = str(alert.get("heading") or "").strip()
         if not heading or (c.get("status") == "closed" and heading.lower().startswith("closed parks")):
             continue
+        url = str(alert.get("url") or "")
+        source = str(((c.get("closure") or c.get("upcoming_closure") or {}).get("source_url")) or "")
+        if source and url == source and heading.lower().startswith("closed"):
+            continue
         key = heading.casefold()
         if key in seen:
             continue
         seen.add(key)
-        url = str(alert.get("url") or "")
         when = feed_date(alert.get("published"))
         dated = f" ({e(when)})" if when else ""
         rows.append((f'<a href="{e(url)}">{e(heading)}</a>' if url.startswith("https://") else e(heading)) + dated)
@@ -2433,11 +2459,15 @@ def emit_state(state, camps, include_home):
             condition = osm_blocks(c)
             wording = str((cl or {}).get("desc") or "").strip()
             source_url = str((cl or {}).get("source_url") or "").strip()
+            upcoming = c.get("upcoming_closure") or None
             if wording and source_url:
                 if c.get("state_slug") == "nsw" and "nationalparks.nsw.gov.au" in source_url:
-                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"))
+                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"))
                 else:
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(source_url)}</a></div>'
+                condition = f'<div id="camp-closure">{block}</div>' + condition
+            elif upcoming and c.get("state_slug") == "nsw" and str(upcoming.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True)
                 condition = f'<div id="camp-closure">{block}</div>' + condition
             notes = alert_notes_html(c)
             if notes:
@@ -2447,13 +2477,18 @@ def emit_state(state, camps, include_home):
             dated = COPY["osm_source_line"]
         elif c.get("source") == "npws":
             bits = []
+            upcoming = c.get("upcoming_closure") or None
             if cl and (cl.get("desc") or cl.get("reason")):
                 url = str(cl.get("source_url") or "")
                 wording = cl.get("desc") or cl.get("reason")
                 if url.startswith("https://"):
-                    bits.append(official_npws_closure(wording, url, cl.get("source_published")))
+                    block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"))
                 else:
-                    bits.append(f'<div class="warn"><strong>Closed:</strong> {e(wording)}</div>')
+                    block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}</div>'
+                bits.append(f'<div id="camp-closure">{block}</div>')
+            elif upcoming and (upcoming.get("desc") or upcoming.get("start")):
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True)
+                bits.append(f'<div id="camp-closure">{block}</div>')
             else:
                 bits.append("<p><strong>No status in this layer.</strong> The NPWS Visitor Area record does not include open or closed status, fees or facilities.</p>")
             notes = alert_notes_html(c)

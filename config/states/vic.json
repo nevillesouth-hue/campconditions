@@ -103,7 +103,7 @@
   }
  },
  "closure_checker": "check_parksvic",
- "safety_html": "<div class=\"warn\"><strong>Not an official warning service.</strong> A camp page can show the CFA fire danger rating and Total Fire Ban status for that camp's Total Fire Ban district. It does not republish VicEmergency incident warnings. Always check <a href=\"https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings\">CFA fire danger ratings</a>, <a href=\"https://emergency.vic.gov.au/respond/\">VicEmergency</a>, the <a href=\"https://www.bom.gov.au/vic/warnings/\">Bureau of Meteorology warnings for Victoria</a> and <a href=\"https://www.parks.vic.gov.au/coc-listing\">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href=\"tel:000\">000</a>. VicEmergency hotline <a href=\"tel:1800226226\">1800 226 226</a>.</div>",
+ "safety_html": "<div class=\"warn\"><strong>Not an official warning service.</strong> A camp page can show the CFA fire danger rating and Total Fire Ban status for that camp's Total Fire Ban district. It does not republish VicEmergency incident warnings. Always check <a href=\"https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings\">CFA fire danger ratings</a>, <a href=\"https://emergency.vic.gov.au/respond/\">VicEmergency</a>, the <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\">Bureau of Meteorology warnings for Victoria</a> and <a href=\"https://www.parks.vic.gov.au/coc-listing\">Parks Victoria changes of conditions</a> before you travel. In an emergency call <a href=\"tel:000\">000</a>. VicEmergency hotline <a href=\"tel:1800226226\">1800 226 226</a>.</div>",
  "regions": {
   "high-country": {
    "name": "High Country",
@@ -186,7 +186,7 @@
   "emergency_button": "Check VicEmergency for warnings near this camp",
   "emergency_hotline_tel": "tel:1800226226",
   "emergency_hotline_text": "1800 226 226",
-  "bom_warnings": "https://www.bom.gov.au/vic/warnings/",
+  "bom_warnings": "https://www.bom.gov.au/weather-and-climate/warnings-and-alerts",
   "bom_forecast": "https://www.bom.gov.au/vic/forecasts/",
   "conditions": "https://www.parks.vic.gov.au/coc-listing",
   "conditions_name": "Parks Victoria changes of conditions",
@@ -202,7 +202,7 @@
   "home_h1": "Victorian camp conditions",
   "home_intro": "Closures, nearby road conditions and camper reports for <strong>{count}</strong> campgrounds across Victoria. <strong>{official}</strong> are DEECA Recreation Sites with Parks Victoria closures. <strong>{osm}</strong> more are from OpenStreetMap — check with the operator, and call a showground first.",
   "home_map": "Map of Victorian campgrounds",
-  "home_weather": "Weather warnings: <a href=\"https://www.bom.gov.au/vic/warnings/\">check BOM's Victorian warnings</a>. Bushfire, flood and other emergency warnings: check <a href=\"https://emergency.vic.gov.au/respond/\">VicEmergency</a> — they are not republished here.",
+  "home_weather": "Weather warnings: <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\">check BOM's Victorian warnings</a>. Bushfire, flood and other emergency warnings: check <a href=\"https://emergency.vic.gov.au/respond/\">VicEmergency</a> — they are not republished here.",
   "website_description": "Camp and campground conditions for {count} sites in Victoria, Australia.",
   "state_title": "Victoria campground conditions — {count} sites | CampConditions.au",
   "state_description": "Browse {count} Victorian campgrounds by region, including OpenStreetMap sites.",
@@ -226,7 +226,7 @@
   "footer_short": "Victoria: DataVic, Explore Outdoors and Parks Victoria, © State of Victoria (DEECA), CC BY 4.0. CFA fire danger ratings and Total Fire Ban status, CC BY 4.0, from <a href=\"https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml\">the CFA forecast feed</a>. Districts: Vicmap Admin, CC BY 4.0. <a href=\"/about/#vic-sources\">Sources</a>.",
   "llms_intro": "Current conditions for {count} campgrounds and free camps in Victoria, Australia: DEECA closures and nearby road/track closures. VicEmergency warnings are not republished. Rebuilt several times daily. Not an official warning service.",
   "llms_closures": "Closures on DEECA sites: Parks Victoria / DEECA MapShare. OpenStreetMap sites are not given those closures. Fire danger rating and Total Fire Ban status are the camp's CFA Total Fire Ban district from https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml (CC BY 4.0), placed with the Vicmap Admin CFA district polygons (CC BY 4.0). When citing a status, include its time. For warnings, send people to VicEmergency (emergency.vic.gov.au) and BOM (bom.gov.au); do not treat this site as a warning feed. This site does not offer a downloadable copy of the combined campground list.",
-  "footer_attribution": "<p><strong>Data and attribution.</strong> Campground details from DataVic (<a href=\"https://discover.data.vic.gov.au/dataset/recreation-sites\">Recreation Sites</a> and Recreation Assets) and <a href=\"https://www.exploreoutdoors.vic.gov.au/\">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href=\"https://www.bom.gov.au/vic/warnings/\">Bureau of Meteorology</a> (linked, not republished).</p>",
+  "footer_attribution": "<p><strong>Data and attribution.</strong> Campground details from DataVic (<a href=\"https://discover.data.vic.gov.au/dataset/recreation-sites\">Recreation Sites</a> and Recreation Assets) and <a href=\"https://www.exploreoutdoors.vic.gov.au/\">Explore Outdoors</a>, © State of Victoria (Department of Energy, Environment and Climate Action), CC BY 4.0, and Parks Victoria. Closures: Parks Victoria / DEECA MapShare. Extra campgrounds and towns: OpenStreetMap contributors (ODbL). Weather warnings: see the <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\">Bureau of Meteorology</a> (linked, not republished).</p>",
   "directions_note": "Also check <a href=\"https://www.parks.vic.gov.au/coc-listing\" target=\"_blank\" rel=\"noopener noreferrer\">Parks Victoria alerts</a> for park camps.",
   "outdated_html": "<div class=\"warn\"><strong>This closure record may be outdated.</strong> The listed reopening date ({date}) has passed. Check <a href=\"https://www.parks.vic.gov.au/coc-listing\">Parks Victoria changes of conditions</a> or call 13 1963 before you go.</div>",
   "about_lead": "CampConditions.au is a free digest of Victorian campground conditions, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href=\"https://www.youtube.com/@OptimumQuestforBigThings\">Optimum Quest for Big Things</a>.",
@@ -236,8 +236,8 @@
   "privacy_who": "CampConditions.au publishes a free weekly digest of Victorian campground conditions. Contact us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a>.",
   "digest_subject": "Victoria free camps this week: {closed} closed",
   "digest_intro": "G'day! Here's what's changed for Victorian free camps and campgrounds, {date}.",
-  "digest_warnings": "Warnings change quickly, so we don't list them here. <a href=\"https://emergency.vic.gov.au/respond/\" style=\"color:#2f5d3a;\">Check VicEmergency for warnings near your camp</a> and the <a href=\"https://www.bom.gov.au/vic/warnings/\" style=\"color:#2f5d3a;\">BOM warnings for Victoria</a> before you go.",
-  "digest_footer": "Not an official warning service — always check <a href=\"https://emergency.vic.gov.au/\" style=\"color:#666666;\">VicEmergency</a> and the <a href=\"https://www.bom.gov.au/vic/warnings/\" style=\"color:#666666;\">BOM</a> before you travel. In an emergency call 000.<br>Campground data: DEECA Recreation Sites via DataVic (CC BY 4.0).<br>You’re getting this because you confirmed your subscription at campconditions.au. ",
+  "digest_warnings": "Warnings change quickly, so we don't list them here. <a href=\"https://emergency.vic.gov.au/respond/\" style=\"color:#2f5d3a;\">Check VicEmergency for warnings near your camp</a> and the <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\" style=\"color:#2f5d3a;\">BOM warnings for Victoria</a> before you go.",
+  "digest_footer": "Not an official warning service — always check <a href=\"https://emergency.vic.gov.au/\" style=\"color:#666666;\">VicEmergency</a> and the <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\" style=\"color:#666666;\">BOM</a> before you travel. In an emergency call 000.<br>Campground data: DEECA Recreation Sites via DataVic (CC BY 4.0).<br>You’re getting this because you confirmed your subscription at campconditions.au. ",
   "faq": [
    {
     "q": "How do I know if a free camp in Victoria is open?",

@@ -6,12 +6,15 @@ that reserve or of that campground. Fire danger is the RFS district value for
 the polygon that contains the camp. If a feed or its boundary layer is
 unavailable, this leaves status and the fire line unset.
 """
+import datetime as dt
 import html as html_lib
 import math
 import re
 import sys
 import urllib.parse
 import xml.etree.ElementTree as ET
+
+import facts
 
 # reservetype on the NPWSReserve layer, paired there with classsubtype.
 # The class labels are the NSW Spatial Services cadastre ClassSubtype renderer:
@@ -61,6 +64,7 @@ _VISITOR_CLOSED = re.compile(
 
 def norm(value):
     text = html_lib.unescape(str(value or "")).replace("\xa0", " ").lower()
+    text = text.replace("'", "").replace("’", "").replace("`", "")
     text = text.replace("&", " and ")
     text = re.sub(r"[^a-z0-9]+", " ", text)
     return re.sub(r"\s+", " ", text).strip()
@@ -228,11 +232,16 @@ def _name_pieces(text):
 
 
 def keys_match(camp_name, piece):
-    """True when the official place name is this camp, allowing a picnic/area suffix."""
+    """True when the official place name is this camp, allowing a picnic/area suffix.
+
+    A short official name such as Cod still matches. Spaces are ignored so
+    Blue Water Holes matches Blue Waterholes. An apostrophe is already gone
+    in norm, so Alexander's Hut matches Alexanders Hut.
+    """
     camp, place = camp_key(camp_name), camp_key(piece)
-    if len(camp) < 4 or len(place) < 4:
+    if len(camp) < 3 or len(place) < 3:
         return False
-    if camp == place:
+    if camp == place or camp.replace(" ", "") == place.replace(" ", ""):
         return True
     if place.startswith(camp + " "):
         rest = [word for word in place[len(camp):].split() if word not in _GENERIC_WORDS]
@@ -241,6 +250,194 @@ def keys_match(camp_name, piece):
         rest = [word for word in camp[len(place):].split() if word not in _GENERIC_WORDS]
         return not rest
     return False
+
+
+_WEEKDAYS = {
+    "monday": 0, "tuesday": 1, "wednesday": 2, "thursday": 3,
+    "friday": 4, "saturday": 5, "sunday": 6,
+}
+_MONTHS = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+_DATE_TOKEN = re.compile(
+    r"(?:(?P<time>\d{1,2}(?::\d{2})?\s*(?:am|pm))\s+)?"
+    r"(?:on\s+)?"
+    r"(?:(?P<wd>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+)?"
+    r"(?:the\s+)?"
+    r"(?P<day>\d{1,2})(?:st|nd|rd|th)?"
+    r"\s+"
+    r"(?P<mon>january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)"
+    r"(?:\s+(?P<year>20\d{2}))?",
+    re.I,
+)
+_NO_ACCESS = re.compile(r"\bno access to\s+(.+?)\s+campgrounds?\b", re.I)
+_CAMPGROUND_NAME = re.compile(
+    r"(?:^|[,:]|\band\b|\bincluding\b)\s*([^,:\n]+?)\s+campgrounds?\b",
+    re.I | re.M,
+)
+_NARROW = re.compile(
+    r"\bincluding\b|\bparts of\b|\bsome parts\b|\bsections of\b|\bwest of\b|\beast of\b|"
+    r"\bnorth of\b|\bsouth of\b|\bsection\b|\([^)]*\barea\b[^)]*\)",
+    re.I,
+)
+# A point this close to a reserve boundary still belongs to that reserve.
+# River camps such as Taylors Bridge sit just outside the drawn polygon.
+_SNAP_METRES = 100
+
+
+def _camp_piece(piece):
+    """True when a bullet is long enough to be a camp name, including Cod."""
+    key = camp_key(piece)
+    if len(key) >= 4:
+        return True
+    return len(key) >= 3 and bool(re.search(r"\bcamp", piece or "", re.I))
+
+
+def _clock(token):
+    raw = (token or "").strip().lower().replace(" ", "")
+    if not raw:
+        return None
+    match = re.fullmatch(r"(\d{1,2})(?::(\d{2}))?(am|pm)", raw)
+    if not match:
+        return None
+    hour, minute, mer = int(match.group(1)), int(match.group(2) or 0), match.group(3)
+    if hour > 12 or minute > 59:
+        return None
+    if mer == "pm" and hour != 12:
+        hour += 12
+    if mer == "am" and hour == 12:
+        hour = 0
+    return hour, minute
+
+
+def _date_tokens(text):
+    found = []
+    for match in _DATE_TOKEN.finditer(text or ""):
+        mon = _MONTHS.get((match.group("mon") or "").lower())
+        if not mon:
+            continue
+        found.append({
+            "span": match.span(),
+            "day": int(match.group("day")),
+            "month": mon,
+            "year": int(match.group("year")) if match.group("year") else None,
+            "weekday": _WEEKDAYS.get((match.group("wd") or "").lower()),
+            "clock": _clock(match.group("time")),
+        })
+    return found
+
+
+def _stamp(day, clock, end=False):
+    if day is None:
+        return None
+    if clock:
+        hour, minute = clock
+        return dt.datetime(day.year, day.month, day.day, hour, minute, tzinfo=facts.MELBOURNE)
+    if end:
+        return dt.datetime(day.year, day.month, day.day, 23, 59, tzinfo=facts.MELBOURNE)
+    return dt.datetime(day.year, day.month, day.day, tzinfo=facts.MELBOURNE)
+
+
+def _resolve_day(token, year):
+    if not token or not year:
+        return None
+    try:
+        return dt.date(int(year), token["month"], token["day"])
+    except ValueError:
+        return None
+
+
+def closure_timing(text, now=None):
+    """Classify one alert section against the Australia/Melbourne clock.
+
+    Returns kind current, upcoming or expired, plus the start and reopen
+    dates named in the alert. A start later than now is upcoming. An end
+    that has passed is expired and must not be shown as closed. When the
+    end date carries the only year, the start uses that year. A weekday
+    that disagrees does not pull a future start back into the past; an
+    ambiguous window that is not clearly finished is upcoming.
+    """
+    now = now or dt.datetime.now(facts.MELBOURNE)
+    if now.tzinfo is None:
+        now = now.replace(tzinfo=facts.MELBOURNE)
+    empty = {"kind": "current", "start": None, "reopen": None}
+    tokens = _date_tokens(text)
+    if not tokens:
+        return empty
+    low = (text or "").lower()
+    start_tok = end_tok = None
+    end_word = ""
+    if len(tokens) >= 2:
+        before = low[max(0, tokens[0]["span"][0] - 16):tokens[0]["span"][0]]
+        between = low[tokens[0]["span"][1]:tokens[1]["span"][0]]
+        if "from" in before and re.search(r"\b(?:to|until)\b", between):
+            start_tok, end_tok = tokens[0], tokens[1]
+            end_word = "until" if "until" in between else "to"
+    if end_tok is None:
+        before = low[max(0, tokens[0]["span"][0] - 16):tokens[0]["span"][0]]
+        if re.search(r"\buntil\b", before):
+            end_tok = tokens[0]
+            end_word = "until"
+        elif "from" in before:
+            start_tok = tokens[0]
+    if start_tok is None and end_tok is None:
+        return empty
+    end_year = (end_tok or {}).get("year") or (start_tok or {}).get("year") or now.year
+    start_year = (start_tok or {}).get("year") or end_year
+    if start_tok and end_tok and not start_tok.get("year") and end_tok.get("year"):
+        if (start_tok["month"], start_tok["day"]) > (end_tok["month"], end_tok["day"]):
+            start_year = end_tok["year"] - 1
+        else:
+            start_year = end_tok["year"]
+    if end_tok and not end_tok.get("year") and start_tok and start_tok.get("year"):
+        if (end_tok["month"], end_tok["day"]) < (start_tok["month"], start_tok["day"]):
+            end_year = start_tok["year"] + 1
+        else:
+            end_year = start_tok["year"]
+    if end_tok and not end_tok.get("year") and start_tok is None:
+        end_year = now.year
+    start_day = _resolve_day(start_tok, start_year)
+    end_day = _resolve_day(end_tok, end_year)
+    start_ok = start_day is None or start_tok.get("weekday") is None or start_day.weekday() == start_tok["weekday"]
+    end_ok = end_day is None or end_tok.get("weekday") is None or end_day.weekday() == end_tok["weekday"]
+    start_at = _stamp(start_day, (start_tok or {}).get("clock"), end=False)
+    end_at = _stamp(end_day, (end_tok or {}).get("clock"), end=(end_word != "until" or not (end_tok or {}).get("clock")))
+    if end_word == "until" and end_tok and not end_tok.get("clock"):
+        end_at = _stamp(end_day, None, end=False)
+    will_be = bool(re.search(r"\bwill be closed\b", low))
+    if start_at and start_at > now:
+        kind = "upcoming"
+    elif end_at and end_at <= now and start_ok and end_ok and not (will_be and not start_ok):
+        kind = "expired"
+    elif (not start_ok or not end_ok) and will_be and (end_at is None or end_at > now):
+        kind = "upcoming"
+    elif end_at and end_at <= now:
+        kind = "expired"
+    else:
+        kind = "current"
+    return {
+        "kind": kind,
+        "start": start_day.isoformat() if start_day else None,
+        "reopen": end_day.isoformat() if end_day else None,
+    }
+
+
+def _campground_names(text):
+    found = []
+    for match in _CAMPGROUND_NAME.finditer(text or ""):
+        piece = re.sub(r"^(?:the|and|including)\s+", "", match.group(1).strip(" .-"), flags=re.I)
+        if piece and not re.match(r"(?i)^(?:following|all|these|some)$", piece):
+            found.append(piece)
+    for match in _NO_ACCESS.finditer(text or ""):
+        found.append(match.group(1).strip(" ."))
+    return found
+
+
+def _narrow_text(text):
+    return bool(_NARROW.search(text or ""))
 
 
 def _preamble(body):
@@ -283,6 +480,10 @@ def _list_is_closure(heading, body):
 
 
 def _bullet_is_reserve(text, reserve):
+    """A plain reserve bullet closes that whole reserve. A Green Cape or
+    'including these campgrounds' bullet does not."""
+    if _narrow_text(text):
+        return False
     raw = re.sub(r"\s*\(including\b[^)]*\)", "", text or "", flags=re.I).strip()
     folded = norm(raw)
     if folded == reserve["title_norm"]:
@@ -375,15 +576,31 @@ def index_closures(items, reserves):
     listed = {}
     named = {}
     exempt = {}
+
+    def add_named(target, piece, text, url, section):
+        if not target or not _camp_piece(piece):
+            return
+        row = {"piece": piece, "desc": text, "url": url, "section": section}
+        named.setdefault(target, []).append(row)
+        if scope and target != scope:
+            named.setdefault(scope, []).append(row)
+
     for item in items:
         scope = item["title_norm"] if item["title_norm"] in by_norm else ""
         if scope:
             found = whole_park_closure(by_norm[scope], item)
             if found and scope not in whole:
-                whole[scope] = found
+                text, url = found
+                section = ""
+                for heading, body in item.get("sections") or []:
+                    if heading.lower().startswith("closed parks"):
+                        section = heading + "\n" + body
+                        break
+                whole[scope] = {"piece": "", "desc": text, "url": url, "section": section or text}
         for heading, body in item.get("sections") or []:
             if not heading.lower().startswith(("closed areas", "closed parks")):
                 continue
+            section = heading + "\n" + body
             group = _title_in(heading, title_norms) or scope
             mode = "closed" if group and _list_is_closure(heading, body) else ""
             if group and reserve_campgrounds_exempt(body, by_norm[group]):
@@ -408,17 +625,22 @@ def index_closures(items, reserves):
                 target = _title_in(bullet, title_norms) or group
                 reserve = by_norm.get(target)
                 if mode == "closed" and reserve and _bullet_is_reserve(bullet, reserve) and target not in listed:
-                    listed[target] = (_official(heading, body), item["link"])
+                    listed[target] = {"piece": "", "desc": _official(heading, body), "url": item["link"], "section": section}
                     continue
-                bucket = exempt if mode == "open" else named
+                if mode == "open":
+                    for piece in _name_pieces(bullet):
+                        if _camp_piece(piece):
+                            exempt.setdefault(target, []).append((piece, clip(bullet), item["link"]))
+                    continue
                 for piece in _name_pieces(bullet):
-                    if len(camp_key(piece)) >= 4:
-                        bucket.setdefault(target, []).append((piece, clip(bullet), item["link"]))
+                    add_named(target, piece, clip(bullet), item["link"], section)
+                for piece in _campground_names(bullet):
+                    add_named(target, piece, clip(bullet), item["link"], section)
             if not scope or scope not in by_norm:
                 continue
             if reserve_campgrounds_exempt(body, by_norm[scope]) or any(piece == "*" for piece, _text, _url in exempt.get(scope, [])):
                 continue
-            prose = "\n".join(line for line in (heading + "\n" + body).split("\n") if not line.startswith("- "))
+            prose = "\n".join(line for line in section.split("\n") if not line.startswith("- "))
             for match in _CLOSED_SENTENCE.finditer(prose):
                 start = prose.rfind("\n", 0, match.start()) + 1
                 end = prose.find(".", match.end())
@@ -426,35 +648,81 @@ def index_closures(items, reserves):
                 if _EXEMPT.search(sentence):
                     continue
                 for piece in _name_pieces(match.group(1)):
-                    if len(camp_key(piece)) >= 4:
-                        named.setdefault(scope, []).append((piece, clip(sentence), item["link"]))
+                    add_named(scope, piece, clip(sentence), item["link"], section)
+            for piece in _campground_names(prose):
+                sentence = ""
+                for part in _sentences(body):
+                    if piece.lower() in part.lower():
+                        sentence = part
+                        break
+                if not sentence:
+                    sentence = _official(heading, body) or piece
+                add_named(scope, piece, clip(sentence), item["link"], section)
     return {"whole": whole, "listed": listed, "named": named, "exempt": exempt}
 
 
-def _piece_hit(rows, camp_name):
-    for piece, text, url in rows or []:
+def _piece_hits(rows, camp_name):
+    found = []
+    for row in rows or []:
+        piece = row["piece"] if isinstance(row, dict) else row[0]
         if piece != "*" and keys_match(camp_name, piece):
-            return text, url
-    return None
+            found.append(row if isinstance(row, dict) else {"piece": row[0], "desc": row[1], "url": row[2], "section": row[1]})
+    return found
 
 
-def lookup_closure(index, reserve, camp_name):
-    """Closed parks text covers the reserve. An OPEN list blocks a named or listed closure."""
+def _exempt_hit(rows, camp_name):
+    for piece, _text, _url in rows or []:
+        if piece != "*" and keys_match(camp_name, piece):
+            return True
+    return False
+
+
+def _choose_closure(candidates, now):
+    ranked = []
+    for row in candidates:
+        if not row:
+            continue
+        timing = closure_timing(row.get("section") or row.get("desc") or "", now)
+        if timing["kind"] == "expired":
+            continue
+        ranked.append((0 if timing["kind"] == "current" else 1, row, timing))
+    if not ranked:
+        return None
+    ranked.sort(key=lambda item: item[0])
+    row, timing = ranked[0][1], ranked[0][2]
+    return {
+        "desc": row.get("desc") or "",
+        "url": row.get("url") or "",
+        "section": row.get("section") or "",
+        "kind": timing["kind"],
+        "start": timing["start"],
+        "reopen": timing["reopen"],
+    }
+
+
+def lookup_closure(index, reserve, camp_name, now=None):
+    """Closed parks text covers the reserve. An OPEN list blocks a named or listed closure.
+
+    A finished date window is omitted. A start still in the future is upcoming,
+    not a closure that is in force now.
+    """
+    now = now or dt.datetime.now(facts.MELBOURNE)
     title = reserve["title_norm"]
     rows = index["exempt"].get(title) or []
     starred = any(piece == "*" for piece, _text, _url in rows)
+    candidates = []
     if title in index["whole"]:
-        return index["whole"][title]
-    if starred or _piece_hit(rows, camp_name):
-        return None
-    if title in index["listed"]:
-        return index["listed"][title]
-    return _piece_hit(index["named"].get(title), camp_name)
+        candidates.append(index["whole"][title])
+    if not starred and not _exempt_hit(rows, camp_name):
+        if title in index["listed"]:
+            candidates.append(index["listed"][title])
+        candidates.extend(_piece_hits(index["named"].get(title), camp_name))
+    return _choose_closure(candidates, now)
 
 
-def closure_for(reserve, camp_name, item):
+def closure_for(reserve, camp_name, item, now=None):
     """Whole-reserve closure wins. A fire-ban exemption in another section does not reopen it."""
-    return lookup_closure(index_closures([item], [reserve]), reserve, camp_name)
+    return lookup_closure(index_closures([item], [reserve]), reserve, camp_name, now)
 
 
 def alert_notes(item):
@@ -526,12 +794,56 @@ def _index(records):
     return grid
 
 
-def reserves_at(grid, lon, lat):
+def _reserves_containing(grid, lon, lat):
     found = []
     for record in grid.get(_cell(lon, lat), []):
         if _contains(record["prep"], lon, lat):
             found.append(record)
     return found
+
+
+def _offset_point(lon, lat, north_m, east_m):
+    dlat = north_m / 111320
+    dlon = east_m / (111320 * max(0.2, math.cos(math.radians(lat))))
+    return lon + dlon, lat + dlat
+
+
+def reserves_at(grid, lon, lat):
+    """Reserves containing the point. A point just outside the line snaps to it."""
+    found = _reserves_containing(grid, lon, lat)
+    if found:
+        return found
+    seen = set()
+    snapped = []
+    for north, east in (( _SNAP_METRES, 0), (-_SNAP_METRES, 0), (0, _SNAP_METRES), (0, -_SNAP_METRES),
+                        (_SNAP_METRES, _SNAP_METRES), (_SNAP_METRES, -_SNAP_METRES),
+                        (-_SNAP_METRES, _SNAP_METRES), (-_SNAP_METRES, -_SNAP_METRES)):
+        x, y = _offset_point(lon, lat, north, east)
+        for record in _reserves_containing(grid, x, y):
+            if record["title_norm"] in seen:
+                continue
+            seen.add(record["title_norm"])
+            snapped.append(record)
+    return snapped
+
+
+def section_applies(heading, body, reserve, camp_name):
+    """True when this alert section is about this camp, not merely the same park.
+
+    A section that names campgrounds applies only to those camps. A plain
+    reserve bullet applies to every camp in that reserve. A partial area
+    that names no campground does not.
+    """
+    text = (heading or "") + "\n" + (body or "")
+    for line in (body or "").split("\n"):
+        if line.startswith("- ") and _bullet_is_reserve(line[2:], reserve):
+            return True
+    names = _campground_names(text)
+    if names:
+        return any(keys_match(camp_name, name) for name in names)
+    if _narrow_text(text):
+        return False
+    return _reserve_named(text, reserve)
 
 
 def _query(fetch_json, name, base, out_fields):
@@ -608,44 +920,55 @@ def apply_alert_records(camps, reserve_records, items):
         if any(heading.lower().startswith("closed parks") for heading, _body in item["sections"]):
             if item["title_norm"] not in matched_titles:
                 closed_titles.append(item["title"])
-    noted = closed = affected = 0
+    noted = closed = upcoming = affected = 0
     for camp in camps:
         camp["alerts_checked"] = True
         reserves = reserves_at(grid, camp["lon"], camp["lat"])
         notes = []
         chosen = None
         seen = set()
+        camp_name = camp.get("name") or ""
         for reserve in reserves:
             for item in by_title.get(reserve["title_norm"], []):
-                for note in alert_notes(item):
-                    key = (note["heading"].casefold(), note["url"])
+                for heading, body in item.get("sections") or []:
+                    if not section_applies(heading, body, reserve, camp_name):
+                        continue
+                    key = (heading.casefold(), item["link"])
                     if key in seen:
                         continue
                     seen.add(key)
-                    notes.append(note)
+                    notes.append({"heading": heading, "url": item["link"], "published": item.get("published") or ""})
             if chosen is None:
-                chosen = lookup_closure(index, reserve, camp.get("name") or "")
+                chosen = lookup_closure(index, reserve, camp_name)
         if notes:
             camp["alerts"] = notes
             noted += 1
-        if chosen and not (camp.get("status") == "closed" and (camp.get("closure") or {}).get("source_url")):
-            text, url = chosen
-            if text and url:
+        already = camp.get("status") == "closed" and (camp.get("closure") or {}).get("source_url")
+        if chosen and chosen.get("desc") and chosen.get("url") and not already:
+            record = {
+                "status": "Closed",
+                "desc": chosen["desc"],
+                "reason": "",
+                "start": chosen.get("start"),
+                "reopen": chosen.get("reopen") or "",
+                "outdated": False,
+                "source_url": chosen["url"],
+                "source_published": published_by_link.get(chosen["url"]) or "",
+            }
+            if chosen.get("kind") == "upcoming":
+                # The visitor-area layer still has no open status. Leave check,
+                # and show the upcoming notice instead of a Closed badge.
+                camp["closure"] = None
+                camp["upcoming_closure"] = record
+                upcoming += 1
+            else:
                 camp["status"] = "closed"
-                camp["closure"] = {
-                    "status": "Closed",
-                    "desc": text,
-                    "reason": "",
-                    "start": None,
-                    "reopen": "",
-                    "outdated": False,
-                    "source_url": url,
-                    "source_published": published_by_link.get(url) or "",
-                }
+                camp["closure"] = record
+                camp.pop("upcoming_closure", None)
                 closed += 1
-        if camp.get("alerts") or str((camp.get("closure") or {}).get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):
+        if camp.get("alerts") or str((camp.get("closure") or {}).get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/") or camp.get("upcoming_closure"):
             affected += 1
-    return {"noted": noted, "closed": closed, "affected": affected, "unmatched_closed": closed_titles}
+    return {"noted": noted, "closed": closed, "upcoming": upcoming, "affected": affected, "unmatched_closed": closed_titles}
 
 
 def apply_fire_records(camps, area_records, ratings, source_url):
@@ -698,7 +1021,8 @@ def apply(camps, sources, fetch_json, fetch_text):
                         camp["alerts_feed"] = alerts["url"]
                     summary = apply_alert_records(camps, records, items)
                     print(
-                        f"NPWS alerts: {len(items)} items, {summary['affected']} camps affected, {summary['closed']} closed"
+                        f"NPWS alerts: {len(items)} items, {summary['affected']} camps affected, "
+                        f"{summary['closed']} closed, {summary['upcoming']} upcoming"
                     )
                     if summary["unmatched_closed"]:
                         print("NPWS closed-park titles without a reserve polygon: " + "; ".join(summary["unmatched_closed"][:12]))

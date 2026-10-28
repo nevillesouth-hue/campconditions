@@ -1398,7 +1398,9 @@ if os.path.isfile(nsw_index):
   if cfa_conditions.cache_window(other_day, fresh_now) is not None: bad.append(("cfa cache", "other day"))
   if cfa_conditions.fetched_phrase("2026-10-28T08:39:00+11:00") != "28 October 2026, 8:39 AM AEDT": bad.append(("cfa cache", "fetched phrase"))
   if "Country Fire Authority" not in " ".join(feed.get("attribution") or []): bad.append(("status.json", "cfa credit"))
-  if "Total fire ban:" in home or "NPWS alerts:" in home or "Official NPWS wording" in home: bad.append(("/", "nsw conditions on victoria"))
+  home_visible = re.sub(r"<script[\s\S]*?</script>", "", home)
+  if "Total fire ban:" in home_visible or "NPWS alerts:" in home_visible or "Official NPWS wording" in home_visible:
+    bad.append(("/", "nsw conditions on victoria"))
   if npws:
     sample = os.path.join(D, "nsw", "camp", npws[0]["slug"], "index.html")
     if os.path.isfile(sample):

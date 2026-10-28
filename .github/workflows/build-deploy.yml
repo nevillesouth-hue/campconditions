@@ -7,6 +7,7 @@ on:
     branches: [main]
 permissions:
   contents: read
+  actions: write
 concurrency:
   group: deploy
   cancel-in-progress: false
@@ -20,9 +21,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Keep the committed CFA forecast beside any restored cache
+        run: |
+          if [ -f data/cfa-fdr-cache.json ]; then
+            cp data/cfa-fdr-cache.json data/cfa-fdr-cache.committed.json
+          fi
+      - uses: actions/cache/restore@v4
+        with:
+          path: data/cfa-fdr-cache.json
+          key: cfa-fdr-${{ github.run_id }}
+          restore-keys: cfa-fdr-
       - name: Build from live sources
         # Every state with enabled true in config/states is built. NSW is on.
         run: python3 scripts/build.py
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: data/cfa-fdr-cache.json
+          key: cfa-fdr-${{ github.run_id }}
       - name: Test (links, JSON-LD, sitemap)
         run: python3 scripts/test.py
       - uses: actions/upload-artifact@v4

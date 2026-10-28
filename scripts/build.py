@@ -12,9 +12,9 @@ import states as statecfg
 SITE = "https://campconditions.au"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "dist")
-TZ = dt.timezone(dt.timedelta(hours=11))  # AEDT; good enough for display stamp
+TZ = facts.MELBOURNE
 NOW = dt.datetime.now(TZ)
-STAMP = NOW.strftime("%-d %B %Y, %-I:%M %p AEDT")
+STAMP = NOW.strftime("%-d %B %Y, %-I:%M %p %Z")
 MAP_V = NOW.strftime("%Y%m%d%H%M")
 SRC = {}
 STATE = None
@@ -43,8 +43,11 @@ bind(statecfg.enabled()[0])
 OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
 CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL, "osm_camp": "Camp"}
 
-def _read_response(url):
-    req = urllib.request.Request(url, headers={"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"})
+def _read_response(url, headers=None):
+    base = {"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"}
+    if headers:
+        base.update(headers)
+    req = urllib.request.Request(url, headers=base)
     with urllib.request.urlopen(req, timeout=90) as r:
         b = r.read()
         if r.headers.get("Content-Encoding") == "gzip" or b[:2] == b"\x1f\x8b":
@@ -59,10 +62,10 @@ def fetch(name, url):
     except Exception as e:
         SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
 
-def fetch_text(name, url):
+def fetch_text(name, url, headers=None):
     """Bytes of a non-JSON feed. A failure is recorded and returns nothing."""
     try:
-        body = _read_response(url)
+        body = _read_response(url, headers)
         SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}
         return body
     except Exception as e:
@@ -100,16 +103,25 @@ def strip_index_name(name):
     return name[match.start(2):]
 e = lambda s: html.escape(str(s or ""), quote=True)
 def feed_date(value):
-    """Day month year from an RSS pubDate. Empty when the feed has no date."""
+    """Day month year in Australia/Melbourne. Empty when the feed has no date."""
     raw = str(value or "").strip()
     if not raw:
         return ""
+    when = None
     try:
         from email.utils import parsedate_to_datetime
         when = parsedate_to_datetime(raw)
     except (TypeError, ValueError, IndexError, OverflowError):
+        when = None
+    if when is not None:
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=dt.timezone.utc)
+        day = when.astimezone(facts.MELBOURNE).date()
+    else:
+        day = facts.melbourne_date(raw)
+    if not day:
         return ""
-    return f"{when.day} {when.strftime('%B %Y')}"
+    return f"{day.day} {day.strftime('%B %Y')}"
 def feed_iso(value):
     raw = str(value or "").strip()
     if not raw:
@@ -122,8 +134,27 @@ def feed_iso(value):
 def clean(s): return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", s or "")).strip()
 
 def msdate(v):
-    try: return dt.datetime.fromtimestamp(v/1000, TZ).strftime("%-d %b %Y")
+    day = facts.melbourne_date(v)
+    try: return day.strftime("%-d %b %Y") if day else ""
     except Exception: return ""
+def closure_record(q):
+    """Parks Victoria closure. A start after today is upcoming, not closed yet.
+
+    Start and reopen are Australia/Melbourne calendar days. A missing start
+    is treated as already in effect.
+    """
+    start = facts.melbourne_iso(q.get("clos_start"))
+    reopen = facts.melbourne_iso(q.get("clos_open"))
+    today = NOW.date().isoformat()
+    upcoming = bool(start) and start > today
+    return {
+        "status": q.get("clos_stat"),
+        "desc": clean(q.get("clos_desc")),
+        "reason": clean(q.get("clos_reas")),
+        "start": start or None,
+        "reopen": reopen or None,
+        "outdated": bool(reopen) and reopen < today and not upcoming,
+    }, upcoming
 def closure_info(lab, p):
     name = (p.get("cross_name") or p.get("ezi_road_name_label") or p.get("name") or "").strip()
     if name.lower() == "unnamed": name = "Unnamed track"
@@ -217,11 +248,12 @@ def load_official(seen):
         seen.add(s)
         closed = (q.get("clos_stat") or "").upper()
         nearby_c = [closure_info(lab, c["properties"]) for lab, c in state_closures if c.get("geometry") and near((lon, lat), c["geometry"], 5)]
-        status = "closed" if "CLOSURE" in closed else ("check" if nearby_c else "open")
+        record, upcoming = closure_record(q) if "CLOSURE" in closed else (None, False)
+        status = "closed" if record and not upcoming else ("check" if nearby_c else "open")
         found.append({"slug": s, "id": q["serial_no"], "name": q["name"].strip(), "lat": round(lat, 6), "lon": round(lon, 6), "region": region(lon, lat),
-            "status": status, "closure": {"status": q.get("clos_stat"), "desc": clean(q.get("clos_desc")), "reason": clean(q.get("clos_reas")), "start": q.get("clos_start"), "reopen": q.get("clos_open"), "outdated": bool(q.get("clos_open")) and q["clos_open"][:10] < NOW.date().isoformat()} if closed else None,
+            "status": status, "closure": None if upcoming else record, "upcoming_closure": record if upcoming else None,
             "access": clean(q.get("access_dsc")), "about": clean(q.get("comments")), "camping": clean(q.get("camping_c")), "caravans": clean(q.get("campervan_c")),
-            "site_class": q.get("site_class"), "dis_access": q.get("dis_access"), "managed_by": q.get("maintained_by"), "data_date": q.get("vers_date"),
+            "site_class": q.get("site_class"), "dis_access": q.get("dis_access"), "managed_by": q.get("maintained_by"), "data_date": facts.melbourne_iso(q.get("vers_date")) or str(q.get("vers_date") or "")[:10],
             "nearby_closures": nearby_c[:10], "source": source_id, "category": category, "state_slug": SLUG,
             "needs_review": False})
     return found, state_closures
@@ -630,6 +662,9 @@ for state, official, osm_rows, state_closures in loaded:
     if sources.get("npws_alerts_rss") or sources.get("rfs_fdr"):
         import nsw_conditions
         nsw_conditions.apply(state_camps, sources, fetch, fetch_text)
+    if sources.get("cfa_fdr") and sources.get("cfa_tfb_districts"):
+        import cfa_conditions
+        cfa_conditions.apply(state_camps, sources, fetch, fetch_text, SRC)
     for camp in state_camps:
         assign_filters(camp)
     town_path = statecfg.path(state, "towns")
@@ -970,8 +1005,26 @@ FRESH_JS = r"""<script>
     }
     var desc = c.closure && c.closure.desc ? c.closure.desc : "";
     if (desc) return desc;
+    if (c.upcoming && (c.upcoming.desc || c.upcoming.start)) return "Upcoming closure";
     if (c.nearby && c.nearby.length) return c.nearby.length + " road closures nearby";
     return "";
+  }
+  function melbourneDay(value) {
+    var raw = String(value || "");
+    if (!raw) return "";
+    if (raw.indexOf("T") === -1) return raw.slice(0, 10);
+    var d = new Date(raw);
+    if (isNaN(d.getTime())) return raw.slice(0, 10);
+    try {
+      var y = "", m = "", day = "";
+      new Intl.DateTimeFormat("en-CA", { timeZone: "Australia/Melbourne", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(d).forEach(function (part) {
+        if (part.type === "year") y = part.value;
+        if (part.type === "month") m = part.value;
+        if (part.type === "day") day = part.value;
+      });
+      if (y && m && day) return y + "-" + m + "-" + day;
+    } catch (err) {}
+    return raw.slice(0, 10);
   }
   function closureHtml(c) {
     if (!c) return null;
@@ -982,11 +1035,18 @@ FRESH_JS = r"""<script>
     }
     var parts = [];
     var cl = c.closure || null;
+    var up = c.upcoming || null;
     if (cl) {
       var label = cl.desc || cl.reason || "Full closure";
-      var reopen = cl.reopen ? " · Reopens " + esc(String(cl.reopen).slice(0, 10)) : " ";
+      var reopen = cl.reopen ? " · Reopens " + esc(melbourneDay(cl.reopen)) : " ";
       parts.push('<div class="warn"><strong>Closed:</strong> ' + esc(label) + reopen + "</div>");
-      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(String(cl.reopen || "").slice(0, 10)) + ') has passed. Check <a href="__COC__">__CONDITIONS_NAME__</a> or call __PHONE__ before you go.</div>');
+      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(melbourneDay(cl.reopen || "")) + ') has passed. Check <a href="__COC__">__CONDITIONS_NAME__</a> or call __PHONE__ before you go.</div>');
+    } else if (up) {
+      var upLabel = up.desc || up.reason || "Closure";
+      var when = "";
+      if (up.start) when += " · Starts " + esc(melbourneDay(up.start));
+      if (up.reopen) when += " · Reopens " + esc(melbourneDay(up.reopen));
+      parts.push('<div class="warn"><strong>Upcoming closure:</strong> ' + esc(upLabel) + when + "</div>");
     }
     var nearby = c.nearby || [];
     if (nearby.length) {
@@ -1011,6 +1071,7 @@ FRESH_JS = r"""<script>
         source: c.source,
         category: c.category,
         closure: c.closure || null,
+        upcoming: c.upcoming_closure || null,
         nearby: c.nearby_closures || [],
         region: c.region
       };
@@ -1169,20 +1230,19 @@ FRESH_JS = r"""<script>
 })();
 </script>""".replace("__PV_LABEL__", PV_LABEL).replace("__BOOK_NOTE__", LABELS.get("book_ahead_note") or "").replace("__COC__", LINKS.get("conditions") or "").replace("__CONDITIONS_NAME__", LINKS.get("conditions_name") or "").replace("__PHONE__", LABELS.get("phone") or "").replace("__SLUG__", SLUG)
 def footer_credits(shared=False):
-    """State data credits. Shared pages list every enabled state."""
-    blocks = [f"<p>{e(CREDIT)}</p>", COPY.get("footer_attribution") or ""]
-    if shared and len(statecfg.enabled()) > 1:
-        current = STATE.get("slug") if STATE else ""
-        for state in statecfg.enabled():
-            if state.get("slug") == current:
-                continue
-            credit = state.get("credit") or ""
-            other = (state.get("copy") or {}).get("footer_attribution") or ""
-            if credit:
-                blocks.append(f"<p>{e(credit)}</p>")
-            if other:
-                blocks.append(other)
-    return "\n".join(block for block in blocks if block)
+    """One short credit line per state. The full wording stays on About."""
+    if shared:
+        rows = list(statecfg.enabled())
+    elif STATE:
+        rows = [STATE]
+    else:
+        rows = []
+    blocks = []
+    for state in rows:
+        line = (state.get("copy") or {}).get("footer_short") or ""
+        if line:
+            blocks.append(f"<p>{line}</p>")
+    return "\n".join(blocks)
 def footer(shared=False):
     return f"""<footer>{footer_credits(shared)}
 <p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
@@ -1240,25 +1300,68 @@ def region_label(c):
         region_label.cache[slug] = names
     return names.get(c.get("region") or "", "")
 region_label.cache = {}
-def map_points(items):
-    pts = []
-    for c in items:
-        cl = c.get("closure") or {}
-        pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": camp_url(c), "slug": c["slug"], "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
-        if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
-        if len(statecfg.enabled()) > 1:
-            slug = c.get("state_slug") or SLUG
-            pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales"}.get(slug, slug)
-        if (c.get("state_slug") or SLUG) == "nsw":
-            label = region_label(c)
-            if label:
-                pt["reg"] = label
-        for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
-            value = c.get(field)
-            if value is True: pt[key] = 1
-            elif value is False: pt[key] = 0
-        pts.append(pt)
-    return json.dumps(pts, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
+_STATUS_CODE = {"open": "o", "check": "k", "closed": "x"}
+_STATE_CODE = {"vic": "v", "nsw": "n"}
+def _flag_cell(c, field):
+    value = c.get(field)
+    if value is True: return 1
+    if value is False: return 0
+    return None
+def map_row(c):
+    """Compact map point. The page script expands it back to the fields the map uses.
+
+    [name, lat, lon, status, slug, state, cat, type, cost, dogs, caravans, motorhomes, reg, note]
+    status is o/k/x and state is v/n. Coordinates are 4 decimal places. Trailing empties are dropped.
+    """
+    row = [
+        c["name"],
+        round(float(c["lat"]), 4),
+        round(float(c["lon"]), 4),
+        _STATUS_CODE.get(c["status"], c["status"]),
+        c["slug"],
+        _STATE_CODE.get(c.get("state_slug") or SLUG, ""),
+        c.get("category") or "",
+        c.get("type_filter") or "",
+        c.get("cost") or "",
+        _flag_cell(c, "fac_dogs"),
+        _flag_cell(c, "fac_caravans"),
+        _flag_cell(c, "fac_motorhomes"),
+    ]
+    reg = ""
+    if (c.get("state_slug") or SLUG) == "nsw":
+        reg = region_label(c) or ""
+    note = "Closure record may be outdated" if (c.get("closure") or {}).get("outdated") else ""
+    if reg or note:
+        row.append(reg)
+        if note:
+            row.append(note)
+    else:
+        while row and row[-1] is None:
+            row.pop()
+    return row
+def map_points_object(c):
+    """Full-precision point for a one-camp map. Aggregate maps use map_row instead."""
+    cl = c.get("closure") or {}
+    pt = {"name": c["name"], "lat": c["lat"], "lon": c["lon"], "status": c["status"], "url": camp_url(c), "slug": c["slug"], "cat": c.get("category") or "", "type": c.get("type_filter") or "", "cost": c.get("cost") or ""}
+    if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
+    if len(statecfg.enabled()) > 1:
+        slug = c.get("state_slug") or SLUG
+        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales"}.get(slug, slug)
+    if (c.get("state_slug") or SLUG) == "nsw":
+        label = region_label(c)
+        if label:
+            pt["reg"] = label
+    for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
+        value = c.get(field)
+        if value is True: pt[key] = 1
+        elif value is False: pt[key] = 0
+    return pt
+def map_points(items, compact=False):
+    if compact:
+        payload = [map_row(c) for c in items]
+    else:
+        payload = [map_points_object(c) for c in items]
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":")).replace("<", "\\u003c")
 LEGEND = '<p class="legend"><span class="badge open">No known issues</span> <span class="badge check">Check conditions</span> <span class="badge closed">Closed</span> <span class="muted">A red pin stays red when the closure record may be outdated; the note is on the marker. Amber pins include sites where you need to check with the operator.</span></p>'
 def flag_attr(c, field):
     value = c.get(field)
@@ -1291,7 +1394,7 @@ def map_points_href(key, items):
     rel = f"map-points/{key}.json"
     dest = os.path.join(OUT, "map-points", f"{key}.json")
     os.makedirs(os.path.dirname(dest), exist_ok=True)
-    open(dest, "w", encoding="utf-8").write(map_points(items))
+    open(dest, "w", encoding="utf-8").write(map_points(items, compact=True))
     return f"/{rel}?v={MAP_V}"
 def map_block(items, label, small=False, types=None, external=None):
     cls = "map map-sm" if small else "map"
@@ -1324,6 +1427,29 @@ MAP_JS = r"""(function () {
   if (!el || !raw || typeof L === "undefined") return;
   function boot(data) {
   if (!data || !data.map) return;
+  function expandPoint(p) {
+    if (!p || p.name) return p;
+    var status = {o: "open", k: "check", x: "closed"};
+    var stateSlug = {v: "vic", n: "nsw"};
+    var stateName = {v: "Victoria", n: "New South Wales"};
+    var st = p[5] || "";
+    var slug = p[4] || "";
+    var out = {
+      name: p[0], lat: p[1], lon: p[2],
+      status: status[p[3]] || p[3],
+      slug: slug,
+      url: st && slug ? "/" + stateSlug[st] + "/camp/" + slug + "/" : "",
+      cat: p[6] || "", type: p[7] || "", cost: p[8] || ""
+    };
+    if (stateName[st]) out.stateName = stateName[st];
+    if (p.length > 9 && (p[9] === 0 || p[9] === 1)) out.dogs = p[9];
+    if (p.length > 10 && (p[10] === 0 || p[10] === 1)) out.caravans = p[10];
+    if (p.length > 11 && (p[11] === 0 || p[11] === 1)) out.motorhomes = p[11];
+    if (p[12]) out.reg = p[12];
+    if (p[13]) out.note = p[13];
+    return out;
+  }
+  if (data.length && Array.isArray(data[0])) data = data.map(expandPoint);
   var labels = {open: "No known issues", check: "Check conditions", closed: "Closed"};
   var colours = {open: "#2e7d32", check: "#e08a00", closed: "#b71c1c"};
   function esc(s) {
@@ -1839,10 +1965,6 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
   const form = ev.target;
   const note = document.getElementById("digest-note");
   const button = form.querySelector("button");
-  note.hidden = false;
-  note.className = "notice";
-  note.textContent = "One moment…";
-  button.disabled = true;
   const show = (kind, message) => {
     note.hidden = false;
     note.className = "notice " + kind;
@@ -1850,6 +1972,17 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
     note.focus();
     note.scrollIntoView({ behavior: "smooth", block: "center" });
   };
+  const stateBoxes = form.querySelectorAll('input[name="states"]');
+  let pickedState = false;
+  stateBoxes.forEach((box) => { if (box.checked) pickedState = true; });
+  if (stateBoxes.length && !pickedState) {
+    show("err", "Choose at least one state so we know which digest to send.");
+    return;
+  }
+  note.hidden = false;
+  note.className = "notice";
+  note.textContent = "One moment…";
+  button.disabled = true;
   try {
     const res = await fetch("/api/subscribe", { method: "POST", body: new FormData(form), headers: { accept: "text/plain" } });
     const text = (await res.text()).replace(/<[^>]+>/g, " ").replace(/\\s+/g, " ").trim();
@@ -1888,14 +2021,17 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
 })();
 </script>
 </section>"""
-def news_section(heading=None):
+def news_section(heading=None, preselect=None):
+    """Pre-tick the state being browsed. An empty preselect leaves every box clear."""
     title = (COPY.get("newsletter_h2") or "") if heading is None else heading
     html_form = NEWS.replace("__NEWSLETTER_H2__", title)
     if len(statecfg.enabled()) < 2:
         return html_form
+    if preselect is None:
+        preselect = SLUG
     boxes = []
     for state in statecfg.enabled():
-        picked = state.get("slug") == ("nsw" if SLUG == "nsw" else "vic")
+        picked = state.get("slug") == preselect
         checked = " checked" if picked else ""
         boxes.append(
             '<label style="display:inline-flex;align-items:center;gap:.35rem;font-weight:700;min-height:44px;margin:0">'
@@ -2073,6 +2209,9 @@ def list_note(c):
         return "Conditions: check with operator"
     desc = (c.get("closure") or {}).get("desc") or ""
     if desc: return desc
+    upcoming = c.get("upcoming_closure") or {}
+    if upcoming.get("desc") or upcoming.get("start"):
+        return "Upcoming closure"
     if c.get("alerts"):
         return c["alerts"][0].get("heading") or ""
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
@@ -2088,7 +2227,17 @@ def fire_line(c):
     if fire.get("tomorrow"):
         sentence += f", {fire['tomorrow']} tomorrow"
     sentence += f". Total fire ban: {ban}."
-    return '<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>' + f'<p class="muted fire-line" style="margin:.05rem 0 .55rem">{e(sentence)}</p>'
+    if fire.get("issued"):
+        sentence += f" Issued {fire['issued']}."
+    if fire.get("fetched"):
+        sentence += f" Fetched {fire['fetched']}."
+    bits = ['<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>',
+            f'<p class="muted fire-line" style="margin:.05rem 0 .55rem">{e(sentence)}</p>']
+    page_url = str(fire.get("page_url") or "")
+    label = str(fire.get("button") or "")
+    if page_url.startswith("https://") and label:
+        bits.append(f'<p><a class="btn-alert" href="{e(page_url)}">{e(label)}</a></p>')
+    return "".join(bits)
 def official_npws_closure(desc, url, published):
     """Quoted NPWS alert text, labelled, with the feed date when the item has one."""
     when = feed_date(published)
@@ -2258,11 +2407,21 @@ def emit_state(state, camps, include_home):
              [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
     for c in camps:
         rn = REGIONS[c["region"]][0]
-        cl = c["closure"]; parts = []
+        cl = c.get("closure"); parts = []
         osm = c.get("source") == "osm"
         if cl:
-            parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(cl["reopen"][:10])) if cl.get("reopen") else ""}</div>')
-            if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(cl["reopen"][:10])))
+            parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(str(cl["reopen"])[:10])) if cl.get("reopen") else ""}</div>')
+            if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(str(cl["reopen"])[:10])))
+        else:
+            upcoming = c.get("upcoming_closure") or None
+            if upcoming:
+                label = upcoming.get("desc") or upcoming.get("reason") or "Closure"
+                when = ""
+                if upcoming.get("start"):
+                    when += " · Starts " + e(str(upcoming["start"])[:10])
+                if upcoming.get("reopen"):
+                    when += " · Reopens " + e(str(upcoming["reopen"])[:10])
+                parts.append(f'<div class="warn"><strong>Upcoming closure:</strong> {e(label)}{when}</div>')
         if c["nearby_closures"]: parts.append("<h2>Road and track closures within 5 km</h2><ul>" + "".join(f'<li>{e(x["type"])}{": "+e(x["name"]) if x["name"] else ""}{" — "+e(x["reason"]) if x["reason"] else ""}{" · reopens "+e(x["reopens"]) if x.get("reopens") else ""}</li>' for x in c["nearby_closures"]) + "</ul>")
         info_bits = []
         for heading, raw in (("About", c["about"]), ("Camping", c["camping"]), ("Caravans and campervans", c["caravans"]), ("Getting there", c["access"])):
@@ -2365,7 +2524,7 @@ if multi_state:
     page("/", "Camp conditions | CampConditions.au",
          f"Closures and camp conditions for {len(all_rows)} campgrounds in Victoria and New South Wales.",
          f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>
-{map_block(all_rows, "Map of Victorian and New South Wales campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest")}""",
+{map_block(all_rows, "Map of Victorian and New South Wales campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
 
 
@@ -2439,10 +2598,11 @@ def about_body():
         safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
         roads += '<p>Every New South Wales camp page has a Check Live Traffic NSW button. It opens <a href="https://www.livetraffic.com/">Live Traffic NSW</a>. Road-closure data is not copied onto this site.</p>'
         sources = (
-            "<h2>Sources</h2><h3>Victoria</h3><p>" + e(CREDIT) + "</p><ul>" + COPY["about_sources"] + "</ul><p>" + COPY["about_tail"] + "</p>"
-            + "<h3>New South Wales</h3><ul>" + (nsw_copy.get("about_sources") or "")
-            + '<li>Live Traffic NSW (<a href="https://www.livetraffic.com/">livetraffic.com</a>) is linked from New South Wales camp pages. Road-closure data is not copied onto this site.</li></ul><p>'
-            + (nsw_copy.get("about_tail") or "") + "</p>"
+            '<h2>Sources</h2><h3 id="vic-sources">Victoria</h3><p>' + e(CREDIT) + "</p><ul>" + COPY["about_sources"] + "</ul>"
+            + (COPY.get("footer_attribution") or "") + "<p>" + COPY["about_tail"] + "</p>"
+            + '<h3 id="nsw-sources">New South Wales</h3><ul>' + (nsw_copy.get("about_sources") or "")
+            + '<li>Live Traffic NSW (<a href="https://www.livetraffic.com/">livetraffic.com</a>) is linked from New South Wales camp pages. Road-closure data is not copied onto this site.</li></ul>'
+            + (nsw_copy.get("footer_attribution") or "") + "<p>" + (nsw_copy.get("about_tail") or "") + "</p>"
         )
     return f"""<h1>About</h1><p>{lead}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>{safety}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
@@ -2500,10 +2660,17 @@ if len(statecfg.enabled()) > 1:
 else:
     feed_region = COPY["feed_region"]
     feed_disclaimer = COPY["feed_disclaimer"]
+def status_camp(c):
+    row = {k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")}
+    row["url"] = f"{SITE}{camp_url(c)}"
+    upcoming = c.get("upcoming_closure")
+    if upcoming:
+        row["upcoming_closure"] = upcoming
+    return row
 feed = {"name": "CampConditions.au status feed", "region": feed_region, "generated": NOW.isoformat(),
         "attribution": attribution,
         "disclaimer": feed_disclaimer, "sources": SRC,
-        "camps": [{k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")} | {"url": f"{SITE}{camp_url(c)}"} for c in camps]}
+        "camps": [status_camp(c) for c in camps]}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
 # HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:
 # Pages joins every matching Cache-Control, and the strictest directive wins.

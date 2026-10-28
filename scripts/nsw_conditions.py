@@ -813,16 +813,19 @@ def reserves_at(grid, lon, lat):
     found = _reserves_containing(grid, lon, lat)
     if found:
         return found
+    # Fire-district polygons have no reserve title. Snapping those would
+    # assign a neighbouring district, so only NPWS reserve records snap.
     seen = set()
     snapped = []
-    for north, east in (( _SNAP_METRES, 0), (-_SNAP_METRES, 0), (0, _SNAP_METRES), (0, -_SNAP_METRES),
+    for north, east in ((_SNAP_METRES, 0), (-_SNAP_METRES, 0), (0, _SNAP_METRES), (0, -_SNAP_METRES),
                         (_SNAP_METRES, _SNAP_METRES), (_SNAP_METRES, -_SNAP_METRES),
                         (-_SNAP_METRES, _SNAP_METRES), (-_SNAP_METRES, -_SNAP_METRES)):
         x, y = _offset_point(lon, lat, north, east)
         for record in _reserves_containing(grid, x, y):
-            if record["title_norm"] in seen:
+            key = record.get("title_norm")
+            if not key or key in seen:
                 continue
-            seen.add(record["title_norm"])
+            seen.add(key)
             snapped.append(record)
     return snapped
 

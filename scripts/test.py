@@ -834,6 +834,13 @@ _near = {"title": "Edge National Park", "title_norm": "edge national park", "nam
 _grid = nswcond._index([_near])
 if not nswcond.reserves_at(_grid, -0.0004, 0.5) or nswcond.reserves_at(_grid, -0.002, 0.5):
     bad.append(("alerts", "boundary snap"))
+_fire_only = {"name": "Test", "key": "test", "prep": nswcond._prepare([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])}
+_fire_grid = nswcond._index([_fire_only])
+try:
+    if nswcond.reserves_at(_fire_grid, -0.0004, 0.5) or not nswcond.reserves_at(_fire_grid, 0.5, 0.5):
+        bad.append(("alerts", "fire polygon snap"))
+except Exception as _exc:
+    bad.append(("alerts", "fire polygon " + str(_exc)))
 for _cfg, _old in (("config/states/nsw.json", "bom.gov.au/nsw/warnings"), ("config/states/vic.json", "bom.gov.au/vic/warnings")):
     _text = open(os.path.join(root, _cfg), encoding="utf-8").read()
     if _old in _text or "weather-and-climate/warnings-and-alerts" not in _text:

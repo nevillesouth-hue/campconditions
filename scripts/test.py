@@ -767,6 +767,84 @@ _millewa = _reserve("Millewa National Park", "NP")
 _index = nswcond.index_closures([_by["Murray Valley National Park"]], [_millewa, _reserve("Murray Valley National Park", "NP")])
 if not nswcond.lookup_closure(_index, _millewa, "Wire Fence Landing Campground"): bad.append(("alerts", "named in another park"))
 if nswcond.lookup_closure(_index, _millewa, "McLaurens Campground"): bad.append(("alerts", "open list"))
+_when = __import__("datetime").datetime(2026, 10, 29, 8, 0, tzinfo=facts.MELBOURNE)
+def _dated_item(title, description):
+    return nswcond.parse_rss(
+        '<?xml version="1.0"?><rss><channel><item><title>' + title + '</title>'
+        '<link>https://www.nationalparks.nsw.gov.au/visit-a-park/parks/example/local-alerts</link>'
+        '<description>' + description + '</description></item></channel></rss>'
+    )[0]
+_mero = _dated_item("Meroo National Park",
+    "&lt;strong&gt;Closed areas: Meroo Head campground closed&lt;/strong&gt;&lt;br/&gt;"
+    "Some parts of this park are closed from Monday 2 November to Friday 6 November 2026."
+    "&lt;ul&gt;&lt;li&gt;Meroo Head campground&lt;/li&gt;&lt;/ul&gt;")
+_mero_hit = nswcond.closure_for(_reserve("Meroo National Park", "NP"), "Meroo Head campground", _mero, _when)
+if not _mero_hit or _mero_hit.get("kind") != "upcoming" or _mero_hit.get("start") != "2026-11-02" or _mero_hit.get("reopen") != "2026-11-06":
+    bad.append(("alerts", "meroo upcoming " + str(_mero_hit)))
+_barokee = _dated_item("Cathedral Rock National Park",
+    "&lt;strong&gt;Closed areas: Barokee Campground Closed Due to Maintenance&lt;/strong&gt;&lt;br/&gt;"
+    "Barokee Campground will be closed from 10am Monday 13 April to 10am Wednesday 30 June 2027 for maintenance.")
+_barokee_hit = nswcond.closure_for(_reserve("Cathedral Rock National Park", "NP"), "Barokee campground", _barokee, _when)
+if not _barokee_hit or _barokee_hit.get("kind") != "upcoming" or _barokee_hit.get("start") != "2027-04-13":
+    bad.append(("alerts", "barokee upcoming " + str(_barokee_hit)))
+_water = _dated_item("Kosciuszko National Park",
+    "&lt;strong&gt;Closed areas: Blue Waterholes campground closed for upgrade work&lt;/strong&gt;&lt;br/&gt;"
+    "Blue Waterholes campground is closed until Friday 27th November 2026 for significant upgrades.")
+_water_hit = nswcond.closure_for(_reserve("Kosciuszko National Park", "NP"), "Blue Water Holes campground", _water, _when)
+if not _water_hit or _water_hit.get("kind") != "current":
+    bad.append(("alerts", "blue water holes " + str(_water_hit)))
+_perkins = _dated_item("Kosciuszko National Park",
+    "&lt;strong&gt;Closed areas: No access to Perkins Flat campground&lt;/strong&gt;&lt;br/&gt;"
+    "Long Plain Road is closed. There will be no access to Perkins Flat campground.")
+if not nswcond.closure_for(_reserve("Kosciuszko National Park", "NP"), "Perkins Flat campground", _perkins, _when):
+    bad.append(("alerts", "perkins access"))
+_gulpa = _dated_item("Murray Valley National Park",
+    "&lt;strong&gt;Closed areas: Gulpa Island National Park Campgrounds CLOSED due to flooding&lt;/strong&gt;"
+    "The following campgrounds are CLOSED until 2 November:&lt;ul&gt;"
+    "&lt;li&gt;Taylors Bridge campground&lt;/li&gt;&lt;li&gt;Langmans campground&lt;/li&gt;&lt;li&gt;Cod campground&lt;/li&gt;&lt;/ul&gt;")
+_gulpa_reserves = [_reserve("Murray Valley National Park", "NP"), _reserve("Gulpa Island National Park", "NP")]
+_gulpa_index = nswcond.index_closures([_gulpa], _gulpa_reserves)
+for _camp in ("Taylors Bridge campground", "Langmans campground", "Cod campground"):
+    _hit = nswcond.lookup_closure(_gulpa_index, _gulpa_reserves[0], _camp, _when)
+    if not _hit or _hit.get("kind") != "current":
+        bad.append(("alerts", "gulpa " + _camp))
+if nswcond.lookup_closure(_gulpa_index, _gulpa_reserves[0], "Cod Hole campground", _when):
+    bad.append(("alerts", "cod hole"))
+_aerial = _dated_item("Nadgee Nature Reserve",
+    "&lt;strong&gt;Closed areas: Parks closed for aerial shooting for feral animal control&lt;/strong&gt;"
+    "The following parks will be closed from 2pm on Sunday 25th October until 10am on Saturday 31st October 2026:"
+    "&lt;ul&gt;&lt;li&gt;Beowa National Park (Green Cape area), including Light to Light walk, Bittangabee campground, Mowarry campground, and Saltwater Creek campgrounds&lt;/li&gt;"
+    "&lt;li&gt;Nadgee Nature Reserve (including Nadgee Wilderness Walk)&lt;/li&gt;&lt;/ul&gt;")
+_nadgee = _reserve("Nadgee Nature Reserve", "NR")
+_beowa = _reserve("Beowa National Park", "NP")
+_air_index = nswcond.index_closures([_aerial], [_nadgee, _beowa])
+if nswcond.lookup_closure(_air_index, _nadgee, "Newtons Beach camp", _when):
+    bad.append(("alerts", "newtons closed"))
+_bitt = nswcond.lookup_closure(_air_index, _beowa, "Bittangabee campground", _when)
+if not _bitt or _bitt.get("kind") != "current":
+    bad.append(("alerts", "bittangabee " + str(_bitt)))
+_air_heading, _air_body = _aerial["sections"][0]
+if nswcond.section_applies(_air_heading, _air_body, _nadgee, "Newtons Beach camp"):
+    bad.append(("alerts", "newtons note"))
+if not nswcond.section_applies(_air_heading, _air_body, _beowa, "Bittangabee campground"):
+    bad.append(("alerts", "bittangabee note"))
+if not nswcond.keys_match("Alexander's Hut campground", "Alexanders Hut campground"):
+    bad.append(("alerts", "apostrophe"))
+_near = {"title": "Edge National Park", "title_norm": "edge national park", "name_norm": "edge", "abbrev": "np", "prep": nswcond._prepare([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])}
+_grid = nswcond._index([_near])
+if not nswcond.reserves_at(_grid, -0.0004, 0.5) or nswcond.reserves_at(_grid, -0.002, 0.5):
+    bad.append(("alerts", "boundary snap"))
+_fire_only = {"name": "Test", "key": "test", "prep": nswcond._prepare([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])}
+_fire_grid = nswcond._index([_fire_only])
+try:
+    if nswcond.reserves_at(_fire_grid, -0.0004, 0.5) or not nswcond.reserves_at(_fire_grid, 0.5, 0.5):
+        bad.append(("alerts", "fire polygon snap"))
+except Exception as _exc:
+    bad.append(("alerts", "fire polygon " + str(_exc)))
+for _cfg, _old in (("config/states/nsw.json", "bom.gov.au/nsw/warnings"), ("config/states/vic.json", "bom.gov.au/vic/warnings")):
+    _text = open(os.path.join(root, _cfg), encoding="utf-8").read()
+    if _old in _text or "weather-and-climate/warnings-and-alerts" not in _text:
+        bad.append(("bom", _cfg))
 _fdr = nswcond.parse_fdr(b"<FireDangerMap><District><Name>Illawarra/Shoalhaven</Name><DangerLevelToday>HIGH</DangerLevelToday><DangerLevelTomorrow>EXTREME</DangerLevelTomorrow><FireBanToday>No</FireBanToday><FireBanTomorrow>Yes</FireBanTomorrow></District></FireDangerMap>")
 _row = _fdr.get("illawarrashoalhaven") or {}
 if _row.get("today") != "High" or _row.get("tomorrow") != "Extreme" or _row.get("ban_today") != "No": bad.append(("fdr", "parse"))
@@ -1320,7 +1398,9 @@ if os.path.isfile(nsw_index):
   if cfa_conditions.cache_window(other_day, fresh_now) is not None: bad.append(("cfa cache", "other day"))
   if cfa_conditions.fetched_phrase("2026-10-28T08:39:00+11:00") != "28 October 2026, 8:39 AM AEDT": bad.append(("cfa cache", "fetched phrase"))
   if "Country Fire Authority" not in " ".join(feed.get("attribution") or []): bad.append(("status.json", "cfa credit"))
-  if "Total fire ban:" in home or "NPWS alerts:" in home or "Official NPWS wording" in home: bad.append(("/", "nsw conditions on victoria"))
+  home_visible = re.sub(r"<script[\s\S]*?</script>", "", home)
+  if "Total fire ban:" in home_visible or "NPWS alerts:" in home_visible or "Official NPWS wording" in home_visible:
+    bad.append(("/", "nsw conditions on victoria"))
   if npws:
     sample = os.path.join(D, "nsw", "camp", npws[0]["slug"], "index.html")
     if os.path.isfile(sample):

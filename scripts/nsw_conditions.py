@@ -383,6 +383,17 @@ def closure_timing(text, now=None):
             end_word = "until"
         elif "from" in before:
             start_tok = tokens[0]
+    if start_tok is None and end_tok is None and len(tokens) >= 2:
+        before = low[max(0, tokens[0]["span"][0] - 24):tokens[0]["span"][0]]
+        between = low[tokens[0]["span"][1]:tokens[1]["span"][0]]
+        if "between" in before and re.search(r"\band\b", between):
+            start_tok, end_tok = tokens[0], tokens[1]
+            end_word = "to"
+    if start_tok is None and end_tok is None:
+        dashed = _dash_range_tokens(text)
+        if dashed:
+            start_tok, end_tok = dashed
+            end_word = "to"
     if start_tok is None and end_tok is None:
         return empty
     end_year = (end_tok or {}).get("year") or (start_tok or {}).get("year") or now.year
@@ -423,6 +434,51 @@ def closure_timing(text, now=None):
         "start": start_day.isoformat() if start_day else None,
         "reopen": end_day.isoformat() if end_day else None,
     }
+
+
+def _dash_range_tokens(text):
+    """'CLOSED 15 – 25 October' shares one month across both days."""
+    match = re.search(
+        r"(?P<d1>\d{1,2})(?:st|nd|rd|th)?\s*[–—-]\s*(?P<d2>\d{1,2})(?:st|nd|rd|th)?\s+"
+        r"(?P<mon>january|february|march|april|may|june|july|august|september|october|november|december|"
+        r"jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)"
+        r"(?:\s+(?P<year>20\d{2}))?",
+        text or "",
+        re.I,
+    )
+    if not match:
+        return None
+    mon = _MONTHS[(match.group("mon") or "").lower()]
+    year = int(match.group("year")) if match.group("year") else None
+    span = match.span()
+    return (
+        {"span": span, "day": int(match.group("d1")), "month": mon, "year": year, "weekday": None, "clock": None},
+        {"span": span, "day": int(match.group("d2")), "month": mon, "year": year, "weekday": None, "clock": None},
+    )
+
+
+def _sentence_closes_camp(sentence, piece):
+    """True when the sentence closes this camp, not a road, alternative or landmark.
+
+    A camp named only inside brackets, as a place that stays open, or as an
+    alternative to the closure is not itself closed.
+    """
+    if not sentence or not piece:
+        return False
+    if _EXEMPT.search(sentence):
+        return False
+    if re.search(r"\balternative\b", sentence, re.I):
+        return False
+    if re.search(r"\baccessible\b", sentence, re.I) and not re.search(r"\bclosed\b", sentence, re.I):
+        return False
+    outside = re.sub(r"\([^)]*\)", " ", sentence)
+    if piece.lower() not in outside.lower():
+        return False
+    return bool(
+        _CLOSED_SENTENCE.search(sentence)
+        or _NO_ACCESS.search(sentence)
+        or re.search(r"\bCLOSED\b", sentence)
+    )
 
 
 def _campground_names(text):
@@ -655,8 +711,8 @@ def index_closures(items, reserves):
                     if piece.lower() in part.lower():
                         sentence = part
                         break
-                if not sentence:
-                    sentence = _official(heading, body) or piece
+                if not _sentence_closes_camp(sentence, piece):
+                    continue
                 add_named(scope, piece, clip(sentence), item["link"], section)
     return {"whole": whole, "listed": listed, "named": named, "exempt": exempt}
 
@@ -685,11 +741,20 @@ def _choose_closure(candidates, now):
         timing = closure_timing(row.get("section") or row.get("desc") or "", now)
         if timing["kind"] == "expired":
             continue
-        ranked.append((0 if timing["kind"] == "current" else 1, row, timing))
+        ranked.append((row, timing))
     if not ranked:
         return None
-    ranked.sort(key=lambda item: item[0])
-    row, timing = ranked[0][1], ranked[0][2]
+
+    def sort_key(item):
+        timing = item[1]
+        kind = 0 if timing["kind"] == "current" else 1
+        dated = 0 if (timing["start"] or timing["reopen"]) else 1
+        # A later reopen stays closed longer, so it wins among current dated rows.
+        reopen = tuple(-ord(ch) for ch in (timing["reopen"] or "0000-00-00"))
+        return (kind, dated, reopen)
+
+    ranked.sort(key=sort_key)
+    row, timing = ranked[0]
     return {
         "desc": row.get("desc") or "",
         "url": row.get("url") or "",

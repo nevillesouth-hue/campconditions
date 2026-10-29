@@ -15818,9 +15818,21 @@
   "operator": "Parks Victoria",
   "website": "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park",
   "needs_review": true,
-  "source_note": "PV Paddys Ranges SP page: basic campground with picnic tables and a toilet block; camping is free; designated campground only; no drinking water; dogs not allowed. Page also says Paddy's Ranges Campground is closed for upgrades (dates not shown) - check before going.",
+  "source_note": "PV Paddys Ranges SP page: basic campground with picnic tables and a toilet block; camping is free; designated campground only; no drinking water; dogs not allowed. Page and PV changes of conditions (checked 30 Oct 2026) say Paddy's Ranges Campground is closed for upgrades from Wednesday 9 September 2026 until Monday 30 November 2026.",
   "description": "Basic campground in Paddys Ranges State Park near Maryborough with picnic tables and a toilet block. Free; no drinking water; no dogs. Parks Victoria lists the campground as closed for upgrades, so check before you go.",
-  "checked_date": "2026-10-19"
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park",
+   "wording": "Closed For Upgrades - Paddy's Ranges Campground: closed from Wednesday 09/09/2026 until Monday 30/11/2026 while works are undertaken for campground improvements",
+   "until": "2026-11-30",
+   "checked_date": "2026-10-30"
+  },
+  "checked_date": "2026-10-30"
+ },
+ "n1808391865": {
+  "source_note": "Visitor report 29 Oct 2026: fallen tree blocking the south end of Greens Road, reported as down for about a week. Not confirmed by Parks Victoria; the Parks Victoria Whroo page and changes of conditions showed no closure on 30 Oct 2026.",
+  "description": "Visitor report 29 Oct 2026: fallen tree blocking the south end of Greens Road, reported as down for about a week. Not confirmed by Parks Victoria.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
  },
  "w174880637": {
   "toilets": "yes (non-flush, no handwashing)",

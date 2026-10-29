@@ -1994,7 +1994,8 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
     shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/"}
     og_title, og_desc = title, desc
-    if path == "/":
+    # The state page that doubles as a home page shares the national card, not a one-state count.
+    if path == "/" or (on_home and len(statecfg.enabled()) > 1):
         og_title = "Camp conditions and closures for VIC and NSW | CampConditions.au"
         og_desc = "Camp conditions and closures for VIC and NSW."
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />

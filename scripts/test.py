@@ -482,10 +482,11 @@ if 'class="back-map" href="/">← Back to map' not in report or 'id="report-mail
 if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
-for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image.png"', 'content="1200"', 'content="630"', 'content="summary_large_image"'):
+for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw.png?v=20261029"', 'content="1200"', 'content="630"', 'content="summary_large_image"', 'property="og:image:alt" content="Camp conditions and closures for VIC and NSW"', 'name="twitter:image:alt" content="Camp conditions and closures for VIC and NSW"', 'property="og:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"', 'property="og:description" content="Camp conditions and closures for VIC and NSW."', 'name="twitter:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"', 'name="twitter:description" content="Camp conditions and closures for VIC and NSW."'):
   if icon not in home: bad.append(("/", "icon " + icon))
+if "Victorian camp conditions and closures" in home: bad.append(("/", "old share text"))
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
-if "/site.webmanifest" not in not_found or "og-image.png" not in not_found: bad.append(("404", "icons"))
+if "/site.webmanifest" not in not_found or "og-image-vic-nsw.png?v=20261029" not in not_found: bad.append(("404", "icons"))
 if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404", "newsletter button"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
@@ -497,7 +498,7 @@ if not any("icon-192.png" in (i.get("src") or "") for i in icons) or not any("ic
   bad.append(("site.webmanifest", "icons"))
 if 'rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"' not in home:
   bad.append(("/", "apple touch icon"))
-for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image.png"):
+for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image-vic-nsw.png"):
   if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
 if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):
   bad.append(("optimum-quest-logo.webp", "still present"))
@@ -555,10 +556,8 @@ else:
     bad.append(("princess-margaret-rose-caves-lower-glenelg-np", "closure feed"))
 closed_notes = {
   "princess-margaret-rose-caves-lower-glenelg-np": "Please note: Princess Margaret Rose Cave Campground remains closed for assessments and upgrade works.",
-  "strachans-campground-grampians-gariwerd-national-park": "Strachans Campground will be closed to visitors between 13 April and 29 October 2026 while major upgrade works are completed.",
   "lake-catani-campground-mt-buffalo-np": "Lake Catani Campground is CLOSED for all camping from August 31st until October 30th 2026.",
   "notley-picnic-and-camping-area": "Notley Camping & Picnic Area - closed for upgrades",
-  "teddington-camping-area-kara-kara-national-park": "Upper Teddington Reservoir - closed for maintenance",
   "kiata-campground": "There are still some areas within the park which remain closed for recovery works such as: Kiata Campground",
 }
 if any(c.get("nearby_closures") for c in osm):
@@ -640,10 +639,12 @@ fresh = [s for s in curated_sites if s.get("osm_id") not in corrected_ids]
 if set(s.get("category") for s in fresh) - allowed: bad.append(("osm data", "category outside the six"))
 merged = build_osm.apply_corrections(curated_sites, corrections_doc)
 named = [s for s in merged if re.search(r"[A-Za-z0-9]", (s.get("name") or ""))]
-if len(named) != len(osm): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
+border_dupes = {"hinches-beach-campsite", "paradise-beach-campsite", "sandy-beach-campsite", "top-end-beach-campsite", "willis-campground-w198711455"}
+if border_dupes & {c.get("slug") for c in osm}: bad.append(("osm", "border duplicate kept"))
+if len(named) - len(osm) != len(border_dupes): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1101, "Camping area": 5, "Council park": 75, "Showground": 40, "Paid – Parks Victoria (book ahead)": 56, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
+expect_counts = {"Free": 1097, "Camping area": 5, "Council park": 75, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
@@ -828,6 +829,22 @@ if nswcond.section_applies(_air_heading, _air_body, _nadgee, "Newtons Beach camp
     bad.append(("alerts", "newtons note"))
 if not nswcond.section_applies(_air_heading, _air_body, _beowa, "Bittangabee campground"):
     bad.append(("alerts", "bittangabee note"))
+_willows = _dated_item("Yanga State Conservation Area",
+    "&lt;strong&gt;Closed areas: Campground closures&lt;/strong&gt;"
+    "Campgrounds will be closed as follows;&lt;ul&gt;&lt;li&gt;Willows Picnic area &amp; Campground - CLOSED 15 – 25 October for aerial shooting operations&lt;/li&gt;&lt;/ul&gt;")
+if nswcond.closure_for(_reserve("Yanga State Conservation Area", "SC"), "Willows campground", _willows, _when):
+    bad.append(("alerts", "willows expired"))
+_thredbo = _dated_item("Kosciuszko National Park",
+    "&lt;strong&gt;Closed areas: Thredbo Diggings Campground Post-Winter Closures&lt;/strong&gt;"
+    "Thredbo Diggings Campground is closed for post-winter maintenance from Monday 12 October 2026 to Saturday 31 October 2026.")
+_thredbo_hit = nswcond.closure_for(_reserve("Kosciuszko National Park", "NP"), "Thredbo Diggings campground", _thredbo, _when)
+if not _thredbo_hit or _thredbo_hit.get("reopen") != "2026-10-31":
+    bad.append(("alerts", "thredbo " + str(_thredbo_hit)))
+_wash = _dated_item("Towarri National Park",
+    "&lt;strong&gt;Closed areas: Towarri National Park partial closure&lt;/strong&gt;"
+    "Areas within Towarri National Park may be intermittently closed. * Note: Washpools campground and picnic area will not be directly affected by these closures.")
+if nswcond.closure_for(_reserve("Towarri National Park", "NP"), "Washpools campground", _wash, _when):
+    bad.append(("alerts", "washpools exempt"))
 if not nswcond.keys_match("Alexander's Hut campground", "Alexanders Hut campground"):
     bad.append(("alerts", "apostrophe"))
 _near = {"title": "Edge National Park", "title_norm": "edge national park", "name_norm": "edge", "abbrev": "np", "prep": nswcond._prepare([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])}
@@ -915,7 +932,8 @@ burrum = page_of("lake-burrumbeet-south-1")
 must("lake-burrumbeet-south-1", burrum, ["Area:</strong> Lake Burrumbeet", "lake-wide statements on the Explore Outdoors Lake Burrumbeet page"])
 if "$" in orchard.split('id="newsletter"')[0]: bad.append(("the-orchard", "fee amount"))
 horseshoe = page_of("horseshoe-bend-camping-area")
-must("horseshoe-bend", horseshoe, ["Rubbish: take rubbish home", "Toilets: Yes", 'class="badge check"'])
+must("horseshoe-bend", horseshoe, ["Rubbish: take rubbish home", "Toilets: Yes"])
+if 'class="badge closed"' in horseshoe: bad.append(("horseshoe-bend", "marked closed"))
 lands = page_of("landsborough-caravan-park")
 must("landsborough-caravan-park", lands, ["Type: Council park", "<strong>Paid – contact for details</strong>"])
 if "<strong>Free</strong>" in lands: bad.append(("landsborough-caravan-park", "still free"))
@@ -940,11 +958,15 @@ must("beeripmo-campground", beer, ["<strong>Free</strong>", "Toilets: Yes", "Dri
 if "Booking conflict" in beer or "Resolved 18 Oct" in beer: bad.append(("beeripmo-campground", "internal note"))
 if "$" in beer.split('id="newsletter"')[0]: bad.append(("beeripmo-campground", "fee amount"))
 avondale = next((c for c in feed["camps"] if c.get("slug") == "avondale-gardens"), None)
-if not avondale or avondale.get("status") != "closed" or avondale.get("source") != "datavic" or avondale.get("closure") in (None, {}, []):
-  bad.append(("avondale-gardens", "closure changed"))
+if not avondale or avondale.get("status") == "closed" or avondale.get("source") != "datavic" or avondale.get("closure"):
+  bad.append(("avondale-gardens", "still closed"))
 else:
   av_html = page_of("avondale-gardens")
-  must("avondale-gardens", av_html, ['class="badge closed"', "<strong>Closed:</strong>", "<strong>Free</strong>", "Dogs: Yes", 'id="camp-closure"', 'data-camp="avondale-gardens"'])
+  must("avondale-gardens", av_html, ["<strong>Free</strong>", "Dogs: Yes", 'data-camp="avondale-gardens"'])
+  line = re.search(r'class="status-line" data-camp="avondale-gardens">(.*?)</p>', av_html)
+  box = av_html.split('id="camp-closure"', 1)[-1][:500] if av_html else ""
+  if not line or "badge closed" in line.group(1) or "badge open" not in line.group(1) or "<strong>Closed:</strong>" in box:
+    bad.append(("avondale-gardens", "closure box"))
 for slug, vans, homes in (("dargo-river-inn", 1, 1), ("coleraine-caravan-park", 1, 1)):
   point = next((p for p in home_pts if p.get("url", "").rstrip("/").endswith("/" + slug)), None)
   if not point or point.get("caravans") != vans or point.get("motorhomes") != homes or "tents" in point or "self" in point:
@@ -1127,8 +1149,14 @@ works are completed.</p><p>Alternative campgrounds such as Buandik or Boreang Ca
 </div>
 """
 wrapped_found = check_parksvic.classify_html(wrapped_html, "Strachans Campground (Grampians (Gariwerd) National Park)")
-if wrapped_found["closed"] != ["Strachans Campground Closed for Upgrades", "Strachans Campground will be closed to visitors between 13 April and 29 October 2026 while major upgrade works are completed."]:
+if wrapped_found["closed"] != ["Strachans Campground Closed for Upgrades"]:
   bad.append(("check_parksvic", "wrapped " + repr(wrapped_found["closed"])))
+if check_parksvic.closure_end("between 13 April and 29 October 2026") != "2026-10-29":
+  bad.append(("check_parksvic", "between end"))
+if check_parksvic.closure_end("from August 31st until October 30th 2026") != "2026-10-30":
+  bad.append(("check_parksvic", "until end"))
+if check_parksvic.wording_closes_camp("Upper Teddington Reservoir - closed for maintenance", "Teddington Camping Area"):
+  bad.append(("check_parksvic", "reservoir"))
 buandik_found = check_parksvic.classify_html(wrapped_html, "Buandik Campground")
 if buandik_found["closed"]:
   bad.append(("check_parksvic", "alternative camp " + repr(buandik_found["closed"])))
@@ -1429,6 +1457,24 @@ for name, region in (
 ):
     camp = next((c for c in feed["camps"] if c.get("name") == name), None)
     if camp and camp.get("region") != region: bad.append((name, camp.get("region")))
+for slug in ("kendalls", "tin-hut", "coopers-creek-camping-area-two", "strachans-campground-grampians-gariwerd-national-park", "teddington-camping-area-kara-kara-national-park"):
+    row = next((c for c in feed["camps"] if c.get("slug") == slug), None)
+    if not row or row.get("status") == "closed" or row.get("closure"):
+        bad.append((slug, "still closed", (row or {}).get("status")))
+for slug, reopen in (("lake-catani-campground-mt-buffalo-np", "2026-10-30"), ("notley-picnic-and-camping-area", "2026-10-30")):
+    row = next((c for c in feed["camps"] if c.get("slug") == slug), {})
+    if row.get("status") != "closed" or (row.get("closure") or {}).get("reopen") != reopen:
+        bad.append((slug, row.get("status"), (row.get("closure") or {}).get("reopen")))
+thredbo = next((c for c in feed["camps"] if c.get("slug") == "thredbo-diggings-campground"), {})
+if thredbo.get("status") != "closed" or (thredbo.get("closure") or {}).get("reopen") != "2026-10-31":
+    bad.append(("thredbo-diggings", thredbo.get("status"), (thredbo.get("closure") or {}).get("reopen")))
+for slug in ("washpools-campground", "peacock-creek-campground", "cooleman-mountain-campground", "flea-creek-campground", "freemans-campground", "willows-campground"):
+    row = next((c for c in feed["camps"] if c.get("slug") == slug), None)
+    if row and (row.get("status") == "closed" or row.get("closure")):
+        bad.append((slug, "false closure"))
+paradise_here = [c for c in feed["camps"] if "paradise beach" in (c.get("name") or "").lower() and abs(c.get("lat") + 35.85) < 0.02 and abs(c.get("lon") - 145.28) < 0.02]
+if len(paradise_here) != 1:
+    bad.append(("paradise beach", [c.get("slug") for c in paradise_here]))
 parkers = by_slug.get("parkers-pines") or {}
 if parkers.get("status") != "closed" or (parkers.get("closure") or {}).get("reopen") != "2026-12-18":
     bad.append(("parkers-pines", parkers.get("status"), (parkers.get("closure") or {}).get("reopen")))

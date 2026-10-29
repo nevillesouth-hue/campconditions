@@ -2,6 +2,8 @@
 """Find Parks Victoria campground pages that say closed while our status does not.
 
 Reads parks.vic.gov.au campground links from data/manual-corrections.json.
+A camp with only a whole-park link is checked against that park page's
+change-of-conditions items that name the camp.
 Fetches each page at most once every 24 hours, sequentially, about a second
 apart. Writes dist/parksvic-flags.json. Never changes a camp's status.
 """
@@ -56,19 +58,27 @@ def site_phrase(name):
     """Distinctive site name, without the park in parentheses or after a dash.
 
     A trailing "site 3" is dropped so "Farley Bend Camping Area Site 3" still
-    matches an alert titled for Farley Bend.
+    matches an alert titled for Farley Bend. A trailing "State Park" is dropped
+    too, so a camp named after its park matches the park's campground alert.
     """
     head = (name or "").split("(")[0].split(" - ")[0]
     head = re.sub(r"\bsite\s+\d+\b", " ", head, flags=re.I)
     head = re.sub(r"\b(campgrounds?|camping areas?|camping sites?|bush camps?|picnic(?: and camping)? areas?|camps?)\b", " ", head, flags=re.I)
-    return re.sub(r"[^a-z0-9]+", " ", head.lower()).strip()
+    phrase = re.sub(r"[^a-z0-9]+", " ", head.lower()).strip()
+    # A camp named after its park ("Paddys Range State Park") is matched by the park's own name.
+    return re.sub(r" (?:state|national|regional) parks?$", "", phrase) or phrase
+
+
+def _fold(text):
+    """Lower case, apostrophes dropped and a plural s trimmed, so Paddy's Ranges matches Paddys Range."""
+    flat = re.sub(r"[^a-z0-9]+", " ", re.sub(r"['\u2019]", "", (text or "").lower())).strip()
+    return " ".join(word[:-1] if len(word) > 3 and word.endswith("s") and not word.endswith("ss") else word for word in flat.split())
 
 
 def _phrase_in(phrase, text):
     if not phrase:
         return False
-    flat = re.sub(r"[^a-z0-9]+", " ", (text or "").lower()).strip()
-    return f" {phrase} " in f" {flat} "
+    return f" {_fold(phrase)} " in f" {_fold(text)} "
 
 
 def _introduces_list(sentence):
@@ -130,9 +140,10 @@ def _facility_only(sentence):
 class _Text(HTMLParser):
     """Overview text, plus a change-of-conditions item only when it names this camp."""
 
-    def __init__(self, camp_name=""):
+    def __init__(self, camp_name="", named_only=False):
         super().__init__(convert_charrefs=True)
         self.phrase = site_phrase(camp_name)
+        self.named_only = named_only
         self.stack = []
         self.region = []
         self.fallback = []
@@ -217,12 +228,15 @@ class _Text(HTMLParser):
             self.current[capture].append(data)
 
     def text(self):
-        parts = list(self.region)
+        # A whole-park page: only change-of-conditions items that name this camp.
+        parts = [] if self.named_only else list(self.region)
+        if self.named_only and not self.phrase:
+            return ""
         for item in self.items:
             subtitle = "".join(item["subtitle"])
             content = "".join(item["content"])
             title = re.sub(r"\s+", " ", subtitle).lower()
-            if not self.phrase or self.phrase in title:
+            if not self.phrase or self.phrase in title or _phrase_in(self.phrase, subtitle):
                 parts.append("\n")
                 parts.append(subtitle)
                 parts.append("\n")
@@ -238,7 +252,7 @@ class _Text(HTMLParser):
                 elif matched:
                     parts.append("\n")
                     parts.append(sentence.rstrip() + " " + matched[0])
-        chosen = parts if self.saw_structure else self.fallback
+        chosen = parts if self.saw_structure or self.named_only else self.fallback
         return html.unescape("".join(chosen)).replace("\xa0", " ")
 
 
@@ -337,16 +351,20 @@ def wording_closes_camp(wording, camp_name=""):
     return True
 
 
-def classify_html(page, camp_name=""):
-    """Return closure sentences and seasonal sentences from one HTML page."""
+def classify_html(page, camp_name="", named_only=False):
+    """Return closure sentences and seasonal sentences from one HTML page.
+
+    named_only is for a whole-park page: the overview is ignored and only
+    change-of-conditions items that name the camp are read.
+    """
     closed, seasonal = [], []
     try:
-        parser = _Text(camp_name)
+        parser = _Text(camp_name, named_only)
         parser.feed(page or "")
         parser.close()
         extracted = parser.text()
     except Exception:
-        extracted = re.sub(r"<[^>]+>", " ", page or "")
+        extracted = "" if named_only else re.sub(r"<[^>]+>", " ", page or "")
     for sentence in sentences(extracted):
         if not CLOSED_RE.search(sentence):
             continue
@@ -391,7 +409,23 @@ def campground_url(value):
     return urllib.parse.urlunsplit((parts.scheme or "https", parts.netloc, parts.path.rstrip("/"), "", ""))
 
 
-def urls_in(fields):
+def park_url(value):
+    """A Parks Victoria whole-park page, such as /places-to-see/parks/paddys-ranges-state-park."""
+    if not isinstance(value, str) or "parks.vic.gov.au" not in value.lower():
+        return ""
+    match = URL_RE.search(value)
+    if not match:
+        return ""
+    parts = urllib.parse.urlsplit(match.group(0).rstrip(".,)"))
+    if "parks.vic.gov.au" not in parts.netloc.lower():
+        return ""
+    if not re.fullmatch(r"/places-to-see/parks/[a-z0-9-]+/?", parts.path.lower()):
+        return ""
+    return urllib.parse.urlunsplit((parts.scheme or "https", parts.netloc, parts.path.rstrip("/"), "", ""))
+
+
+def urls_in(fields, finder=None):
+    finder = finder or campground_url
     found = []
 
     def walk(value):
@@ -402,7 +436,7 @@ def urls_in(fields):
             for item in value:
                 walk(item)
         else:
-            url = campground_url(value)
+            url = finder(value)
             if url and url not in found:
                 found.append(url)
 
@@ -499,16 +533,20 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
         camp = by_id.get(str(key))
         if not isinstance(fields, dict) or camp is None:
             continue
-        for url in urls_in(fields):
+        urls = [(url, False) for url in urls_in(fields)]
+        if not urls:
+            # No campground page: read the park page's alerts that name this camp.
+            urls = [(url, True) for url in urls_in(fields, park_url)]
+        for url, named_only in urls:
             pair = (camp.get("slug"), url)
             if pair in seen:
                 continue
             seen.add(pair)
-            jobs.append((camp, url))
+            jobs.append((camp, url, named_only))
     pages = {}
     started = time.monotonic()
     incomplete = False
-    for url in dict.fromkeys(url for _, url in jobs):
+    for url in dict.fromkeys(url for _, url, _ in jobs):
         if time.monotonic() - started > overall_seconds:
             incomplete = True
             break
@@ -522,14 +560,14 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
             if wait > 0:
                 sleeper(wait)
     flags, seasonal, errors = [], [], []
-    for camp, url in jobs:
+    for camp, url, named_only in jobs:
         page = pages.get(url)
         if page is None:
             continue
         if page.get("error"):
             errors.append(_record(camp, url, checked, error=str(page["error"])))
             continue
-        found = classify_html(page.get("html") or "", camp.get("name") or "")
+        found = classify_html(page.get("html") or "", camp.get("name") or "", named_only)
         if camp.get("status") != "closed" and found["closed"]:
             flags.append(_record(camp, url, checked, sentence=" ".join(found["closed"])))
         for sentence in found["seasonal"]:

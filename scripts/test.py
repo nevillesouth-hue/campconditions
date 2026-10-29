@@ -559,12 +559,13 @@ closed_notes = {
   "lake-catani-campground-mt-buffalo-np": "Lake Catani Campground is CLOSED for all camping from August 31st until October 30th 2026.",
   "notley-picnic-and-camping-area": "Notley Camping & Picnic Area - closed for upgrades",
   "kiata-campground": "There are still some areas within the park which remain closed for recovery works such as: Kiata Campground",
+  "paddys-range-state-park": "Closed For Upgrades - Paddy's Ranges Campground: closed from Wednesday 09/09/2026 until Monday 30/11/2026 while works are undertaken for campground improvements",
 }
 # Dated overrides drop out on their reopen day; after that the camp builds as "check" like any other.
 from datetime import datetime as _dt
 from zoneinfo import ZoneInfo as _Zi
 MEL_TODAY = _dt.now(_Zi("Australia/Melbourne")).date().isoformat()
-DATED_REOPEN = {"lake-catani-campground-mt-buffalo-np": "2026-10-31", "notley-picnic-and-camping-area": "2026-10-31"}
+DATED_REOPEN = {"lake-catani-campground-mt-buffalo-np": "2026-10-31", "notley-picnic-and-camping-area": "2026-10-31", "paddys-range-state-park": "2026-11-30"}
 for _slug, _reopen in DATED_REOPEN.items():
   if MEL_TODAY >= _reopen: closed_notes.pop(_slug, None)
 if any(c.get("nearby_closures") for c in osm):
@@ -695,7 +696,7 @@ if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.plac
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
 before = os.path.getmtime(corr_path)
 corrections = json.load(open(corr_path, encoding="utf-8"))
-if not isinstance(corrections, dict) or len(corrections) != 1333 or "drop" in corrections or "overrides" in corrections:
+if not isinstance(corrections, dict) or len(corrections) != 1334 or "drop" in corrections or "overrides" in corrections:
   bad.append(("corrections", "shape"))
 if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 220: bad.append(("corrections", "exclusions"))
 if corrections.get("w1474028458", {}).get("exclude") is not True or "no-private-caravan-parks" not in str(corrections.get("w1474028458", {}).get("exclude_reason")):
@@ -1113,6 +1114,20 @@ if not check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see
   bad.append(("check_parksvic", "camp url"))
 if check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park"):
   bad.append(("check_parksvic", "park url"))
+if check_parksvic.park_url("https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park") != "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park":
+  bad.append(("check_parksvic", "whole park url"))
+paddys_html = """
+<div class="explore__overview"><p>Some tracks in the park are closed for maintenance.</p></div>
+<div class="change-of-conditions__item">
+  <h4 class="change-of-conditions__subtitle">Paddy&#39;s Ranges Camping Area (Paddys Ranges State Park)</h4>
+  <h3 class="change-of-conditions__title"><span class="change-of-conditions__title-text">Closed For Upgrades - Paddy&#39;s Ranges Campground</span></h3>
+  <div class="change-of-conditions__content"><p>Paddy's Ranges Campground will be closed from Wednesday 09/09/2026 until Monday 30/11/2026.</p></div>
+</div>
+"""
+if check_parksvic.classify_html(paddys_html, "Paddys Range State Park", True)["closed"] != ["Closed For Upgrades - Paddy's Ranges Campground"]:
+  bad.append(("check_parksvic", "paddys name match"))
+if check_parksvic.classify_html(paddys_html, "Greens Campground - Whroo Historical Area", True)["closed"]:
+  bad.append(("check_parksvic", "park page other camp"))
 facility_html = """
 <div class="change-of-conditions__item">
   <h3 class="change-of-conditions__title-text">The Gums campground Communal BBQ closed</h3>
@@ -1212,6 +1227,7 @@ if os.path.isfile(nsw_index):
   if home.find('id="camp-map"') < 0 or home.find('id="newsletter"') < home.find('id="camp-map"'): bad.append(("/", "newsletter above the map"))
   if 'value="NPWS"' not in home or 'value="Parks Victoria"' not in home: bad.append(("/", "type filters"))
   if 'class="state-pick"' not in vic or 'aria-label="State: Victoria"' not in vic or ">VIC <" not in vic: bad.append(("/vic/", "state picker"))
+  if 'property="og:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"' not in vic or 'property="og:description" content="Camp conditions and closures for VIC and NSW."' not in vic: bad.append(("/vic/", "share text"))
   if 'href="/vic/" aria-current="page"' not in vic or 'href="/nsw/">New South Wales</a>' not in vic: bad.append(("/vic/", "state menu"))
   if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic or signup_msg not in vic: bad.append(("/vic/", "signup states"))
   if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html or signup_msg not in nsw_html: bad.append(("nsw", "signup states"))
@@ -1341,6 +1357,13 @@ if os.path.isfile(nsw_index):
     place = heading.group(1).split(", near ", 1)[1].split(",")[0].strip()
     place = re.sub(r" \((?:south|north|\d+)\)$", "", place)
     if place.casefold() not in town_names: bad.append((camp["slug"], "near " + place)); break
+  nsw_fix = json.load(open(os.path.join(root, "data", "manual-corrections-nsw.json"), encoding="utf-8"))
+  if not nsw_fix.get("n1811163531", {}).get("exclude") or "new:lions-park-bulahdelah" not in nsw_fix: bad.append(("nsw corrections", "bulahdelah"))
+  nsw_names = {c.get("name") for c in nsw_camps}
+  if "Bulahdelah Rest Area" in nsw_names: bad.append(("nsw corrections", "bulahdelah rest area still built"))
+  lions = next((c for c in nsw_camps if c.get("name") == "Lions Park, Bulahdelah"), None)
+  if not lions or lions.get("region") != "north-coast-nsw": bad.append(("nsw corrections", "lions park bulahdelah"))
+  if "Lions Park, Numurkah" in nsw_names or "Gloryvale Reserve Campgrounds" in {c.get("name") for c in vic_feed}: bad.append(("corrections", "state crossover"))
   npws = [c for c in nsw_camps if c.get("source") == "npws"]
   if len(npws) < 700: bad.append(("nsw", "npws count " + str(len(npws))))
   ratings = ("None", "No Rating", "Moderate", "High", "Extreme", "Catastrophic")

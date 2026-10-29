@@ -6,7 +6,9 @@ when New South Wales is included in the build.
 
 classify.decide() is the same published rule set used for Victoria. The
 Victoria pending list and manual-corrections.json are not applied, so a
-site is not held back for a second review pass.
+site is not held back for a second review pass. The site build applies
+the separate NSW file, data/manual-corrections-nsw.json, when it reads
+this extract.
 
 A candidate is kept when it is inside the Natural Earth 1:10m New South
 Wales polygon (the mainland and Lord Howe Island) and outside the Geoscape

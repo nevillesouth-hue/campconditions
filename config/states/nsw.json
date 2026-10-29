@@ -27,7 +27,7 @@
   "osm_camps": "data/osm-camps-nsw.json",
   "osm_csv": "",
   "enrichment": "",
-  "corrections": "",
+  "corrections": "data/manual-corrections-nsw.json",
   "pending": "",
   "flags": "",
   "tourism_regions": "data/nsw-tourism-regions.json"

@@ -11089,7 +11089,8 @@
    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/mount-buffalo-national-park/where-to-stay/lake-catani-campground",
    "wording": "Lake Catani Campground is CLOSED for all camping from August 31st until October 30th 2026.",
    "until": "2026-10-30",
-   "checked_date": "2026-10-26"
+   "reopen": "2026-10-31",
+   "checked_date": "2026-10-30"
   }
  },
  "n803825222": {
@@ -15836,7 +15837,8 @@
    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/greater-bendigo-national-park/where-to-stay/notley-campground-and-picnic-area",
    "wording": "Notley Camping & Picnic Area - closed for upgrades",
    "until": "2026-10-30",
-   "checked_date": "2026-10-26"
+   "reopen": "2026-10-31",
+   "checked_date": "2026-10-30"
   }
  },
  "w1263994090": {

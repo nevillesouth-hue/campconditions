@@ -147,13 +147,21 @@ def closure_record(q):
     reopen = facts.melbourne_iso(q.get("clos_open"))
     today = NOW.date().isoformat()
     upcoming = bool(start) and start > today
+    # A reopen day on or before today has finished. Those records, including
+    # ones previously flagged outdated, are not shown as closed.
+    finished = bool(reopen) and reopen <= today and not upcoming
+    desc = clean(q.get("clos_desc"))
+    if re.search(r"\bre-?opened\b", desc, re.I) and not re.search(r"\b(?:remains?|is|are|will be)\s+closed\b", desc, re.I):
+        return None, False
+    if finished:
+        return None, False
     return {
         "status": q.get("clos_stat"),
-        "desc": clean(q.get("clos_desc")),
+        "desc": desc,
         "reason": clean(q.get("clos_reas")),
         "start": start or None,
         "reopen": reopen or None,
-        "outdated": bool(reopen) and reopen < today and not upcoming,
+        "outdated": False,
     }, upcoming
 def closure_info(lab, p):
     name = (p.get("cross_name") or p.get("ezi_road_name_label") or p.get("name") or "").strip()
@@ -468,8 +476,14 @@ def apply_closed_override(camp, row):
     if not source_url or not wording:
         return False
     until = str(override.get("until") or "").strip()
-    if facts.override_expired(until, NOW.date().isoformat()):
-        print(f"Closure override expired: {camp.get('name')} until {until}")
+    import check_parksvic
+    end = check_parksvic.closure_end(wording) or until
+    today = NOW.date().isoformat()
+    if (end and end <= today) or facts.override_expired(until, today):
+        print(f"Closure override expired: {camp.get('name')} until {end or until}")
+        return False
+    if not check_parksvic.wording_closes_camp(wording, camp.get("name") or ""):
+        print(f"Closure override is not this campground: {camp.get('name')}")
         return False
     camp["status"] = "closed"
     camp["closure"] = {
@@ -477,7 +491,7 @@ def apply_closed_override(camp, row):
         "desc": wording,
         "reason": "",
         "start": None,
-        "reopen": None,
+        "reopen": end or None,
         "outdated": False,
         "source_url": source_url,
         "checked": override.get("checked_date"),
@@ -676,6 +690,37 @@ for state, official, osm_rows, state_closures in loaded:
     camps.extend(state_camps)
     closures.extend(state_closures)
     by_state[state["slug"]] = state_camps
+def _place_key(name):
+    """Camp name without the campground or campsite words, for duplicate places."""
+    text = re.sub(r"\b(campgrounds?|camping areas?|camping sites?|campsites?|camps?|sites?)\b", " ", name or "", flags=re.I)
+    text = re.sub(r"[^a-z0-9]+", " ", text.lower())
+    return re.sub(r"\s+", " ", text).strip()
+def dedupe_places(rows):
+    """Drop an OSM camp that repeats an official one.
+
+    Same slug, or the same name within 200 m. Paradise Beach Campsite on the
+    Victorian side of the river is the same place as the NPWS campground.
+    """
+    import build_osm
+    official = [camp for camp in rows if camp.get("source") != "osm"]
+    drop = set()
+    for camp in rows:
+        if camp.get("source") != "osm":
+            continue
+        key = _place_key(camp.get("name") or "")
+        for other in official:
+            same_slug = camp.get("slug") and camp.get("slug") == other.get("slug")
+            same_place = bool(key) and key == _place_key(other.get("name") or "") and build_osm.metres(camp["lat"], camp["lon"], other["lat"], other["lon"]) <= 200
+            if same_slug or same_place:
+                drop.add(id(camp))
+                break
+    if drop:
+        print(f"Duplicate camps removed: {len(drop)}")
+    return [camp for camp in rows if id(camp) not in drop]
+camps = dedupe_places(camps)
+kept_ids = {id(camp) for camp in camps}
+for key, rows in list(by_state.items()):
+    by_state[key] = [camp for camp in rows if id(camp) in kept_ids]
 camps.sort(key=lambda c: c["name"].lower())
 for rows in by_state.values():
     rows.sort(key=lambda c: c["name"].lower())
@@ -918,8 +963,8 @@ ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link r
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CampConditions.au">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta property="og:image" content="https://campconditions.au/assets/brand/og-image.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image.png">"""
+<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw.png?v=20261029"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Camp conditions and closures for VIC and NSW">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw.png?v=20261029"><meta name="twitter:image:alt" content="Camp conditions and closures for VIC and NSW">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type="button" id="a2hs-dismiss" aria-label="Dismiss add to home screen tip">×</button></div>
@@ -1947,9 +1992,14 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
         on_home = path == "/"
     national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
     shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/"}
+    og_title, og_desc = title, desc
+    if path == "/":
+        og_title = "Camp conditions and closures for VIC and NSW | CampConditions.au"
+        og_desc = "Camp conditions and closures for VIC and NSW."
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
-<meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
+<meta property="og:title" content="{e(og_title)}"><meta property="og:description" content="{e(og_desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
+<meta name="twitter:title" content="{e(og_title)}"><meta name="twitter:description" content="{e(og_desc)}">
 {ICONS}
 <meta name="campconditions-built" content="{built}">
 {STANDALONE_BOOT}
@@ -2464,7 +2514,9 @@ def emit_state(state, camps, include_home):
                 if c.get("state_slug") == "nsw" and "nationalparks.nsw.gov.au" in source_url:
                     block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"))
                 else:
-                    block = f'<div class="warn"><strong>Closed:</strong> {e(wording)} <a href="{e(source_url)}">{e(source_url)}</a></div>'
+                    reopen = str((cl or {}).get("reopen") or "")[:10]
+                    when = f" · Reopens {e(reopen)}" if reopen else ""
+                    block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}{when} <a href="{e(source_url)}">{e(source_url)}</a></div>'
                 condition = f'<div id="camp-closure">{block}</div>' + condition
             elif upcoming and c.get("state_slug") == "nsw" and str(upcoming.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):
                 block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True)

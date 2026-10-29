@@ -560,6 +560,13 @@ closed_notes = {
   "notley-picnic-and-camping-area": "Notley Camping & Picnic Area - closed for upgrades",
   "kiata-campground": "There are still some areas within the park which remain closed for recovery works such as: Kiata Campground",
 }
+# Dated overrides drop out on their reopen day; after that the camp builds as "check" like any other.
+from datetime import datetime as _dt
+from zoneinfo import ZoneInfo as _Zi
+MEL_TODAY = _dt.now(_Zi("Australia/Melbourne")).date().isoformat()
+DATED_REOPEN = {"lake-catani-campground-mt-buffalo-np": "2026-10-31", "notley-picnic-and-camping-area": "2026-10-31"}
+for _slug, _reopen in DATED_REOPEN.items():
+  if MEL_TODAY >= _reopen: closed_notes.pop(_slug, None)
 if any(c.get("nearby_closures") for c in osm):
   bad.append(("status.json", "osm nearby closures"))
 for camp in osm:
@@ -1461,13 +1468,14 @@ for slug in ("kendalls", "tin-hut", "coopers-creek-camping-area-two", "strachans
     row = next((c for c in feed["camps"] if c.get("slug") == slug), None)
     if not row or row.get("status") == "closed" or row.get("closure"):
         bad.append((slug, "still closed", (row or {}).get("status")))
-for slug, reopen in (("lake-catani-campground-mt-buffalo-np", "2026-10-30"), ("notley-picnic-and-camping-area", "2026-10-30")):
+for slug, reopen in DATED_REOPEN.items():
+    if MEL_TODAY >= reopen: continue
     row = next((c for c in feed["camps"] if c.get("slug") == slug), {})
     if row.get("status") != "closed" or (row.get("closure") or {}).get("reopen") != reopen:
         bad.append((slug, row.get("status"), (row.get("closure") or {}).get("reopen")))
 thredbo = next((c for c in feed["camps"] if c.get("slug") == "thredbo-diggings-campground"), {})
-if thredbo.get("status") != "closed" or (thredbo.get("closure") or {}).get("reopen") != "2026-10-31":
-    bad.append(("thredbo-diggings", thredbo.get("status"), (thredbo.get("closure") or {}).get("reopen")))
+if MEL_TODAY < "2026-10-31" and (thredbo.get("status") != "closed" or (thredbo.get("closure") or {}).get("reopen") != "2026-10-31"):
+    bad.append(("thredbo-diggings-campground", thredbo.get("status"), (thredbo.get("closure") or {}).get("reopen")))
 for slug in ("washpools-campground", "peacock-creek-campground", "cooleman-mountain-campground", "flea-creek-campground", "freemans-campground", "willows-campground"):
     row = next((c for c in feed["camps"] if c.get("slug") == slug), None)
     if row and (row.get("status") == "closed" or row.get("closure")):
@@ -1520,6 +1528,18 @@ for slug, reopen in (("ewarts-flat", "2027-05-28"), ("taylors", "2027-05-28"), (
         bad.append((slug, "still listed closed"))
     if "function melbourneDay" not in page_html or "upcoming_closure" not in page_html:
         bad.append((slug, "refresh script"))
+# A problem with one camp (for example an override that clashes with the feed) is a warning:
+# that camp should not hold back every other update. Site-wide problems still block, and so do
+# camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.
+CAMP_WARN_LIMIT = 25
+_camp_keys = {c.get("slug") for c in feed["camps"] if c.get("slug")} | {c.get("name") for c in feed["camps"] if c.get("name")}
+_camp_bad = [b for b in bad if isinstance(b, tuple) and b and isinstance(b[0], str) and b[0] in _camp_keys]
+_camps_hit = {b[0] for b in _camp_bad}
+if len(feed["camps"]) < 1000:
+  bad.append(("status.json", f"only {len(feed['camps'])} camps"))
+elif _camp_bad and len(_camps_hit) <= CAMP_WARN_LIMIT:
+  bad = [b for b in bad if b not in _camp_bad]
+  warnings.extend(("camp",) + tuple(b) for b in _camp_bad)
 print(f"{n} pages, {ldn} JSON-LD blocks valid, {len(sm)} sitemap URLs, {len(home_pts)} map points, {len(bad)} broken, {len(warnings)} warnings")
 for item in warnings: print("WARN", item)
 for item in bad[:20]: print(item)

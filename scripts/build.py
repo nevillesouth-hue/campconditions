@@ -477,7 +477,8 @@ def apply_closed_override(camp, row):
         return False
     until = str(override.get("until") or "").strip()
     import check_parksvic
-    end = check_parksvic.closure_end(wording) or until
+    # "reopen" is the first open day when Parks Victoria's "until X" means closed through X.
+    end = str(override.get("reopen") or "").strip() or check_parksvic.closure_end(wording) or until
     today = NOW.date().isoformat()
     if (end and end <= today) or facts.override_expired(until, today):
         print(f"Closure override expired: {camp.get('name')} until {end or until}")

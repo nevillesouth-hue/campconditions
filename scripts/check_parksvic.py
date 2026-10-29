@@ -257,6 +257,86 @@ def sentences(text):
     return found
 
 
+_PV_MONTHS = {
+    "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
+    "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
+    "jan": 1, "feb": 2, "mar": 3, "apr": 4, "jun": 6, "jul": 7, "aug": 8,
+    "sep": 9, "sept": 9, "oct": 10, "nov": 11, "dec": 12,
+}
+_PV_DATE = re.compile(
+    r"(?:(?P<wd>monday|tuesday|wednesday|thursday|friday|saturday|sunday)\s+)?"
+    r"(?:the\s+)?"
+    r"(?:(?P<day>\d{1,2})(?:st|nd|rd|th)?\s+(?P<mon>january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)"
+    r"|(?P<mon2>january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)\s+(?P<day2>\d{1,2})(?:st|nd|rd|th)?)"
+    r"(?:\s+(?P<year>20\d{2}))?",
+    re.I,
+)
+
+
+def _pv_dates(text):
+    found = []
+    for match in _PV_DATE.finditer(text or ""):
+        raw_day = match.group("day") or match.group("day2")
+        raw_mon = match.group("mon") or match.group("mon2")
+        if not raw_day or not raw_mon:
+            continue
+        found.append({
+            "span": match.span(),
+            "day": int(raw_day),
+            "month": _PV_MONTHS[raw_mon.lower()],
+            "year": int(match.group("year")) if match.group("year") else None,
+        })
+    return found
+
+
+def closure_end(text, today=None):
+    """Reopen day from 'between X and Y' or 'until Y'. Empty when the text has no end date.
+
+    The named end day is the reopen date: the camp is not closed on that day.
+    A missing year uses the Melbourne year of today.
+    """
+    tokens = _pv_dates(text)
+    if not tokens:
+        return ""
+    low = (text or "").lower()
+    end = None
+    if len(tokens) >= 2:
+        before = low[max(0, tokens[0]["span"][0] - 24):tokens[0]["span"][0]]
+        between = low[tokens[0]["span"][1]:tokens[1]["span"][0]]
+        if ("between" in before and re.search(r"\band\b", between)) or ("from" in before and re.search(r"\b(?:to|until)\b", between)):
+            end = tokens[1]
+    if end is None:
+        before = low[max(0, tokens[0]["span"][0] - 24):tokens[0]["span"][0]]
+        if re.search(r"\b(?:until|to)\b", before):
+            end = tokens[0]
+    if end is None:
+        return ""
+    year = end.get("year")
+    if not year:
+        for token in tokens:
+            if token.get("year"):
+                year = token["year"]
+                break
+    if not year:
+        when = today or datetime.now(MELBOURNE).date()
+        year = when.year if hasattr(when, "year") else int(str(when)[:4])
+    try:
+        return datetime(int(year), end["month"], end["day"]).date().isoformat()
+    except ValueError:
+        return ""
+
+
+def wording_closes_camp(wording, camp_name=""):
+    """A reservoir, basin or reopening note does not close the campground."""
+    text = wording or ""
+    if re.search(r"\bre-?opened\b", text, re.I) and not re.search(r"\b(?:remains?|is|are|will be)\s+closed\b", text, re.I):
+        return False
+    facility = re.search(r"\b(?:reservoir|basin)\b", text, re.I)
+    if facility and not CAMP_RE.search(text):
+        return False
+    return True
+
+
 def classify_html(page, camp_name=""):
     """Return closure sentences and seasonal sentences from one HTML page."""
     closed, seasonal = [], []
@@ -275,6 +355,13 @@ def classify_html(page, camp_name=""):
         if re.search(r"\bmay be closed\b|fire danger rating", sentence, re.I):
             continue
         if _facility_only(sentence):
+            continue
+        end = closure_end(sentence)
+        if end and end <= datetime.now(MELBOURNE).date().isoformat():
+            continue
+        if re.search(r"\bre-?opened\b", sentence, re.I) and not re.search(r"\b(?:remains?|is|are|will be)\s+closed\b", sentence, re.I):
+            continue
+        if re.search(r"\b(?:reservoir|basin)\b", sentence, re.I) and not CAMP_RE.search(sentence):
             continue
         if ROAD_RE.search(sentence) and not CAMP_RE.search(sentence):
             continue

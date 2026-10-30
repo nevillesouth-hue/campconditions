@@ -742,6 +742,7 @@ nsw = states.by_slug("nsw")
 if not nsw.get("enabled"): bad.append(("states", "nsw enabled"))
 nsw_hooks = {
     "npws_visitor_areas": "https://mapprod2.environment.nsw.gov.au/arcgis/rest/services/Assets/AMS_Assets/FeatureServer/24",
+    "npws_alerts_api": "https://api-prd.nswparks.cloud/api/v1/AlertsClosures/alerts/AD1E62CD-1182-456A-9397-EB08FF3EC793",
     "npws_alerts_rss": "https://www.nationalparks.nsw.gov.au/api/rssfeed/get",
     "rfs_fdr": "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml",
 }
@@ -794,8 +795,48 @@ _barokee = _dated_item("Cathedral Rock National Park",
     "&lt;strong&gt;Closed areas: Barokee Campground Closed Due to Maintenance&lt;/strong&gt;&lt;br/&gt;"
     "Barokee Campground will be closed from 10am Monday 13 April to 10am Wednesday 30 June 2027 for maintenance.")
 _barokee_hit = nswcond.closure_for(_reserve("Cathedral Rock National Park", "NP"), "Barokee campground", _barokee, _when)
-if not _barokee_hit or _barokee_hit.get("kind") != "upcoming" or _barokee_hit.get("start") != "2027-04-13":
-    bad.append(("alerts", "barokee upcoming " + str(_barokee_hit)))
+# 13 April 2026 is a Monday, so the printed weekday puts the start in 2026: closed now.
+if not _barokee_hit or _barokee_hit.get("kind") != "current" or _barokee_hit.get("start") != "2026-04-13" or _barokee_hit.get("reopen") != "2027-06-30":
+    bad.append(("alerts", "barokee weekday year " + str(_barokee_hit)))
+for _tok, _yr, _want in (("Monday 13 April", 2027, 2026), ("Saturday 7 November", 2026, 2026), ("Friday 1 January", 2026, 2027), ("13 April", 2027, 2027)):
+    if nswcond._weekday_year(nswcond._date_tokens(_tok)[0], _yr) != _want: bad.append(("alerts", "weekday year " + _tok))
+# The NPWS alerts API (the JSON the NPWS alerts pages load), in its own shape.
+def _api_alert(kind, title, desc, where, locs, start="2026-10-01T00:00:00", end="2026-11-20T00:00:00", status="Active"):
+    return {"Type": kind, "AlertStatus": status, "Title": title, "Description": desc, "LocationDetail": "**Where:** " + where,
+            "LastModifiedDate": "2026-10-29T01:00:00", "AlertDateTimes": [{"StartDateTimeUtc": start, "EndDateTimeUtc": end}],
+            "Locations": [{"Type": t, "Name": n, "EntireArea": ea, "LocationImpact": f"**Impact on {n}:** {imp}", "Url": "/visit-a-park/parks/" + n.lower().replace(" ", "-"), "ContentDataFeedItemId": cid} for t, n, ea, imp, cid in locs]}
+_api = json.dumps({"AlertsMeta": {"LocationAlerts": [
+    {"ContentDataFeedItemId": "c1", "Name": "Alpha campground", "Type": "Campground", "ParentName": "Alpha National Park"},
+    {"ContentDataFeedItemId": "c2", "Name": "Gamma campground", "Type": "Campground", "ParentName": "Gamma National Park"},
+    {"ContentDataFeedItemId": "c3", "Name": "Delta campground", "Type": "Campground"},
+]}, "Alerts": [
+    _api_alert("Closure", "Closure due to flooding", "The park is closed due to flooding.", "All parts of [Beta National Park](/x)",
+               [("Park", "Beta National Park", True, "All parts are closed.", "p1")]),
+    _api_alert("Closure", "Campground closed", "Alpha campground is closed for works. All other areas in Alpha National Park will remain open.", "Some parts of [Alpha National Park](/x)",
+               [("Campground", "Alpha campground", True, "All parts are closed.", "c1")]),
+    _api_alert("Closure", "Weekday closures", "Gamma campground will be open from Friday to Sunday each week.", "Some parts of Gamma National Park",
+               [("Campground", "Gamma campground", True, "All parts are closed.", "c2")]),
+    _api_alert("Closure", "Caves closed", "The caves are closed.", "Some parts of [Kappa National Park](/x). Only applies to: caves",
+               [("Park", "Kappa National Park", True, "All parts are closed.", "p4")]),
+    _api_alert("NPWS fire ban", "NPWS fire ban", "A park fire ban is in place.", "All parts of [Beta National Park](/x) and [Alpha National Park](/y)",
+               [("Park", "Beta National Park", True, "All parts are affected.", "p1"), ("Park", "Alpha National Park", True, "All parts are affected.", "p5")]),
+]}).encode()
+_api_items, _api_newest = nswcond.parse_api(_api)
+_api_by = {it["title"]: it for it in _api_items}
+if not _api_newest or _api_newest.isoformat() != "2026-10-29T12:00:00+11:00": bad.append(("alerts api", "newest " + str(_api_newest)))
+_api_when = __import__("datetime").datetime(2026, 10, 30, 12, tzinfo=facts.MELBOURNE)
+_beta = nswcond.closure_for(_reserve("Beta National Park", "NP"), "Any campground", _api_by.get("Beta National Park") or {"sections": [], "link": ""}, _api_when)
+if not _beta or _beta.get("kind") != "current": bad.append(("alerts api", "whole park " + str(_beta)))
+_alpha_idx = nswcond.index_closures(_api_items, [_reserve("Alpha National Park", "NP")])
+if not nswcond.lookup_closure(_alpha_idx, _reserve("Alpha National Park", "NP"), "Alpha campground", _api_when): bad.append(("alerts api", "campground all parts closed"))
+if nswcond.lookup_closure(_alpha_idx, _reserve("Alpha National Park", "NP"), "Other campground", _api_when): bad.append(("alerts api", "campground closure spread to the park"))
+_gamma_idx = nswcond.index_closures(_api_items, [_reserve("Gamma National Park", "NP")])
+if nswcond.lookup_closure(_gamma_idx, _reserve("Gamma National Park", "NP"), "Gamma campground", _api_when): bad.append(("alerts api", "open part days read as closed"))
+_kappa_idx = nswcond.index_closures(_api_items, [_reserve("Kappa National Park", "NP")])
+if nswcond.lookup_closure(_kappa_idx, _reserve("Kappa National Park", "NP"), "Kappa campground", _api_when): bad.append(("alerts api", "some parts read as whole park"))
+_ban = [(h, b) for h, b in (_api_by.get("Alpha National Park") or {}).get("sections", []) if h.startswith("Fire bans")]
+if not _ban or not nswcond.section_applies(_ban[0][0], _ban[0][1], _reserve("Alpha National Park", "NP"), "Alpha campground") or "Closed from" in _ban[0][1]:
+    bad.append(("alerts api", "fire ban note " + str(_ban)))
 _water = _dated_item("Kosciuszko National Park",
     "&lt;strong&gt;Closed areas: Blue Waterholes campground closed for upgrade work&lt;/strong&gt;&lt;br/&gt;"
     "Blue Waterholes campground is closed until Friday 27th November 2026 for significant upgrades.")
@@ -1564,7 +1605,9 @@ for slug, reopen in DATED_REOPEN.items():
 thredbo = next((c for c in feed["camps"] if c.get("slug") == "thredbo-diggings-campground"), {})
 if MEL_TODAY < "2026-11-01" and (thredbo.get("status") != "closed" or (thredbo.get("closure") or {}).get("reopen") != "2026-11-01"):
     bad.append(("thredbo-diggings-campground", thredbo.get("status"), (thredbo.get("closure") or {}).get("reopen")))
-for slug in ("washpools-campground", "peacock-creek-campground", "cooleman-mountain-campground", "flea-creek-campground", "freemans-campground", "willows-campground"):
+# Peacock Creek (Richmond Range, wet conditions) and Flea Creek (weekday
+# closures from 2 Nov) are now closed by NPWS, so they left this list on 30 Oct 2026.
+for slug in ("washpools-campground", "cooleman-mountain-campground", "freemans-campground", "willows-campground"):
     row = next((c for c in feed["camps"] if c.get("slug") == slug), None)
     if row and (row.get("status") == "closed" or row.get("closure")):
         bad.append((slug, "false closure"))

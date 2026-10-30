@@ -1994,8 +1994,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
     shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/"}
     og_title, og_desc = title, desc
-    # The state page that doubles as a home page shares the national card, not a one-state count.
-    if path == "/" or (on_home and len(statecfg.enabled()) > 1):
+    if path == "/":
         og_title = "Camp conditions and closures for VIC and NSW | CampConditions.au"
         og_desc = "Camp conditions and closures for VIC and NSW."
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
@@ -2528,6 +2527,10 @@ def emit_state(state, camps, include_home):
                 condition += notes
             title = f"{page_name} showground — call first | CampConditions.au" if c.get("category") == "Showground" else f"{page_name} — check with the operator | CampConditions.au"
             desc = COPY["osm_place"].format(name=c["name"], region=rn, category=c.get("category") or "camp")
+            if c.get("status") == "closed":
+                # A closed camp has its official closure on the page; do not also say check with the operator.
+                title = f"{page_name} — closed | CampConditions.au"
+                desc = desc.replace("Conditions: check with the operator.", "Status: closed.")
             dated = COPY["osm_source_line"]
         elif c.get("source") == "npws":
             bits = []
@@ -2791,11 +2794,28 @@ def headers_text():
     parts += ["/map-points/*", "  Cache-Control: public, max-age=86400", ""]
     return "\n".join(parts)
 open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
+def slug_redirect_lines():
+    """301s for NSW camp slugs that changed in correction batches."""
+    path = os.path.join(ROOT, "data", "nsw-slug-redirects.json")
+    if not os.path.isfile(path):
+        return []
+    with open(path, encoding="utf-8") as handle:
+        doc = json.load(handle)
+    lines = []
+    for group in ("renamed", "duplicates", "excluded_replaced"):
+        for old, new in sorted((doc.get(group) or {}).items()):
+            old_dir = os.path.join(OUT, "nsw", "camp", old)
+            new_dir = os.path.join(OUT, "nsw", "camp", new)
+            if os.path.isdir(old_dir) or not os.path.isfile(os.path.join(new_dir, "index.html")):
+                print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
+                continue
+            lines += [f"/nsw/camp/{old} /nsw/camp/{new}/ 301", f"/nsw/camp/{old}/ /nsw/camp/{new}/ 301"]
+    return lines
 open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /about/ 301
 /contact/ /about/ 301
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
-""")
+""" + "".join(line + "\n" for line in slug_redirect_lines()))
 urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/privacy/", "/terms/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:
     for state in statecfg.enabled():

@@ -837,6 +837,40 @@ if nswcond.section_applies(_air_heading, _air_body, _nadgee, "Newtons Beach camp
     bad.append(("alerts", "newtons note"))
 if not nswcond.section_applies(_air_heading, _air_body, _beowa, "Bittangabee campground"):
     bad.append(("alerts", "bittangabee note"))
+_dt = __import__("datetime").datetime
+if nswcond.lookup_closure(_air_index, _beowa, "Bittangabee campground", _dt(2026, 10, 31, 10, 30, tzinfo=facts.MELBOURNE)):
+    bad.append(("alerts", "bittangabee after 10am 31 Oct"))
+_wtb = _dated_item("Myall Lakes National Park",
+    "&lt;strong&gt;Closed areas: White Tree Bay campground closed due to flood repairs&lt;/strong&gt;&lt;br/&gt;"
+    "White Tree Bay campground in Myall Lakes National Park remains temporarily closed due to damaged amenities from flood impact.")
+_myall = _reserve("Myall Lakes National Park", "NP")
+_wtb_index = nswcond.index_closures([_wtb], [_myall])
+_wtb_hit = nswcond.lookup_closure(_wtb_index, _myall, "White Tree Bay campground", _when)
+if not _wtb_hit or _wtb_hit.get("kind") != "current":
+    bad.append(("alerts", "white tree bay " + str(_wtb_hit)))
+if nswcond.lookup_closure(_wtb_index, _myall, "Mungo Brush campground", _when):
+    bad.append(("alerts", "white tree bay other camp"))
+_wtb_head = _dated_item("Myall Lakes National Park",
+    "&lt;strong&gt;Closed areas: White Tree Bay campground closed due to flood repairs&lt;/strong&gt;&lt;br/&gt;"
+    "Repairs are under way after flood damage.")
+if not nswcond.lookup_closure(nswcond.index_closures([_wtb_head], [_myall]), _myall, "White Tree Bay campground", _when):
+    bad.append(("alerts", "closed heading"))
+_4wd = _dated_item("Myall Lakes National Park",
+    "&lt;strong&gt;Closed areas: Mungo Beach campground closed to 4WD vehicles&lt;/strong&gt;&lt;br/&gt;"
+    "Vehicles can not drive on the beach.")
+if nswcond.lookup_closure(nswcond.index_closures([_4wd], [_myall]), _myall, "Mungo Beach campground", _when):
+    bad.append(("alerts", "closed to 4wd"))
+if nswcond._CLOSED_SENTENCE.search("Mungo Brush campground is partially closed for works"):
+    bad.append(("alerts", "partially closed"))
+_berlang = _dated_item("Deua National Park",
+    "&lt;strong&gt;Closed areas: Berlang campground closed for pest control&lt;/strong&gt;&lt;br/&gt;"
+    "Berlang campground will be closed to the public from 2pm Sunday 1st November until 10am Saturday 7th November 2026.")
+_deua = _reserve("Deua National Park", "NP")
+_berlang_index = nswcond.index_closures([_berlang], [_deua])
+_b1 = nswcond.lookup_closure(_berlang_index, _deua, "Berlang campground", _dt(2026, 11, 1, 13, 0, tzinfo=facts.MELBOURNE))
+_b2 = nswcond.lookup_closure(_berlang_index, _deua, "Berlang campground", _dt(2026, 11, 1, 14, 30, tzinfo=facts.MELBOURNE))
+if not _b1 or _b1.get("kind") != "upcoming" or not _b2 or _b2.get("kind") != "current":
+    bad.append(("alerts", "berlang flip " + str(_b1) + " " + str(_b2)))
 _willows = _dated_item("Yanga State Conservation Area",
     "&lt;strong&gt;Closed areas: Campground closures&lt;/strong&gt;"
     "Campgrounds will be closed as follows;&lt;ul&gt;&lt;li&gt;Willows Picnic area &amp; Campground - CLOSED 15 – 25 October for aerial shooting operations&lt;/li&gt;&lt;/ul&gt;")
@@ -1227,7 +1261,9 @@ if os.path.isfile(nsw_index):
   if home.find('id="camp-map"') < 0 or home.find('id="newsletter"') < home.find('id="camp-map"'): bad.append(("/", "newsletter above the map"))
   if 'value="NPWS"' not in home or 'value="Parks Victoria"' not in home: bad.append(("/", "type filters"))
   if 'class="state-pick"' not in vic or 'aria-label="State: Victoria"' not in vic or ">VIC <" not in vic: bad.append(("/vic/", "state picker"))
-  if 'property="og:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"' not in vic or 'property="og:description" content="Camp conditions and closures for VIC and NSW."' not in vic: bad.append(("/vic/", "share text"))
+  if 'property="og:title" content="Victorian camp conditions — ' not in vic or 'name="twitter:title" content="Victorian camp conditions — ' not in vic or "VIC and NSW" in vic.split("</head>", 1)[0].split('og:image:alt')[0]: bad.append(("/vic/", "share text"))
+  _nsw_home = open(os.path.join(D, "nsw", "index.html"), encoding="utf-8").read()
+  if 'property="og:title" content="New South Wales campground conditions — ' not in _nsw_home or "local council pages" not in _nsw_home.split("</head>", 1)[0]: bad.append(("/nsw/", "share text"))
   if 'href="/vic/" aria-current="page"' not in vic or 'href="/nsw/">New South Wales</a>' not in vic: bad.append(("/vic/", "state menu"))
   if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic or signup_msg not in vic: bad.append(("/vic/", "signup states"))
   if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html or signup_msg not in nsw_html: bad.append(("nsw", "signup states"))
@@ -1310,6 +1346,8 @@ if os.path.isfile(nsw_index):
   if "Riverina" not in brewery_page: bad.append(("Brewery Flat", "region"))
   redirects = open(os.path.join(D, "_redirects"), encoding="utf-8").read()
   for line in ("/contact /about/ 301", "/contact/ /about/ 301", "/nsw/nsw /nsw/ 301", "/nsw/nsw/ /nsw/ 301"):
+    if line not in redirects: bad.append(("_redirects", line))
+  for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301"):
     if line not in redirects: bad.append(("_redirects", line))
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
   if "Terms of use" not in terms or "as is, without warranty" not in terms or "Victoria." not in terms or "New South Wales." not in terms or "governing law" in terms.lower(): bad.append(("terms", "wording"))

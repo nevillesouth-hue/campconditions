@@ -788,7 +788,7 @@ _mero = _dated_item("Meroo National Park",
     "Some parts of this park are closed from Monday 2 November to Friday 6 November 2026."
     "&lt;ul&gt;&lt;li&gt;Meroo Head campground&lt;/li&gt;&lt;/ul&gt;")
 _mero_hit = nswcond.closure_for(_reserve("Meroo National Park", "NP"), "Meroo Head campground", _mero, _when)
-if not _mero_hit or _mero_hit.get("kind") != "upcoming" or _mero_hit.get("start") != "2026-11-02" or _mero_hit.get("reopen") != "2026-11-06":
+if not _mero_hit or _mero_hit.get("kind") != "upcoming" or _mero_hit.get("start") != "2026-11-02" or _mero_hit.get("reopen") != "2026-11-07":
     bad.append(("alerts", "meroo upcoming " + str(_mero_hit)))
 _barokee = _dated_item("Cathedral Rock National Park",
     "&lt;strong&gt;Closed areas: Barokee Campground Closed Due to Maintenance&lt;/strong&gt;&lt;br/&gt;"
@@ -880,8 +880,35 @@ _thredbo = _dated_item("Kosciuszko National Park",
     "&lt;strong&gt;Closed areas: Thredbo Diggings Campground Post-Winter Closures&lt;/strong&gt;"
     "Thredbo Diggings Campground is closed for post-winter maintenance from Monday 12 October 2026 to Saturday 31 October 2026.")
 _thredbo_hit = nswcond.closure_for(_reserve("Kosciuszko National Park", "NP"), "Thredbo Diggings campground", _thredbo, _when)
-if not _thredbo_hit or _thredbo_hit.get("reopen") != "2026-10-31":
+if not _thredbo_hit or _thredbo_hit.get("reopen") != "2026-11-01":
     bad.append(("alerts", "thredbo " + str(_thredbo_hit)))
+# "to Saturday 31 October" is inclusive; "until 10am Saturday 31 October" is compared with the clock.
+_kos = _reserve("Kosciuszko National Park", "NP")
+for _at, _want in (((10, 31, 0, 17), "current"), ((10, 31, 23, 59), "current"), ((11, 1, 0, 0), None)):
+    _h = nswcond.closure_for(_kos, "Thredbo Diggings campground", _thredbo, _dt(2026, _at[0], _at[1], _at[2], _at[3], tzinfo=facts.MELBOURNE))
+    if (_h or {}).get("kind") != _want:
+        bad.append(("alerts", "thredbo inclusive " + str(_at) + " " + str(_h)))
+_beowa_item = _dated_item("Beowa National Park",
+    "&lt;strong&gt;Closed areas: Parks closed for aerial shooting for feral animal control&lt;/strong&gt;&lt;br/&gt;"
+    "The following parks, reserves and areas will be closed from 2pm on Sunday 25th October until 10am on Saturday 31st October 2026 for a pest management program:"
+    "&lt;ul&gt;&lt;li&gt;Beowa National Park (Green Cape area), including Light to Light walk, Bittangabee campground, Mowarry campground, and Saltwater Creek campgrounds and&lt;/li&gt;&lt;/ul&gt;")
+for _camp in ("Bittangabee campground", "Mowarry campground", "Saltwater Creek campground"):
+    for _at, _want in (((31, 0, 17), "current"), ((31, 9, 59), "current"), ((31, 10, 0), None)):
+        _h = nswcond.closure_for(_reserve("Beowa National Park", "NP"), _camp, _beowa_item, _dt(2026, 10, _at[0], _at[1], _at[2], tzinfo=facts.MELBOURNE))
+        if (_h or {}).get("kind") != _want:
+            bad.append(("alerts", "beowa 10am " + _camp + " " + str(_at) + " " + str(_h)))
+_toor = _dated_item("Morton National Park",
+    "&lt;strong&gt;Closed areas: Toorooroo campground closed due to damage&lt;/strong&gt;&lt;br/&gt;"
+    "Toorooroo campground is closed due to fire and flood damage. Please check back for updates.")
+if (nswcond.closure_for(_reserve("Morton National Park", "NP"), "Yalwal/Toorooroo campground", _toor, _when) or {}).get("kind") != "current":
+    bad.append(("alerts", "toorooroo slash name"))
+for _camp_name, _piece, _want in (("Bandahngan (Tooloom Falls) campground", "Tooloom Falls campground", True),
+                                  ("Black Rocks - Booroora campground", "Booroora campground", True),
+                                  ("Black Rocks - Booroora campground", "Black Rocks campground", False),
+                                  ("Mt Warrawolong Campground - GNW", "Mt Warrawolong campground", True),
+                                  ("Kira/Leaves campground", "Leaves campground", True)):
+    if nswcond.keys_match(_camp_name, _piece) != _want:
+        bad.append(("alerts", "compound name " + _camp_name + " / " + _piece))
 _wash = _dated_item("Towarri National Park",
     "&lt;strong&gt;Closed areas: Towarri National Park partial closure&lt;/strong&gt;"
     "Areas within Towarri National Park may be intermittently closed. * Note: Washpools campground and picnic area will not be directly affected by these closures.")
@@ -1535,7 +1562,7 @@ for slug, reopen in DATED_REOPEN.items():
     if row.get("status") != "closed" or (row.get("closure") or {}).get("reopen") != reopen:
         bad.append((slug, row.get("status"), (row.get("closure") or {}).get("reopen")))
 thredbo = next((c for c in feed["camps"] if c.get("slug") == "thredbo-diggings-campground"), {})
-if MEL_TODAY < "2026-10-31" and (thredbo.get("status") != "closed" or (thredbo.get("closure") or {}).get("reopen") != "2026-10-31"):
+if MEL_TODAY < "2026-11-01" and (thredbo.get("status") != "closed" or (thredbo.get("closure") or {}).get("reopen") != "2026-11-01"):
     bad.append(("thredbo-diggings-campground", thredbo.get("status"), (thredbo.get("closure") or {}).get("reopen")))
 for slug in ("washpools-campground", "peacock-creek-campground", "cooleman-mountain-campground", "flea-creek-campground", "freemans-campground", "willows-campground"):
     row = next((c for c in feed["camps"] if c.get("slug") == slug), None)

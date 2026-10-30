@@ -244,13 +244,60 @@ def _name_pieces(text):
     return cleaned
 
 
+_CAMP_WORD = re.compile(r"\b(?:camping area|campgrounds?|campsite|camp site|camping|camp)\b", re.I)
+
+
+def name_variants(name):
+    """The whole name plus each alternative a compound name gives.
+
+    Yalwal/Toorooroo campground is also Yalwal and Toorooroo. Bandahngan
+    (Tooloom Falls) campground is also Bandahngan and Tooloom Falls. In
+    Black Rocks - Booroora campground the specific camp is the part after
+    the dash; the part before it is used only when it is itself a camp
+    name, as in Mt Warrawolong Campground - GNW.
+    """
+    text = html_lib.unescape(str(name or "")).replace("\xa0", " ").strip()
+    found = [text]
+
+    def add(value):
+        value = re.sub(r"\s+", " ", value or "").strip(" -–—/")
+        if value and value not in found:
+            found.append(value)
+
+    for part in re.split(r"\s+[–—-]\s+", text)[1:]:
+        add(part)
+    dash = re.split(r"\s+[–—-]\s+", text)
+    if len(dash) > 1 and _CAMP_WORD.search(dash[0]):
+        add(dash[0])
+    for value in list(found):
+        inner = re.findall(r"\(([^)]*)\)", value)
+        if inner:
+            add(re.sub(r"\([^)]*\)", " ", value))
+            for bit in inner:
+                add(bit)
+    for value in list(found):
+        if "/" in value:
+            for bit in value.split("/"):
+                add(bit)
+    return found
+
+
 def keys_match(camp_name, piece):
     """True when the official place name is this camp, allowing a picnic/area suffix.
 
     A short official name such as Cod still matches. Spaces are ignored so
     Blue Water Holes matches Blue Waterholes. An apostrophe is already gone
-    in norm, so Alexander's Hut matches Alexanders Hut.
+    in norm, so Alexander's Hut matches Alexanders Hut. A compound name such
+    as Yalwal/Toorooroo matches either of its names (see name_variants).
     """
+    for camp_alt in name_variants(camp_name):
+        for place_alt in name_variants(piece):
+            if _keys_match_one(camp_alt, place_alt):
+                return True
+    return False
+
+
+def _keys_match_one(camp_name, piece):
     camp, place = camp_key(camp_name), camp_key(piece)
     if len(camp) < 3 or len(place) < 3:
         return False
@@ -366,8 +413,9 @@ def _resolve_day(token, year):
 def closure_timing(text, now=None):
     """Classify one alert section against the Australia/Melbourne clock.
 
-    Returns kind current, upcoming or expired, plus the start and reopen
-    dates named in the alert. A start later than now is upcoming. An end
+    Returns kind current, upcoming or expired, plus the start date and the
+    first open day. A "to <day>" end is inclusive, so reopen is the next
+    day; an "until <time> <day>" end reopens that day at that time. A start later than now is upcoming. An end
     that has passed is expired and must not be shown as closed. When the
     end date carries the only year, the start uses that year. A weekday
     that disagrees does not pull a future start back into the past; an
@@ -428,9 +476,14 @@ def closure_timing(text, now=None):
     start_ok = start_day is None or start_tok.get("weekday") is None or start_day.weekday() == start_tok["weekday"]
     end_ok = end_day is None or end_tok.get("weekday") is None or end_day.weekday() == end_tok["weekday"]
     start_at = _stamp(start_day, (start_tok or {}).get("clock"), end=False)
-    end_at = _stamp(end_day, (end_tok or {}).get("clock"), end=(end_word != "until" or not (end_tok or {}).get("clock")))
-    if end_word == "until" and end_tok and not end_tok.get("clock"):
-        end_at = _stamp(end_day, None, end=False)
+    end_clock = (end_tok or {}).get("clock")
+    # "to Saturday 31 October" is inclusive: closed all of that day, open
+    # from midnight. "until 10am Saturday 31 October" ends at that time and
+    # is compared with the clock, so a 9am build still shows it closed.
+    reopen_day = end_day
+    if end_day and end_word != "until" and not end_clock:
+        reopen_day = end_day + dt.timedelta(days=1)
+    end_at = _stamp(reopen_day, end_clock, end=False)
     will_be = bool(re.search(r"\bwill be closed\b", low))
     if start_at and start_at > now:
         kind = "upcoming"
@@ -445,7 +498,7 @@ def closure_timing(text, now=None):
     return {
         "kind": kind,
         "start": start_day.isoformat() if start_day else None,
-        "reopen": end_day.isoformat() if end_day else None,
+        "reopen": reopen_day.isoformat() if reopen_day else None,
     }
 
 

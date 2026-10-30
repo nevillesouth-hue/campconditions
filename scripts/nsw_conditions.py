@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""NSW camp closures from the NPWS alerts RSS, and fire danger from the RFS feed.
+"""NSW camp closures from the NPWS alerts API (RSS as fallback), and fire danger from the RFS feed.
 
 Official text only. A camp stays "check" unless an alert records a closure of
 that reserve or of that campground. Fire danger is the RFS district value for
@@ -8,6 +8,7 @@ unavailable, this leaves status and the fire line unset.
 """
 import datetime as dt
 import html as html_lib
+import json
 import math
 import re
 import sys
@@ -181,6 +182,229 @@ def parse_rss(payload):
             "sections": sections_from_html(node.findtext("description") or ""),
         })
     return items
+
+
+NPWS_SITE = "https://www.nationalparks.nsw.gov.au"
+NPWS_ALERTS_PAGE = NPWS_SITE + "/alerts/alerts-list"
+# NPWS alert Type to the RSS category heading the parser already reads.
+_API_HEADING = {
+    "npws fire ban": "Fire bans",
+    "safety warning": "Safety alerts",
+    "hazard reduction burn": "Fires",
+    "notice": "Other planned events",
+}
+_ALL_CLOSED = re.compile(r"all parts are closed", re.I)
+# A campground NPWS marks closed whose text keeps it open on some days, or
+# closes only part of it ("closed Monday to Thursday ... open Friday to
+# Sunday", "partially closed"), is left to the text rules, not the flag.
+_OPEN_PART = re.compile(r"\b(?:remains?|will be|will remain|is|are|stays?)\s+open\b|\bpartial(?:ly)?\b|\bopen from\b", re.I)
+
+
+def _open_part_for(name, description):
+    """True when a sentence naming this campground says part of it, or some
+    days, stay open (Flea Creek opens Fri-Sun; Three Mile Dam is partly
+    closed). "All other areas ... remain open" (Mimosa Rocks) does not count."""
+    base = re.sub(r"(?i)\s*\b(?:campground|camping area|camp)\b\s*", " ", name).strip().lower()
+    if not base:
+        return bool(_OPEN_PART.search(description or ""))
+    for sentence in re.split(r"(?<=[.!?])\s+|\n+", description or ""):
+        if base in sentence.lower() and _OPEN_PART.search(sentence):
+            return True
+    return False
+
+
+def _md_plain(text):
+    """NPWS markdown as plain lines: links keep their text, list items become bullets."""
+    text = (text or "").replace("\xa0", " ").replace("\r", "")
+    text = re.sub(r"!\[[^\]]*\]\([^)]*\)", "", text)
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"\*\*|__", "", text)
+    text = html_lib.unescape(re.sub(r"<[^>]+>", " ", text))
+    lines = []
+    for line in text.split("\n"):
+        line = re.sub(r"[ \t]+", " ", line).strip()
+        if not line:
+            continue
+        line = re.sub(r"^[*\-\u2022]\s+", "- ", line)
+        lines.append(line)
+    return "\n".join(lines)
+
+
+def _api_time(value):
+    """An NPWS API UTC stamp (no zone suffix) in Australia/Melbourne."""
+    raw = str(value or "").strip()
+    if not raw:
+        return None
+    raw = re.sub(r"(\.\d{6})\d+", r"\1", raw).rstrip("Z")
+    try:
+        when = dt.datetime.fromisoformat(raw)
+    except ValueError:
+        return None
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=dt.timezone.utc)
+    return when.astimezone(facts.MELBOURNE)
+
+
+def _spoken(when, with_clock=True):
+    day = f"{when.strftime('%A')} {when.day} {when.strftime('%B %Y')}"
+    if not with_clock:
+        return day
+    clock = when.strftime("%I:%M%p").lstrip("0").lower().replace(":00", "")
+    return f"{clock} {day}"
+
+
+def _window_line(alert, closure=True):
+    """The structured window as a sentence closure_timing reads. A 11:58pm or
+    later end is the whole of that day, written without a clock. Only a
+    closure says "Closed"; a fire ban or notice is "In place from"."""
+    for window in alert.get("AlertDateTimes") or []:
+        start = _api_time(window.get("StartDateTimeUtc"))
+        end = _api_time(window.get("EndDateTimeUtc"))
+        if not start:
+            continue
+        line = ("Closed from " if closure else "In place from ") + _spoken(start)
+        if end:
+            late = (end.hour, end.minute) >= (23, 58)
+            line += " to " + _spoken(end, with_clock=not late)
+        return line + "."
+    return ""
+
+
+def _rfc2822(when):
+    from email.utils import format_datetime
+    return format_datetime(when) if when else ""
+
+
+def parse_api(payload):
+    """NPWS alerts API (the JSON the NPWS alerts pages load) as RSS-shaped items.
+
+    One item per park, titled with the park name and linked to that park's
+    local alerts page. Each alert is a section under the RSS category heading.
+    A Closure that NPWS records as "All parts are closed" for a campground is
+    also listed in closed_places with its official wording. Returns the items
+    and the newest LastModifiedDate in Australia/Melbourne.
+    """
+    if not payload:
+        return [], None
+    if isinstance(payload, bytes):
+        payload = payload.decode("utf-8", "replace")
+    try:
+        data = json.loads(payload)
+    except ValueError:
+        return [], None
+    if not isinstance(data, dict) or not isinstance(data.get("Alerts"), list):
+        return [], None
+    meta = data.get("AlertsMeta") or {}
+    parent = {}
+    for row in meta.get("LocationAlerts") or []:
+        if row.get("ContentDataFeedItemId") and row.get("ParentName"):
+            parent[row["ContentDataFeedItemId"]] = row["ParentName"]
+    park_url = {}
+    for alert in data["Alerts"]:
+        for loc in alert.get("Locations") or []:
+            if loc.get("Type") == "Park" and loc.get("Name") and str(loc.get("Url") or "").startswith("/"):
+                park_url.setdefault(loc["Name"], loc["Url"])
+    items = {}
+    newest = None
+
+    def item_for(park):
+        if park not in items:
+            url = park_url.get(park)
+            link = NPWS_SITE + url.rstrip("/") + "/local-alerts" if url else NPWS_ALERTS_PAGE
+            items[park] = {"title": park, "title_norm": norm(park), "link": link, "published": None,
+                           "sections": [], "closed_places": [], "windows": {}}
+        return items[park]
+
+    for alert in data["Alerts"]:
+        if str(alert.get("AlertStatus") or "").lower() not in ("active", "upcoming"):
+            continue
+        title = re.sub(r"\s+", " ", str(alert.get("Title") or "")).strip()
+        kind = str(alert.get("Type") or "").strip()
+        modified = _api_time(alert.get("LastModifiedDate")) or _api_time(alert.get("FirstPublishDate"))
+        if modified and (newest is None or modified > newest):
+            newest = modified
+        description = _md_plain(alert.get("Description"))
+        detail = _md_plain(alert.get("LocationDetail"))
+        detail = re.sub(r"^Where:\s*", "", detail)
+        detail = re.sub(r"\s*\(see (?:on )?map\)", "", detail)
+        # "All parts of" means the whole of each park; the camp matcher reads
+        # "parts of" as a narrow area, so say it plainly.
+        detail = re.sub(r"^All parts of\s+", "Applies to all of ", detail)
+        lines = [description] if description else []
+        if detail:
+            lines.append(detail)
+        window = _window_line(alert, kind.lower() == "closure")
+        lead = ""
+        if window and not _date_tokens(description):
+            lines.append(window)
+        elif window:
+            timing = closure_timing(description)
+            if not timing["start"] and not timing["reopen"]:
+                # Dates the text rules cannot place: time it by the NPWS window.
+                lead = window
+        parks = {}
+        camps = []
+        for loc in alert.get("Locations") or []:
+            name = re.sub(r"\s+", " ", str(loc.get("Name") or "")).strip()
+            if not name:
+                continue
+            if loc.get("Type") == "Park":
+                # Whole park only when the flag and the Where text agree:
+                # Kwiambal's caves alert flags the park but says "Some parts of".
+                entire = bool(loc.get("EntireArea")) and not re.search(
+                    r"some parts of[^.]*?" + re.escape(name), detail, re.I)
+                parks[name] = parks.get(name, False) or entire
+                continue
+            owner = parent.get(loc.get("ContentDataFeedItemId"))
+            if owner:
+                parks.setdefault(owner, False)
+            if (kind.lower() == "closure" and loc.get("Type") == "Campground" and loc.get("EntireArea")
+                    and _ALL_CLOSED.search(str(loc.get("LocationImpact") or "")) and owner
+                    and not _open_part_for(name, description)):
+                camps.append((owner, name))
+        for park, entire in parks.items():
+            item = item_for(park)
+            if kind.lower() == "closure":
+                heading = ("Closed parks: " if entire else "Closed areas: ") + title
+            else:
+                heading = _API_HEADING.get(kind.lower(), "Other incidents") + ": " + title
+            body = list(lines)
+            if kind.lower() == "closure" and entire:
+                body.append(f"{park} is closed.")
+            body_text = "\n".join(body)
+            item["sections"].append((heading, body_text))
+            if lead:
+                # Keyed by the whole section: two alerts in one park can share
+                # a title (Kosciuszko has two "facilities maintenance" closures).
+                item["windows"][(heading, body_text)] = lead
+            for owner, camp in camps:
+                if owner == park:
+                    item["closed_places"].append({
+                        "piece": camp,
+                        "desc": clip(". ".join(part for part in (title, " ".join(_sentences(description)[:2])) if part)),
+                        "section": (lead + "\n" if lead else "") + heading + "\n" + body_text,
+                    })
+            if modified and (item["published"] is None or modified > item["published"]):
+                item["published"] = modified
+    out = []
+    for item in items.values():
+        item["published"] = _rfc2822(item["published"])
+        out.append(item)
+    return out, newest
+
+
+def rss_built(payload):
+    """The RSS channel lastBuildDate in Australia/Melbourne, or None."""
+    if isinstance(payload, bytes):
+        payload = payload.decode("utf-8", "replace")
+    match = re.search(r"<lastBuildDate>([^<]+)</lastBuildDate>", payload or "")
+    if not match:
+        return None
+    from email.utils import parsedate_to_datetime
+    try:
+        return parsedate_to_datetime(match.group(1).strip()).astimezone(facts.MELBOURNE)
+    except (TypeError, ValueError, IndexError, OverflowError):
+        return None
 
 
 def parse_fdr(payload):
@@ -410,6 +634,17 @@ def _resolve_day(token, year):
         return None
 
 
+def _weekday_year(token, year):
+    """The year nearest the default whose date falls on the printed weekday."""
+    if not token or token.get("year") or token.get("weekday") is None or not year:
+        return year
+    for candidate in (year, year - 1, year + 1):
+        day = _resolve_day(token, candidate)
+        if day and day.weekday() == token["weekday"]:
+            return candidate
+    return year
+
+
 def closure_timing(text, now=None):
     """Classify one alert section against the Australia/Melbourne clock.
 
@@ -417,9 +652,10 @@ def closure_timing(text, now=None):
     first open day. A "to <day>" end is inclusive, so reopen is the next
     day; an "until <time> <day>" end reopens that day at that time. A start later than now is upcoming. An end
     that has passed is expired and must not be shown as closed. When the
-    end date carries the only year, the start uses that year. A weekday
-    that disagrees does not pull a future start back into the past; an
-    ambiguous window that is not clearly finished is upcoming.
+    end date carries the only year, the start uses that year, unless a
+    printed weekday only fits the year before or after (13 April is a
+    Monday in 2026, not 2027). A weekday that fits no nearby year leaves
+    the window ambiguous; one that is not clearly finished is upcoming.
     """
     now = now or dt.datetime.now(facts.MELBOURNE)
     if now.tzinfo is None:
@@ -471,6 +707,10 @@ def closure_timing(text, now=None):
             end_year = start_tok["year"]
     if end_tok and not end_tok.get("year") and start_tok is None:
         end_year = now.year
+    # A weekday printed with a yearless date picks the year: "Monday 13 April
+    # to Wednesday 30 June 2027" is 13 April 2026, the nearest Monday 13 April.
+    start_year = _weekday_year(start_tok, start_year)
+    end_year = _weekday_year(end_tok, end_year)
     start_day = _resolve_day(start_tok, start_year)
     end_day = _resolve_day(end_tok, end_year)
     start_ok = start_day is None or start_tok.get("weekday") is None or start_day.weekday() == start_tok["weekday"]
@@ -590,7 +830,7 @@ def reserve_campgrounds_exempt(body, reserve):
     for sentence in _sentences(body):
         if not _EXEMPT.search(sentence):
             continue
-        match = re.search(r"campgrounds in ([^.]+?) (?:as well as|are not|will remain|remain)", sentence, re.I)
+        match = re.search(r"campgrounds in ([^.]+?) (?:as well as|and|are not|will remain|remain)", sentence, re.I)
         if match and reserve["title_norm"] in norm(match.group(1)):
             return True
     return False
@@ -695,6 +935,7 @@ def index_closures(items, reserves):
         by_norm.setdefault(reserve["title_norm"], reserve)
     title_norms = sorted(by_norm, key=len, reverse=True)
     whole = {}
+    whole_all = {}
     listed = {}
     named = {}
     exempt = {}
@@ -716,13 +957,29 @@ def index_closures(items, reserves):
                 section = ""
                 for heading, body in item.get("sections") or []:
                     if heading.lower().startswith("closed parks"):
-                        section = heading + "\n" + body
+                        lead = (item.get("windows") or {}).get((heading, body))
+                        section = (lead + "\n" if lead else "") + heading + "\n" + body
                         break
                 whole[scope] = {"piece": "", "desc": text, "url": url, "section": section or text}
+            # Every whole-park section, so a closure in force today beats a
+            # later one for the same park (Capertee has two shooting windows).
+            windows = item.get("windows") or {}
+            for heading, body in item.get("sections") or []:
+                if not heading.lower().startswith("closed parks"):
+                    continue
+                one = whole_park_closure(by_norm[scope], {"link": item["link"], "sections": [(heading, body)]})
+                if one:
+                    lead = windows.get((heading, body))
+                    whole_all.setdefault(scope, []).append({
+                        "piece": "", "desc": one[0], "url": one[1],
+                        "section": (lead + "\n" if lead else "") + heading + "\n" + body,
+                    })
+        windows = item.get("windows") or {}
         for heading, body in item.get("sections") or []:
             if not heading.lower().startswith(("closed areas", "closed parks")):
                 continue
-            section = heading + "\n" + body
+            lead = windows.get((heading, body))
+            section = (lead + "\n" if lead else "") + heading + "\n" + body
             group = _title_in(heading, title_norms) or scope
             mode = "closed" if group and _list_is_closure(heading, body) else ""
             if group and reserve_campgrounds_exempt(body, by_norm[group]):
@@ -787,7 +1044,10 @@ def index_closures(items, reserves):
                 for piece in _name_pieces(head.group(1)):
                     piece = re.sub(r"\s+(?:campgrounds?|camping areas?|campsites?)$", "", piece.strip(), flags=re.I)
                     add_named(scope, piece, clip(_official(heading, body)), item["link"], section)
-    return {"whole": whole, "listed": listed, "named": named, "exempt": exempt}
+        # NPWS records the campground itself as "All parts are closed".
+        for place in item.get("closed_places") or []:
+            add_named(scope, place["piece"], place["desc"], item["link"], place["section"])
+    return {"whole": whole, "whole_all": whole_all, "listed": listed, "named": named, "exempt": exempt}
 
 
 def _piece_hits(rows, camp_name):
@@ -851,6 +1111,7 @@ def lookup_closure(index, reserve, camp_name, now=None):
     candidates = []
     if title in index["whole"]:
         candidates.append(index["whole"][title])
+    candidates.extend((index.get("whole_all") or {}).get(title) or [])
     if not starred and not _exempt_hit(rows, camp_name):
         if title in index["listed"]:
             candidates.append(index["listed"][title])
@@ -1146,31 +1407,49 @@ def _fetch_ok(payload, label):
 def apply(camps, sources, fetch_json, fetch_text):
     """Fetch NSW alerts and fire danger. Failures are warnings, not a failed build."""
     sources = sources or {}
+    api = sources.get("npws_alerts_api") or {}
     alerts = sources.get("npws_alerts_rss") or {}
     reserves = sources.get("npws_reserves") or {}
     fdr = sources.get("rfs_fdr") or {}
     areas = sources.get("rfs_fire_areas") or {}
     try:
-        if alerts.get("url") and reserves.get("url"):
-            rss = _fetch_ok(fetch_text("npws_alerts_rss", alerts["url"]), "NPWS alerts RSS")
-            features = _fetch_ok(_query(fetch_json, "npws_reserves", reserves["url"], "reservename,reservetype"), "NPWS reserve boundaries") if rss else None
-            if rss and features is not None:
-                items = parse_rss(rss)
+        if (api.get("url") or alerts.get("url")) and reserves.get("url"):
+            items, updated, label, page = [], None, "", ""
+            if api.get("url"):
+                payload = _fetch_ok(fetch_text("npws_alerts_api", api["url"]), "NPWS alerts API")
+                items, updated = parse_api(payload)
+                label, page = "NPWS alerts API", api.get("page") or NPWS_ALERTS_PAGE
+                if payload and not items:
+                    print("WARN NPWS alerts API returned no readable alerts", file=sys.stderr)
+            if not items and alerts.get("url"):
+                # The RSS stopped updating on 20 Oct 2026. It is a fallback only,
+                # and its own build date is shown, so a stale feed is visible.
+                rss = _fetch_ok(fetch_text("npws_alerts_rss", alerts["url"]), "NPWS alerts RSS")
+                items, updated = parse_rss(rss), rss_built(rss)
+                label, page = "NPWS alerts RSS", alerts["url"]
+                if items:
+                    print("WARN NPWS alerts from the RSS fallback, built " + (updated.isoformat() if updated else "unknown"), file=sys.stderr)
+            features = _fetch_ok(_query(fetch_json, "npws_reserves", reserves["url"], "reservename,reservetype"), "NPWS reserve boundaries") if items else None
+            if items and features is not None:
                 records = _reserve_records(features)
-                if items and records:
+                if records:
                     for camp in camps:
-                        camp["alerts_feed"] = alerts["url"]
+                        camp["alerts_feed"] = page
+                        if updated:
+                            camp["alerts_updated"] = updated.isoformat()
                     summary = apply_alert_records(camps, records, items)
                     print(
-                        f"NPWS alerts: {len(items)} items, {summary['affected']} camps affected, "
-                        f"{summary['closed']} closed, {summary['upcoming']} upcoming"
+                        f"{label}: {len(items)} items, updated {updated.isoformat() if updated else 'unknown'}, "
+                        f"{summary['affected']} camps affected, {summary['closed']} closed, {summary['upcoming']} upcoming"
                     )
                     if summary["unmatched_closed"]:
                         print("NPWS closed-park titles without a reserve polygon: " + "; ".join(summary["unmatched_closed"][:12]))
                 else:
                     print("WARN NPWS alerts could not be read; camp status left unchanged", file=sys.stderr)
-        elif alerts.get("url") or reserves.get("url"):
-            print("WARN NPWS alerts need both the RSS and reserve boundaries; neither was applied", file=sys.stderr)
+            elif not items:
+                print("WARN NPWS alerts unavailable from the API and the RSS; camp status left unchanged", file=sys.stderr)
+        elif alerts.get("url") or api.get("url") or reserves.get("url"):
+            print("WARN NPWS alerts need an alerts source and reserve boundaries; neither was applied", file=sys.stderr)
     except Exception as exc:
         print("WARN NPWS alerts", exc, file=sys.stderr)
     try:

@@ -21,6 +21,36 @@ STATE = None
 CREDIT = PV_LABEL = SAFETY = SLUG = ""
 LABELS, LINKS, COPY, REGIONS = {}, {}, {}, {}
 WFS = MS = ""
+# NSW alerts freshness per state slug: {"updated": ISO or "", "feed": url}.
+ALERTS_UPDATED = {}
+ALERTS_STALE_DAYS = 2
+
+def alerts_line(slug):
+    """Visible "NSW alerts updated <time>" with a warning past two days.
+
+    The build checks the age, and a small script rechecks it in the browser,
+    so a page served from a stalled build still warns."""
+    info = ALERTS_UPDATED.get(slug)
+    if not info:
+        return ""
+    label = html.escape(str(info.get("label") or "Alerts"))
+    feed = html.escape(str(info.get("feed") or ""))
+    link = f' <a href="{feed}">NPWS alerts</a>' if feed.startswith("https://") else ""
+    when = info.get("updated") or ""
+    stale_msg = (f"{label} may be out of date: the newest NPWS alert update is more than "
+                 f"{ALERTS_STALE_DAYS} days old. Check the NPWS alerts page before you travel.")
+    if not when:
+        return (f'<p class="muted alerts-updated">{label} could not be fetched in this update.{link}</p>'
+                f'<div class="warn alerts-stale">{label} were unavailable when this page was built. Check the NPWS alerts page before you travel.</div>')
+    stamp = dt.datetime.fromisoformat(when).astimezone(TZ)
+    shown = stamp.strftime("%-d %B %Y, %-I:%M %p %Z")
+    stale = (NOW - stamp) > dt.timedelta(days=ALERTS_STALE_DAYS)
+    hidden = "" if stale else " hidden"
+    return (f'<p class="muted alerts-updated" data-updated="{html.escape(stamp.isoformat())}">{label} updated {html.escape(shown)}.{link}</p>'
+            f'<div class="warn alerts-stale"{hidden}>{html.escape(stale_msg)}</div>'
+            '<script>(function(){var s=document.currentScript,w=s.previousElementSibling,p=w.previousElementSibling;'
+            'var t=Date.parse(p.getAttribute("data-updated"));'
+            f'if(t&&Date.now()-t>{ALERTS_STALE_DAYS}*864e5)w.hidden=false;}})();</script>')
 
 def bind(state):
     """Point the page templates at one state's config."""
@@ -32,7 +62,7 @@ def bind(state):
     COPY = state.get("copy") or {}
     SLUG = state["slug"]
     PV_LABEL = LABELS.get("paid_book") or ""
-    SAFETY = state.get("safety_html") or ""
+    SAFETY = alerts_line(state["slug"]) + (state.get("safety_html") or "")
     REGIONS = {key: (name, blurb) for key, name, blurb in statecfg.regions(state)}
     rec = (state.get("sources") or {}).get("recreation_sites") or {}
     clo = (state.get("sources") or {}).get("closures") or {}
@@ -674,9 +704,17 @@ for state, official, osm_rows, state_closures in loaded:
     if statecfg.path(state, "enrichment"):
         apply_datavic_enrichment(state_camps)
     sources = state.get("sources") or {}
-    if sources.get("npws_alerts_rss") or sources.get("rfs_fdr"):
+    if sources.get("npws_alerts_api") or sources.get("npws_alerts_rss") or sources.get("rfs_fdr"):
         import nsw_conditions
         nsw_conditions.apply(state_camps, sources, fetch, fetch_text)
+        if sources.get("npws_alerts_api") or sources.get("npws_alerts_rss"):
+            stamped = next((c for c in state_camps if c.get("alerts_feed")), {})
+            ALERTS_UPDATED[state["slug"]] = {
+                "label": f"{state.get('abbrev') or state['slug'].upper()} alerts",
+                "updated": stamped.get("alerts_updated") or "",
+                "feed": stamped.get("alerts_feed") or (sources.get("npws_alerts_api") or {}).get("page") or "",
+            }
+            bind(state)
     if sources.get("cfa_fdr") and sources.get("cfa_tfb_districts"):
         import cfa_conditions
         cfa_conditions.apply(state_camps, sources, fetch, fetch_text, SRC)
@@ -2763,6 +2801,9 @@ feed = {"name": "CampConditions.au status feed", "region": feed_region, "generat
         "attribution": attribution,
         "disclaimer": feed_disclaimer, "sources": SRC,
         "camps": [status_camp(c) for c in camps]}
+if ALERTS_UPDATED:
+    # When each state's park alerts were last updated by the agency.
+    feed["alerts_updated"] = {slug: info.get("updated") or None for slug, info in ALERTS_UPDATED.items()}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
 # HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:
 # Pages joins every matching Cache-Control, and the strictest directive wins.

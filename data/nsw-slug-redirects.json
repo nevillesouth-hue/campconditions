@@ -1,0 +1,41 @@
+{
+ "_note": "Old NSW camp slugs from before manual-corrections-nsw.json batch 1 (PR #17, 30 Oct 2026). Renamed camps keep the same OSM point; duplicates point at the camp the correction keeps. build.py writes a 301 only when the new page exists and the old one does not.",
+ "renamed": {
+  "bodalla-forest-park-rest-area": "bodalla-forest-rest-area",
+  "bulahdelah-showgrounds": "bulahdelah-showground",
+  "burdett-park": "burdett-park-fernmount",
+  "casino-racecourse-showground": "casino-showground-and-racecourse-self-contained-rv-sites",
+  "copmanhurst-showground": "copmanhurst-sport-and-recreation-reserve",
+  "corindi-beach-reserve-campground": "corindi-beach-reserve",
+  "digger-s-camp": "diggers-camp",
+  "east-dorrigo-community-hall-and-showground-campground": "eastern-dorrigo-community-hall-and-showground-ulong",
+  "glenreagh-recreation-reserve": "glenreagh-camping-reserve",
+  "gloryvale-reserve": "gloryvale-reserve-campgrounds",
+  "grafton-greyhound-racing-club": "grafton-greyhound-racing-club-campground",
+  "grafton-showgrounds": "grafton-showground-campground",
+  "maclean-showgrounds": "maclean-showground-campground",
+  "milton-showground-primitive-camping-ground": "milton-showground-campground",
+  "mullumbimby-leagues-club": "mullumbimby-leagues-club-camping",
+  "murwillumbah-showgrounds": "murwillumbah-showground-campground",
+  "patonga-foreshore-caravan-camping-area": "patonga-caravan-and-camping-area",
+  "red-devil-camping": "red-devils-campsite",
+  "rocks-crossing-reserve": "rocks-crossing-campground",
+  "stroud-showground-camping-area": "stroud-showground-camping",
+  "swans-creek-crossing-kerewong-sf": "swans-crossing",
+  "taylors-arm-reserve": "taylors-arm-sports-reserve",
+  "thora-roses-park-rest-area": "roses-park-rest-area-roses-road-reserve-thora"
+ },
+ "duplicates": {
+  "stroud-showground": "stroud-showground-camping",
+  "ulong-showground": "eastern-dorrigo-community-hall-and-showground-ulong",
+  "casino-showground-equestrian-centre": "casino-showground-and-racecourse-self-contained-rv-sites",
+  "milton-showground": "milton-showground-campground",
+  "comboyne-showground": "comboyne-showgrounds",
+  "kempsey-showground": "kempsey-showground-camping",
+  "bellingen-showground": "bellingen-showgrounds",
+  "taree-showgrounds": "taree-showground"
+ },
+ "excluded_replaced": {
+  "bulahdelah-rest-area": "lions-park-bulahdelah"
+ }
+}

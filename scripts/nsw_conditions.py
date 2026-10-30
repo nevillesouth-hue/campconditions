@@ -50,12 +50,25 @@ _PARTIAL = re.compile(
     re.I,
 )
 _FIRE_BAN = re.compile(r"park fire ban|solid fuel|no solid fuel", re.I)
+# NPWS often puts an adverb between the verb and "closed": "remains temporarily
+# closed", "is currently closed". "Partially closed" is not in this list.
+_CLOSED_ADVERB = r"(?: (?:permanently|temporarily|currently|still|now|fully|completely|indefinitely))?"
 _CLOSED_SENTENCE = re.compile(
-    r"([A-Z][^.\n]{2,140}?) (?:(?:is|are|will be|will remain|remains|remain|has|have)(?: permanently)?|permanently) closed\b"
+    r"([A-Z][^.\n]{2,140}?) (?:(?:is|are|will be|will remain|remains|remain|has been|have been|has|have)"
+    + _CLOSED_ADVERB + r"|permanently|temporarily) closed\b"
+)
+# A Closed areas heading that names the campground: "White Tree Bay campground
+# closed due to flood repairs". Closed to 4WD vehicles, caravans or dogs is not
+# a campground closure; closed to the public or visitors is.
+_HEADING_CLOSED = re.compile(
+    r"^(?:Closed areas|Closed parks)\s*:\s*(.+?\b(?:campgrounds?|camping areas?|campsites?))\s+"
+    r"(?:(?:is|are|remains|remain)" + _CLOSED_ADVERB + r"\s+)?(?:temporarily\s+)?closed\b(?!\s+to\s+(?!the public|visitors|public))",
+    re.I,
 )
 _GENERIC_WORDS = {"picnic", "area", "areas", "day", "use", "and", "the", "site", "sites"}
 _VISITOR_CLOSED = re.compile(
     r"will remain closed|will be closed|is currently closed|\bis closed\b|\bare closed\b|remains closed|"
+    r"\b(?:is|are|remains|remain|will remain) temporarily closed\b|"
     r"closed to (?:the public|visitors|public)|no public access|there is no access|no access to|"
     r"permanently closed|do not enter|visitors may not|\barea closed\b",
     re.I,
@@ -714,6 +727,13 @@ def index_closures(items, reserves):
                 if not _sentence_closes_camp(sentence, piece):
                     continue
                 add_named(scope, piece, clip(sentence), item["link"], section)
+            head = _HEADING_CLOSED.search(heading)
+            # Only a heading over plain prose; a bulleted list names its own camps.
+            bulleted = any(line.startswith("- ") for line in body.split("\n"))
+            if head and not bulleted and not _PARTIAL.search(heading) and not re.search(r"\bpartial", heading, re.I) and not _EXEMPT.search(body):
+                for piece in _name_pieces(head.group(1)):
+                    piece = re.sub(r"\s+(?:campgrounds?|camping areas?|campsites?)$", "", piece.strip(), flags=re.I)
+                    add_named(scope, piece, clip(_official(heading, body)), item["link"], section)
     return {"whole": whole, "listed": listed, "named": named, "exempt": exempt}
 
 

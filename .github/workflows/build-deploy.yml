@@ -2,6 +2,10 @@ name: Build and deploy
 on:
   schedule:
     - cron: "17 */3 * * *"   # every 3 hours (UTC)
+    # Extra runs so dated closures flip close to the time NPWS gives:
+    # 23:02 UTC is 10:02am AEDT (10am reopenings), 03:02 UTC is 2:02pm AEDT (2pm closures).
+    - cron: "2 23 * * *"
+    - cron: "2 3 * * *"
   workflow_dispatch:
   push:
     branches: [main]

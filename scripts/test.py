@@ -459,7 +459,8 @@ if 'name="apple-mobile-web-app-capable"' not in home or 'name="apple-mobile-web-
 headers = open(os.path.join(D, "_headers"), encoding="utf-8").read()
 if "/status.json" not in headers or "/vic/*" not in headers or headers.count("Cache-Control: no-cache") < 8 or "/assets/" in headers:
   bad.append(("_headers", "no-cache"))
-if home.find('href="/report/">Report conditions') < 0 or home.find('href="/about/">About') < home.find('href="/report/">Report conditions'):
+_rep = home.find('href="/report/">Report<span class="nav-x"> conditions</span></a>')
+if _rep < 0 or home.find('<a href="/faq/">FAQ</a><a href="/about/">About</a></nav>') < _rep or ".nav-x{display:none}" not in home:
   bad.append(("/", "about nav"))
 if "flex:1 0 100%;flex-wrap:nowrap" not in home:
   bad.append(("/", "nav collapse"))
@@ -1691,7 +1692,7 @@ for r, _, fs in os.walk(D):
 _home_html = open(os.path.join(D, "index.html"), encoding="utf-8").read()
 for _path in _info:
     if f'href="{_path}"' not in _home_html: bad.append(("/", "footer link", _path))
-if 'href="/faq/"' in _home_html.split("<main", 1)[0]: bad.append(("/", "new link in header"))
+if _home_html.split("<main", 1)[0].count('href="/faq/"') != 1: bad.append(("/", "faq link in header nav"))
 _sm_text = open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read()
 _sm_rows = re.findall(r"<url><loc>https://campconditions.au(.*?)</loc><lastmod>(.*?)</lastmod></url>", _sm_text)
 if len(_sm_rows) != len(sm) or len(set(sm)) != len(sm): bad.append(("sitemap", "duplicate or malformed rows"))

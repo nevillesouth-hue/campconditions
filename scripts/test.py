@@ -1656,6 +1656,82 @@ for slug, reopen in (("ewarts-flat", "2027-05-28"), ("taylors", "2027-05-28"), (
         bad.append((slug, "still listed closed"))
     if "function melbourneDay" not in page_html or "upcoming_closure" not in page_html:
         bad.append((slug, "refresh script"))
+# FAQ, About the data and Closures this weekend: built, linked from every footer,
+# in the sitemap with valid lastmod dates, and listed in llms.txt for both states.
+def _ld_blocks(text):
+    return [json.loads(m) for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', text, re.S)]
+_info = {"/faq/": "FAQPage", "/about-the-data/": "Dataset", "/closures-this-weekend/": "ItemList"}
+for _path, _type in _info.items():
+    _fp = os.path.join(D, _path.strip("/"), "index.html")
+    if not os.path.isfile(_fp):
+        bad.append((_path, "missing")); continue
+    _html = open(_fp, encoding="utf-8").read()
+    _blocks = _ld_blocks(_html)
+    _types = [b.get("@type") for b in _blocks]
+    if _type not in _types or "BreadcrumbList" not in _types: bad.append((_path, "json-ld types", _types))
+    for _b in _blocks:
+        if _b.get("@context") != "https://schema.org": bad.append((_path, "json-ld context"))
+    if f'<link rel="canonical" href="https://campconditions.au{_path}"' not in _html: bad.append((_path, "canonical"))
+    if national and ("/vic/" not in _html or "/nsw/" not in _html): bad.append((_path, "both states"))
+_faq_html = open(os.path.join(D, "faq", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "faq", "index.html")) else ""
+for _b in _ld_blocks(_faq_html):
+    if _b.get("@type") == "FAQPage":
+        _qs = _b.get("mainEntity") or []
+        if len(_qs) < 5 or any(not q.get("name") or not (q.get("acceptedAnswer") or {}).get("text") for q in _qs): bad.append(("/faq/", "faq entities"))
+        for _q in _qs:
+            if html.escape(_q["name"], quote=False) not in _faq_html: bad.append(("/faq/", "question not on page", _q["name"]))
+# Every page's JSON-LD names a schema.org context and type.
+for r, _, fs in os.walk(D):
+    if draft_dir(r): continue
+    for f in fs:
+        if not f.endswith(".html"): continue
+        for _b in _ld_blocks(open(os.path.join(r, f), encoding="utf-8").read()):
+            if _b.get("@context") != "https://schema.org" or not _b.get("@type"):
+                bad.append((os.path.join(r, f)[len(D):], "json-ld context/type")); break
+_home_html = open(os.path.join(D, "index.html"), encoding="utf-8").read()
+for _path in _info:
+    if f'href="{_path}"' not in _home_html: bad.append(("/", "footer link", _path))
+if 'href="/faq/"' in _home_html.split("<main", 1)[0]: bad.append(("/", "new link in header"))
+_sm_text = open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read()
+_sm_rows = re.findall(r"<url><loc>https://campconditions.au(.*?)</loc><lastmod>(.*?)</lastmod></url>", _sm_text)
+if len(_sm_rows) != len(sm) or len(set(sm)) != len(sm): bad.append(("sitemap", "duplicate or malformed rows"))
+for _u, _lm in _sm_rows:
+    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", _lm) or _lm > MEL_TODAY: bad.append(("sitemap", "lastmod", _u, _lm)); break
+for _path in _info:
+    if _path not in sm: bad.append(("sitemap", "missing", _path))
+_llms = open(os.path.join(D, "llms.txt"), encoding="utf-8").read()
+if "preview" in _llms.lower(): bad.append(("llms.txt", "preview wording"))
+for _path in _info:
+    if "https://campconditions.au" + _path not in _llms: bad.append(("llms.txt", "missing", _path))
+if national:
+    for _name in ("## Victoria", "## New South Wales", "### Victoria regions", "### New South Wales regions"):
+        if _name not in _llms: bad.append(("llms.txt", "section", _name))
+    if _llms.count("- Attribution: ") != 2: bad.append(("llms.txt", "attribution per state"))
+_headers = open(os.path.join(D, "_headers"), encoding="utf-8").read()
+for _path in _info:
+    if _path + "*\n  Cache-Control: no-cache" not in _headers: bad.append(("_headers", _path))
+# Closures this weekend lists every camp the feed has closed into the weekend.
+_wk = open(os.path.join(D, "closures-this-weekend", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "closures-this-weekend", "index.html")) else ""
+for _c in feed["camps"]:
+    _rec = _c.get("closure") or {}
+    if _c.get("status") == "closed" and not _rec.get("reopen"):
+        _href = urllib.parse.urlparse(_c.get("url") or "").path
+        if _href and f'href="{_href}"' not in _wk: bad.append(("/closures-this-weekend/", "missing closed camp", _c.get("slug")))
+# NPWS clock times are kept beside the ISO dates and spoken on the camp page.
+if (_b1 or {}).get("start_time") != "14:00" or (_b1 or {}).get("reopen_time") != "10:00":
+    bad.append(("alerts", "berlang clock", _b1))
+if (_thredbo_hit or {}).get("start_time") or (_thredbo_hit or {}).get("reopen_time"):
+    bad.append(("alerts", "thredbo clock", _thredbo_hit))
+# Berlang: NPWS closes it from 2pm Sunday 1 November until 10am Saturday 7 November 2026.
+_berlang_row = next((c for c in feed["camps"] if (c.get("name") or "").lower().startswith("berlang") and "/nsw/" in (c.get("url") or "")), None)
+if _berlang_row and MEL_TODAY <= "2026-11-06":
+    _rec = _berlang_row.get("closure") or _berlang_row.get("upcoming_closure") or {}
+    if _rec and (_rec.get("reopen") != "2026-11-07" or _rec.get("reopen_time") != "10:00"):
+        bad.append(("berlang feed", _rec.get("reopen"), _rec.get("reopen_time")))
+    _bp = os.path.join(D, urllib.parse.urlparse(_berlang_row["url"]).path.strip("/"), "index.html")
+    _bhtml = open(_bp, encoding="utf-8").read() if os.path.isfile(_bp) else ""
+    if _rec and "Reopens 10am Saturday 7 November 2026" not in _bhtml: bad.append(("berlang page", "spoken reopen"))
+    if _rec and f'href="{urllib.parse.urlparse(_berlang_row["url"]).path}"' not in _wk: bad.append(("berlang", "not on weekend page"))
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

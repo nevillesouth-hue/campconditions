@@ -5,7 +5,7 @@ Each enabled state in config/states supplies its name, sources, regions, labels
 and page copy. Victoria and New South Wales are both enabled. Victoria stays
 the primary state: /map.js, the about page and the top-level digest draft.
 """
-import importlib, io, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
+import hashlib, importlib, io, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
 import states as statecfg
@@ -84,13 +84,56 @@ def _read_response(url, headers=None):
             b = gzip.decompress(b)
     return b
 
+# Boundary polygons change rarely. When one of these feeds times out, the last
+# good copy (kept between builds by the Actions cache) is used with a warning,
+# so a slow boundary server cannot fail the build. Closure and fire danger
+# feeds are never in this list: they are always read live.
+LAST_GOOD_SOURCES = {"cfa_tfb_districts", "npws_reserves", "rfs_fire_areas"}
+LAST_GOOD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", ".last-good")
+LAST_GOOD_MAX_AGE = dt.timedelta(days=30)
+
+def _last_good_path(url):
+    return os.path.join(LAST_GOOD_DIR, hashlib.sha256(url.encode("utf-8")).hexdigest() + ".json")
+
+def _last_good_save(url, doc):
+    try:
+        os.makedirs(LAST_GOOD_DIR, exist_ok=True)
+        tmp = _last_good_path(url) + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as handle:
+            json.dump({"url": url, "fetched": NOW.isoformat(), "doc": doc}, handle)
+        os.replace(tmp, _last_good_path(url))
+    except OSError as e:
+        print("WARN last good copy not saved", e, file=sys.stderr)
+
+def _last_good_load(url):
+    try:
+        with open(_last_good_path(url), encoding="utf-8") as handle:
+            row = json.load(handle)
+        fetched = dt.datetime.fromisoformat(row["fetched"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return None, ""
+    if NOW - fetched > LAST_GOOD_MAX_AGE:
+        return None, ""
+    return row.get("doc"), row["fetched"]
+
 def fetch(name, url):
     try:
         d = json.loads(_read_response(url))
+        if name in LAST_GOOD_SOURCES:
+            if isinstance(d, dict) and d.get("error"):
+                raise ValueError(f"service error: {str(d.get('error'))[:150]}")
+            _last_good_save(url, d)
         SRC[name] = {"ok": True, "url": url, "fetched": NOW.isoformat()}
         return d
     except Exception as e:
-        SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr); return None
+        SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr)
+        if name in LAST_GOOD_SOURCES:
+            doc, fetched = _last_good_load(url)
+            if doc is not None:
+                SRC[name]["fallback"] = "last good boundary copy fetched " + fetched
+                print(f"WARN {name}: using last good boundary copy fetched {fetched}", file=sys.stderr)
+                return doc
+        return None
 
 def fetch_text(name, url, headers=None):
     """Bytes of a non-JSON feed. A failure is recorded and returns nothing."""
@@ -2937,7 +2980,7 @@ for label, pred in (
     ("Hide closed", lambda c: c.get("status") == "closed"),
 ):
     print(f"  {sum(1 for c in camps if pred(c)):4d}  {label}")
-for k, v in SRC.items(): print(("OK  " if v["ok"] else "FAIL"), k, v.get("error", ""))
+for k, v in SRC.items(): print(("OK  " if v["ok"] else "FAIL"), k, v.get("error", ""), ("(" + v["fallback"] + ")") if v.get("fallback") else "")
 for state in statecfg.enabled():
     checker_name = (state.get("closure_checker") or "").strip()
     if not checker_name:

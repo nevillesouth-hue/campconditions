@@ -8,3 +8,4 @@ __pycache__/
 .wrangler/
 .env
 *.osm.pbf
+data/.last-good/

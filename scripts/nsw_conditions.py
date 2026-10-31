@@ -660,7 +660,7 @@ def closure_timing(text, now=None):
     now = now or dt.datetime.now(facts.MELBOURNE)
     if now.tzinfo is None:
         now = now.replace(tzinfo=facts.MELBOURNE)
-    empty = {"kind": "current", "start": None, "reopen": None}
+    empty = {"kind": "current", "start": None, "reopen": None, "start_time": None, "reopen_time": None}
     tokens = _date_tokens(text)
     if not tokens:
         return empty
@@ -735,10 +735,15 @@ def closure_timing(text, now=None):
         kind = "expired"
     else:
         kind = "current"
+    start_clock = (start_tok or {}).get("clock")
     return {
         "kind": kind,
         "start": start_day.isoformat() if start_day else None,
         "reopen": reopen_day.isoformat() if reopen_day else None,
+        # Clock times NPWS printed ("from 2pm", "until 10am"), as HH:MM in
+        # Australia/Melbourne. None when the text gives the day only.
+        "start_time": "%02d:%02d" % start_clock if start_day and start_clock else None,
+        "reopen_time": "%02d:%02d" % end_clock if reopen_day and end_clock else None,
     }
 
 
@@ -1095,6 +1100,8 @@ def _choose_closure(candidates, now):
         "kind": timing["kind"],
         "start": timing["start"],
         "reopen": timing["reopen"],
+        "start_time": timing.get("start_time"),
+        "reopen_time": timing.get("reopen_time"),
     }
 
 
@@ -1357,6 +1364,9 @@ def apply_alert_records(camps, reserve_records, items):
                 "source_url": chosen["url"],
                 "source_published": published_by_link.get(chosen["url"]) or "",
             }
+            for key in ("start_time", "reopen_time"):
+                if chosen.get(key):
+                    record[key] = chosen[key]
             if chosen.get("kind") == "upcoming":
                 # The visitor-area layer still has no open status. Leave check,
                 # and show the upcoming notice instead of a Closed badge.

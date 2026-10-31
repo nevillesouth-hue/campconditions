@@ -836,7 +836,7 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
-.card a{color:var(--g);font-weight:600}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
+.card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
 .box{background:#fff;border:2px dashed var(--o);border-radius:10px;padding:1rem;margin:1rem 0}input,textarea,select,button{font:inherit;padding:.45rem;border:1px solid #bbb;border-radius:6px}button{background:var(--o);color:#fff;border:0;cursor:pointer}
 a{color:var(--g)}
 .signup label{display:block;font-weight:700;margin:0 0 .35rem}
@@ -1153,6 +1153,20 @@ FRESH_JS = r"""<script>
     } catch (err) {}
     return raw.slice(0, 10);
   }
+  function spokenDay(value, clock) {
+    var day = melbourneDay(value);
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
+    if (!m) return day;
+    var names = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    var out = names[new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).getUTCDay()] + " " + (+m[3]) + " " + months[+m[2] - 1] + " " + m[1];
+    var t = /^(\d{2}):(\d{2})$/.exec(String(clock || ""));
+    if (t) {
+      var h = +t[1], mi = +t[2];
+      out = ((h % 12) || 12) + (mi ? ":" + t[2] : "") + (h < 12 ? "am" : "pm") + " " + out;
+    }
+    return out;
+  }
   function closureHtml(c) {
     if (!c) return null;
     if (c.source === "osm") {
@@ -1160,8 +1174,8 @@ FRESH_JS = r"""<script>
       var upOsm = !ov && c.upcoming;
       if (upOsm && upOsm.desc && upOsm.source_url && String(upOsm.source_url).indexOf("nationalparks.nsw.gov.au") !== -1) {
         var upWhen = "";
-        if (upOsm.start) upWhen += " · Starts " + esc(melbourneDay(upOsm.start));
-        if (upOsm.reopen) upWhen += " · Reopens " + esc(melbourneDay(upOsm.reopen));
+        if (upOsm.start) upWhen += " · Starts " + esc(spokenDay(upOsm.start, upOsm.start_time));
+        if (upOsm.reopen) upWhen += " · Reopens " + esc(spokenDay(upOsm.reopen, upOsm.reopen_time));
         return '<div class="warn"><strong>Upcoming closure:</strong> ' + esc(upOsm.desc) + upWhen + ' <span class="muted">Official NPWS wording.</span> <a href="' + esc(upOsm.source_url) + '">NPWS alert</a></div>';
       }
       if (!ov || !ov.desc || !ov.source_url) return null;
@@ -1172,8 +1186,8 @@ FRESH_JS = r"""<script>
       var npwsBlock = c.closure || c.upcoming || null;
       if (!npwsBlock || !npwsBlock.desc) return null;
       var npwsWhen = "";
-      if (npwsUp && npwsBlock.start) npwsWhen += " · Starts " + esc(melbourneDay(npwsBlock.start));
-      if (npwsBlock.reopen) npwsWhen += " · Reopens " + esc(melbourneDay(npwsBlock.reopen));
+      if (npwsUp && npwsBlock.start) npwsWhen += " · Starts " + esc(spokenDay(npwsBlock.start, npwsBlock.start_time));
+      if (npwsBlock.reopen) npwsWhen += " · Reopens " + esc(spokenDay(npwsBlock.reopen, npwsBlock.reopen_time));
       var npwsLink = npwsBlock.source_url ? ' <a href="' + esc(npwsBlock.source_url) + '">NPWS alert</a>' : "";
       return '<div class="warn"><strong>' + (npwsUp ? "Upcoming closure:" : "Closed:") + "</strong> " + esc(npwsBlock.desc) + npwsWhen + ' <span class="muted">Official NPWS wording.</span>' + npwsLink + "</div>";
     }
@@ -1389,7 +1403,7 @@ def footer_credits(shared=False):
     return "\n".join(blocks)
 def footer(shared=False):
     return f"""<footer>{footer_credits(shared)}
-<p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
+<p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
 {FRESH_JS}"""
 def vicemergency_url(lat, lon, name="", slug=""):
@@ -2073,7 +2087,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     if on_home is None:
         on_home = path == "/"
     national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
-    shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/"}
+    shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/", "/faq/", "/about-the-data/", "/closures-this-weekend/"}
     og_title, og_desc = title, desc
     if path == "/":
         og_title = "Camp conditions and closures for VIC and NSW | CampConditions.au"
@@ -2387,17 +2401,30 @@ def fire_line(c):
     if page_url.startswith("https://") and label:
         bits.append(f'<p><a class="btn-alert" href="{e(page_url)}">{e(label)}</a></p>')
     return "".join(bits)
-def official_npws_closure(desc, url, published, start=None, reopen=None, upcoming=False):
-    """Quoted NPWS alert text. A future start is an upcoming notice, not Closed."""
+def spoken_day(day, clock=None):
+    """'2026-11-07' and '10:00' as '10am Saturday 7 November 2026'. The day alone without a clock."""
+    try:
+        when = dt.date.fromisoformat(str(day or "")[:10])
+    except ValueError:
+        return str(day or "")[:10]
+    out = f"{when:%A} {when.day} {when:%B %Y}"
+    match = re.fullmatch(r"(\d{2}):(\d{2})", str(clock or ""))
+    if match:
+        hour, minute = int(match.group(1)), int(match.group(2))
+        out = f"{(hour % 12) or 12}{':%02d' % minute if minute else ''}{'am' if hour < 12 else 'pm'} " + out
+    return out
+def official_npws_closure(desc, url, published, start=None, reopen=None, upcoming=False, start_time=None, reopen_time=None):
+    """Quoted NPWS alert text. A future start is an upcoming notice, not Closed.
+    Dates are spoken with the clock NPWS printed, so a 2pm start reads 2pm."""
     when = feed_date(published)
     dated = f" Alert dated {e(when)}." if when else ""
     link = f' <a href="{e(url)}">NPWS alert</a>' if str(url).startswith("https://") else ""
     label = "Upcoming closure" if upcoming else "Closed"
     extra = ""
     if upcoming and start:
-        extra += " · Starts " + e(str(start)[:10])
+        extra += " · Starts " + e(spoken_day(start, start_time))
     if reopen:
-        extra += " · Reopens " + e(str(reopen)[:10])
+        extra += " · Reopens " + e(spoken_day(reopen, reopen_time))
     return f'<div class="warn"><strong>{label}:</strong> {e(desc)}{extra} <span class="muted">Official NPWS wording.{dated}</span>{link}</div>'
 def alert_notes_html(c):
     rows, seen = [], set()
@@ -2594,14 +2621,14 @@ def emit_state(state, camps, include_home):
             upcoming = c.get("upcoming_closure") or None
             if wording and source_url:
                 if c.get("state_slug") == "nsw" and "nationalparks.nsw.gov.au" in source_url:
-                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"))
+                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"))
                 else:
                     reopen = str((cl or {}).get("reopen") or "")[:10]
                     when = f" · Reopens {e(reopen)}" if reopen else ""
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}{when} <a href="{e(source_url)}">{e(source_url)}</a></div>'
                 condition = f'<div id="camp-closure">{block}</div>' + condition
             elif upcoming and c.get("state_slug") == "nsw" and str(upcoming.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):
-                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True)
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"))
                 condition = f'<div id="camp-closure">{block}</div>' + condition
             notes = alert_notes_html(c)
             if notes:
@@ -2620,12 +2647,12 @@ def emit_state(state, camps, include_home):
                 url = str(cl.get("source_url") or "")
                 wording = cl.get("desc") or cl.get("reason")
                 if url.startswith("https://"):
-                    block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"))
+                    block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"))
                 else:
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}</div>'
                 bits.append(f'<div id="camp-closure">{block}</div>')
             elif upcoming and (upcoming.get("desc") or upcoming.get("start")):
-                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True)
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"))
                 bits.append(f'<div id="camp-closure">{block}</div>')
             else:
                 bits.append("<p><strong>No status in this layer.</strong> The NPWS Visitor Area record does not include open or closed status, fees or facilities.</p>")
@@ -2777,7 +2804,7 @@ def about_body():
             + '<li>Live Traffic NSW (<a href="https://www.livetraffic.com/">livetraffic.com</a>) is linked from New South Wales camp pages. Road-closure data is not copied onto this site.</li></ul>'
             + (nsw_copy.get("footer_attribution") or "") + "<p>" + (nsw_copy.get("about_tail") or "") + "</p>"
         )
-    return f"""<h1>About</h1><p>{lead}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>{safety}
+    return f"""<h1>About</h1><p>{lead}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>{roads}
 {sources}"""
@@ -2848,6 +2875,190 @@ if ALERTS_UPDATED:
     # When each state's park alerts were last updated by the agency.
     feed["alerts_updated"] = {slug: info.get("updated") or None for slug, info in ALERTS_UPDATED.items()}
 json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False, indent=1)
+# --- Shared info pages: FAQ, About the data, Closures this weekend ---
+# Text here restates the state configs and the build workflow. No values are invented:
+# counts come from this build and closure dates from the official records.
+UPDATE_CADENCE = ("The site is rebuilt from the official sources about every three hours, with extra builds at about 10am and 2pm "
+                  "Melbourne time during daylight saving (AEDT), when many NPWS closures start or end. OpenStreetMap campgrounds and towns are refreshed weekly. "
+                  "Each page shows when it was built.")
+INFO_LINKS = '<p class="muted">See also: <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/about/">About</a></p>'
+def faq_items():
+    """General questions first, then each state's approved FAQ copy."""
+    items = [
+        ("What is CampConditions.au?",
+         "CampConditions.au is a free site that shows campground conditions and closures for Victoria and New South Wales, built for motorhomers, caravanners and campers. "
+         "It is not an official warning service."),
+        ("Where does the information come from?",
+         "Victoria: DataVic Recreation Sites and Explore Outdoors (DEECA), Parks Victoria / DEECA MapShare closures and CFA fire danger ratings. "
+         "New South Wales: the NPWS Visitor Area layer, the NPWS alerts and closures data and NSW RFS fire danger ratings. "
+         "Extra campgrounds come from OpenStreetMap. The About the data page lists every source."),
+        ("How often is the site updated?", UPDATE_CADENCE),
+        ("What do Closed, Check conditions and No known issues mean?",
+         "Closed means an official source records a closure for that campground. Check conditions means there is no closure on record, "
+         "but the site cannot confirm the camp is open, so check the official source before you go. Do not treat Check conditions as open. "
+         "No known issues means the official Victorian record shows no closure. OpenStreetMap campgrounds are not in the closure feeds, so their pages say to check with the operator, and showgrounds say to call first."),
+        ("Why does a camp show an upcoming closure but not Closed?",
+         "A closure that starts later is shown as an upcoming closure with its start and reopening dates. The camp is marked Closed once the closure has started. "
+         "NPWS times such as 2pm are taken into account."),
+        ("Does the site show bushfire, flood or other emergency warnings?",
+         "No. Incident warnings are linked, not republished. Check VicEmergency in Victoria, NSW Rural Fire Service and NSW SES in New South Wales, and the Bureau of Meteorology before you travel. In an emergency call 000."),
+        ("Which camps are closed this weekend?",
+         "The Closures this weekend page lists every camp with a recorded closure over the coming Saturday and Sunday, and closures that start during the weekend. It is rebuilt with the rest of the site."),
+        ("Something is wrong or missing. How do I tell you?",
+         "Use the Report conditions page, or email campconditions@outlook.com. Reports are checked against the official sources before anything changes."),
+        ("Is there an email digest?",
+         "Yes. The free weekly digest covers what's closed, which roads are shut and what campers are reporting. Signing up is double opt-in, and every email has an unsubscribe link."),
+        ("Is the data available as a feed?",
+         "Yes. status.json lists every campground's status, closure dates, sources and attribution. llms.txt summarises the site for AI tools."),
+    ]
+    for state in statecfg.enabled():
+        for item in (state.get("copy") or {}).get("faq") or []:
+            if item.get("q") and item.get("a"):
+                items.append((item["q"], item["a"]))
+    return items
+def faq_page():
+    items = faq_items()
+    rows = "".join(f"<h2>{e(q)}</h2><p>{e(a)}</p>" for q, a in items)
+    links = ('<p>More: <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · '
+             '<a href="/report/">Report conditions</a> · <a href="/status.json">status.json</a> · <a href="/llms.txt">llms.txt</a></p>')
+    faq_ld = {"@context": "https://schema.org", "@type": "FAQPage", "inLanguage": "en-AU", "url": SITE + "/faq/",
+              "mainEntity": [{"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in items]}
+    page("/faq/", "FAQ | CampConditions.au", "Common questions about CampConditions.au: sources, update times, what each status means and where to find warnings.",
+         f"<h1>Frequently asked questions</h1>{rows}{links}",
+         [faq_ld, crumbs([("Home", "/"), ("FAQ", "/faq/")])])
+faq_page()
+def data_page():
+    rows, sections = [], []
+    for state in statecfg.enabled():
+        bind(state)
+        rows_state = by_state[state["slug"]]
+        n_osm = sum(c.get("source") == "osm" for c in rows_state)
+        official = len(rows_state) - n_osm
+        rows.append(f'<tr><th scope="row"><a href="/{SLUG}/">{e(state["name"])}</a></th><td>{len(rows_state)}</td><td>{official}</td><td>{n_osm}</td>'
+                    f'<td>{sum(c["status"] == "closed" for c in rows_state)}</td><td>{sum(c["status"] == "check" for c in rows_state)}</td><td>{len(REGIONS)}</td></tr>')
+        info = ALERTS_UPDATED.get(state["slug"]) or {}
+        updated = feed_date(info.get("updated")) if info.get("updated") else ""
+        alerts = f'<p class="muted">{e(info.get("label") or "Park alerts")} last updated by the agency {e(updated)}.</p>' if updated else ""
+        sections.append(f'<h2 id="{SLUG}">{e(state["name"])}</h2><p>{e(CREDIT)}</p><ul>{COPY["about_sources"]}</ul>'
+                        f'{COPY.get("footer_attribution") or ""}<p>{COPY["about_tail"]}</p>{alerts}'
+                        f'<p><strong>Regions:</strong> ' + " · ".join(f'<a href="/{SLUG}/{k}/">{e(n)}</a>' for k, (n, _) in REGIONS.items()) + "</p>")
+    bind(primary)
+    source_rows = "".join(
+        f'<tr><td>{e(key)}</td><td>{"Yes" if info.get("ok") else "No"}</td><td>{e(feed_date(info.get("fetched")) or "")}</td></tr>'
+        for key, info in sorted(SRC.items()) if isinstance(info, dict))
+    body = f"""<h1>About the data</h1>
+<p>CampConditions.au uses official government data for campground details and closures in Victoria and New South Wales, with extra campgrounds from OpenStreetMap. It is not an official warning service. Values a source does not provide are left blank.</p>
+<h2>Coverage</h2>
+<div class="table-wrap"><table><thead><tr><th scope="col">State</th><th scope="col">Campgrounds</th><th scope="col">Official records</th><th scope="col">OpenStreetMap</th><th scope="col">Closed now</th><th scope="col">Check conditions</th><th scope="col">Regions</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>
+<p class="muted">Counts are from this build, {e(STAMP)}.</p>
+<h2>Update cadence</h2><p>{e(UPDATE_CADENCE)}</p>
+<p>A camp is marked Closed only where an official source records a closure. A closure that starts later is shown as an upcoming closure until it starts. Do not treat Check conditions as open.</p>
+{"".join(sections)}
+<h2>Source status for this build</h2><p class="muted">Whether each source was read in this build. The same details are in <a href="/status.json">status.json</a>.</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">Source</th><th scope="col">Read</th><th scope="col">Fetched</th></tr></thead><tbody>{source_rows}</tbody></table></div>
+<h2>Warnings</h2><p>Incident warnings are linked, not republished. Check <a href="https://emergency.vic.gov.au/">VicEmergency</a>, the <a href="https://www.rfs.nsw.gov.au/">NSW Rural Fire Service</a>, <a href="https://www.ses.nsw.gov.au/">NSW SES</a> and the <a href="https://www.bom.gov.au/weather-and-climate/warnings-and-alerts">Bureau of Meteorology</a> before you travel. In an emergency call 000.</p>
+{INFO_LINKS}"""
+    dataset = {"@context": "https://schema.org", "@type": "Dataset", "name": "CampConditions.au campground status", "url": SITE + "/about-the-data/",
+               "description": "Campground status and closures for Victoria and New South Wales, Australia, from official sources and OpenStreetMap.",
+               "inLanguage": "en-AU", "dateModified": NOW.isoformat(), "spatialCoverage": [{"@type": "Place", "name": s["name"] + ", Australia"} for s in statecfg.enabled()],
+               "creditText": " ".join(attribution) if isinstance(attribution, list) else str(attribution),
+               "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": SITE + "/status.json"}]}
+    page("/about-the-data/", "About the data | CampConditions.au", "Sources, update times and coverage for Victoria and New South Wales campground conditions on CampConditions.au.",
+         body, [dataset, crumbs([("Home", "/"), ("About the data", "/about-the-data/")])])
+data_page()
+def weekend_window(now):
+    """This Saturday 00:00 to Monday 00:00 (Melbourne) on a weekend, otherwise the next one.
+    The window never starts before now, so a closure that already ended is left out."""
+    today = now.date()
+    sat = today - dt.timedelta(days=today.weekday() - 5) if today.weekday() >= 5 else today + dt.timedelta(days=5 - today.weekday())
+    start = dt.datetime.combine(sat, dt.time(0, 0), tzinfo=now.tzinfo)
+    end = start + dt.timedelta(days=2)
+    return sat, max(start, now), end
+def record_at(day, clock):
+    """A record's day and optional HH:MM as a Melbourne datetime. None when there is no day."""
+    try:
+        when = dt.date.fromisoformat(str(day or "")[:10])
+    except ValueError:
+        return None
+    hour, minute = 0, 0
+    match = re.fullmatch(r"(\d{2}):(\d{2})", str(clock or ""))
+    if match:
+        hour, minute = int(match.group(1)), int(match.group(2))
+    return dt.datetime.combine(when, dt.time(hour, minute), tzinfo=NOW.tzinfo)
+def weekend_rows(now=None):
+    """(state, camp, record, upcoming) for each closure in force during the weekend window."""
+    now = now or NOW
+    sat, win_start, win_end = weekend_window(now)
+    out = []
+    for state in statecfg.enabled():
+        for c in by_state[state["slug"]]:
+            if c.get("status") == "closed":
+                rec = c.get("closure") or {}
+                ends = record_at(rec.get("reopen"), rec.get("reopen_time"))
+                if ends is None or ends > win_start or rec.get("outdated"):
+                    out.append((state, c, rec, False))
+            elif c.get("upcoming_closure"):
+                rec = c["upcoming_closure"]
+                starts = record_at(rec.get("start"), rec.get("start_time"))
+                ends = record_at(rec.get("reopen"), rec.get("reopen_time"))
+                if starts is not None and starts < win_end and (ends is None or ends > win_start):
+                    out.append((state, c, rec, True))
+    return sat, out
+def weekend_page():
+    sat, rows = weekend_rows()
+    sun = sat + dt.timedelta(days=1)
+    span = f"Saturday {sat.day} {sat:%B} – Sunday {sun.day} {sun:%B %Y}" if sat.month != sun.month else f"Saturday {sat.day} – Sunday {sun.day} {sun:%B %Y}"
+    n_closed = sum(not up for _, _, _, up in rows)
+    n_up = len(rows) - n_closed
+    parts, items = [], []
+    for state in statecfg.enabled():
+        bind(state)
+        mine = [(c, rec, up) for s, c, rec, up in rows if s["slug"] == state["slug"]]
+        parts.append(f'<h2 id="{SLUG}">{e(state["name"])} ({len(mine)})</h2>')
+        if not mine:
+            parts.append("<p>No campground closures are recorded for this weekend.</p>")
+            continue
+        groups = [(key, name) for key, (name, _) in REGIONS.items()]
+        if any(r[0].get("region") not in REGIONS for r in mine):
+            groups.append((None, "Other areas"))
+        for key, name in groups:
+            here = sorted([r for r in mine if (r[0].get("region") not in REGIONS if key is None else r[0].get("region") == key)], key=lambda r: r[0]["name"].lower())
+            if not here:
+                continue
+            lis = []
+            for c, rec, up in here:
+                wording = str(rec.get("desc") or rec.get("reason") or "").strip()
+                if len(wording) > 220:
+                    wording = wording[:217].rsplit(" ", 1)[0] + "…"
+                dates = []
+                if rec.get("start") and up:
+                    dates.append("Starts " + spoken_day(rec["start"], rec.get("start_time")))
+                if rec.get("reopen"):
+                    dates.append("Reopens " + spoken_day(rec["reopen"], rec.get("reopen_time")))
+                elif not up:
+                    dates.append("No reopening date recorded")
+                status = '<span class="badge check">Closure starts this weekend</span>' if up else badge(c)
+                note = ' <span class="muted">This closure record may be outdated.</span>' if rec.get("outdated") else ""
+                src = str(rec.get("source_url") or "")
+                link = f' <a href="{e(src)}">Official source</a>' if src.startswith("https://") else ""
+                lis.append(f'<li><a href="{camp_url(c)}">{e(c.get("page_name") or c["name"])}</a> {status}'
+                           f'{"<br>" + e(wording) if wording else ""}<br><span class="muted">{e(" · ".join(dates))}</span>{note}{link}</li>')
+                items.append(c)
+            head = f'<a href="/{SLUG}/{key}/">{e(name)}</a>' if key else e(name)
+            parts.append(f'<h3>{head}</h3><ul class="closure-list">{"".join(lis)}</ul>')
+    bind(primary)
+    body = f"""<h1>Campground closures this weekend</h1>
+<p><strong>{e(span)}</strong>. {n_closed} campgrounds closed and {n_up} closures starting during the weekend, from the official closure records in this build ({e(STAMP)}).</p>
+<p>Listed: camps marked Closed whose closure runs into the weekend, and upcoming closures that start before Monday. Closure wording is shortened here; the camp page and official source have the full text. Camps not listed can still be affected, so check the official source before you go. Not an official warning service. In an emergency call 000.</p>
+{"".join(parts)}
+{INFO_LINKS}"""
+    item_list = {"@context": "https://schema.org", "@type": "ItemList", "name": f"Campground closures this weekend, {span}", "url": SITE + "/closures-this-weekend/",
+                 "numberOfItems": len(items),
+                 "itemListElement": [{"@type": "ListItem", "position": i + 1, "url": SITE + camp_url(c), "name": c.get("page_name") or c["name"]} for i, c in enumerate(items)]}
+    page("/closures-this-weekend/", "Campground closures this weekend | CampConditions.au",
+         f"Campgrounds closed in Victoria and New South Wales this weekend ({span}), from official closure records.",
+         body, [item_list, crumbs([("Home", "/"), ("Closures this weekend", "/closures-this-weekend/")])])
+weekend_page()
 # HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:
 # Pages joins every matching Cache-Control, and the strictest directive wins.
 # iOS standalone still pins the saved HTML; pages refetch /status.json with cache: no-store.
@@ -2856,7 +3067,7 @@ def headers_text():
     parts = ["/", "  Cache-Control: no-cache", "", "/index.html", "  Cache-Control: no-cache", "", "/404.html", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
         parts += [f"/{state['slug']}/*", "  Cache-Control: no-cache", ""]
-    parts += ["/about/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
+    parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
         flag = statecfg.public_file(state, "flags")
         if flag:
@@ -2900,7 +3111,7 @@ open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
 """ + "".join(line + "\n" for line in slug_redirect_lines()))
-urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/privacy/", "/terms/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
+urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:
     for state in statecfg.enabled():
         if state["slug"] == primary["slug"]:
@@ -2910,40 +3121,55 @@ if len(statecfg.enabled()) > 1:
         urls += [f"/{SLUG}/{k}/" for k in REGIONS]
         urls += [camp_url(c) for c in by_state[state["slug"]]]
     bind(primary)
-open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{SITE}{u}</loc><lastmod>{NOW.date()}</lastmod></url>\n" for u in urls) + "</urlset>\n")
+# lastmod is the build date for pages built from live data. Pages whose text only
+# changes with a code edit carry the date of that edit, so crawlers are not told
+# they changed every three hours.
+STATIC_LASTMOD = {"/privacy/": "2026-10-27", "/terms/": "2026-10-27", "/faq/": "2026-11-01"}
+def lastmod(u):
+    fixed = STATIC_LASTMOD.get(u)
+    return fixed if fixed and fixed <= NOW.date().isoformat() else NOW.date().isoformat()
+urls = list(dict.fromkeys(urls))
+open(os.path.join(OUT, "sitemap.xml"), "w").write('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "".join(f"<url><loc>{SITE}{u}</loc><lastmod>{lastmod(u)}</lastmod></url>\n" for u in urls) + "</urlset>\n")
 open(os.path.join(OUT, "robots.txt"), "w").write(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
-llms_regions = []
+llms_sections = []
 llms_intros = []
-llms_closures = []
 for state in statecfg.enabled():
     bind(state)
-    intro = COPY["llms_intro"].format(count=len(by_state[state["slug"]]))
+    rows_state = by_state[state["slug"]]
+    intro = COPY["llms_intro"].format(count=len(rows_state))
     llms_intros.append(intro)
-    llms_closures.append(COPY["llms_closures"])
-    for key, (name, blurb) in REGIONS.items():
-        llms_regions.append(f"- [{name}]({SITE}/{SLUG}/{key}/): {blurb}\n")
+    regions = "".join(f"- [{name}]({SITE}/{SLUG}/{key}/): {blurb}\n" for key, (name, blurb) in REGIONS.items())
+    n_osm = sum(c.get("source") == "osm" for c in rows_state)
+    llms_sections.append(f"""## {state['name']}
+{intro}
+
+- State page: {SITE}/{SLUG}/
+- Coverage in this build: {len(rows_state)} campgrounds ({len(rows_state) - n_osm} from official records, {n_osm} from OpenStreetMap), {sum(c["status"] == "closed" for c in rows_state)} closed, {sum(c["status"] == "check" for c in rows_state)} to check.
+- Closures: {COPY["llms_closures"]}
+- Attribution: {CREDIT}
+
+### {state['name']} regions
+{regions}""")
 bind(primary)
-llms_states = ""
-if len(statecfg.enabled()) > 1:
-    llms_states = "- [Victoria]({site}/vic/)\n- [New South Wales]({site}/nsw/)\n".format(site=SITE)
+llms_states = "".join(f"- [{s['name']}]({SITE}/{s['slug']}/)\n" for s in statecfg.enabled())
+state_names = " and ".join(s["name"] for s in statecfg.enabled())
 open(os.path.join(OUT, "llms.txt"), "w").write(f"""# CampConditions.au
 
-> {" ".join(llms_intros)}
+> Campground conditions and closures for {state_names}, Australia, from official sources and OpenStreetMap. Each state is covered on the same terms. Rebuilt several times daily. Not an official warning service.
 
 Machine-readable status for every campground: {SITE}/status.json (includes attribution, sources and last-updated times).
+Built {STAMP}.
 
-## Regions
-""" + "".join(llms_regions) + f"""
+""" + "\n".join(llms_sections) + f"""
 ## Key pages
-{llms_states}- [Report conditions]({SITE}/report/)
-- [About and data sources]({SITE}/about/)
+{llms_states}- [Closures this weekend]({SITE}/closures-this-weekend/)
+- [FAQ]({SITE}/faq/)
+- [About the data: sources, update cadence and coverage]({SITE}/about-the-data/)
+- [Report conditions]({SITE}/report/)
+- [About]({SITE}/about/)
 - [Privacy]({SITE}/privacy/)
 - [Terms of use]({SITE}/terms/)
 - [Unsubscribe]({SITE}/unsubscribe/)
-
-## Attribution
-{CREDIT}
-{" ".join(llms_closures)}
 """)
 open(os.path.join(OUT, "404.html"), "w").write(external_blank(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
 {banner()}

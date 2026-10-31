@@ -696,7 +696,7 @@ if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.plac
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
 before = os.path.getmtime(corr_path)
 corrections = json.load(open(corr_path, encoding="utf-8"))
-if not isinstance(corrections, dict) or len(corrections) != 1334 or "drop" in corrections or "overrides" in corrections:
+if not isinstance(corrections, dict) or len(corrections) != 1335 or "drop" in corrections or "overrides" in corrections:
   bad.append(("corrections", "shape"))
 if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 220: bad.append(("corrections", "exclusions"))
 if corrections.get("w1474028458", {}).get("exclude") is not True or "no-private-caravan-parks" not in str(corrections.get("w1474028458", {}).get("exclude_reason")):

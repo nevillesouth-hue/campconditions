@@ -5,7 +5,10 @@ Reads parks.vic.gov.au campground links from data/manual-corrections.json.
 A camp with only a whole-park link is checked against that park page's
 change-of-conditions items that name the camp.
 Fetches each page at most once every 24 hours, sequentially, about a second
-apart. Writes dist/parksvic-flags.json. Never changes a camp's status.
+apart, and stops fetching after PARKSVIC_FETCH_SECONDS in one build. The page
+cache is kept between builds, so each build only refreshes pages older than a
+day, oldest first. A page the budget did not reach uses its cached copy if it is
+under STALE_TTL old. Writes dist/parksvic-flags.json. Never changes a camp's status.
 """
 import hashlib, html, json, os, re, time, urllib.error, urllib.request
 from datetime import datetime, timedelta, timezone
@@ -17,8 +20,9 @@ CACHE_DIR = os.path.join(ROOT, "data", ".parksvic-cache")
 USER_AGENT = "CampConditions.au closure checker (+https://campconditions.au; campconditions@outlook.com)"
 GAP_SECONDS = 1.0
 REQUEST_TIMEOUT = 20
-OVERALL_SECONDS = 50 * 60
+OVERALL_SECONDS = int(os.environ.get("PARKSVIC_FETCH_SECONDS") or 50 * 60)
 CACHE_TTL = timedelta(hours=24)
+STALE_TTL = timedelta(hours=72)
 MELBOURNE = timezone(timedelta(hours=11))
 
 CLOSED_RE = re.compile(
@@ -449,7 +453,7 @@ def _cache_path(url):
     return os.path.join(CACHE_DIR, name)
 
 
-def _cache_get(url, now):
+def _cache_get(url, now, max_age=CACHE_TTL):
     path = _cache_path(url)
     if not os.path.isfile(path):
         return None
@@ -461,9 +465,17 @@ def _cache_get(url, now):
         return None
     if fetched.tzinfo is None:
         fetched = fetched.replace(tzinfo=MELBOURNE)
-    if now - fetched > CACHE_TTL:
+    if now - fetched > max_age:
         return None
-    return {"error": str(row.get("error") or ""), "html": row.get("html") or "", "status": row.get("status")}
+    return {"error": str(row.get("error") or ""), "html": row.get("html") or "", "status": row.get("status"), "fetched": row.get("fetched") or ""}
+
+
+def _cache_age_key(url):
+    """Missing pages first, then the oldest cached copy, so the budget refreshes what is most out of date."""
+    try:
+        return os.path.getmtime(_cache_path(url))
+    except OSError:
+        return float("-inf")
 
 
 def _cache_put(url, row, now):
@@ -518,6 +530,7 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
     """
     now = now or datetime.now(MELBOURNE)
     checked = now.date().isoformat()
+    fetcher_was_default = fetcher is None
     fetcher = fetcher or (lambda url: fetch_page(url, now))
     sleeper = sleeper if sleeper is not None else time.sleep
     with open(CORRECTIONS, encoding="utf-8") as handle:
@@ -546,10 +559,21 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
     pages = {}
     started = time.monotonic()
     incomplete = False
-    for url in dict.fromkeys(url for _, url, _ in jobs):
+    default_fetcher = fetcher_was_default
+    urls = list(dict.fromkeys(url for _, url, _ in jobs))
+    if default_fetcher:
+        urls.sort(key=_cache_age_key)
+    stale = 0
+    for url in urls:
         if time.monotonic() - started > overall_seconds:
-            incomplete = True
-            break
+            cached = _cache_get(url, now, STALE_TTL) if default_fetcher else None
+            if cached is None:
+                incomplete = True
+                continue
+            cached["cached"] = True
+            pages[url] = cached
+            stale += 1
+            continue
         before = time.monotonic()
         try:
             pages[url] = fetcher(url)
@@ -583,6 +607,7 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
     doc = {
         "generated": now.isoformat(),
         "checked": checked,
+        "pages_older_than_a_day": stale,
         "flags": flags,
         "seasonal": seasonal,
         "errors": errors,

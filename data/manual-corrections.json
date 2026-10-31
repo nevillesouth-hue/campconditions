@@ -1113,9 +1113,9 @@
  },
  "w299167293": {
   "dump_point": "yes",
-  "website": "https://www.towong.vic.gov.au/4-visitors/public-dumping-points",
+  "website": "https://www.towong.vic.gov.au/visitors/public-dumping-points",
   "description": "Tallangatta showgrounds has a public dump point near the front gate (Coorilla and Werama Sts). Camping not confirmed: call first.",
-  "source_url": "https://www.towong.vic.gov.au/4-visitors/public-dumping-points",
+  "source_url": "https://www.towong.vic.gov.au/visitors/public-dumping-points",
   "needs_review": true,
   "checked_date": "2026-10-16"
  },
@@ -1613,7 +1613,7 @@
   "phone": "1300 365 222",
   "email": "info@towong.vic.gov.au",
   "description": "Council open space on the Nariel Creek at Staceys Bridge listed for fishing, camping and wood BBQs.",
-  "source_url": "https://www.towong.vic.gov.au/2-residents/recreation-and-facilities/parks-playgrounds-and-open-spaces",
+  "source_url": "https://www.towong.vic.gov.au/residents/recreation-and-facilities/parks-playgrounds-and-open-spaces",
   "needs_review": false,
   "checked_date": "2026-10-16"
  },
@@ -7048,7 +7048,12 @@
   "lat": -36.097311,
   "lon": 146.217923,
   "category": "free",
-  "new": true
+  "new": true,
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/warby-ovens-national-park/things-to-do/camping",
+   "wording": "Mcquades Bend: areas temporarily closed due to flood damage. McQuade's Bend Track is temporarily closed until repairs can be carried out.",
+   "checked_date": "2026-11-01"
+  }
  },
  "n7650872843": {
   "name": "Mill Log Landing Camping Area (Barmah National Park)",
@@ -10869,16 +10874,6 @@
   "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/howqua-hills-historic-area/things-to-do/camping-in-howqua-hills",
   "source_note": "Howqua Hills Historic Area: free, no bookings (except horse camping), pit toilets, 2WD access incl. caravans, dogs on lead."
  },
- "n1010039365": {
-  "name": "Wannon Crossing Campground (Grampians (Gariwerd) National Park)",
-  "operator": "Parks Victoria",
-  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/wannon-crossing-campground",
-  "checked_date": "2026-10-17",
-  "dogs": "no",
-  "needs_review": true,
-  "description": "Camping area in Grampians (Gariwerd, managed by Parks Victoria.",
-  "phone": "13 1963"
- },
  "n4878234939": {
   "name": "Wild Dog Creek Falls Camping Area (Mount Samaria State Park)",
   "operator": "Parks Victoria",
@@ -13828,14 +13823,14 @@
  },
  "w189986731": {
   "phone": "(03) 5261 2932",
-  "website": "https://www.janjucpark.com.au/",
+  "website": "https://janjucpark.com.au/",
   "fee_type": "paid",
   "dogs": "no",
   "toilets": "yes",
   "showers": "yes",
   "suits": "tent|caravan",
   "needs_review": false,
-  "source_url": "https://www.janjucpark.com.au/",
+  "source_url": "https://janjucpark.com.au/",
   "description": "Holiday park at Jan Juc with cabins and powered and unpowered camping, toilets, hot showers, a pool and laundry. A paid park with a no-dogs policy.",
   "checked_date": "2026-10-18",
   "reason": "Kept in on Nev decision 20 Oct 2026 (Crown reserve, operator not officially stated)."
@@ -15887,7 +15882,12 @@
   "needs_review": false,
   "source_note": "PV Lake Tyers camping page: no fees or bookings; self-sufficient, bring firewood and drinking water; Pettmans is the only site with toilets, all other sites have no facilities; dogs allowed on a leash; no camping within 20 m of the water.",
   "description": "Reedy Arm No. 2: lakeside bush camp in Lake Tyers State Park. Free, no bookings, no facilities, so bring water and your own toilet. Dogs on a leash. Camp at least 20 m from the water.",
-  "checked_date": "2026-10-19"
+  "checked_date": "2026-10-19",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/lake-tyers-state-park/things-to-do/camping",
+   "wording": "Track closures in Lake Tyers State Park: Cameron's arm number 2, Morass Break Track, Reedy Arm Number 1 and 2 and Happy Valley Track have been closed due to the impact of severe weather.",
+   "checked_date": "2026-11-01"
+  }
  },
  "n1782109456": {
   "fee_type": "free",
@@ -16014,7 +16014,7 @@
   "dogs": "no",
   "potable_water": "no (bring your own)",
   "operator": "Winton Wetlands Committee of Management",
-  "website": "https://www.wintonwetlands.org.au/camping",
+  "website": "https://wintonwetlands.org.au/camping/",
   "source_url2": "https://wintonwetlands.org.au/wp-content/uploads/2023/07/WW-Map_2023_WEB.pdf",
   "needs_review": false,
   "checked_date": "2026-10-20"
@@ -16027,7 +16027,7 @@
   "dogs": "no",
   "potable_water": "no (bring your own)",
   "operator": "Winton Wetlands Committee of Management",
-  "website": "https://www.wintonwetlands.org.au/camping",
+  "website": "https://wintonwetlands.org.au/camping/",
   "source_url2": "https://wintonwetlands.org.au/wp-content/uploads/2023/07/WW-Map_2023_WEB.pdf",
   "needs_review": false,
   "checked_date": "2026-10-20"
@@ -16040,7 +16040,7 @@
   "dogs": "no",
   "potable_water": "no (bring your own)",
   "operator": "Winton Wetlands Committee of Management",
-  "website": "https://www.wintonwetlands.org.au/camping",
+  "website": "https://wintonwetlands.org.au/camping/",
   "source_url2": "https://wintonwetlands.org.au/wp-content/uploads/2023/07/WW-Map_2023_WEB.pdf",
   "needs_review": false,
   "checked_date": "2026-10-20"
@@ -16218,7 +16218,7 @@
   "operator": "Charlton Caravan Park",
   "phone": "0448 276 631",
   "email": "charltoncaravanpark@gmail.com",
-  "website": "https://www.charltoncaravanpark.com.au",
+  "website": "https://charltoncaravanpark.com.au/",
   "dogs": "yes (pet friendly)",
   "toilets": "yes",
   "source_url2": "https://www.visitbuloke.com.au/places-to-stay/charlton-caravan-park",
@@ -16796,5 +16796,30 @@
   "exclude": true,
   "exclude_reason": "outside Victoria (NSW bank of the Murray, outside the Victorian boundary)",
   "checked_date": "2026-10-20"
+ },
+ "w1571253491": {
+  "name": "Wannon Crossing Campground (Grampians (Gariwerd) National Park)",
+  "operator": "Parks Victoria",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/wannon-crossing-campground",
+  "checked_date": "2026-10-17",
+  "dogs": "no",
+  "needs_review": true,
+  "description": "Camping area in Grampians (Gariwerd, managed by Parks Victoria.",
+  "phone": "13 1963"
+ },
+ "n14317562635": {
+  "name": "Bethanga Recreation Reserve",
+  "category": "council_park",
+  "fee_type": "paid",
+  "booking": "no",
+  "toilets": "yes",
+  "showers": "yes",
+  "dogs": "yes",
+  "suits": "tent|caravan|motorhome",
+  "description": "Community recreation reserve on Hollow Street in Bethanga, near Lake Hume, with powered and unpowered camping around the sports ground. Toilets, showers and washing-up area; pets allowed; pay at the cash box on site.",
+  "source_url": "https://www.visitalburywodonga.com/wp-content/uploads/2025/07/Caravan-and-Camping-25.pdf",
+  "needs_review": true,
+  "checked_date": "2026-11-01",
+  "fee_note": "pay_on_site"
  }
 }

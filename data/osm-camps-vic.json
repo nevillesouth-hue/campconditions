@@ -1,6 +1,6 @@
 {
  "attribution": "© OpenStreetMap contributors, ODbL 1.0 (openstreetmap.org/copyright)",
- "count": 1326,
+ "count": 1327,
  "generated": "2026-10-26T19:18:58Z",
  "sites": [
   {
@@ -2292,6 +2292,32 @@
    "source_url2": "https://www.parks.vic.gov.au/places-to-see/parks/murray-river/attractions/south-australia-border-to-piangil",
    "source_note": "Parks Victoria Murray River reach pages: all riverside campsites are free, no bookings required.",
    "osm_id": "new:betha-bend-camping-area-site-3-river-murray-reserve"
+  },
+  {
+   "name": "Bethanga Recreation Reserve",
+   "category": "council_park",
+   "suits": "tent|caravan|motorhome",
+   "self_contained_only": "no",
+   "max_nights": "",
+   "dogs": "yes",
+   "dump_point": "no",
+   "showers": "yes",
+   "toilets": "yes",
+   "phone": "",
+   "email": "",
+   "website": "",
+   "operator": "",
+   "label": "check with operator",
+   "needs_review": true,
+   "lat": -36.120113,
+   "lon": 147.099123,
+   "osm_id": "n14317562635",
+   "fee_type": "paid",
+   "booking": "no",
+   "description": "Community recreation reserve on Hollow Street in Bethanga, near Lake Hume, with powered and unpowered camping around the sports ground. Toilets, showers and washing-up area; pets allowed; pay at the cash box on site.",
+   "source_url": "https://www.visitalburywodonga.com/wp-content/uploads/2025/07/Caravan-and-Camping-25.pdf",
+   "checked_date": "2026-11-01",
+   "fee_note": "pay_on_site"
   },
   {
    "name": "Betts Bend Camping Area 1",
@@ -26357,7 +26383,7 @@
   {
    "name": "Wannon Crossing Campground (Grampians (Gariwerd) National Park)",
    "category": "free",
-   "suits": "tent|caravan",
+   "suits": "tent",
    "self_contained_only": "unknown",
    "max_nights": "",
    "dogs": "no",
@@ -26370,9 +26396,9 @@
    "operator": "Parks Victoria",
    "label": "check with operator",
    "needs_review": true,
-   "lat": -37.433754,
-   "lon": 142.47565,
-   "osm_id": "n1010039365",
+   "lat": -37.433618,
+   "lon": 142.475625,
+   "osm_id": "w1571253491",
    "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/wannon-crossing-campground",
    "checked_date": "2026-10-17",
    "description": "Camping area in Grampians (Gariwerd, managed by Parks Victoria."

@@ -1,0 +1,13 @@
+{
+ "_note": "Camper reports received by email, shown on the camp page as dated, unverified visitor reports. Keyed by state slug, then camp slug. Names are first name and initial only. Official sources still decide open, closed, fees and facilities.",
+ "nsw": {
+  "the-wells-campground": [
+   {
+    "visited": "2026-10-10",
+    "received": "2026-10-30",
+    "by": "Richard V.",
+    "text": "3 of 12 sites taken. Road access very good. Portable toilets (the long drop was removed after flood damage). $17 a night, more in school holidays. No power or water. Book through NPWS, plus the daily park entry fee. Fireplaces, subject to fire restrictions."
+   }
+  ]
+ }
+}

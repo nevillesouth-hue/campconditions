@@ -5,7 +5,7 @@
  "abbrev": "NSW",
  "enabled": true,
  "banner": {
-  "covering": "New South Wales preview",
+  "covering": "Covering New South Wales now",
   "coming": "Victoria remains the live site"
  },
  "credit": "NPWS Visitor Area camping areas, CC BY, from the NSW environment map service. Other campgrounds © OpenStreetMap contributors (ODbL).",
@@ -59,7 +59,11 @@
     "9990": "Other",
     "9999": "Unknown"
    },
-   "note": "NPWS Visitor Area layer. Camping areas only (SubtypeCD 5001) are fetched when this state is built. Day use areas and cemeteries are not. CC BY. The layer has no fee, facility or closure fields."
+   "note": "NPWS Visitor Area layer. Camping areas only (SubtypeCD 5001) are fetched when this state is built. Day use areas and cemeteries are not. CC BY. The layer has no fee, facility or closure fields.",
+   "name_fixes": {
+    "Sunburt Beach campground": "Sunburnt Beach campground",
+    "Alegboia campground": "Algeboia campground"
+   }
   },
   "nsw_suburbs": {
    "url": "https://portal.spatial.nsw.gov.au/server/rest/services/NSW_Administrative_Boundaries_Theme_multiCRS/FeatureServer/2",
@@ -169,7 +173,7 @@
   "home_title": "New South Wales camp conditions — {count} sites | CampConditions.au",
   "home_description": "NPWS camping areas and OpenStreetMap camps in New South Wales. {count} sites. Fees and facilities are left blank where the source does not record them.",
   "home_h1": "New South Wales camp conditions",
-  "home_intro": "A preview of <strong>{count}</strong> camping areas in New South Wales. <strong>{official}</strong> come from the NPWS Visitor Area layer. <strong>{osm}</strong> come from OpenStreetMap.",
+  "home_intro": "Closures and fire danger ratings for <strong>{count}</strong> camping areas across New South Wales. <strong>{official}</strong> are NPWS camping areas with NPWS alerts and closures. <strong>{osm}</strong> more are from OpenStreetMap and council sites — check with the operator, and call a showground first.",
   "home_map": "Map of New South Wales campgrounds",
   "home_weather": "Weather warnings: <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\">check BOM's New South Wales warnings</a>. Bushfire and other emergency warnings: check the <a href=\"https://www.rfs.nsw.gov.au/\">NSW Rural Fire Service</a>. They are not republished here.",
   "website_description": "Camp and campground conditions for {count} sites in New South Wales, Australia.",
@@ -205,13 +209,13 @@
   "about_tail": "NSW Rural Fire Service incident warnings are not republished. The district fire danger rating and Total Fire Ban status are the RFS feed values.",
   "privacy_who": "CampConditions.au publishes campground conditions. Contact us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a>.",
   "digest_subject": "New South Wales camps this week",
-  "digest_intro": "Here's the New South Wales preview list, {date}.",
+  "digest_intro": "G'day! Here's what's changed for New South Wales free camps and campgrounds, {date}.",
   "digest_warnings": "Warnings are not listed here. Check the NSW Rural Fire Service and the Bureau of Meteorology before you go.",
   "digest_footer": "Not an official warning service. ",
   "faq": [
    {
     "q": "Does the NPWS Visitor Area layer say if a camp is open?",
-    "a": "The camping-area points do not include open or closed status, fees or facilities. Fees and facilities stay blank. This preview reads the NPWS alerts feed: a camp is marked closed only where that alert records a closure of the reserve or of that campground and the closure has started. A later start is an upcoming notice. Every other camp stays check. The camp page also shows its NSW fire weather district fire danger rating and Total Fire Ban status from the RFS feed."
+    "a": "The camping-area points do not include open or closed status, fees or facilities. Fees and facilities stay blank. The site reads the NPWS alerts feed: a camp is marked closed only where that alert records a closure of the reserve or of that campground and the closure has started. A later start is an upcoming notice. Every other camp stays check. The camp page also shows its NSW fire weather district fire danger rating and Total Fire Ban status from the RFS feed."
    }
   ]
  },

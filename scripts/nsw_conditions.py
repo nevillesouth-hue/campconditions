@@ -194,6 +194,58 @@ _API_HEADING = {
     "notice": "Other planned events",
 }
 _ALL_CLOSED = re.compile(r"all parts are closed", re.I)
+# NPWS titles a closure "Upcoming closure today due to ..." before it starts and
+# does not always retitle it once the window opens (Flea Creek, 2 Nov 2026).
+_UPCOMING_TITLE = re.compile(r"^upcoming closure (?:today|tomorrow|in \d+ days?)\s+", re.I)
+# NPWS marks an end date it only estimates with this EndDateTimeStatusId; the
+# alert's DateTimeText then ends "(estimated end date)".
+_ESTIMATED_END_ID = "eb218444-5aac-482d-98ed-575078b361a6"
+# Section text -> NPWS estimated end date (ISO), filled by parse_api.
+ESTIMATED_END = {}
+_DAYS = ("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
+_DAY = r"(monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?!\s*,?\s*\d)"
+_OPEN_DAYS = re.compile(r"\bopen (?:from |on |between )?" + _DAY + r" (?:to|and|-|–) " + _DAY + r"\b", re.I)
+_CLOSED_DAYS = re.compile(r"\bclosed (?:from |on |between )?" + _DAY + r" (?:to|and|-|–) " + _DAY + r"\b", re.I)
+
+
+def _day_span(first, last):
+    a, b = _DAYS.index(first.lower()), _DAYS.index(last.lower())
+    return [(a + i) % 7 for i in range(((b - a) % 7) + 1)]
+
+
+def weekly_closed_days(text):
+    """Weekdays closed by a recurring weekly closure, or None.
+
+    Only when the text says the closure repeats ("each week", "every week",
+    "weekday closures"). An open span ("open from Friday to Sunday each week")
+    wins over a closed span, since a closed span can name a trail instead.
+    """
+    low = (text or "").lower()
+    if not re.search(r"\beach week\b|\bevery week\b|\bweekday closures?\b|\bweekly closures?\b", low):
+        return None
+    match = _OPEN_DAYS.search(low)
+    if match:
+        open_days = set(_day_span(match.group(1), match.group(2)))
+        closed = [d for d in range(7) if d not in open_days]
+        return closed or None
+    match = _CLOSED_DAYS.search(low)
+    if match:
+        return _day_span(match.group(1), match.group(2))
+    return None
+
+
+def _days_label(days):
+    names = [_DAYS[d].capitalize() for d in sorted(days)]
+    if len(names) > 2 and sorted(days) == list(range(min(days), max(days) + 1)):
+        return f"{names[0]} to {names[-1]}"
+    return ", ".join(names)
+
+
+def estimated_end_for(section, lead_only=False):
+    for key, (value, staged) in ESTIMATED_END.items():
+        if section and section.endswith(key):
+            return staged if lead_only else value
+    return None
 # A campground NPWS marks closed whose text keeps it open on some days, or
 # closes only part of it ("closed Monday to Thursday ... open Friday to
 # Sunday", "partially closed"), is left to the text rules, not the flag.
@@ -306,6 +358,7 @@ def parse_api(payload):
                 park_url.setdefault(loc["Name"], loc["Url"])
     items = {}
     newest = None
+    ESTIMATED_END.clear()
 
     def item_for(park):
         if park not in items:
@@ -320,6 +373,17 @@ def parse_api(payload):
             continue
         title = re.sub(r"\s+", " ", str(alert.get("Title") or "")).strip()
         kind = str(alert.get("Type") or "").strip()
+        windows_all = alert.get("AlertDateTimes") or []
+        first_window = windows_all[0] if windows_all else {}
+        window_start = _api_time(first_window.get("StartDateTimeUtc"))
+        window_end = _api_time(first_window.get("EndDateTimeUtc"))
+        if _UPCOMING_TITLE.match(title) and window_start and window_start <= dt.datetime.now(facts.MELBOURNE):
+            # The window has opened: "Upcoming closure today due to X" is now "Closure due to X".
+            title = "Closure " + _UPCOMING_TITLE.sub("", title)
+        estimated_end = None
+        if window_end and (first_window.get("EndDateTimeStatusId") == _ESTIMATED_END_ID
+                           or "(estimated end date)" in str(first_window.get("DateTimeText") or "")):
+            estimated_end = window_end.date().isoformat()
         modified = _api_time(alert.get("LastModifiedDate")) or _api_time(alert.get("FirstPublishDate"))
         if modified and (newest is None or modified > newest):
             newest = modified
@@ -335,6 +399,7 @@ def parse_api(payload):
             lines.append(detail)
         window = _window_line(alert, kind.lower() == "closure")
         lead = ""
+        staged_end, estimated_end = estimated_end, None
         if window and not _date_tokens(description):
             lines.append(window)
         elif window:
@@ -342,6 +407,14 @@ def parse_api(payload):
             if not timing["start"] and not timing["reopen"]:
                 # Dates the text rules cannot place: time it by the NPWS window.
                 lead = window
+            if staged_end and not timing["reopen"]:
+                # An estimated end is not a reopening date: carry it on its own.
+                estimated_end = (staged_end, False)
+                if window_start and len(re.findall(r"(?m)^\s*[-*•] *From ", description)) >= 2:
+                    # A staged works notice (Mimosa Rocks) lists each camp's own dates
+                    # in one alert; time this alert by the NPWS window instead.
+                    lead = ("Closed from " if kind.lower() == "closure" else "In place from ") + _spoken(window_start) + "."
+                    estimated_end = (staged_end, True)
         parks = {}
         camps = []
         for loc in alert.get("Locations") or []:
@@ -373,6 +446,8 @@ def parse_api(payload):
                 body.append(f"{park} is closed.")
             body_text = "\n".join(body)
             item["sections"].append((heading, body_text))
+            if estimated_end:
+                ESTIMATED_END[heading + "\n" + body_text] = estimated_end
             if lead:
                 # Keyed by the whole section: two alerts in one park can share
                 # a title (Kosciuszko has two "facilities maintenance" closures).
@@ -442,6 +517,8 @@ def _show_level(value):
     text = str(value or "").strip()
     if not text:
         return ""
+    if text.lower() in ("none", "no rating"):
+        return "No Rating"  # the AFDRS name for days below Moderate
     if text.isupper():
         return text[:1] + text[1:].lower()
     return text
@@ -1076,9 +1153,26 @@ def _choose_closure(candidates, now):
     for row in candidates:
         if not row:
             continue
-        timing = closure_timing(row.get("section") or row.get("desc") or "", now)
+        text = row.get("section") or row.get("desc") or ""
+        if estimated_end_for(row.get("section") or "", lead_only=True):
+            # Time it by the NPWS window lead only: the body dates belong to other stages.
+            timing = closure_timing(text.split("\n", 1)[0], now)
+        else:
+            timing = closure_timing(text, now)
         if timing["kind"] == "expired":
             continue
+        days = weekly_closed_days(text)
+        if days:
+            timing = dict(timing, weekly=_days_label(days), closed_days=sorted(days))
+            if timing["kind"] == "current" and now.weekday() not in days:
+                # Open today (Flea Creek is open Friday to Sunday): the next closed
+                # day is upcoming, unless the window has ended by then.
+                ahead = now.date()
+                while ahead.weekday() not in days:
+                    ahead += dt.timedelta(days=1)
+                if timing["reopen"] and ahead.isoformat() >= timing["reopen"]:
+                    continue
+                timing = dict(timing, kind="upcoming", start=ahead.isoformat(), start_time=None)
         ranked.append((row, timing))
     if not ranked:
         return None
@@ -1102,6 +1196,9 @@ def _choose_closure(candidates, now):
         "reopen": timing["reopen"],
         "start_time": timing.get("start_time"),
         "reopen_time": timing.get("reopen_time"),
+        "weekly": timing.get("weekly"),
+        "closed_days": timing.get("closed_days"),
+        "estimated_end": None if timing["reopen"] else estimated_end_for(row.get("section") or ""),
     }
 
 
@@ -1364,7 +1461,7 @@ def apply_alert_records(camps, reserve_records, items):
                 "source_url": chosen["url"],
                 "source_published": published_by_link.get(chosen["url"]) or "",
             }
-            for key in ("start_time", "reopen_time"):
+            for key in ("start_time", "reopen_time", "weekly", "closed_days", "estimated_end"):
                 if chosen.get(key):
                     record[key] = chosen[key]
             if chosen.get("kind") == "upcoming":

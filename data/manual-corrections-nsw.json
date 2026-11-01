@@ -804,5 +804,3693 @@
   "source_url": "https://www.midcoast.nsw.gov.au/Services/Facilities-and-venues/Find-a-Facility/Outdoor-Facilities/Lions-Park",
   "needs_review": false,
   "checked_date": "2026-10-30"
+ },
+ "w123281243": {
+  "name": "Bulli Beach Tourist Park",
+  "category": "council_park",
+  "operator": "Wollongong City Council (Wollongong City Tourist Parks)",
+  "fee_type": "paid",
+  "fee_note": "book_ahead",
+  "booking": "online",
+  "dogs": "no",
+  "toilets": "yes",
+  "showers": "yes",
+  "phone": "(02) 4227 8991",
+  "description": "Council beachfront tourist park at 1 Farrell Rd, Bulli, with powered and unpowered sites. Pet-free all year round except certified assistance animals. Check-in from 12 noon, check-out before 10am.",
+  "source_url": "https://www.wollongongtouristparks.com.au/bulli/",
+  "source_url2": "https://www.wollongongtouristparks.com.au/contact-us/",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n6264657789": {
+  "name": "Corrimal Beach Tourist Park",
+  "category": "council_park",
+  "operator": "Wollongong City Council (Wollongong City Tourist Parks)",
+  "fee_type": "paid",
+  "fee_note": "book_ahead",
+  "booking": "online",
+  "dogs": "off-peak only (small pets, book by phone)",
+  "toilets": "yes",
+  "showers": "yes",
+  "dump_point": "yes",
+  "suits": "tent|campervan",
+  "phone": "(02) 4227 8992",
+  "description": "Council beachfront tourist park. Unpowered sites take up to 8 guests (tents and campervans, no caravans). Camp kitchen, BBQs, coin laundry and a dump point with wash-down. Small pets off-peak only, booked by phone.",
+  "source_url": "https://www.wollongongtouristparks.com.au/corrimal/",
+  "source_url2": "https://www.wollongongtouristparks.com.au/corrimal/accommodation/corrimal-camping-site-unpowered/",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w1130741181": {
+  "name": "Coledale Beach Camping Reserve",
+  "category": "council_park",
+  "operator": "Coledale Surf Life Saving Club (licence from Wollongong City Council)",
+  "fee_type": "paid",
+  "fee_note": "book_ahead",
+  "booking": "required",
+  "dogs": "no",
+  "toilets": "yes",
+  "showers": "yes",
+  "phone": "(02) 4267 4302",
+  "description": "Beachfront camping run by Coledale SLSC under licence from council. Bookings essential by phone or email. Hot showers, toilets, kitchen and laundry. No animals, no fires. Weekend minimum 2 nights in swim season, longer at peak times.",
+  "source_url": "https://www.coledalebeach.com.au/camping/",
+  "source_note": "Prices on the page are dated from 1 July 2023 (e.g. unpowered $30/night off-season) and may be stale; not copied.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "w30250056": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a race track (leisure=track) at Bulli Showground. Wollongong City Council: 'Camping is not allowed in most of our parks, gardens, and foreshore areas.' No council camping listing for the showground.",
+  "source_url": "https://wollongong.nsw.gov.au/places/parks-and-gardens/accordions/illegal-camping",
+  "checked_date": "2026-10-30"
+ },
+ "w213104312": {
+  "exclude": true,
+  "exclude_reason": "Not a public campground: Sandon Point Aboriginal Tent Embassy is a protest/cultural site (operator Kuradji Mob), not a camping area.",
+  "source_url": "https://wollongong.nsw.gov.au/places/parks-and-gardens/accordions/illegal-camping",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828245": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite D') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828243": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite E') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828244": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite F') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828242": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite G') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828236": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite H') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828238": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite J') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828239": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite K') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828240": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite L') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828241": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite M') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201825275": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite A') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201825276": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite B') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201828246": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite C') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w1201825277": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an individual pitch ('Campsite N') inside Camp Coutts Scout Camp (Scouts Australia, w285602661), a private Scout camp that Scouts NSW lists as 'Camp Coutts (Temporarily Closed)'.",
+  "source_url": "https://www.scoutsnsw.com.au/about/activity-centres-and-scout-camps",
+  "checked_date": "2026-10-30"
+ },
+ "w205883160": {
+  "exclude": true,
+  "exclude_reason": "Kiama Municipal Council: Kiama Showground is 'CLOSED for renovation works and recovery until 15 January 2027'; an April 2026 version of the page said 'camping is no longer available at Kiama Showgrounds'. The OSM object is also a land-use polygon. Council's camping page: 'there is no free camping available in our LGA'.",
+  "source_url": "https://www.kiama.nsw.gov.au/Facilities/Sportsfields/Kiama-Showground",
+  "checked_date": "2026-10-30"
+ },
+ "n7307837886": {
+  "exclude": true,
+  "exclude_reason": "Kiama Municipal Council: 'there is no free camping available in our LGA'. Jamberoo Reserve camping only occurs for council-approved events (e.g. Jamberoo Sevens).",
+  "source_url": "https://www.kiama.nsw.gov.au/Services/Tourism-and-events/Camping-and-caravans",
+  "checked_date": "2026-10-30"
+ },
+ "n8451223834": {
+  "exclude": true,
+  "exclude_reason": "Kiama Municipal Council: 'there is no free camping available in our LGA'. Jamberoo Park camping only occurs for council-approved events (e.g. Jamberoo Sevens, https://www.jamberoofc.com.au/jamberoo-sevens-camping).",
+  "source_url": "https://www.kiama.nsw.gov.au/Services/Tourism-and-events/Camping-and-caravans",
+  "checked_date": "2026-10-30"
+ },
+ "n12121564951": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-10-30"
+ },
+ "n11671234344": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-10-30"
+ },
+ "n12121582602": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-10-30"
+ },
+ "n12135012353": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an information board (tourism=information).",
+  "checked_date": "2026-10-30"
+ },
+ "w34944220": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a track (highway=track).",
+  "checked_date": "2026-10-30"
+ },
+ "w40667942": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a track (highway=track).",
+  "checked_date": "2026-10-30"
+ },
+ "w403566427": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a track (highway=track).",
+  "checked_date": "2026-10-30"
+ },
+ "w377403819": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a park (leisure=park). Northern Beaches Council describes Frenchs Forest Showground as a fenced dog off-leash area, inclusive playground, amenities and car park; no camping.",
+  "source_url": "https://www.northernbeaches.nsw.gov.au/things-to-do/recreation-area/frenchs-forest-showground",
+  "checked_date": "2026-10-30"
+ },
+ "w330743293": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is an exhibition centre (amenity=exhibition_centre).",
+  "checked_date": "2026-10-30"
+ },
+ "w175720984": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: land-use polygon for Newcastle Showground, an event venue (Newcastle Entertainment Centre & Showground). The venue FAQ lists no camping and points visitors to other accommodation.",
+  "source_url": "https://www.nec.net.au/entertainment-centre/faqs",
+  "checked_date": "2026-10-30"
+ },
+ "n3844014119": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Olney Headquarters camping area in Olney State Forest with BBQs, picnic tables and toilets (including accessible).",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/olney-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w599220115": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "The Pines camping area in Olney State Forest, set under slash pines.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/olney-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w381160902": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Turpentine camping area in Olney State Forest, for smaller groups; toilets at nearby The Pines or Casuarina.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/olney-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n1966069788": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Casuarina camping area in Olney State Forest; suits caravans and trailers, 5 minutes' walk to The Pines.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/olney-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w1290380585": {
+  "name": "Morisset Showground",
+  "category": "showground",
+  "operator": "Lake Macquarie City Council",
+  "toilets": "yes",
+  "phone": "02 4972 1657",
+  "description": "Council-operated showground at Morisset with camping; camping enquiries to 02 4972 1657. Toilets on site. Council page gives no camping fee (OSM says fee=yes).",
+  "source_url": "https://www.lakemac.com.au/Venues/Morisset-Showground",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "w1229838653": {
+  "name": "Gresford Showground",
+  "category": "showground",
+  "description": "Approved caravan/camping ground on Dungog Shire Council's list: 34 sites with mixed powered and non-powered sites. No fee given on the council page.",
+  "source_url": "https://www.dungog.nsw.gov.au/Community/Approved-CaravanCamping-Ground-locations-in-Dungog-Shire",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "w201525599": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch). Dungog Shire Council closed the Dungog Show Ground campsite in December 2024: 'Camping is still permitted during events at the Show Ground.'",
+  "source_url": "https://www.dungog.nsw.gov.au/News-Articles/Dungog-Shire-Show-Ground-campsite-closure",
+  "checked_date": "2026-10-30"
+ },
+ "w631574150": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "White Rock camping area in Chichester State Forest (Allyn River): walk-in, large and flat, toilets, car park adjacent.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/chichester-state-forest-allyn-river",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w631574151": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Old Camp camping area in Chichester State Forest (Allyn River): closest to the river, drive-in shady sites, popular with families.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/chichester-state-forest-allyn-river",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w631574153": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Pademelon Park camping area in Chichester State Forest (Allyn River): large secluded sites, suits groups.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/chichester-state-forest-allyn-river",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w631574152": {
+  "exclude": true,
+  "exclude_reason": "FCNSW describes Dobbie Rim as 'a small grassed picnic area. Please note, the closest toilets are located nearby at Old Camp.' Picnic area, not a camping area.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/chichester-state-forest-allyn-river",
+  "checked_date": "2026-10-30"
+ },
+ "w84727278": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Watagan Headquarters camping area in Heaton State Forest: open and grassed, on the Great North Walk.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/heaton-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w362494219": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "The Basin camping area in Olney State Forest: open grassy sites suitable for large groups; the Great North Walk passes by.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/olney-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w84727629": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM describes it as the 'former camp of homeless Ricky the Bushrat'; not a public campground.",
+  "checked_date": "2026-10-30"
+ },
+ "w435948191": {
+  "name": "Lismore Showground",
+  "category": "showground",
+  "operator": "North Coast National (Lismore Showground)",
+  "fee_type": "paid",
+  "booking": "optional",
+  "dogs": "yes (on lead)",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "suits": "tent|caravan|motorhome|big rig",
+  "phone": "0422 718 864",
+  "email": "office@northcoastnational.com.au",
+  "description": "Showground camping in North Lismore (enter from the top gate in Alexandra Parade). Powered, unpowered and undercover tent sites, room for big rigs. $30 a night or $180 a week for 2 adults and up to 5 children, including water, power, camp kitchen and dump point. Bookings available but not necessary; camping excluded during some big events.",
+  "source_url": "https://www.lismoreshowground.com.au/camping.php",
+  "source_note": "OSM object is the showground land-use polygon; no separate camp node.",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n5651486422": {
+  "name": "Nimbin Showground",
+  "category": "showground",
+  "operator": "Nimbin A&I Society",
+  "fee_type": "paid",
+  "booking": "no",
+  "max_nights": "7",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "description": "Powered and unpowered sites a short walk from Nimbin village. First-come, no bookings. $20 single or $35 couple a night, under-12s free; maximum stay 7 nights. Camp kitchen, hot showers, laundry and dump point. Closed 16-23 September for the show; event pricing applies during Nimbin Fringe Festival (30 Oct-1 Nov 2026) and MardiGrass.",
+  "source_url": "https://nimbinshowsociety.org.au/index.php/camping/",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w917411398": {
+  "exclude": true,
+  "exclude_reason": "Duplicate: showground land-use polygon for the same site as Nimbin Showground (n5651486422).",
+  "checked_date": "2026-10-30"
+ },
+ "n1811162975": {
+  "name": "Bonalbo Caravan Park",
+  "category": "council_park",
+  "operator": "Kyogle Council",
+  "fee_type": "paid",
+  "dogs": "yes",
+  "toilets": "yes",
+  "dump_point": "yes (grey water)",
+  "phone": "0456 559 759",
+  "website": "https://www.kyogle.nsw.gov.au/community/community-facilities/kyogle-parks/bonalbo-caravan-park",
+  "description": "Council caravan park at the northern entrance to Bonalbo on Clarence Way, on Peacock Creek next to the pool. Pet-friendly, with 6 powered and 10 unpowered sites, free electric BBQs, covered tables, amenities block with laundry, and a free grey-water dump point. Phone to book.",
+  "source_url": "https://www.kyogle.nsw.gov.au/community/community-facilities/kyogle-parks/bonalbo-caravan-park",
+  "source_note": "OSM website URL is dead (404); replaced with the current council page.",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n1811204214": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Sandilands Rest Area' (TfNSW, Bruxner Hwy, 45.9 km north of Casino): light-vehicle rest area with a toilet (accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "w917411343": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) for the Kyogle Showgrounds rodeo pens.",
+  "checked_date": "2026-10-30"
+ },
+ "n11406315713": {
+  "name": "Bulga Recreational Ground",
+  "category": "free",
+  "operator": "Singleton Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "2",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "description": "Free council-managed primitive camping for up to two nights (48 hours); no booking. Toilets, dump point, playground, tennis courts and BBQs. Monitored by council rangers.",
+  "source_url": "https://www.singleton.nsw.gov.au/Experience/Visit/Adventure-and-Camping/Council-Managed-Camping-Sites",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n1811179360": {
+  "name": "Jerrys Plains Recreational Ground",
+  "category": "free",
+  "operator": "Singleton Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "2",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "description": "Free council-managed primitive camping for up to two nights; no booking. Toilets, dump point, playground, tennis court and BBQs. Monitored by council rangers.",
+  "source_url": "https://www.singleton.nsw.gov.au/Experience/Visit/Adventure-and-Camping/Council-Managed-Camping-Sites",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w498862737": {
+  "name": "McNamara Park",
+  "category": "free",
+  "operator": "Singleton Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "2",
+  "toilets": "yes",
+  "description": "Free council-managed primitive camping in Broke for up to two nights; no booking. Toilets; playground, skatepark and BBQs at nearby Stewart McTaggart Park. Monitored by council rangers.",
+  "source_url": "https://www.singleton.nsw.gov.au/Experience/Visit/Adventure-and-Camping/Council-Managed-Camping-Sites",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n1811181854": {
+  "name": "Lake St Clair",
+  "category": "council_park",
+  "operator": "Singleton Council",
+  "fee_type": "paid",
+  "fee_note": "book_ahead",
+  "booking": "required",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "dogs": "yes (on lead)",
+  "description": "Council lakeside camping 25 km north of Singleton: 10 powered sites plus 38 ha of unpowered camping (limit 350 campers a night). Bookings essential; no camping without a valid booking. Boom-gate code per vehicle. Toilets and showers, camp kitchen, electric BBQs, RV dump point, boat ramp.",
+  "source_url": "https://www.singleton.nsw.gov.au/Experience/Visit/Adventure-and-Camping/Lake-St-Clair",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n1811193680": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Rixs Creek Rest Area' (TfNSW, New England Hwy, 5.2 km from Singleton): Class 3 heavy-vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "n9197014718": {
+  "name": "Muswellbrook Showground camping",
+  "category": "showground",
+  "operator": "Upper Hunter Show Inc.",
+  "fee_type": "paid",
+  "dogs": "only with prior approval",
+  "suits": "caravan|motorhome",
+  "phone": "0458 876 773",
+  "description": "Caravan and motorhome sites at Muswellbrook Showground, Rutherford Road, run by Upper Hunter Show Inc. Fees paid weekly with a two-week refundable bond; no tents or swags; no fires. Campers must vacate during the annual show and other events.",
+  "source_url": "https://upperhuntershow.com.au/camping",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w450324255": {
+  "exclude": true,
+  "exclude_reason": "Duplicate: showground land-use polygon for the same site as Muswellbrook Showgrounds Caravan Park (n9197014718).",
+  "checked_date": "2026-10-30"
+ },
+ "n1811163968": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Cassilis Park Rest Area' (TfNSW, Golden Hwy, 47.7 km from Merriwa): Class 4 heavy-vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "n1811160566": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Battery Rocks Rest Area' (TfNSW, Golden Hwy, 15.3 km from Merriwa): light-vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "n1811197301": {
+  "category": "rest_area",
+  "operator": "Upper Hunter Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Taylor Park' (council, New England Hwy, Aberdeen, 12 km from Muswellbrook): light-vehicle rest area with toilets, shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "w192208984": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Cassilis Show Grounds.",
+  "checked_date": "2026-10-30"
+ },
+ "w350223925": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Merriwa Showground, beside Merriwa Caravan Park (w350223941).",
+  "checked_date": "2026-10-30"
+ },
+ "w372532989": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Wingen Showground.",
+  "checked_date": "2026-10-30"
+ },
+ "n8377910383": {
+  "name": "Currabubula Recreation Ground",
+  "category": "donation",
+  "operator": "Liverpool Plains Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Council freedom camping area at Currabubula Recreation Ground: free hot showers, toilets and gas BBQ, pet-friendly, unmanned with a donation box; maximum stay 72 hours. Alford Street, Currabubula.",
+  "source_url": "https://www.liverpoolplains.nsw.gov.au/Community/Facilities-and-venues/Freedom-camping-areas",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n8379755460": {
+  "name": "Spring Ridge Recreation Ground",
+  "category": "donation",
+  "operator": "Liverpool Plains Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Council freedom camping area at Spring Ridge Recreation Ground: free hot showers, toilets and gas BBQ, pet-friendly, unmanned with a donation box; maximum stay 72 hours. Darby Road (Coonabarabran Road), Spring Ridge.",
+  "source_url": "https://www.liverpoolplains.nsw.gov.au/Community/Facilities-and-venues/Freedom-camping-areas",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n1811201509": {
+  "name": "First Fleet Memorial Garden and Freedom Camp Ground",
+  "category": "donation",
+  "operator": "Liverpool Plains Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Council freedom camping area at First Fleet Memorial Garden and Freedom Camp Ground: free hot showers, toilets and gas BBQ, pet-friendly, unmanned with a donation box; maximum stay 72 hours. Coach Street, Wallabadah.",
+  "source_url": "https://www.liverpoolplains.nsw.gov.au/Community/Facilities-and-venues/Freedom-camping-areas",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n8379847780": {
+  "name": "David Taylor Oval",
+  "category": "donation",
+  "operator": "Liverpool Plains Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Council freedom camping area at David Taylor Oval: free hot showers, toilets and gas BBQ, pet-friendly, unmanned with a donation box; maximum stay 72 hours. Deeks Road, Werris Creek.",
+  "source_url": "https://www.liverpoolplains.nsw.gov.au/Community/Facilities-and-venues/Freedom-camping-areas",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n9506323017": {
+  "name": "Willow Tree Recreation Ground",
+  "category": "donation",
+  "operator": "Liverpool Plains Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Council freedom camping area at Willow Tree Recreation Ground: free hot showers, toilets and gas BBQ, pet-friendly, unmanned with a donation box; maximum stay 72 hours. Recreation Road, Willow Tree. Powered sites cost $15 per night.",
+  "source_url": "https://www.liverpoolplains.nsw.gov.au/Community/Facilities-and-venues/Freedom-camping-areas",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w1029925192": {
+  "name": "Manilla Freedom Camp",
+  "category": "donation",
+  "operator": "Tamworth Regional Council",
+  "fee_type": "free",
+  "toilets": "no",
+  "potable_water": "yes",
+  "dump_point": "yes",
+  "dogs": "yes",
+  "suits": "caravan|motorhome|camper trailer|big rig",
+  "phone": "6767 5555",
+  "description": "Freedom camp near the Namoi River close to Manilla town. No toilets on site. Drinking water, bins, dump point and fire pits. Donation box at the entrance supports the local Men's Shed.",
+  "source_url": "https://www.tamworthregion.com.au/visit/stay/manilla-freedom-camping",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n8444982326": {
+  "name": "Split Rock Dam",
+  "category": "council_park",
+  "showers": "yes",
+  "toilets": "yes",
+  "description": "Main camping ground about 1 km north of the dam wall on the western foreshore, with unreserved unpowered foreshore sites and powered sites at the amenities block. Showers and toilets, wood BBQs, picnic shelters, boat ramp, fish cleaning table. Bookings through Tamworth Regional Council's Barraba office. Recreation Areas at WaterNSW dams are closed on all Total Fire Ban days.",
+  "source_url": "https://www.waternsw.com.au/nsw-dams/regional-nsw-dams/split-rock-dam",
+  "source_url2": "https://www.tamworthregion.com.au/visit/stay/split-rock-dam",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "n1811177104": {
+  "name": "Glenriddle Reserve",
+  "category": "free",
+  "toilets": "yes",
+  "description": "Camping at unpowered sites on the northern shore of Split Rock Dam's upper reaches, with wood BBQs, toilets and a gravel boat ramp. Recreation Areas at WaterNSW dams are closed on all Total Fire Ban days.",
+  "source_url": "https://www.waternsw.com.au/nsw-dams/regional-nsw-dams/split-rock-dam",
+  "source_note": "WaterNSW gives no fee for Glenriddle; category kept from OSM.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "n4333617442": {
+  "name": "Bowling Alley Point Recreation Reserve (Chaffey Dam)",
+  "category": "council_park",
+  "fee_type": "paid",
+  "dogs": "yes (on leash)",
+  "phone": "0429 621 043",
+  "description": "Camp sites on the Chaffey Dam foreshore at Bowling Alley Point Recreation Reserve; enquiries 0429 621 043. Dogs only on a leash. Recreation Areas at WaterNSW dams are closed on all Total Fire Ban days.",
+  "source_url": "https://www.waternsw.com.au/nsw-dams/regional-nsw-dams/chaffey-dam",
+  "needs_review": false,
+  "checked_date": "2026-10-30"
+ },
+ "w1029969948": {
+  "category": "free",
+  "operator": "Tamworth Regional Council",
+  "source_url": "https://www.tamworth.nsw.gov.au/explore/parks-and-playgrounds",
+  "source_note": "Council's parks table lists 'Attunga Camping Ground, Manilla Road' but gives no camping rules. OSM maxstay 21 days matches council's reported 21-days-a-year limit at authorised campgrounds (not seen on an official page this turn).",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "w1218436974": {
+  "category": "free",
+  "operator": "Tamworth Regional Council",
+  "source_url": "https://www.tamworth.nsw.gov.au/explore/parks-and-playgrounds",
+  "source_note": "Council's parks table lists 'Swamp Creek Campsite, Peel River Road' but gives no camping rules.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "n1811197146": {
+  "category": "rest_area",
+  "operator": "Other (TfNSW dataset)",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Rotary Tamworth Airport Parking' (Oxley Hwy, 2 km west of Tamworth): Class 4 heavy-vehicle rest area with toilets, BBQ, tables and playground. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "n9487990743": {
+  "category": "rest_area",
+  "operator": "Tamworth Regional Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Lions Park Klori' (council, Tamworth-Yetman Rd, 38.3 km north of Tamworth): informal light-vehicle rest area with a toilet, BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "n1811160509": {
+  "category": "rest_area",
+  "operator": "Tamworth Regional Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Lions Park Barraba' (council, Tamworth-Yetman Rd, 3.2 km south of Barraba): rest area with toilets, BBQ, tables and playground. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-30"
+ },
+ "w493879492": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a toilet block (amenity=toilets) at Barraba Showground.",
+  "checked_date": "2026-10-30"
+ },
+ "n11306109832": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a toilet block (amenity=toilets) at Bendemeer Showground; the camping area is n1811162007.",
+  "checked_date": "2026-10-30"
+ },
+ "w206939058": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Bendemeer Showground; the camping area is n1811162007.",
+  "checked_date": "2026-10-30"
+ },
+ "w1197857202": {
+  "name": "Wooldridge Recreation and Fossicking Reserve",
+  "category": "free",
+  "operator": "Uralla Shire Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "potable_water": "yes",
+  "dogs": "yes (on lead)",
+  "suits": "tent|caravan",
+  "phone": "(02) 6778 6300",
+  "description": "Free council recreation and fossicking reserve with toilets, fresh drinking water and wood BBQs. Caravans welcome; pets on a leash.",
+  "source_url": "https://www.uralla.nsw.gov.au/Your-Community/Things-to-do-and-places-to-go/Parks-and-Reserves/Wooldridge-Recreation-and-Fossicking-Reserve",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811163542": {
+  "name": "Emu Crossing Campground (Bundarra Lions Park)",
+  "category": "free",
+  "operator": "Uralla Shire Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "description": "Free council camping on the Gwydir River at 6921 Thunderbolts Way, 2.5 km from Bundarra. Toilets, small shelter and BBQ.",
+  "source_url": "https://www.uralla.nsw.gov.au/Community/Recreation/Parks-and-Reserves/Bundarra-Lions-Park-Emu-Crossing-Campground",
+  "source_url2": "https://www.uralla.com/Explore/Things-to-Do/Uralla-Shire-Villages/Bundarra",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w935730949": {
+  "name": "Yarrowyck Crossing Reserve",
+  "category": "free",
+  "operator": "Uralla Shire Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Free overnight council camping reserve with pit toilets, BBQs and bins. Dog friendly.",
+  "source_url": "https://www.uralla.nsw.gov.au/Community/Recreation/Parks-and-Reserves/Yarrowyck-Crossing-Reserve",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w790600607": {
+  "name": "Queen Street Uralla Caravan Park",
+  "category": "council_park",
+  "operator": "Uralla Shire Council",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes",
+  "phone": "0438 567 728",
+  "email": "urallacaravanpark@uralla.nsw.gov.au",
+  "description": "Council caravan park at 17 Queen St, Uralla. Powered $41.50 and unpowered $31.50 a night for 1-2 people (weekly $249/$189); extra person $6.50 on the council page ($7.00 for 2026/27 on uralla.com). Pets allowed. Camp kitchen, showers and laundry.",
+  "source_url": "https://www.uralla.nsw.gov.au/Community/Recreation/Queen-Street-Uralla-Caravan-Park",
+  "source_url2": "https://www.uralla.com/Stay/Accomm-Queen-Street-Uralla-Caravan-Park",
+  "source_note": "Council page and uralla.com differ on the extra-person rate ($6.50 vs $7.00 for 2026/27).",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n8291959144": {
+  "name": "Bundarra Caravan Park",
+  "category": "council_park",
+  "operator": "Uralla Shire Council",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "phone": "02 6723 7101",
+  "description": "Caravan park in Court St, Bundarra. Powered $29.50 and unpowered $17 a night for up to 2 people; extra person $6.10. Showers free for guests ($5 for non-guests).",
+  "source_url": "https://www.uralla.com/Stay/Accomm-Bundarra-Caravan-Park",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n11676191196": {
+  "name": "Uralla Showground Camping",
+  "category": "showground",
+  "operator": "Uralla Showground (caretaker)",
+  "fee_type": "paid",
+  "booking": "required",
+  "showers": "yes",
+  "dogs": "yes",
+  "phone": "0434 401 361",
+  "description": "Showground camping with 18 power and water sites, hot showers and room to walk the dog; horse stabling available. Book through the caretaker. No fee stated on the source.",
+  "source_url": "https://www.uralla.com/Stay/Uralla-Showground-Camping",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w301773112": {
+  "exclude": true,
+  "exclude_reason": "Duplicate: showground land-use polygon for the same site as Uralla Showground Camping (n11676191196).",
+  "checked_date": "2026-10-31"
+ },
+ "w1420845092": {
+  "name": "Dumaresq Dam (tents)",
+  "category": "free",
+  "operator": "Armidale Regional Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "toilets": "yes",
+  "dogs": "no",
+  "description": "Free council camping at Dumaresq Dam, first come first served, maximum 72 hours. 6 campsites and 3 caravan sites. Toilets. No dogs.",
+  "source_url": "https://www.armidale.nsw.gov.au/Our-region/Parks-and-recreation/Lakes-and-dams",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w1420845093": {
+  "name": "Dumaresq Dam (vehicles)",
+  "category": "free",
+  "operator": "Armidale Regional Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "toilets": "yes",
+  "dogs": "no",
+  "description": "Free council camping at Dumaresq Dam, first come first served, maximum 72 hours. 6 campsites and 3 caravan sites. Toilets. No dogs.",
+  "source_url": "https://www.armidale.nsw.gov.au/Our-region/Parks-and-recreation/Lakes-and-dams",
+  "source_note": "Second OSM object for the Dumaresq Dam camping area (see w1420845092).",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n12709333087": {
+  "name": "Armidale Showground Camping",
+  "category": "showground",
+  "operator": "Armidale Showground",
+  "fee_type": "paid",
+  "dogs": "yes",
+  "toilets": "yes",
+  "showers": "yes",
+  "phone": "0400 639 630",
+  "description": "Showground camping at 5 Dumaresq St, Armidale. Powered $35 and unpowered $30 a night for 2 people (weekly $210/$180); extra adult $10. Pet friendly. Camp kitchen, amenities and laundry. Phone the caretaker (no email enquiries).",
+  "source_url": "https://www.armidaleshowground.org.au/pages/camping-and-caravanning",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w22177431": {
+  "exclude": true,
+  "exclude_reason": "Duplicate: showground land-use polygon for the same site as Armidale Showground Camping (n12709333087).",
+  "checked_date": "2026-10-31"
+ },
+ "w172412726": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a road (highway=service) named Showground Circuit.",
+  "checked_date": "2026-10-31"
+ },
+ "n6173926785": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Upper and Lower Wattle Flat camping areas in Styx River State Forest, off the Armidale-Kempsey Rd via Styx River Forest Way. 2WD not recommended; caravans and campervans welcome with 4WD only. No power.",
+  "source_url": "https://www.forestrycorporation.com.au/visiting/forests/styx-river-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w250514311": {
+  "name": "Emmaville Caravan Park",
+  "category": "council_park",
+  "operator": "Glen Innes Severn Council",
+  "fee_type": "paid",
+  "phone": "0480 387 288",
+  "email": "emmaville.cp@gmail.com",
+  "description": "Caravan park at 7-15 Park St, Emmaville, with powered and unpowered sites from $20 a night.",
+  "source_url": "https://gleninneshighlands.com/camping-accommodation.html",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n4241002989": {
+  "name": "Glen Innes Showground",
+  "category": "showground",
+  "operator": "Glen Innes Showground",
+  "fee_type": "paid",
+  "toilets": "yes",
+  "showers": "yes",
+  "potable_water": "yes",
+  "dump_point": "yes",
+  "dogs": "yes (under control)",
+  "suits": "tent|caravan|motorhome|big rig",
+  "description": "Showground camping from $32 a night. Toilets, hot showers, water refill and dump point; big rigs welcome; pets under control.",
+  "source_url": "https://gleninneshighlands.com/camping-accommodation.html",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n316586899": {
+  "category": "rest_area",
+  "operator": "Glen Innes Severn Council",
+  "source_url": "https://www.gisc.nsw.gov.au/Parks-and-Recreation/Heritage-Park-Yarraford",
+  "source_note": "Council lists Heritage Park, 924 New England Hwy, Yarraford, as a park with toilets, picnic tables and shade. No camping or overnight rule stated.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1427719648": {
+  "category": "showground",
+  "operator": "Tenterfield Showground (caretaker)",
+  "source_url": "https://experiencetenterfield.com.au/listings/tenterfield-showground/",
+  "source_note": "Tenterfield Chamber of Tourism listing (not council): 62 Miles St; caretaker 0499 885 386, tenterfieldshowground@outlook.com. Report to the caretaker before entering. Hot showers $5, water $5, dump point by donation (Westpac Rescue). Pet friendly.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "w392448520": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a driveway (highway=service, service=driveway).",
+  "checked_date": "2026-10-31"
+ },
+ "w320756727": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Crooked Creek camping area in Girard State Forest, about 500 m from the Bruxner Hwy; convenient overnight or short-stay camping.",
+  "source_url": "https://www.forestrycorporation.com.au/visiting/forests/girard-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811162957": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Bluff Rock Lookout' (TfNSW, New England Hwy, 79.4 km north of Grafton): light vehicle only rest area with toilets (incl. accessible), BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811205134": {
+  "name": "Woolbrook",
+  "category": "free",
+  "operator": "Walcha Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "description": "Free camping on the Macdonald River in Woolbrook village. Toilets; bare campground; 2WD all-weather access.",
+  "source_url": "https://walchansw.com.au/rv-information/",
+  "source_note": "OSM operator says Tamworth Regional; Walcha Council's RV page lists the site.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n11166622896": {
+  "category": "rest_area",
+  "operator": "Walcha Council",
+  "source_url": "https://walchansw.com.au/rv-information/",
+  "source_note": "Walcha Council RV page lists Tia River Rest Area with a shelter, on the Oxley Hwy 36 km east of Walcha. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "w189947287": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Walcha Showground.",
+  "checked_date": "2026-10-31"
+ },
+ "n316587494": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Yarrowitch Rest Area West' (TfNSW, Oxley Hwy, 158.5 km west of Wauchope): light vehicle only rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811192207": {
+  "name": "Pindari Dam",
+  "category": "free",
+  "operator": "WaterNSW",
+  "fee_type": "free",
+  "toilets": "yes",
+  "showers": "yes",
+  "potable_water": "no",
+  "description": "Free small camping ground south of the dam wall with unpowered sites for caravans and camping, toilets and solar hot-water showers. Water is untreated. Recreation Areas at WaterNSW dams are closed on all Total Fire Ban days.",
+  "source_url": "https://www.waternsw.com.au/nsw-dams/regional-nsw-dams/pindari-dam",
+  "source_url2": "https://www.inverell.com.au/pindari-dam/",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811171452": {
+  "name": "Delungra Showground",
+  "category": "showground",
+  "operator": "Delungra Showground",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "phone": "(02) 6724 8275",
+  "description": "14 powered sites, $20 a site a night, payable at the Shell service station opposite. Showers, toilets and dump point.",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "source_note": "Inverell visitor guide is the 2021 edition; fee may be stale.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811179275": {
+  "name": "Inverell Showground",
+  "category": "showground",
+  "operator": "Inverell Showground",
+  "fee_type": "paid",
+  "booking": "recommended",
+  "dump_point": "yes",
+  "suits": "caravan|motorhome",
+  "phone": "(02) 6722 3435",
+  "description": "6 powered sites, $35 a site a night, cash to the caretaker's cottage. No tents or swags. Bookings recommended. Dump point.",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "source_note": "Inverell visitor guide is the 2021 edition; fee may be stale.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "w250499631": {
+  "name": "Ashford Caravan Park",
+  "category": "council_park",
+  "operator": "Ashford Caravan Park",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "potable_water": "yes",
+  "description": "24 powered sites with town water and a dump point.",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811205422": {
+  "name": "Yetman Caravan Park",
+  "category": "council_park",
+  "operator": "Yetman Caravan Park",
+  "fee_type": "paid",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Camping and van sites with amenities, accessible facilities, washing machine and BBQ. Pet friendly.",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w251569103": {
+  "name": "Tingha Gems Caravan Park",
+  "category": "council_park",
+  "operator": "Tingha Gems Caravan Park",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "phone": "0447 810 237",
+  "description": "Caravan park at 91 Swimming Pool Rd, Tingha. Fees apply. Dump point.",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811168266": {
+  "name": "Copeton Dam Northern Foreshores",
+  "category": "council_park",
+  "operator": "Copeton Dam Northern Foreshores",
+  "fee_type": "paid",
+  "phone": "(02) 6723 0250",
+  "description": "Camping on the northern foreshores of Copeton Dam, Auburn Vale Rd. Fees apply. Recreation Areas at WaterNSW dams are closed on all Total Fire Ban days.",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811204149": {
+  "name": "Wells Crossing",
+  "category": "free",
+  "operator": "Inverell Shire Council",
+  "fee_type": "free",
+  "description": "Free bush camping and fishing on the Severn River about 6 km from Ashford on Pindari Dam Rd.",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811162979": {
+  "category": "rest_area",
+  "operator": "Inverell Shire Council",
+  "source_url": "https://www.inverell.com.au/content/uploads/2024/09/2021-Inverell-Visitor-Information-Guide-Web.pdf",
+  "source_note": "Council visitor guide lists 'Short Term Rest Areas: Bonshaw Weir, Texas Road... No amenities'. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811197085": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Swan Brook Rest Area' (TfNSW, Gwydir Hwy, 33.7 km west of Glen Innes): light vehicle only rest area with toilets (incl. accessible), BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811172674": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Dumboy Creek Rest Area' (TfNSW, Inverell Street, 36.1 km west of Inverell): class 5 heavy vehicle rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n10160915502": {
+  "name": "Bingara bush camping (off White St)",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "description": "Free council bush camping within Bingara town limits. No facilities.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n10160915506": {
+  "name": "Bingara bush camping (Faithfull St)",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "description": "Free council bush camping within Bingara town limits. No facilities.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w953869260": {
+  "name": "Sunnyside river camping",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "phone": "02 6724 0066",
+  "description": "Council primitive river camping area upstream of Bingara along Keera Rd/Copeton Dam Rd (3-8 km east of town). No booking, no facilities. River levels can rise quickly with Copeton Dam releases. Contact Bingara Visitor Information Centre 02 6724 0066.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w953872154": {
+  "name": "Sunnyside Beach river camping",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "phone": "02 6724 0066",
+  "description": "Council primitive river camping area upstream of Bingara along Keera Rd/Copeton Dam Rd (3-8 km east of town). No booking, no facilities. River levels can rise quickly with Copeton Dam releases. Contact Bingara Visitor Information Centre 02 6724 0066.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w953872156": {
+  "name": "Honeymoon river camping",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "phone": "02 6724 0066",
+  "description": "Council primitive river camping area upstream of Bingara along Keera Rd/Copeton Dam Rd (3-8 km east of town). No booking, no facilities. River levels can rise quickly with Copeton Dam releases. Contact Bingara Visitor Information Centre 02 6724 0066.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w953872163": {
+  "name": "Honeymoon river camping",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "phone": "02 6724 0066",
+  "description": "Council primitive river camping area upstream of Bingara along Keera Rd/Copeton Dam Rd (3-8 km east of town). No booking, no facilities. River levels can rise quickly with Copeton Dam releases. Contact Bingara Visitor Information Centre 02 6724 0066.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n8828793873": {
+  "name": "Boora Crossing river camping",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "no",
+  "phone": "02 6724 0066",
+  "description": "Council primitive river camping area upstream of Bingara along Keera Rd/Copeton Dam Rd (3-8 km east of town). No booking, no facilities. River levels can rise quickly with Copeton Dam releases. Contact Bingara Visitor Information Centre 02 6724 0066.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811169625": {
+  "name": "Cranky Rock Recreation Reserve",
+  "category": "council_park",
+  "operator": "Privately managed for Gwydir Shire Council",
+  "fee_type": "paid",
+  "showers": "yes",
+  "phone": "(02) 6729 0046",
+  "description": "Powered $20 and unpowered $15 a night for 2 people (weekly $115/$75). Hot showers.",
+  "source_url": "https://visitgwydir.com.au/cranky-rock-recreation-reserve/",
+  "source_note": "Page says 'Rates are current to 30 June 2025'.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n8292098997": {
+  "name": "Upper Horton camping",
+  "category": "free",
+  "operator": "Upper Horton Sports Club",
+  "fee_type": "free",
+  "toilets": "yes",
+  "showers": "yes",
+  "potable_water": "yes",
+  "description": "Camping maintained by the Upper Horton Sports Club: free unpowered or $10 powered, fees payable at the Sports Club. Toilets, showers and water.",
+  "source_url": "https://visitgwydir.com.au/our-towns/upper-horton/",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w209695486": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Upper Horton Showground; the camping area is n8292098997.",
+  "checked_date": "2026-10-31"
+ },
+ "n1811177486": {
+  "name": "Gravesend Recreation Ground",
+  "category": "free",
+  "operator": "Gwydir Shire Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "description": "Free camping at the recreation ground in Warialda St, Gravesend. Bins, toilets and shelter; all-weather access.",
+  "source_url": "https://visitgwydir.com.au/our-towns/gravesend/",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n13579672170": {
+  "name": "Croppa Creek Memorial Hall Camping",
+  "category": "donation",
+  "operator": "Croppa Creek Memorial Hall",
+  "fee_type": "donation",
+  "description": "Camping at the Memorial Hall, Croppa Road; pay by donation at the Croppa Creek Store.",
+  "source_url": "https://visitgwydir.com.au/our-towns/croppa-creek/",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w894115332": {
+  "name": "North Star Caravan Park",
+  "category": "council_park",
+  "operator": "North Star Caravan Park",
+  "fee_type": "paid",
+  "toilets": "yes",
+  "showers": "yes",
+  "description": "Caravan park on the corner of Wilby St and North Star Rd with powered and unpowered sites, toilets, hot showers and washing facilities.",
+  "source_url": "https://visitgwydir.com.au/our-towns/north-star/",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w693640373": {
+  "name": "Warialda Caravan Park",
+  "category": "council_park",
+  "operator": "Warialda Caravan Park",
+  "fee_type": "paid",
+  "phone": "0427 291 008",
+  "description": "Caravan park on the corner of Holden St and Gwydir Hwy, Warialda.",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Caravan-Parks",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811168287": {
+  "name": "Copeton Waters State Park",
+  "category": "council_park",
+  "operator": "WaterNSW (Copeton Waters State Park)",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes (on lead)",
+  "phone": "02 6723 6269",
+  "email": "copetonwaters@bigpond.com",
+  "description": "Holiday park on Copeton Dam with showers and toilets; dogs on leash. Recreation Areas at WaterNSW dams are closed on all Total Fire Ban days.",
+  "source_url": "https://www.waternsw.com.au/nsw-dams/regional-nsw-dams/copeton-dam",
+  "source_url2": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Caravan-Parks",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811193689": {
+  "category": "free",
+  "operator": "Local Land Services (travelling stock reserve)",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Campgrounds",
+  "source_note": "Gwydir Shire Council says Rocky Creek Glacial Area is not council land but a travelling stock reserve. No camping rule stated by an official source.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n13108004934": {
+  "category": "rest_area",
+  "operator": "Gwydir Shire Council",
+  "source_url": "https://www.gwydir.nsw.gov.au/Venues/Caravan-Parks-and-Campgrounds/Caravan-Parks",
+  "source_note": "Council lists a dump station near the old saleyards rest area in Warialda. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811197695": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Andersons Creek Stopping Bay' (TfNSW, Tamworth-Yetman Rd, 31.7 km north of Barraba): informal heavy rest areas with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n8828433362": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Ti Tree Creek Rest Area' (TfNSW, Tamworth-Yetman Rd, 30.6 km north of Bingara): light vehicle only rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811187342": {
+  "name": "Moree Showground Caravan & Camping",
+  "category": "showground",
+  "operator": "Moree Showground (Crown Lands contact)",
+  "fee_type": "paid",
+  "phone": "0428 205 098",
+  "email": "moree.crownlands@crownland.nsw.gov.au",
+  "description": "Showground caravan and camping at 25 McElhone St, Moree. No fees or facilities stated in the source.",
+  "source_url": "https://visitmoreeplains.com.au/downloads/moree-plains-visitor-guide.pdf",
+  "source_note": "Council visitor guide (April 2024) listing.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "w1424527467": {
+  "name": "Club Hotel Garah Freecamp",
+  "category": "free",
+  "operator": "Club Hotel Garah",
+  "fee_type": "free",
+  "phone": "0483 166 743",
+  "email": "clubhotelgarah@gmail.com",
+  "description": "Country pub at 17 Railway Parade, Garah, 50 km north of Moree, offering free camping.",
+  "source_url": "https://visitmoreeplains.com.au/downloads/moree-plains-visitor-guide.pdf",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811163023": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Boolooroo Rest Area' (TfNSW, Newell Hwy, 7.9 km north of Moree): class 4 heavy vehicle rest area with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811176828": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Gil Gil North Rest Area' (TfNSW, Newell Hwy, 40.5 km north of Moree): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811180627": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Kiga Bore Rest Area Northbound' (TfNSW, Newell Hwy, 55.1 km north of Moree): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811186638": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Bullarah Rest Area' (TfNSW, Gwydir Hwy, 95 km west of Moree): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811190885": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'North Star Road Rest Area' (TfNSW, Newell Hwy, 84.3 km north of Moree): class 4 heavy vehicle rest area with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811197545": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Telleraga Road Rest Area' (TfNSW, Gwydir Hwy, 45.32 km west of Moree): class 5 heavy vehicle rest area with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811200542": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Tycannah Rest Area Northbound' (TfNSW, Newell Hwy, 16.5 km south of Moree (Heber St)): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811192011": {
+  "name": "Pilliga Artesian Bore Baths Campground",
+  "category": "council_park",
+  "operator": "Narrabri Shire Council",
+  "fee_type": "paid",
+  "max_nights": "4",
+  "potable_water": "no",
+  "dump_point": "no",
+  "description": "Designated primitive campground with very basic facilities and no powered sites. $7 a site a night, maximum 4 nights. Book online, or pay at the Narrabri Region Visitor Information Centre or Wee Waa Library. No dump point (nearest at Dangar Park, Wee Waa) and no potable water.",
+  "source_url": "https://explorenarrabriregion.com.au/pilliga-tour-bookings/",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w453872782": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Boggabri Showground.",
+  "checked_date": "2026-10-31"
+ },
+ "n8677824276": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Bohena Creek Rest Area' (TfNSW, Newell Hwy, 16.4 km south of Narrabri): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n8681063276": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Pilliga Rest Area' (TfNSW, Newell Hwy, 51.5 km south of Narrabri): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811198508": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Tookey Creek Rest Area' (TfNSW, Newell Hwy, 48.2 km south of Moree): class 4 heavy vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811205283": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Yamminba Rest Area' (TfNSW, Newell Hwy, 51.7 km north of Coonabarabran): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811205641": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches '150 Degrees East Meridian Rest Area' (TfNSW, Oxley Hwy, 25.3 km north of Gunnedah): other rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811177724": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Greenwood Grange Rest Area' (TfNSW, Kamilaroi Hwy, 9.2 km north of Gunnedah): class 5 heavy vehicle rest area with no toilets listed. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n13724952918": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Redbank Rest Area' (TfNSW, Oxley Hwy, 26.0 km west of Somerton): light vehicle only rest area with toilets (incl. accessible), BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811177732": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Mooki River Rest Area' (TfNSW, Kamilaroi Hwy, 74.3 km north of Quirindi): light vehicle only rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811196347": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Square Bush Rest Area' (TfNSW, Kamilaroi Hwy, 32.5 km north of Quirindi): class 5 heavy vehicle rest area with BBQ. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811192811": {
+  "name": "Pumphouse Camping Ground",
+  "category": "donation",
+  "operator": "Pumphouse Camping Ground",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "description": "Budget camping on the banks of the Castlereagh River in Binnaway. Plenty of shady unpowered sites plus eight powered sites for a small fee (water connection on powered sites). Toilets and coin-operated hot showers (accessible) open 24 hours. Dump point. Pets: enquire.",
+  "source_url": "https://www.warrumbungleregion.com.au/ATDW/Accommodations/Pumphouse-Camping-Ground-56b2433dd5f1565045d89190",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811163753": {
+  "name": "Camp Cypress Cabin and Caravan Park",
+  "category": "council_park",
+  "operator": "Camp Cypress",
+  "fee_type": "paid",
+  "description": "Air-conditioned cabins plus caravan and camping facilities in Baradine, suitable for individuals, families and large groups.",
+  "source_url": "https://www.warrumbungleregion.com.au/Stay/Caravan-Camping",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n13545079342": {
+  "name": "Mendooran Showground",
+  "category": "showground",
+  "operator": "Mendooran Showground Trust",
+  "description": "Owned by Warrumbungle Shire on Crown Land and administered by the Mendooran Showground Trust; listed by council tourism under Caravan & Camping. No fees or facilities stated.",
+  "source_url": "https://www.warrumbungleregion.com.au/Stay/Caravan-Camping",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n12591981133": {
+  "category": "rest_area",
+  "operator": "Warrumbungle Shire Council",
+  "source_url": "https://www.warrumbungleregion.com.au/ATDW/Attractions/Black-Stump-Rest-Area-56b2414dd5f1565045d86ce7",
+  "source_note": "Council tourism lists Black Stump Rest Area (replica stump) with picnic shelters, an electric BBQ and flushing toilets. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "w30264404": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a residential road (highway=residential) named Showground Street.",
+  "checked_date": "2026-10-31"
+ },
+ "n7915674769": {
+  "name": "Quambone Primitive Camp Site",
+  "category": "free",
+  "operator": "Coonamble Shire Council",
+  "fee_type": "free",
+  "description": "Free camping at the Quambone Primitive Camp Site in Mungie St, Quambone. Closest camping to the Macquarie Marshes.",
+  "source_url": "https://www.coonambleshire.nsw.gov.au/visit/faqs",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "w257379779": {
+  "name": "Coonamble Showground",
+  "category": "donation",
+  "operator": "Coonamble Shire Council",
+  "fee_type": "donation",
+  "toilets": "yes",
+  "potable_water": "yes",
+  "suits": "caravan|motorhome|campervan",
+  "description": "Caravans, RVs and self-contained vans welcome for a small donation, payable at the Coonamble Visitor Information and Exhibition Centre. Toilets and water-fill taps. Off the Castlereagh Hwy on the south side of town.",
+  "source_url": "https://www.coonambleshire.nsw.gov.au/visit/faqs",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n316588194": {
+  "category": "rest_area",
+  "operator": "Coonamble Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'John Oxley (Gulargambone) Rest Area' (Council, Castlereagh Hwy, 63.9 km north of Gilgandra (SH17)): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811205036": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Wingadee Rest Area' (TfNSW, Castlereagh Hwy, 62.5 km north of Coonamble (Aberford St)): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "w369359354": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a race track (leisure=track) at Gilgandra Showground.",
+  "checked_date": "2026-10-31"
+ },
+ "n1811186201": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Berida Rest Area' (TfNSW, Oxley Hwy, 19.6 km from Gilgrandra (22.4 km to SH17)): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811162406": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Biddon Rest Area Northbound' (TfNSW, Newell Hwy, 21.9 km north of Gilgrandra): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811205270": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Bulga Creek Rest Area' (TfNSW, Newell Hwy, 15.8 km north of Gilgrandra): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n8696887177": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'David Gillon Park' (TfNSW, Castlereagh Hwy, 38.94 km from Gilgandra (SH17)): light vehicle only rest area with no toilets listed. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811186182": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Marthaguy Rest Area' (TfNSW, Newell Hwy, 8.7 km south of Gilgrandra): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n8374499217": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Tooraweenah Rest Area' (TfNSW, Newell Hwy, 39.4 km north of Gilgrandra): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811166623": {
+  "name": "Collarenebri Camping Ground",
+  "category": "council_park",
+  "operator": "Walgett Shire Council",
+  "fee_type": "paid",
+  "booking": "no",
+  "max_nights": "7",
+  "description": "Council camping ground. $10 per vehicle per night (cash and card on site). Maximum stay 7 nights. No bookings, first come first served.",
+  "source_url": "https://www.walgett.nsw.gov.au/community/facilities/collarenebri-camping-ground-",
+  "source_note": "Replaces the OSM free/48-hour tags.",
+  "needs_review": false,
+  "checked_date": "2026-10-31"
+ },
+ "n1811159413": {
+  "category": "council_park",
+  "operator": "Walgett Shire Council",
+  "source_url": "https://www.walgett.nsw.gov.au/community/facilities/walgett-camping-ground-",
+  "source_note": "Probably the council's 'Walgett Camping Ground' ($10 per vehicle per night, maximum 7 nights, no bookings); the council page does not name Alex Trevallion Park. OSM still tags it free with a 48-hour limit.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811182835": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches (0.17 km away) 'Big Emu Rest Area' (TfNSW, Castlereagh Hwy, 5 km south of Lightning Ridge turnoff): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811184618": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: council tourism says Macks Reserve (travelling stock reserve, Old Warren Rd) has no toilets and 'no camping or motorbike riding is permitted'.",
+  "source_url": "https://narromineregion.com.au/river-activities",
+  "checked_date": "2026-10-31"
+ },
+ "w258591992": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a sports pitch (leisure=pitch) at Trangie Showground.",
+  "checked_date": "2026-10-31"
+ },
+ "n1811198138": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Tomingley Creek Rest Area' (TfNSW, Newell Hwy, 44.5 km from Dubbo (SH7)): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811198182": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'South Tomingley Rest Area' (TfNSW, Caswell St, 54.99 km south of Dubbo (SH7)): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n13895388375": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-10-31"
+ },
+ "n1811163391": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Brocklehurst Rest Area' (TfNSW, Newell Hwy, 1 km north of Brocklehurst): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n316588251": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Apsley Rest Area' (TfNSW, Mitchell Hwy, 54.1 km from Molong): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811172613": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Panai Avenue Rest Area' (TfNSW, Newell Hwy, 12.69 km from Dubbo (SH7)): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "n1811187431": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Mountain Creek Rest Area' (TfNSW, Newell Hwy, 22.5 km from Dubbo (SH7)): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-10-31"
+ },
+ "w367897972": {
+  "name": "Macquarie Caravan Park",
+  "category": "council_park",
+  "phone": "02 6847 4706",
+  "description": "Caravan park in Udora Rd, Warren, listed by council under places to stay. No fees or facilities stated.",
+  "source_url": "https://warren.nsw.gov.au/discover/stay",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811203282": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Ewenmar Creek Rest Area' (0.04 km); OSM name 'Warren North Rest Area' differs. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811194304": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Sandy Creek Rest Area' (TfNSW, Oxley Hwy, 7.47 km S of Warren (Dubbo St)): other rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "new:bob-christensen-reserve-warren": {
+  "name": "Bob Christensen Reserve",
+  "lat": -31.6851555,
+  "lon": 147.8333418,
+  "category": "free",
+  "operator": "Warren Shire Council",
+  "fee_type": "free",
+  "max_nights": "4",
+  "suits": "motorhome|campervan|caravan",
+  "toilets": "no",
+  "description": "Free council camping area off Industrial Access Road, Warren, for fully self-contained motorhomes, campervans and caravans only. Stays up to 96 hours. No facilities.",
+  "source_url": "https://warren.nsw.gov.au/discover/stay",
+  "source_note": "Coordinates are the centroid of the OSM park footprint (way 330303123) via Nominatim, not a council pin; check the exact camping area.",
+  "needs_review": true,
+  "new": true,
+  "checked_date": "2026-11-01"
+ },
+ "w367910111": {
+  "name": "Nyngan Riverside Tourist Park",
+  "category": "council_park",
+  "operator": "Nyngan Riverside Tourist Park",
+  "fee_type": "paid",
+  "phone": "02 6832 1729",
+  "email": "info@nynganriverside.com.au",
+  "description": "Tourist park on the Barrier Hwy, Nyngan, with powered and unpowered sites.",
+  "source_url": "https://bogan.nsw.gov.au/everyday-living/community-directory/accommodation/nyngan-riverside-tourist-park",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w367910110": {
+  "category": "council_park",
+  "operator": "CMCA",
+  "source_url": "https://bogan.nsw.gov.au/everyday-living/community-directory/accommodation/cmc-nyngan-van-park",
+  "source_note": "Council lists 'CMC Nyngan Van Park' (CMCA) at 8-10 Old Warren Rd, 02 6832 2366: pet friendly, powered and unpowered sites. OSM name 'Nyngan Leisure and Van Park' differs.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811190917": {
+  "category": "rest_area",
+  "operator": "Other",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Nyngan Rotary Park' (authority Other, 0.00 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "new:nyngan-rest-area-bogan": {
+  "name": "Nyngan Rest Area",
+  "lat": -31.56364,
+  "lon": 147.20084,
+  "category": "free",
+  "operator": "Bogan Shire Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "potable_water": "yes",
+  "dump_point": "yes",
+  "description": "Free camping listed by council at the Nyngan Rest Area: toilets, water fountain with dog bowl and a dump point.",
+  "source_url": "https://bogan.nsw.gov.au/everyday-living/community-directory/accommodation/nyngan-rest-area",
+  "source_note": "Coordinates from the TfNSW NSW Rest Areas council record 'Nyngan Rest Area'; council gives no pin.",
+  "needs_review": true,
+  "new": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1050443545": {
+  "name": "Four Mile Reserve",
+  "category": "free",
+  "operator": "Brewarrina Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "yes",
+  "showers": "yes (cold)",
+  "phone": "02 6830 5152",
+  "description": "Free riverside camping 4 km from Brewarrina. No reservations. Amenities with toilet and cold shower, BBQ and boat ramp.",
+  "source_url": "https://www.visitbrewarrina.com.au/see-and-do/four-mile-reserve",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n14246927146": {
+  "name": "Goodooga Great Artesian Bore Baths",
+  "category": "free",
+  "operator": "Brewarrina Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "showers": "yes (hot)",
+  "toilets": "yes (incl. accessible)",
+  "dump_point": "yes",
+  "phone": "02 6830 5100",
+  "description": "Free camping beside the Goodooga artesian baths, no booking. Open March to November. Hot showers, accessible bathrooms, dump point and BBQ.",
+  "source_url": "https://brewarrina.nsw.gov.au/community/goodooga-artesian-bore-baths/",
+  "source_url2": "https://visitbrewarrina.com.au/goodooga-artesian-baths-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163376": {
+  "name": "Barwon Bridge Campground",
+  "category": "free",
+  "operator": "Brewarrina Shire Council",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "yes",
+  "description": "Free riverside campground at the historic Barwon Bridge with bathrooms, boat ramp and fire pits. No bookings.",
+  "source_url": "https://www.visitbrewarrina.com.au/see-and-do/historic-barwon-bridge",
+  "source_note": "Also matches TfNSW 'Brewarrina Rest Area' (Council).",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n4894700419": {
+  "name": "May's Bend",
+  "category": "free",
+  "operator": "Bourke Shire Council",
+  "fee_type": "free",
+  "description": "Riverside camping on the Darling River listed by Bourke Shire's Back O' Bourke tourism site.",
+  "source_url": "https://www.visitbourke.com.au/products/mays-bend",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w236808832": {
+  "name": "Kidman's Camp",
+  "category": "council_park",
+  "operator": "Kidman's Camp",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "phone": "(02) 6872 1612",
+  "email": "kidmanscamp@bigpond.com",
+  "description": "Holiday park on the Kidman Way about 8 km north of Bourke: 90+ powered sites, 20 cabins, showers, toilets, laundry, camp kitchen, pools and dump point.",
+  "source_url": "https://www.visitbourke.com.au/products/kidmans-camp",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w398425621": {
+  "name": "Mitchell Caravan Park",
+  "category": "council_park",
+  "operator": "Mitchell Caravan Park (private)",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "dogs": "enquire",
+  "phone": "(02) 6872 2791",
+  "email": "mcp1@outlook.com.au",
+  "description": "Privately owned caravan park at 2 Becker St, Bourke, with drive-through sites, laundry and dump point. Pets: enquire.",
+  "source_url": "https://www.visitbourke.com.au/products/mitchell-caravan-park",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811199957": {
+  "name": "Trilby Station",
+  "category": "council_park",
+  "operator": "Trilby Station",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "enquire",
+  "phone": "02 6874 7420",
+  "description": "Station stay near Louth with powered caravan sites and secluded Darling River campsites, communal showers, laundry and camp kitchen. Pets: enquire.",
+  "source_url": "https://www.visitbourke.com.au/products/trilby-station",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n9758762108": {
+  "category": "council_park",
+  "operator": "Wanaaring Store & Caravan Park",
+  "source_url": "https://www.visitbourke.com.au/products/wanaaring-store-caravan-park",
+  "source_note": "Probably the Wanaaring Store & Caravan Park (83 O'Grady St, 8 powered and multiple unpowered sites, (02) 6874 7720, wanaaringstorecp@gmail.com); OSM pin is about 0.2 km from O'Grady St but named 'Paroo River Wanaaring'.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811161272": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches (0.29 km away) 'Beemery Rest Area' (TfNSW, Kamilaroi Hwy, 43 km From Bourke): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n9766008807": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches (0.21 km away) 'Curraweena Rest Area' (TfNSW, Cobar-Nr Bourke Rd, 86.29 km north of Cobar): class 5 heavy vehicle rest area with toilets. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811173418": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'North Bourke Rest Area' (TfNSW, Mitchell Hwy, 31.55 km south of Enngonia): class 5 heavy vehicle rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811185932": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Bourke Rest Area' (TfNSW, Mitchell Hwy, 19.5 km SouthEast of Bourke): class 5 heavy vehicle rest area with toilets, BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811173640": {
+  "name": "Euabalong Caravan Park",
+  "category": "council_park",
+  "operator": "Cobar Shire Council",
+  "fee_type": "paid",
+  "fee_note": "honesty box",
+  "max_nights": "14",
+  "toilets": "yes",
+  "showers": "yes",
+  "suits": "tent|campervan|caravan",
+  "description": "Council caravan park at Euabalong, paid by honesty box. Maximum stay 2 weeks. Public toilets and showers, bins, shelter and a concrete area for wet weather. No fires or hunting dogs; no annexe flooring on grass. Council draft 2025-26 fees: $17.20 a night or $85.50 a week (draft rate, check).",
+  "source_url": "https://visitcobarshire.com.au/communities",
+  "source_url2": "https://www.cobar.nsw.gov.au/wp-content/uploads/2025/05/Fees_And_Charges_Report-Draft-2025-2026-V5-7.5.2025.pdf",
+  "source_note": "Fee from council's draft 2025-26 fees and charges; confirm adopted rate.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811176957": {
+  "category": "rest_area",
+  "operator": "Cobar Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Gilgunnia Goldfields Rest Area' (Council, 0.06 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8417539065": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Bulla Park Rest Area' (TfNSW, Barrier Hwy, 115.2 km west of Cobar): class 5 heavy vehicle rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811168542": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Cornish Rest Area' (TfNSW, Barrier Hwy, 130.5 km west of Nyngan): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1324601039": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Florida Rest Area' (TfNSW, Barrier Hwy, 81.5 km west of Nyngan): class 4 heavy vehicle rest area with toilets (incl. accessible), BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8417539072": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Lilyvale Rest Area Eastbound' (TfNSW, Barrier Hwy, 5916m from HW8 segment 446.): class 4 heavy vehicle rest area with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n316588264": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Meadow Glen Rest Area' (TfNSW, Barrier Hwy, 60.7 km west of Cobar): class 4 heavy vehicle rest area with toilets (incl. accessible), BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811190297": {
+  "name": "Nelia Gaari Station",
+  "category": "council_park",
+  "operator": "Nelia Gaari Station",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "enquire",
+  "phone": "(08) 8091 6496",
+  "email": "nelia-gaari@bigpond.com",
+  "description": "Station stay on West Wilcannia Rd, Menindee, with secluded river camp spots, showers and toilets and a boat ramp. Pets: enquire.",
+  "source_url": "https://www.visitbourke.com.au/products/nelia-gaari-station",
+  "source_note": "ATDW operator listing on the Back O' Bourke tourism site.",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n9758403905": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'East of Wilcannia' rest area; OSM name 'Caltigeena Rest Area' differs. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8376686556": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Baden Park Rest Area' (TfNSW, Barrier Hwy, 172.9 km west of Cobar): class 4 heavy vehicle rest area with toilets (incl. accessible), BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8376583425": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'MacCullochs Rest Area Eastbound' (TfNSW, Barrier Hwy, 45.8 km west of Emmdale): class 5 heavy vehicle rest area with toilets. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811190339": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Netallie Hill Rest Area' (TfNSW, Barrier Hwy, 16.6 km west of Wilcannia): class 4 heavy vehicle rest area with toilets (incl. accessible), BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n4824747365": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Wilcannia Showground Stopping Bay' (TfNSW, Myers St, Wilcannia): informal heavy rest areas with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1157614307": {
+  "name": "Starview Primitive Campsite",
+  "category": "council_park",
+  "operator": "Broken Hill City Council",
+  "fee_type": "paid",
+  "booking": "required",
+  "max_nights": "5",
+  "dogs": "no",
+  "fires": "no",
+  "toilets": "yes (accessible)",
+  "showers": "yes",
+  "description": "Council campsite in the Living Desert State Park: 15 unpowered van sites plus a tent area, free gas BBQs, toilets and showers. $25 per van site per night (2 adults), extra adult $12, child 5-15 $5; tent $12 per adult; one-off Living Desert entry $7. Booking required. Maximum 5 nights. No pets, no fires.",
+  "source_url": "https://www.visitbrokenhill.com/Play/Living-Desert-State-Park/Starview-Campsite",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163395": {
+  "name": "Broken Hill Racecourse Camping",
+  "category": "showground",
+  "operator": "Broken Hill Events Centre",
+  "fee_type": "paid",
+  "booking": "recommended",
+  "showers": "yes (basic)",
+  "toilets": "yes",
+  "phone": "0437 250 286",
+  "description": "Camping at the Broken Hill Racecourse: powered $40, unpowered $25 (CMCA members $15). Basic showers and toilets. Bookings recommended April to November; check-in from 12pm.",
+  "source_url": "https://www.brokenhilleventscentre.org.au/camp",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811194058": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Round Hill Rest Area Westbound' (TfNSW, Barrier Hwy, 190.3 km west of Wilcannia): class 4 heavy vehicle rest area with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811172207": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Delo Hill' rest area (spelling differs from OSM 'Dolo Hill'). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1428530963": {
+  "category": "council_park",
+  "operator": "Tibooburra Local Aboriginal Land Council",
+  "source_url": "https://tibooburra.org.au/tibooburra-accommodation-camping/",
+  "source_note": "Community site: end of Burgess St, Tibooburra; unpowered sites, pets and campfires permitted, shower and toilets, picnic shelter; fees apply. 08 8091 3435, tibooburralalc@outlook.com.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811183578": {
+  "category": "rest_area",
+  "operator": "Other",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Topar Road House' (authority Other, 0.09 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811192499": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Popiltah Lake Rest Area' (TfNSW, Silver City Hwy, 128.8 km north of Wentworth): class 5 heavy vehicle rest area with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811196246": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Spring Hills Rest Area' (TfNSW, Barrier Hwy, 74.3 km west of Wicannia): other rest area with toilets, BBQ, tables and playground. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811197621": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Thackaringa Hills Rest Area' (TfNSW, Barrier Hwy, 36.8 km west of Broken Hill): class 4 heavy vehicle rest area with toilets, BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811175325": {
+  "name": "Fort Courage Caravan Park",
+  "category": "council_park",
+  "operator": "Wentworth Angling Club",
+  "fee_type": "paid",
+  "phone": "03 5027 3097",
+  "description": "Caravan park at 1703 Renmark Rd run by the Wentworth Angling Club: powered sites, cabins and lodge.",
+  "source_url": "https://experiencewentworth.com.au/Pages/StayRelax/HolidayParksCamping/Fort-Courage-Caravan-Park.aspx",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811191280": {
+  "category": "council_park",
+  "operator": "Wentworth Shire Council",
+  "source_url": "https://experiencewentworth.com.au/Pages/StayRelax/HolidayParksCamping/Pooncarie-Multi-Purpose-Park.aspx",
+  "source_note": "Probably the Pooncarie Multi-Purpose Park (11 Cemetery Rd): powered sites, coin-operated toilets and showers, BBQ, boat ramp; ring the Pooncarie Pub 03 5029 5205. OSM name 'Padda Park' differs.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811186862": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Milpara Rest Area' (TfNSW, Silver City Hwy, 26 km from Wentworth and  240 km to Broken Hill): light vehicle only rest area with toilets, shelter, BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811178965": {
+  "category": "council_park",
+  "operator": "Homebush Hotel",
+  "source_url": "https://balranald.nsw.gov.au/businesses/homebush-hotel-caravan-backpacker-accommodation/",
+  "source_note": "Council business directory lists 'Homebush Hotel Caravan & Backpacker Accommodation'; page is bot-protected (403), so no details were read.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n4558016089": {
+  "category": "rest_area",
+  "operator": "Balranald Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Benanee Lake' (Council, 0.21 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811194309": {
+  "name": "Sandy Point Camp Ground",
+  "category": "free",
+  "operator": "Hay Shire Council",
+  "fee_type": "free",
+  "max_nights": "3",
+  "toilets": "yes (flush)",
+  "dogs": "yes",
+  "description": "Free primitive campground on the Murrumbidgee in Hay for 2-3 nights. Free BBQs and flush toilets; $2 showers at the Visitor Centre in Moppett St. Dog friendly. Entries from Brunker St and Water St.",
+  "source_url": "https://www.visithay.com.au/stay/venue/sandy-point-camp-ground/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811178494": {
+  "name": "Hay Showground Caravan and Camping Ground",
+  "category": "showground",
+  "operator": "Hay Showground",
+  "fee_type": "paid",
+  "fee_note": "honesty",
+  "showers": "yes",
+  "toilets": "yes",
+  "booking": "optional",
+  "phone": "0458 489 959",
+  "description": "Showground camping at 73 Showground Rd, Hay: powered and unpowered sites, honesty fees $25 powered / $20 unpowered. Showers and toilets. Booking ahead optional.",
+  "source_url": "https://www.visithay.com.au/stay/venue/hay-showground-caravan-and-camping-ground/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811186375": {
+  "name": "Maude Hotel and Caravan Park",
+  "category": "council_park",
+  "operator": "Maude Hotel",
+  "fee_type": "paid",
+  "dogs": "yes",
+  "potable_water": "yes",
+  "phone": "02 6993 6112",
+  "description": "Hotel caravan park at Maude with powered and unpowered sites and drinking water. Dog friendly.",
+  "source_url": "https://www.visithay.com.au/stay/venue/maude-hotel-and-caravan-park/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811179207": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Illilawa Reserve Truck Parking Area' (0.08 km): truck parking area. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1570333369": {
+  "name": "Goolgowi Caravan Park",
+  "category": "council_park",
+  "operator": "Carrathool Shire Council",
+  "fee_type": "paid",
+  "booking": "no",
+  "dump_point": "yes",
+  "dogs": "yes (on lead)",
+  "toilets": "yes",
+  "showers": "yes",
+  "phone": "02 6965 1900",
+  "description": "Council caravan park at the corner of Combo and Napier St, Goolgowi: 14 powered drive-through and 5 unpowered sites, amenities block, dump point in Rear Lane. No bookings; pay at the Goolgowi Council Chambers or Ex-servicemen's Club. $37 powered / $30 unpowered a night (CMCA, seniors and pension $33 / $25); weekly = daily x 7. Pets on lead.",
+  "source_url": "https://carrathool.nsw.gov.au/services/caravan-parks/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811193476": {
+  "name": "Rankins Springs Caravan Park",
+  "category": "council_park",
+  "operator": "Carrathool Shire Council",
+  "fee_type": "paid",
+  "booking": "no",
+  "dogs": "yes",
+  "phone": "02 6965 1900",
+  "description": "Council caravan park on the Mid Western Hwy, Rankins Springs: powered and unpowered sites, pet friendly. No bookings; caretaker collects fees. $37 powered / $30 unpowered a night (CMCA, seniors and pension $33 / $25).",
+  "source_url": "https://carrathool.nsw.gov.au/services/caravan-parks/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811177348": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Ilkadoon Road' rest area; OSM name 'Goolgowi Rest Area' differs. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811178725": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Hillston Rest Area' (TfNSW, Kidman Way, 108 km from Griffith and  2 km to Hillston): class 4 heavy vehicle rest area with toilets, shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811179394": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'John Oxley (Rankin Springs) Rest Area' (TfNSW, Mid Western Hwy, 99 km from west Wyalong and 156 km to Hay): class 5 heavy vehicle rest area with toilets, shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n11552932376": {
+  "category": "rest_area",
+  "operator": "Murrumbidgee Council",
+  "source_url": "https://www.murrumbidgee.nsw.gov.au/Services-facilities/Parks-playgrounds-recreation-areas/Jerilderie/Brew-Park-Jerilderie",
+  "source_note": "Council calls Brew Park a caravan rest area with picnic seating and a dump point; overnight stays not stated.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811166312": {
+  "category": "rest_area",
+  "operator": "Murrumbidgee Council",
+  "source_url": "https://www.visitmurrumbidgee.com/Plan/Getting-here-and-around/Coleambally",
+  "source_note": "Council tourism: dump point and potable water at Lions Park; RV-friendly town with RV parking on Kingfisher Ave. Also matches TfNSW 'Coleambally Lions Park' (Other, 0.05 km). Overnight rule not stated.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n4836541523": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Birdcage Rest Area Westbound' (TfNSW, Sturt Hwy, 89 km from Narrandera and  84 km to Hay): class 4 heavy vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811204233": {
+  "name": "West Wyalong Showgrounds",
+  "category": "showground",
+  "phone": "0428 518 329",
+  "description": "Showground camping at 190 Showground Rd, West Wyalong, listed in the council accommodation guide.",
+  "source_url": "https://www.blandshire.nsw.gov.au/files/sharedassets/public/v/1/tourism/accommodation-guide-march-2025.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n8295129690": {
+  "name": "Weethalle Showground Camping",
+  "category": "showground",
+  "phone": "0427 756 191",
+  "description": "Showground camping at the corner of Cow St and Teamster Dr, Weethalle, listed in the council accommodation guide.",
+  "source_url": "https://www.blandshire.nsw.gov.au/files/sharedassets/public/v/1/tourism/accommodation-guide-march-2025.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n8417101499": {
+  "name": "Ungarie Showground Camping",
+  "category": "showground",
+  "phone": "02 5915 2607",
+  "description": "Showground camping in Crown Camp Rd, Ungarie. Collect the bathroom key from the fuel station in Wollongough St.",
+  "source_url": "https://www.blandshire.nsw.gov.au/files/sharedassets/public/v/1/tourism/accommodation-guide-march-2025.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n13535832485": {
+  "name": "Barmedman Mineral Pool - north campsite",
+  "category": "donation",
+  "fee_type": "donation",
+  "showers": "yes ($1 hot, cold free)",
+  "toilets": "yes",
+  "description": "Free camping year-round at the Barmedman Mineral Pool, Nobby's Rd, with a donation box. Free electric BBQ, amenities with cold showers (hot showers $1), summer kiosk. Dump point in town.",
+  "source_url": "https://www.blandshire.nsw.gov.au/files/sharedassets/public/v/1/tourism/2025-update/barmedman-guide.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n13535832488": {
+  "name": "Barmedman Mineral Pool - south campsite",
+  "category": "donation",
+  "fee_type": "donation",
+  "showers": "yes ($1 hot, cold free)",
+  "toilets": "yes",
+  "description": "Free camping year-round at the Barmedman Mineral Pool, Nobby's Rd, with a donation box. Free electric BBQ, amenities with cold showers (hot showers $1), summer kiosk. Dump point in town.",
+  "source_url": "https://www.blandshire.nsw.gov.au/files/sharedassets/public/v/1/tourism/2025-update/barmedman-guide.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811192501": {
+  "name": "Cooinda Reserve",
+  "category": "free",
+  "operator": "Bland Shire Council",
+  "fee_type": "free",
+  "max_nights": "1",
+  "phone": "02 6979 0272",
+  "description": "Free 24-hour camping at Cooinda Reserve, Copeland St, Wyalong.",
+  "source_url": "https://www.blandshire.nsw.gov.au/files/sharedassets/public/v/1/tourism/accommodation-guide-march-2025.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n245070624": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a railway level crossing (railway=level_crossing).",
+  "checked_date": "2026-11-01"
+ },
+ "w190895403": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n1811204233 West Wyalong Showgrounds (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "w238264354": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n8417101499 Ungarie Showground Camping (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "w497869010": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n8295129690 Weethalle Showground Camping (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n8295129691": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n8295129690 Weethalle Showground Camping (separate node at the same showground).",
+  "checked_date": "2026-11-01"
+ },
+ "n13685614505": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n8295129690 Weethalle Showground Camping (events node at the same showground).",
+  "checked_date": "2026-11-01"
+ },
+ "n1811164364": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Charcoal Tank Rest Area' (TfNSW, Newell Hwy, 127 km from Narrandera and  9 km to west Wyalong): class 5 heavy vehicle rest area with no toilets listed. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8451223839": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Marsden Rest Area Northbound' (TfNSW, Newell Hwy, 36 km from west Wyalong and  69 km to Forbes): class 4 heavy vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811186129": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches (0.19 km away) 'Marsden Rest Area Southbound' (TfNSW, Newell Hwy, 36 km from west Wyalong and  68 km to Forbes): class 4 heavy vehicle rest area with toilets (incl. accessible), shelter, BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811205271": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Yalgogrin Rest Area' (TfNSW, Mid Western Hwy, 36 km from west Wyalong and 220 km to Hay): light vehicle only rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1523271243": {
+  "name": "Riverview Caravan Park Condobolin",
+  "category": "council_park",
+  "operator": "Lachlan Shire Council (contracted operator)",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "dogs": "yes",
+  "phone": "02 6895 2611",
+  "description": "Council-owned caravan park in Condobolin run by a contracted operator: 101 powered and 59 unpowered sites, cabins, camp kitchen, laundry and free dump point. Pet friendly.",
+  "source_url": "https://www.lachlan.nsw.gov.au/Lifestyle/Recreation-and-Facilities/Lachlan-Shire-Caravan-Parks",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w894812765": {
+  "name": "Tottenham Caravan Park",
+  "category": "council_park",
+  "operator": "Lachlan Shire Council",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "dogs": "yes",
+  "phone": "0428 924 126",
+  "description": "Council caravan park in Tottenham: 12 powered and 7 unpowered sites, amenities, laundry, camp kitchen and free dump point. Pet friendly.",
+  "source_url": "https://www.lachlan.nsw.gov.au/Lifestyle/Recreation-and-Facilities/Lachlan-Shire-Caravan-Parks",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811175619": {
+  "name": "Frog's Hollow",
+  "category": "free",
+  "operator": "Lachlan Shire Council",
+  "fee_type": "free",
+  "description": "Free lakefront camping on Lake Cargelligo; popular in summer and holidays. Fishing, bird watching, boating and skiing.",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "source_url2": "https://www.lachlan.nsw.gov.au/Lifestyle/Recreation-and-Facilities/Parks-and-Lakes/Frogs-Hollow-Lake-Cargelligo",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811171306": {
+  "name": "Dead Man's Point",
+  "category": "free",
+  "operator": "Lachlan Shire Council",
+  "fee_type": "free",
+  "toilets": "yes (eco toilet)",
+  "description": "Free, quieter lakeside camping on Lake Cargelligo a few km from town, on the foreshore pathway. Eco toilet on site.",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "source_note": "Replaces the OSM fee=yes tag: council tourism lists it as free camping.",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811177595": {
+  "name": "Gum Bend Lake",
+  "category": "free",
+  "operator": "Lachlan Shire Council",
+  "fee_type": "free",
+  "max_nights": "14",
+  "showers": "yes",
+  "toilets": "yes",
+  "description": "Free lakeside camping about 3 km from Condobolin for up to 14 nights. Amenities block (showers and toilets), BBQs, picnic tables, boat ramp, lake walking path, playground and fitness equipment.",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "source_note": "Replaces the OSM fee=yes tag: council tourism lists it as free camping.",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811200290": {
+  "name": "Tullibigeal Pioneer Park",
+  "category": "free",
+  "operator": "Lachlan Shire Council",
+  "fee_type": "free",
+  "dogs": "yes (on lead)",
+  "description": "Designated free camping spot in Tullibigeal. Dogs permitted on leads.",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163563": {
+  "name": "Burcher Camping Ground",
+  "category": "free",
+  "operator": "Lachlan Shire Council",
+  "fee_type": "free",
+  "dogs": "yes (on lead)",
+  "description": "Designated free camping ground in Burcher. Dogs permitted on leads.",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n14266588698": {
+  "category": "free",
+  "operator": "Lachlan Shire Council",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "source_note": "Council tourism lists free camping 'behind the Hotel in Fifield' (dogs on leads); not confirmed that this OSM pin (Fifield Recreation/Cricket Ground) is that spot.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n13956834529": {
+  "category": "free",
+  "operator": "Lachlan Shire Council",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "source_note": "Council tourism lists free camping 'across from the Rabbit Trap Hotel in Albert' (dogs on leads); not confirmed that this OSM pin is that spot.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n14285552787": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a toilets node (amenity=toilets); council tourism names Pioneer Park (n1811200290) as Tullibigeal's camping spot.",
+  "source_url": "https://www.visitlachlanshire.com.au/the-best-things-in-life-are-free-camping/",
+  "checked_date": "2026-11-01"
+ },
+ "n9534235257": {
+  "name": "Bogan Weir",
+  "category": "free",
+  "operator": "Parkes Shire Council",
+  "fee_type": "free",
+  "description": "Free riverside camping 7 km northwest of Peak Hill along Tullamore Rd, with shaded picnic areas, BBQ and off-road parking for caravans and RVs.",
+  "source_url": "https://visitparkes.com.au/attractions/bogan-weir/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w588017736": {
+  "name": "Peak Hill Showground",
+  "category": "showground",
+  "fee_type": "paid",
+  "phone": "0429 000 050",
+  "description": "Showground camping with powered and unpowered sites.",
+  "source_url": "https://visitparkes.com.au/stay/caravans-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811200081": {
+  "name": "Trundle Showground",
+  "category": "showground",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "potable_water": "yes",
+  "phone": "0447 037 241",
+  "description": "Showground camping in Austral St, Trundle, with powered and unpowered sites, dump point and potable water.",
+  "source_url": "https://visitparkes.com.au/stay/caravans-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811200272": {
+  "name": "Tullamore Showground",
+  "category": "showground",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "potable_water": "yes",
+  "phone": "02 6892 5194",
+  "description": "Showground camping in Kitchener St, Tullamore, with powered and unpowered sites, dump point and potable water. Contact the Tullamore Hotel.",
+  "source_url": "https://visitparkes.com.au/stay/caravans-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n10046466628": {
+  "category": "showground",
+  "operator": "Parkes Showground",
+  "source_url": "https://visitparkes.com.au/stay/caravans-camping/",
+  "source_note": "Council tourism lists a dump point and potable water at Parkes Showground, Mitchell St; camping details not stated on the page read.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w369088317": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n10046466628 Parkes Showground Camping (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "w693111200": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n1811200272 Tullamore Showgrounds (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n8318041573": {
+  "exclude": true,
+  "exclude_reason": "Not a separate camp: toilets node (amenity=toilets) at Tullamore Showground, duplicate of n1811200272.",
+  "checked_date": "2026-11-01"
+ },
+ "n1811162498": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Billabong Creek Rest Area' (TfNSW, Newell Hwy, 10 km south of Parkes): light vehicle only rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811170361": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'North Parkes Rest Area' (TfNSW, Dubbo Rd, North Parkes (80 km Speed Signs)): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811183852": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Peak Hill Rest Area' (TfNSW, Caswell St, 66.85 km from Dubbo (SH7)): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811175309": {
+  "name": "Wheogo Park RV Rest Area (Lake Forbes)",
+  "category": "free",
+  "operator": "Forbes Shire Council",
+  "fee_type": "free",
+  "max_nights": "2",
+  "suits": "motorhome|campervan|caravan",
+  "dump_point": "yes",
+  "description": "Free RV-only short-stay rest area at Wheogo Park on the banks of Lake Forbes. 48-hour limit. Public dump point.",
+  "source_url": "https://www.amazingforbesnsw.com/stay/",
+  "source_url2": "https://www.forbes.nsw.gov.au/visitors/accommodation",
+  "source_note": "OSM pin is about 0.15 km from the Wheogo Park footprint; council gives no pin.",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w192030401": {
+  "name": "Forbes Showground",
+  "category": "showground",
+  "description": "Council tourism says the Forbes showground offers a range of sites. No fees or facilities stated.",
+  "source_url": "https://www.amazingforbesnsw.com/stay/",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163541": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches (0.19 km away) 'Jemalong Rest Area' (TfNSW, Newell Hwy, 31.491 km south of Forbes): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n4053832914": {
+  "name": "Cudal Caravan Park",
+  "category": "council_park",
+  "operator": "Cabonne Council",
+  "fee_type": "paid",
+  "booking": "online",
+  "showers": "yes",
+  "toilets": "yes",
+  "description": "Council caravan park in Main St, Cudal, next to the pool: powered and unpowered sites, showers, toilets, laundry, BBQ and picnic tables. Amenity keys from the Cudal council office (16 Main St), Mon-Fri 9am-4:30pm.",
+  "source_url": "https://www.cabonne.nsw.gov.au/Services/Council-Facilities/Caravan-Parks/Cudal-Caravan-Park",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163879": {
+  "category": "council_park",
+  "operator": "Cabonne Council",
+  "source_url": "https://www.cabonne.nsw.gov.au/Services/Council-Facilities/Caravan-Parks/Canowindra-Caravan-Park",
+  "source_note": "Council's Canowindra Caravan Park (Tilga St, 0428 634 410: powered and unpowered sites, showers, toilets, laundry, BBQ); council pin is about 1.2 km from this OSM node.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8356590909": {
+  "category": "rest_area",
+  "operator": "Cabonne Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Escort Rock Rest Area' (Council, 0.05 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w463984870": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a road (highway=residential) named Cudal Showground Lane.",
+  "checked_date": "2026-11-01"
+ },
+ "w463984871": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a track (highway=track) named Cudal Showground Lane.",
+  "checked_date": "2026-11-01"
+ },
+ "w962625236": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n1811170199 Cumnock Showgrounds (park outline, leisure=park).",
+  "checked_date": "2026-11-01"
+ },
+ "w948165047": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n8356545845 Manildra Showground Camping (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n316588210": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Larras Lee Rest Area' (TfNSW, Mitchell Hwy, 22 km west of Molong): class 4 heavy vehicle rest area with toilets (incl. accessible) and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n11766036428": {
+  "name": "Mudgee Showground",
+  "category": "showground",
+  "operator": "Mid-Western Regional Council",
+  "fee_type": "paid",
+  "booking": "no",
+  "toilets": "yes (accessible)",
+  "showers": "yes",
+  "potable_water": "yes",
+  "phone": "02 6378 2850",
+  "description": "Council showground camping at 11 Nicholson St, Mudgee: 58 unallocated sites (25 powered $35/day, 33 unpowered $30/day). No pre-booking; register on arrival by QR code at the entrance.",
+  "source_url": "https://www.midwestern.nsw.gov.au/Community/Recreation/Showgrounds/Mudgee-Showground",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811169944": {
+  "name": "Cudgegong Waters Park",
+  "category": "council_park",
+  "operator": "Cudgegong Waters Park (council lease)",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "dogs": "yes (on lead)",
+  "description": "Council-leased park on Windamere Dam near Rylstone: powered and unpowered camping, cabins, dump point, amenities, laundry and the only boat ramp to the dam. Dogs on a leash; not in communal areas or cabins.",
+  "source_url": "https://www.midwestern.nsw.gov.au/Community/Recreation/Caravan-parks",
+  "source_url2": "https://www.cudgegongwaterspark.com.au/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w291605091": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n11766036428 Mudgee Showground (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n316587618": {
+  "name": "Chifley Dam Primitive Camping Area",
+  "category": "free",
+  "operator": "Bathurst Regional Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "4",
+  "dogs": "no",
+  "fires": "no",
+  "toilets": "yes (daytime)",
+  "potable_water": "yes",
+  "phone": "02 6332 1444",
+  "description": "Free caravan-accessible camping at the Chifley Dam entrance (67 Chifley Dam Rd), no booking. Daytime toilet access, drinking water, undercover BBQs, boat ramp. Four-night limit; no fires, no pets, no power; designated area only.",
+  "source_url": "https://www.bathurstregion.com.au/members/chifley-dam-primitive-camping-area/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n4333617438": {
+  "name": "Bathurst Showground",
+  "category": "showground",
+  "operator": "Bathurst Showground",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "dogs": "yes",
+  "phone": "02 6331 1349",
+  "email": "bookings@bathurstshowground.com.au",
+  "description": "Showground camping near the CBD for caravans, motorhomes and 4WDs: powered and unpowered sites, toilets, showers, laundry, security and sullage/dump point. Pets and groups welcome.",
+  "source_url": "https://www.bathurstregion.com.au/operators/bathurst-showground/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n4333617444": {
+  "name": "Wattle Flat Heritage Lands Northern Reserve camping",
+  "category": "council_park",
+  "operator": "Wattle Flat Heritage Lands (community Crown land)",
+  "fee_type": "paid",
+  "fee_note": "honesty box",
+  "toilets": "yes",
+  "email": "wattleflatheritage@gmail.com",
+  "description": "Dedicated camping area in the Northern Reserve with toilets, BBQ and undercover picnic areas. $5 per night, paid at the on-site honesty boxes.",
+  "source_url": "https://www.bathurstregion.com.au/operators/wattle-flat-heritage-lands/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811184550": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Camping area and large picnic area with information shelter in Macquarie Woods, on the Mitchell Hwy halfway between Bathurst and Orange. Walking tracks, lookout and disc golf course.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/vittoria-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n316586464": {
+  "category": "free",
+  "operator": "Bathurst Regional Council",
+  "source_url": "https://www.bathurstregion.com.au/operators/bridle-track/",
+  "source_note": "Council tourism Bridle Track page (13 campsites along the track) pictures the Turon Crossing Reserve toilets; no fees or rules stated.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1121940605": {
+  "category": "free",
+  "operator": "Bathurst Regional Council",
+  "source_url": "https://www.bathurstregion.com.au/operators/bridle-track/",
+  "source_note": "Council tourism Bridle Track page (13 campsites along the track) pictures Randwick Hole Reserve; no fees or rules stated.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811200120": {
+  "category": "showground",
+  "operator": "Other",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Trunkey Creek Rest Area' (authority Other, 0.07 km). No official camping page found; no overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w43159181": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n4333617438 Bathurst Showgrounds Camping Area (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n8340762886": {
+  "exclude": true,
+  "exclude_reason": "Not a separate camp: toilets node (amenity=toilets) at Trunkey Creek Showground, duplicate of n1811200120.",
+  "checked_date": "2026-11-01"
+ },
+ "n1811197699": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Vittoria Rest Area' (TfNSW, Mitchell Hwy, 18.76 km from Bathurst): class 4 heavy vehicle rest area with toilets (incl. accessible), tables and playground. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w929548797": {
+  "name": "Turon Gates",
+  "category": "osm_camp",
+  "operator": "Turon Gates",
+  "fee_type": "paid",
+  "toilets": "yes",
+  "showers": "yes (hot)",
+  "dogs": "yes",
+  "fires": "yes (unless fire ban)",
+  "description": "Private unpowered campground beside the Turon River, no allocated sites. Toilets, hot showers, dishwashing station, charging points. Dogs welcome; campfires unless total fire ban. Towing needs a 4WD and towed setups no longer than 7 m. Firewood for sale.",
+  "source_url": "https://sevenvalleys.com.au/guides-and-itineraries/sleep-under-seven-valley-skies",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163890": {
+  "category": "rest_area",
+  "operator": "Lithgow City Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Clarence Pirie Park' (Council, 0.02 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811186836": {
+  "category": "rest_area",
+  "operator": "Other",
+  "source_url": "https://www.visitoberon.com/accommodation/camping-caravan-filter/",
+  "source_note": "Matches TfNSW 'Millionth Acre Recreation Area Hampton' (Other, 0.02 km); Oberon council tourism lists Millionth Acre campground in Hampton State Forest with toilets, picnic facilities and short walks.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811175188": {
+  "name": "Flat Rock Reserve",
+  "category": "free",
+  "operator": "Oberon Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "description": "Large grassed free camping area on the Fish River, Mutton Falls Rd, a short drive from O'Connell. Toilets, BBQ and picnic facilities.",
+  "source_url": "https://www.visitoberon.com/accommodation/camping-caravan-filter/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w345800574": {
+  "name": "Oberon Showground",
+  "category": "showground",
+  "fee_type": "paid",
+  "toilets": "yes",
+  "showers": "yes",
+  "dogs": "yes (on lead)",
+  "phone": "0427 070 956",
+  "description": "Casual showground camping in Ross St, Oberon: $25 a night cash (2 adults 2 children), $5 per extra person; collected during your stay or by bank transfer. Toilets and showers, power available, water on some sites. Dump point at the corner of Lowes Mount Rd and Albion St (not at the showground).",
+  "source_url": "https://www.visitoberon.com/accommodation/camping-caravanning/oberon-showground-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811162847": {
+  "category": "free",
+  "operator": "Forestry Corporation of NSW",
+  "source_url": "https://www.visitoberon.com/accommodation/camping-caravan-filter/",
+  "source_note": "Oberon council tourism lists Black Springs Rest Area (Vulcan State Forest) under free and low-cost camp sites; the FCNSW Vulcan page describes it as a picnic area only.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n316587616": {
+  "name": "Carcoar Dam",
+  "category": "free",
+  "operator": "WaterNSW",
+  "fee_type": "free",
+  "toilets": "yes (flush)",
+  "showers": "yes (cold)",
+  "description": "Free foreshore camping at Carcoar Dam with unpowered caravan and camping sites, flush toilets, cold showers, picnic tables and electric BBQs. Recreation Areas at WaterNSW dams are closed on all Total Fire Ban days.",
+  "source_url": "https://www.waternsw.com.au/nsw-dams/regional-nsw-dams/carcoar-dam",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w1495970936": {
+  "name": "Newbridge Public Recreation Reserve",
+  "category": "free",
+  "operator": "Blayney Shire Council",
+  "fee_type": "free",
+  "fee_note": "donations accepted",
+  "toilets": "yes",
+  "description": "Free camping at the Newbridge recreation reserve, 40 Three Brothers Rd, with toilets, kitchen and playground. Donations accepted.",
+  "source_url": "https://www.blayney.nsw.gov.au/our-community/about-blayney-shire/history",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811162893": {
+  "name": "Blayney Tourist Park",
+  "category": "council_park",
+  "operator": "Blayney Tourist Park",
+  "fee_type": "paid",
+  "phone": "02 6368 4455",
+  "dogs": "yes (on lead, on sites)",
+  "description": "Caravan park at 18 Quamby Place, Blayney. Powered sites $40 and unpowered $30 a night; weekly $245 powered, $175 unpowered. Camp kitchen and laundry. Pets on lead on sites.",
+  "source_url": "https://blayneytouristpark.com.au/rooms-2/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w1387807473": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a driveway (highway=service, service=driveway) named Showground Lane.",
+  "checked_date": "2026-11-01"
+ },
+ "n8436510901": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Golden Gully Rest Area' (TfNSW, Mid Western Hwy, 2.4 km east of Mandurama): light vehicle only rest area with BBQ and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w38103443": {
+  "category": "showground",
+  "operator": "Orange City Council",
+  "source_url": "https://www.orange.nsw.gov.au/showground/",
+  "source_note": "Council showground page (blocked to fetching; content seen via search only): RV area for self-contained vehicles, 24 hours, no power or toilets, no tents; $20 a night from 2025; Visitor Centre 1800 069 466.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w684494233": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Shadforth Reserve Rest Area' (TfNSW, Whileys Junction-Shadforth Rd, 0.045 km south of Mitchell Hwy junction): other rest area with toilets and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1257370918": {
+  "name": "Cowra Showground Caravan Park",
+  "category": "showground",
+  "operator": "Cowra Showground, Racecourse and Paceway Land Manager",
+  "fee_type": "paid",
+  "showers": "yes (hot)",
+  "toilets": "yes",
+  "dogs": "yes",
+  "fires": "no",
+  "phone": "0417 625 331",
+  "description": "Showground camping at 3-5 Grenfell Rd, Cowra: powered and non-powered sites for large rigs, caravans and tents, hot showers, toilets and laundry. Pet-friendly; no fires. Caretaker 0417 625 331.",
+  "source_url": "https://www.visitcowra.com.au/cowra-showground-camping-ground/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w395089866": {
+  "name": "Cowra Van Park",
+  "category": "council_park",
+  "operator": "Cowra Van Park",
+  "fee_type": "paid",
+  "dogs": "yes",
+  "phone": "02 6342 1627",
+  "description": "Caravan park at 2a Lachlan St beside the Lachlan River: powered and unpowered sites, cabins, camp kitchen, electric BBQs and coin laundry. Pet-friendly.",
+  "source_url": "https://www.visitcowra.com.au/cowra-van-park/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811177368": {
+  "category": "council_park",
+  "operator": "Cowra Shire Council",
+  "source_url": "https://www.visitcowra.com.au/gooloogong/",
+  "source_note": "Council tourism Gooloogong page lists the Gooloogong Memorial Park and Caravan Park as a tourist asset; council search snippet says a free camping ground adjoins Memorial Park. No fees or rules stated.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w499202078": {
+  "category": "showground",
+  "operator": "Woodstock Progress Association",
+  "source_url": "https://visitwoodstock.com.au/stay",
+  "source_note": "Operator page lists Woodstock Primitive Campground; that it sits at the showground is from search only.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811169488": {
+  "category": "rest_area",
+  "operator": "Cowra Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Cowra Olympic Park' (Council, 0.23 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n13075341577": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-01"
+ },
+ "w103933539": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a road (highway=unclassified) named Showground Lane.",
+  "checked_date": "2026-11-01"
+ },
+ "w168509166": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a road (highway=residential) named Showground Lane.",
+  "checked_date": "2026-11-01"
+ },
+ "w68519597": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of w1257370918 Cowra Showground Caravan Park (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "w1544738178": {
+  "name": "Grenfell Caravan Park",
+  "category": "council_park",
+  "operator": "Weddin Shire Council",
+  "fee_type": "paid",
+  "dogs": "yes (short lead)",
+  "description": "Council-owned caravan park at 10/12 Grafton St, Grenfell, with CMCA discounts. Park rules: dogs on short leads; maximum stay 150/180 days.",
+  "source_url": "https://visitweddin.com.au/things-to-do/caravan-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n13538571286": {
+  "name": "Quandialla Free Camp",
+  "category": "free",
+  "operator": "Weddin Shire Council",
+  "fee_type": "free",
+  "description": "Free camping at Quandialla with powered sites and amenities.",
+  "source_url": "https://visitweddin.com.au/things-to-do/caravan-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w1475947912": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n13538571286 Quandialla (Showground) Free Camp (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n13689784871": {
+  "name": "Free Camp - Temora Railway Station",
+  "category": "free",
+  "operator": "Temora Shire Council",
+  "fee_type": "free",
+  "max_nights": "2",
+  "toilets": "yes",
+  "phone": "02 6977 5921",
+  "description": "Free unpowered sites for self-contained travellers at the Temora Railway Precinct, Parkes St, for up to two nights. Upgraded station amenities.",
+  "source_url": "https://temora.com.au/stays/free-camp-temora-railway-station",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811197549": {
+  "name": "Temora Showground Caravan and Camping",
+  "category": "showground",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "dogs": "yes",
+  "phone": "02 6977 1801",
+  "description": "Powered and unpowered sites at the showground in Mimosa St, 1 km from the CBD. Showers, toilets and on-site dump point. Pets allowed.",
+  "source_url": "https://temora.com.au/stays/temora-showground-caravan-and-camping",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811159791": {
+  "name": "Ariah Park Camping Ground",
+  "category": "council_park",
+  "showers": "yes (hot)",
+  "toilets": "yes",
+  "description": "Camping ground 34 km west of Temora beside the golf course and recreation ground, with flat sites, hot showers and toilets for caravans and campers.",
+  "source_url": "https://temora.com.au/stays/category/Caravan+%2F+Camping",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n8444982328": {
+  "category": "rest_area",
+  "operator": "Temora Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Spingdale Rest Area' (Council, 0.05 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w844436729": {
+  "name": "Coolamon Caravan Park",
+  "category": "council_park",
+  "operator": "Coolamon Shire Council",
+  "fee_type": "paid",
+  "fee_note": "powered $30, unpowered $25 a night; $25 refundable key deposit",
+  "phone": "0417 610 946",
+  "email": "coolamoncaravanpark@coolamon.nsw.gov.au",
+  "description": "Caravan park at 70 Bruce St (cnr Loughnan St), Coolamon, beside Redgrave Park and the pool. 31 powered sites with water and sullage, unpowered area for tents and caravans, 2 cabins. Laundry, camp kitchen, wifi (costs apply) and dump point free for guests.",
+  "source_url": "https://visitcoolamonshire.com.au/accommodation-options/2017/11/6/coolamon-coolamon-caravan-park",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n8428297774": {
+  "category": "showground",
+  "operator": "Coolamon Shire Council",
+  "source_url": "http://www.coolamon.nsw.gov.au/s/DAS-FOR-2025-g5h2.pdf",
+  "source_note": "Council DA register lists a camping ground on Showground Rd, Ganmain; no fees or rules on an official page.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w377405324": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n8428297774 Ganmain Showground Camping (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n1811190047": {
+  "name": "Brewery Flat Reserve",
+  "category": "free",
+  "operator": "Narrandera Shire Council",
+  "fee_type": "free",
+  "max_nights": "3",
+  "toilets": "yes",
+  "description": "Free camping for self-contained vehicles for up to 72 hours, opposite the boat ramp. Picnic areas, BBQs, toilets, boat and trailer parking.",
+  "source_url": "https://www.narrandera.com.au/caravan-camping/brewery-flat-reserve",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w239283814": {
+  "name": "Barellan Showgrounds",
+  "category": "showground",
+  "toilets": "yes",
+  "description": "Showground camping on Burley Griffin Way, Barellan, with powered sites and toilets.",
+  "source_url": "https://www.narrandera.com.au/see-and-do/free-camping-in-narrandera-best-spots-for-caravans-and-campers",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811190061": {
+  "name": "Narrandera Showground",
+  "category": "showground",
+  "description": "Budget showground camping with basic facilities.",
+  "source_url": "https://www.narrandera.com.au/see-and-do/free-camping-in-narrandera-best-spots-for-caravans-and-campers",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811177554": {
+  "name": "Grong Grong Park",
+  "category": "rest_area",
+  "operator": "Narrandera Shire Council",
+  "fee_type": "free",
+  "showers": "yes",
+  "dump_point": "yes",
+  "description": "Free 24-hour rest stop with BBQ, showers, playground, water refill and dump point.",
+  "source_url": "https://www.narrandera.com.au/caravan-camping/grong-grong-park",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n10859522727": {
+  "category": "free",
+  "operator": "Narrandera Shire Council",
+  "source_url": "https://www.narrandera.com.au/nature-play-wildlife/rocky-waterholes",
+  "source_note": "Council tourism page lists toilets, BBQ, picnic tables and boat ramp but does not state camping; self-contained camping only seen in a search snippet.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811175973": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Garoolgan Rest Area' (TfNSW, Burley Griffin Way, 45 km from Ardlethan and  40 km to Griffith): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n316588167": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Kywong Stopping Bay' (TfNSW, Sturt Hwy, 63 km from Wagga Wagga and  34 km to Narrandera): informal heavy rest areas with no toilets listed. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n316588166": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Sandigo Truck Parking Bay Westbound' (TfNSW, Sturt Hwy, 75 km from Wagga Wagga and  22 km to Narrandera): class 5 heavy vehicle rest area with shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w367354847": {
+  "name": "An Oasis Holiday Park",
+  "category": "council_park",
+  "operator": "An Oasis Holiday Park",
+  "fee_type": "paid",
+  "phone": "0427 559 501",
+  "description": "Locally owned park with shaded drive-through sites, camping grounds and cabins.",
+  "source_url": "https://www.visitleeton.com.au/stay/oasis-caravan-park/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w1197831264": {
+  "name": "Lake Wyangan Free Camp",
+  "category": "free",
+  "operator": "Griffith City Council",
+  "fee_type": "free",
+  "booking": "no",
+  "max_nights": "3",
+  "dogs": "no",
+  "toilets": "yes",
+  "showers": "no",
+  "phone": "1300 176 077",
+  "description": "Free camping on Lakes Rd for up to 3 nights, no bookings. Toilets (no showers), free BBQs, tents allowed. No pets.",
+  "source_url": "https://visitgriffith.com.au/listing/lake-wyangan-free-camp/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811204989": {
+  "name": "The Willows Free Camp",
+  "category": "free",
+  "operator": "Griffith City Council",
+  "fee_type": "free",
+  "max_nights": "1",
+  "toilets": "yes",
+  "potable_water": "yes",
+  "dump_point": "yes",
+  "dogs": "yes (on lead)",
+  "phone": "1800 681 141",
+  "description": "Free one-night stop for self-contained RVs only at 63B Kookora St. Toilets, coin BBQ, drinking water and dump point. Pets on lead.",
+  "source_url": "https://visitgriffith.com.au/listing/the-willows-free-camp/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811190907": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Hanwood Rest Area' (TfNSW, Kidman Way, 25 km from Darlington Point and 9 km to Griffith): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8371063638": {
+  "name": "Conargo Oval and Hall Camping Area",
+  "category": "free",
+  "operator": "Edward River Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "description": "Free camping at the Conargo oval and hall with toilets and an undercover picnic area.",
+  "source_url": "https://www.visitdeni.com/free-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811202237": {
+  "name": "Wanganella Weir",
+  "category": "free",
+  "fee_type": "free",
+  "toilets": "no",
+  "description": "Shaded free camping beside Billabong Creek at Wanganella Weir. Bins; no toilets.",
+  "source_url": "https://www.visitdeni.com/free-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811162677": {
+  "category": "free",
+  "operator": "Edward River Council",
+  "source_url": "https://www.visitdeni.com/free-camping/",
+  "source_note": "Council tourism free-camping page lists Bills Park with toilets, dump point and fresh water, but OSM fixme reports possible no-camping signs.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811194091": {
+  "category": "rest_area",
+  "operator": "Edward River Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Booroorban Truck Stopping Bay Southbound' (Council, 0.11 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811181490": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "At various locations along the Murray River there are many sites suitable for camping in Koondrook State Forest.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/koondrook-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163872": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Camping areas along the Murray and Little Murray rivers in Campbells Island State Forest. Council tourism adds: no toilets, dogs welcome, access via North Barham Rd.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/campbells-island-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n8370998506": {
+  "name": "Wakool River camping area",
+  "category": "free",
+  "fee_type": "free",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Grassy caravan-accessible riverside camping by the boat ramp about 9 km east of Wakool on Wakool Rd. Toilets; dogs welcome.",
+  "source_url": "https://www.visitrivercountry.com.au/plan/stay/camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811187276": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'The Keyhole Rest Area' (TfNSW, Cobb Hwy, 12 km from Echuca (VIC) and  65 km to Deniliquin): light vehicle only rest area with no toilets listed. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8379609078": {
+  "category": "showground",
+  "operator": "Finley Show Society",
+  "source_url": "https://www.finleyshowsociety.org/finley-showgrounds-sporting-complex.html",
+  "source_note": "Operator page (Finley Showgrounds Sporting Complex) not fetched in this pass; OSM records $10 unpowered, $20 powered. No official fee confirmed.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811199234": {
+  "category": "free",
+  "operator": "Other",
+  "source_url": "https://tocumwallifestyle.com.au/?page_id=3277",
+  "source_note": "Tocumwal community site lists 65 unpowered sites, $7.50 per adult per night, toilets, cold showers, dump point, dogs on lead; operator not clearly the council.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w354286977": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n8379609078 Finley Showground Camping (showground area outline).",
+  "checked_date": "2026-11-01"
+ },
+ "n1811198268": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Tongaboo Rest Area Northbound' (TfNSW, Newell Hwy, 8 km from Finley and  27 km to Jerilderie): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811198225": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Tongaboo Rest Area Southbound' (TfNSW, Newell Hwy, 8 km from Finley and  27 km to Jerilderie): class 5 heavy vehicle rest area with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811181582": {
+  "name": "Kyffins Reserve",
+  "category": "free",
+  "operator": "Federation Council",
+  "fee_type": "free",
+  "description": "Free camping about 3 km from Mulwala along more than 1 km of Lake Mulwala shoreline. Suits RVs, caravans, tents and swags. No facilities; take rubbish home.",
+  "source_url": "https://assets.northofthemurray.com.au/1f8e0221b4fe8/PDF-documents/NoTM-Free-Camp-Guide.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n8083222061": {
+  "name": "Daysdale Recreation Reserve",
+  "category": "council_park",
+  "operator": "Daysdale Recreational Reserve Trust",
+  "fee_type": "paid",
+  "fee_note": "small fee for electricity",
+  "showers": "yes",
+  "description": "Camping at the Daysdale recreation reserve with showers; electricity for a small fee.",
+  "source_url": "https://assets.northofthemurray.com.au/1f8e0221b4fe8/PDF-documents/NoTM-Free-Camp-Guide.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n8379231900": {
+  "category": "free",
+  "operator": "Federation Council",
+  "source_url": "https://assets.northofthemurray.com.au/1f8e0221b4fe8/PDF-documents/NoTM-Free-Camp-Guide.pdf",
+  "source_note": "Free Camp Guide: overnight camping has occurred 100 m from the Rand Hotel; no facilities (toilets at the hotel and Memorial Park 300 m away). Camping is at the Rangers' discretion and not always allowed.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w346879608": {
+  "name": "Lockhart Caravan Park",
+  "category": "council_park",
+  "operator": "Lockhart Shire Council",
+  "fee_type": "paid",
+  "dump_point": "yes",
+  "dogs": "yes (on sites, enquire)",
+  "phone": "0458 205 303",
+  "email": "caravanpark@lockhart.nsw.gov.au",
+  "description": "Council caravan park at 163 Green St beside Brookong Creek: drive-through sites, four cabins, camp kitchen, laundry, BBQ, dump point, EV charging, open fireplace, free wifi. Pets on sites only (enquire). No long-term residents.",
+  "source_url": "https://lockhart.nsw.gov.au/business-investment/lockhart-caravan-park/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n4333617456": {
+  "category": "council_park",
+  "operator": "Lockhart Shire Council",
+  "source_url": "https://lockhart.nsw.gov.au/",
+  "source_note": "Council s355 committees page lists a camping contact (0447 331 229) for The Rock recreation ground; no fees or rules stated.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811191154": {
+  "name": "Oura Reserve",
+  "category": "free",
+  "fee_type": "free",
+  "booking": "no",
+  "toilets": "yes",
+  "phone": "1300 100 122",
+  "description": "Riverside camping off Wagga Wagga St, Oura, no bookings. Caravan, camper trailer and tent sites, picnic area, public toilet.",
+  "source_url": "https://visitwagga.com/discover/seendo/product?productId=5aa211c20995eedc735cbd04",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w183095961": {
+  "name": "Wilks Park",
+  "category": "free",
+  "operator": "Wagga Wagga City Council",
+  "fee_type": "free",
+  "max_nights": "3",
+  "potable_water": "yes",
+  "dump_point": "yes",
+  "description": "Free for self-contained RVs for up to 72 hours, Hampden Ave, north side of the river. Free dump point and potable water.",
+  "source_url": "https://visitwagga.com/plan-your-trip/wagga-wagga-visitor-information-centre/faqs/recreational-vehicle-rv-useful-information",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n316588165": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Berry Jerry Rest Area' (TfNSW, Sturt Hwy, 32 km from Wagga Wagga and  66 km to Narrandera): class 4 heavy vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811162274": {
+  "name": "Bethungra Dam Reserve",
+  "category": "free",
+  "operator": "Junee Shire Council",
+  "fee_type": "free",
+  "description": "Free camping reserve at Bethungra Dam, good for canoeing, swimming and fishing.",
+  "source_url": "https://www.junee.nsw.gov.au/wp-content/uploads/2021/10/Canola_Trail_Visitor_Guide_LR_DPS_compressed-2.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811194300": {
+  "name": "Sandy Beach Reserve",
+  "category": "free",
+  "operator": "Junee Shire Council",
+  "fee_type": "free",
+  "description": "Free camp site at Sandy Beach Reserve.",
+  "source_url": "https://www.junee.nsw.gov.au/wp-content/uploads/2021/10/Canola_Trail_Visitor_Guide_LR_DPS_compressed-2.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811191014": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Old Junee Stopping Bay' (TfNSW, Bolton St/Gwynne St, 39 km from Wagga Wagga and  48 km to Temora): green reflector sites with no toilets listed. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811201559": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Wallacetown Rest Area' (TfNSW, Olympic Hwy, 23 km from Wagga Wagga and  20 km to Junee): class 3 heavy vehicle rest area with toilets (incl. accessible), shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n316588123": {
+  "category": "rest_area",
+  "operator": "Cootamundra-Gundagai Regional Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Rotary Park' (Council, 0.00 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w1379230830": {
+  "name": "Jugiong Recreation Grounds campground",
+  "category": "free",
+  "fee_type": "free",
+  "fee_note": "donations appreciated",
+  "toilets": "yes",
+  "description": "Free camping next to the park, playground and pool at Jugiong (often called the Jugiong Showground). Toilets, BBQs and picnic tables; donation box by the amenities.",
+  "source_url": "https://www.visitjugiong.com.au/caravans-and-camping-information",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w588823179": {
+  "name": "Young Showground",
+  "category": "showground",
+  "fee_type": "paid",
+  "description": "Caravan-friendly camping at Young Showground; fees apply.",
+  "source_url": "https://visithilltopsregion.com.au/caravan-friendly-travel/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163081": {
+  "name": "Boorowa Caravan Park",
+  "category": "council_park",
+  "fee_type": "paid",
+  "description": "Caravan-friendly camping at Boorowa Caravan Park, listed by Hilltops Council among its economical, well-serviced parks; fees apply.",
+  "source_url": "https://www.hilltops.nsw.gov.au/community/caravan-parks/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n11280575492": {
+  "category": "rest_area",
+  "operator": "Other",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Koorawatha Stopping Bay' (Council, 0.05 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n8434608529": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Bendick Murrell Rest Area' (TfNSW, Olympic Hwy, 26 km from Young and  45 km to Cowra): class 4 heavy vehicle rest area with toilets, shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "n1811163624": {
+  "name": "Burrumbuttock Camping Grounds",
+  "category": "council_park",
+  "phone": "0438 293 227",
+  "description": "Camping ground at 502 Urana Rd, Burrumbuttock. The Federation free camp guide describes primitive camping for up to 48 hours on unpowered sites.",
+  "source_url": "https://www.visitgreaterhume.com.au/Featured-Content/Stay/Camping-Grounds",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n11693628772": {
+  "name": "Henty Showground Camping",
+  "category": "showground",
+  "phone": "0423 830 271",
+  "description": "Showground camping at Henty Showgrounds, Showground Rd.",
+  "source_url": "https://www.visitgreaterhume.com.au/Featured-Content/Stay/Camping-Grounds",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n12339137495": {
+  "name": "Jindera Primitive Camping Ground",
+  "category": "free",
+  "phone": "02 6036 0100",
+  "description": "Primitive camping at Jindera Sports Oval, Dight St.",
+  "source_url": "https://www.visitgreaterhume.com.au/Featured-Content/Stay/Camping-Grounds",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811170063": {
+  "name": "Culcairn Caravan Park",
+  "category": "council_park",
+  "fee_type": "paid",
+  "phone": "02 6029 8248",
+  "description": "Caravan park at 11 South St, Culcairn.",
+  "source_url": "https://www.visitgreaterhume.com.au/Featured-Content/Stay/Caravan-Parks",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w211221251": {
+  "category": "council_park",
+  "operator": "Other",
+  "source_url": "https://www.visitgreaterhume.com.au/Featured-Content/Stay/Camping-Grounds",
+  "source_note": "Council tourism lists Walbundrie Primitive Camping Ground at 1 Lockhart St (0427 299 065); match to the oval polygon not confirmed.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w310005338": {
+  "category": "showground",
+  "operator": "Other",
+  "source_url": "https://www.visitgreaterhume.com.au/Featured-Content/Stay/Camping-Grounds",
+  "source_note": "Council tourism lists Walla Walla Camping Ground at the Walla Walla Sportsground (02 6029 2359, 0428 292 248); OSM object is the showground, match not confirmed.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w205194764": {
+  "name": "Albury Showground",
+  "category": "showground",
+  "operator": "Albury Showground Land Managers",
+  "fee_type": "paid",
+  "fee_note": "$22 non-powered, $30 powered a night",
+  "max_nights": "21",
+  "showers": "yes",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "dogs": "yes (conditions apply)",
+  "phone": "0448 452 545",
+  "description": "Approved camping at Albury Showground (299 Fallon St / 836 Mate St, North Albury). Showers, toilets and dump site. Max stay 21 nights; no camping during events (e.g. closed 25 Oct-2 Nov 2026 for the Albury Show, 31 Dec 2026, 15-17 Jan 2027). Online booking via the showground website.",
+  "source_url": "https://www.visitalburywodonga.com/wp-content/uploads/2025/07/Caravan-and-Camping-25.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n13551167521": {
+  "name": "Henry Angel Trackhead",
+  "category": "free",
+  "operator": "Snowy Valleys Council",
+  "description": "Popular camping area about 9 km from Tumbarumba on Tooma Rd, with electric and gas BBQs and information boards; base for Hume and Hovell Track walks.",
+  "source_url": "https://visitsnowyvalleys.au/listing/hume-and-hovell-track-henry-angel-trackhead/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811191330": {
+  "name": "Paddy's River Flats Reserve",
+  "category": "free",
+  "operator": "Snowy Valleys Council",
+  "fee_type": "free",
+  "toilets": "yes",
+  "description": "Free camping on a large open grassy area beside the creek on Tooma Rd, Maragle, with shade trees, toilets and picnic tables.",
+  "source_url": "https://visitsnowyvalleys.au/listing/paddys-river-flats-reserve/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w277724944": {
+  "name": "Jingellic Reserve",
+  "category": "free",
+  "operator": "Snowy Valleys Council",
+  "fee_type": "free",
+  "description": "Large free camping area on the Murray with boat ramp and BBQs.",
+  "source_url": "https://visitsnowyvalleys.au/explore-snowy-valleys/tumbarumba-surrounds/jingellic/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n12673939679": {
+  "name": "Jingellic Showgrounds",
+  "category": "showground",
+  "operator": "Jingellic Hub Inc.",
+  "fee_type": "paid",
+  "booking": "yes",
+  "description": "Shaded overnight camping under historic plane trees; powered and unpowered sites available to book.",
+  "source_url": "https://visitsnowyvalleys.au/explore-snowy-valleys/tumbarumba-surrounds/jingellic/",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "w1054684124": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Paddys River Dam on the Bago Plateau: a year-round place to camp; only passive water activities (kayaking, fishing) permitted.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/bago-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n10860511962": {
+  "category": "free",
+  "operator": "Snowy Valleys Council",
+  "source_url": "https://visitsnowyvalleys.au/explore-snowy-valleys/tumut-surrounds/batlow/",
+  "source_note": "Council tourism: Batlow offers free parking for self-contained vehicles for up to 3 nights at Batlow Memorial Park; match to this pin not confirmed.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
+ },
+ "w514153518": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a pub building (amenity=pub), duplicate of n12662363173 Tooma Inn Freecamp.",
+  "checked_date": "2026-11-01"
+ },
+ "w692665174": {
+  "name": "Nimmitabel Caravan Park",
+  "category": "council_park",
+  "operator": "Snowy Monaro Regional Council",
+  "fee_type": "paid",
+  "booking": "yes",
+  "dogs": "yes",
+  "phone": "0488 257 928",
+  "description": "Council park in Boyd St, Nimmitabel: powered and unpowered sites, amenities block with laundry, camp kitchen, playground and picnic area. Pet friendly. Book online; after hours 0436 806 817.",
+  "source_url": "https://www.snowymonaro.nsw.gov.au/Recreation-and-Facilities/Caravan-Parks/Nimmitabel-Caravan-Park",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1811171370": {
+  "name": "Delegate Caravan Park",
+  "category": "council_park",
+  "operator": "Snowy Monaro Regional Council",
+  "fee_type": "paid",
+  "booking": "yes",
+  "dogs": "yes",
+  "phone": "0488 257 928",
+  "description": "Council park on the riverside at Bill Jeffreys Memorial Park, William St, Delegate: powered and unpowered sites, modern amenities, camp kitchen, playground and picnic area. Pet friendly. Book online; after hours 0447 151 228.",
+  "source_url": "https://www.snowymonaro.nsw.gov.au/Recreation-and-Facilities/Caravan-Parks/Delegate-Caravan-Park",
+  "needs_review": false,
+  "checked_date": "2026-11-01"
+ },
+ "n1209137189": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n1811171370 Delegate Caravan Park (same site, 0.01 km).",
+  "checked_date": "2026-11-01"
+ },
+ "n5936427646": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a locality name (place=locality).",
+  "checked_date": "2026-11-01"
+ },
+ "w574712651": {
+  "category": "rest_area",
+  "operator": "Other",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Bredbo Centennial Park' (Council, 0.20 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-01"
  }
 }

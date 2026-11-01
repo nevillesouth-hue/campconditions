@@ -135,9 +135,10 @@
   "fee_type": "paid",
   "suits": "tent",
   "description": "Showgrounds near the Lang Lang town centre; low-cost unpowered camping offered for events only.",
-  "source_url": "https://outdoors.cardinia.vic.gov.au/places/lang-lang-showgrounds/",
-  "needs_review": false,
-  "checked_date": "2026-10-16"
+  "source_url": "https://langlang.org.au/",
+  "source_note": "The Cardinia Outdoors page now redirects to a 404 and the council has no replacement page. The showgrounds are managed by the Lang Lang Pastoral, Agricultural and Horticultural Society (LLPA&H). Event-only camping is from the old council page.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
  },
  "n1808391949": {
   "phone": "0411 928 220",
@@ -8174,8 +8175,9 @@
   "name": "The Gulf Camping Area (Barmah National Park)",
   "operator": "Parks Victoria",
   "phone": "13 1963",
-  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-gulf-camping-area",
-  "checked_date": "2026-10-17",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/barmah-national-park",
+  "source_note": "The old the-gulf-camping-area page is 404. Parks Vic now has separate pages for The Gulf Camping Areas 1 to 4, and their numbering does not match the OSM points, so this one links to the park page until it is matched.",
+  "checked_date": "2026-11-02",
   "dogs": "no",
   "description": "Bush camping area in Barmah National Park, managed by Parks Victoria.",
   "needs_review": true
@@ -10752,14 +10754,14 @@
   "name": "Teddington Camping Area (Kara Kara National Park)",
   "operator": "Parks Victoria",
   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-camping-area",
-  "checked_date": "2026-10-17",
+  "checked_date": "2026-11-02",
   "dogs": "no",
   "toilets": "yes",
-  "showers": "yes",
+  "showers": "no (cubicle for your own portable shower)",
   "fee_type": "free",
   "needs_review": false,
   "suits": "tents, caravans",
-  "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Facilities noted: toilets, fire pits.",
+  "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Flushing toilets and a cubicle to hang your own portable shower. Wood-fired barbecues; firewood collection in the park is prohibited.",
   "phone": "13 1963",
   "closed_override": {
    "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-camping-area",
@@ -14104,7 +14106,7 @@
  "w237352775": {
   "toilets": "yes",
   "dogs": "yes (on lead)",
-  "website": "https://www.parks.vic.gov.au/places-to-see/sites/slaty-creek-camping-area-no-1",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/creswick-regional-park",
   "source_url2": "https://www.parks.vic.gov.au/-/media/project/pv/main/parks/publication-uploads/creswick-regional-park-visitor-guide_18062021052524716.pdf",
   "operator": "Parks Victoria",
   "description": "Slaty Creek No. 1, the largest of three small camping and picnic areas on Slaty Creek near Creswick, the only camping in Creswick Regional Park. Toilets, suits larger groups, dogs on lead, fires only in the steel fireplaces, carry out your rubbish.",
@@ -16821,5 +16823,10 @@
   "needs_review": true,
   "checked_date": "2026-11-01",
   "fee_note": "pay_on_site"
+ },
+ "n1811199421": {
+  "exclude": true,
+  "exclude_reason": "Towong Reserve is in New South Wales (operator Snowy Valleys Council) and is listed on the NSW site.",
+  "checked_date": "2026-11-02"
  }
 }

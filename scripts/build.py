@@ -382,6 +382,9 @@ def load_npws(seen):
             attrs = feature.get("attributes") or {}
             geom = feature.get("geometry") or {}
             name = str(attrs.get("AssetName") or "").strip()
+            # Misspelt layer names, spelt as on the camp's own NPWS page, so NPWS
+            # alerts that name the camp match it (Sunburnt Beach, Algeboia).
+            name = (src.get("name_fixes") or {}).get(name, name)
             if not name or "x" not in geom or "y" not in geom:
                 continue
             lon, lat = float(geom["x"]), float(geom["y"])
@@ -1168,6 +1171,32 @@ FRESH_JS = r"""<script>
     }
     return out;
   }
+  function npwsUntil(r) {
+    var days = r.closed_days || [];
+    if (days.length) {
+      var names = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      var span = function (list) {
+        if (list.length > 2) {
+          for (var s = 0; s < 7; s++) {
+            var run = [], ok = true;
+            for (var i = 0; i < list.length; i++) { var d = (list[0] + s + i) % 7; run.push(d); }
+            var sorted = run.slice().sort(function (a, b) { return a - b; });
+            for (var j = 0; j < list.length; j++) if (sorted[j] !== list[j]) ok = false;
+            if (ok) return names[run[0]] + " to " + names[run[run.length - 1]];
+          }
+        }
+        return list.map(function (d) { return names[d]; }).join(" and ");
+      };
+      var openDays = [0, 1, 2, 3, 4, 5, 6].filter(function (d) { return days.indexOf(d) === -1; });
+      var out = " · Closed " + span(days.slice().sort(function (a, b) { return a - b; })) + " each week";
+      if (openDays.length) out += ", open " + span(openDays);
+      if (r.reopen) out += ", until " + spokenDay(r.reopen, r.reopen_time);
+      return esc(out);
+    }
+    if (r.reopen) return " · Reopens " + esc(spokenDay(r.reopen, r.reopen_time));
+    if (r.estimated_end) return " · NPWS estimated end date " + esc(spokenDay(r.estimated_end));
+    return "";
+  }
   function closureHtml(c) {
     if (!c) return null;
     if (c.source === "osm") {
@@ -1175,8 +1204,8 @@ FRESH_JS = r"""<script>
       var upOsm = !ov && c.upcoming;
       if (upOsm && upOsm.desc && upOsm.source_url && String(upOsm.source_url).indexOf("nationalparks.nsw.gov.au") !== -1) {
         var upWhen = "";
-        if (upOsm.start) upWhen += " · Starts " + esc(spokenDay(upOsm.start, upOsm.start_time));
-        if (upOsm.reopen) upWhen += " · Reopens " + esc(spokenDay(upOsm.reopen, upOsm.reopen_time));
+        if (upOsm.start) upWhen += (upOsm.weekly ? " · Next closed " : " · Starts ") + esc(spokenDay(upOsm.start, upOsm.start_time));
+        upWhen += npwsUntil(upOsm);
         return '<div class="warn"><strong>Upcoming closure:</strong> ' + esc(upOsm.desc) + upWhen + ' <span class="muted">Official NPWS wording.</span> <a href="' + esc(upOsm.source_url) + '">NPWS alert</a></div>';
       }
       if (!ov || !ov.desc || !ov.source_url) return null;
@@ -1187,8 +1216,8 @@ FRESH_JS = r"""<script>
       var npwsBlock = c.closure || c.upcoming || null;
       if (!npwsBlock || !npwsBlock.desc) return null;
       var npwsWhen = "";
-      if (npwsUp && npwsBlock.start) npwsWhen += " · Starts " + esc(spokenDay(npwsBlock.start, npwsBlock.start_time));
-      if (npwsBlock.reopen) npwsWhen += " · Reopens " + esc(spokenDay(npwsBlock.reopen, npwsBlock.reopen_time));
+      if (npwsUp && npwsBlock.start) npwsWhen += (npwsBlock.weekly ? " · Next closed " : " · Starts ") + esc(spokenDay(npwsBlock.start, npwsBlock.start_time));
+      npwsWhen += npwsUntil(npwsBlock);
       var npwsLink = npwsBlock.source_url ? ' <a href="' + esc(npwsBlock.source_url) + '">NPWS alert</a>' : "";
       return '<div class="warn"><strong>' + (npwsUp ? "Upcoming closure:" : "Closed:") + "</strong> " + esc(npwsBlock.desc) + npwsWhen + ' <span class="muted">Official NPWS wording.</span>' + npwsLink + "</div>";
     }
@@ -1449,6 +1478,18 @@ def leaflet_foot(cluster=False):
     return LEAFLET_JS + (CLUSTER_JS if cluster else "") + f'<script src="{map_script_src()}" defer></script>'
 def camp_url(c):
     return f"/{c.get('state_slug') or SLUG}/camp/{c['slug']}/"
+CAMPER_REPORTS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "camper-reports.json")
+def camper_reports(c):
+    """Dated, unverified visitor reports for one camp, newest visit first."""
+    try:
+        rows = (json.load(open(CAMPER_REPORTS_FILE)).get(SLUG) or {}).get(c["slug"]) or []
+    except (OSError, ValueError):
+        return ""
+    if not rows:
+        return ""
+    items = "".join(f'<li><strong>Visited {e(spoken_day(r["visited"]))}</strong> — {e(r["text"])} <span class="muted">({e(r.get("by") or "a camper")})</span></li>' for r in sorted(rows, key=lambda r: r["visited"], reverse=True))
+    return f'<div class="box"><h2>Camper reports</h2><p class="muted">Sent in by visitors and not checked by the land manager. Conditions change, so check the official source before you go.</p><ul>{items}</ul></div>'
+
 def report_href(c):
     return "/report/?" + urllib.parse.urlencode({"camp": c["slug"], "name": c.get("name") or ""})
 def region_label(c):
@@ -2414,18 +2455,47 @@ def spoken_day(day, clock=None):
         hour, minute = int(match.group(1)), int(match.group(2))
         out = f"{(hour % 12) or 12}{':%02d' % minute if minute else ''}{'am' if hour < 12 else 'pm'} " + out
     return out
-def official_npws_closure(desc, url, published, start=None, reopen=None, upcoming=False, start_time=None, reopen_time=None):
+WEEKDAYS = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+def weekly_span(days):
+    """'Friday to Sunday' for a run of weekdays, else a plain list."""
+    days = sorted(days)
+    if not days: return ""
+    for shift in range(7):
+        run = [(days[0] + shift + i) % 7 for i in range(len(days))]
+        if sorted(run) == days and len(days) > 2:
+            return f"{WEEKDAYS[run[0]]} to {WEEKDAYS[run[-1]]}"
+    return " and ".join(WEEKDAYS[d] for d in days)
+def weekly_when(record):
+    """'Closed Monday to Thursday, open Friday to Sunday, until ...' for a weekly NPWS closure."""
+    days = record.get("closed_days") or []
+    if not days: return ""
+    open_days = [d for d in range(7) if d not in days]
+    out = f"Closed {weekly_span(days)} each week"
+    if open_days:
+        out += f", open {weekly_span(open_days)}"
+    if record.get("reopen"):
+        out += ", until " + spoken_day(record["reopen"], record.get("reopen_time"))
+    return out
+def official_npws_closure(desc, url, published, start=None, reopen=None, upcoming=False, start_time=None, reopen_time=None, record=None):
     """Quoted NPWS alert text. A future start is an upcoming notice, not Closed.
-    Dates are spoken with the clock NPWS printed, so a 2pm start reads 2pm."""
+    Dates are spoken with the clock NPWS printed, so a 2pm start reads 2pm.
+    A weekly closure (Flea Creek) says which days it is closed instead of a reopening,
+    and an NPWS estimated end is labelled as an estimate, not a reopening date."""
+    record = record or {}
     when = feed_date(published)
     dated = f" Alert dated {e(when)}." if when else ""
     link = f' <a href="{e(url)}">NPWS alert</a>' if str(url).startswith("https://") else ""
     label = "Upcoming closure" if upcoming else "Closed"
     extra = ""
+    weekly = weekly_when(record)
     if upcoming and start:
-        extra += " · Starts " + e(spoken_day(start, start_time))
-    if reopen:
+        extra += (" · Next closed " if weekly else " · Starts ") + e(spoken_day(start, start_time))
+    if weekly:
+        extra += " · " + e(weekly)
+    elif reopen:
         extra += " · Reopens " + e(spoken_day(reopen, reopen_time))
+    elif record.get("estimated_end"):
+        extra += " · NPWS estimated end date " + e(spoken_day(record["estimated_end"]))
     return f'<div class="warn"><strong>{label}:</strong> {e(desc)}{extra} <span class="muted">Official NPWS wording.{dated}</span>{link}</div>'
 def alert_notes_html(c):
     rows, seen = [], set()
@@ -2622,14 +2692,14 @@ def emit_state(state, camps, include_home):
             upcoming = c.get("upcoming_closure") or None
             if wording and source_url:
                 if c.get("state_slug") == "nsw" and "nationalparks.nsw.gov.au" in source_url:
-                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"))
+                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"), record=cl)
                 else:
                     reopen = str((cl or {}).get("reopen") or "")[:10]
                     when = f" · Reopens {e(reopen)}" if reopen else ""
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}{when} <a href="{e(source_url)}">{e(source_url)}</a></div>'
                 condition = f'<div id="camp-closure">{block}</div>' + condition
             elif upcoming and c.get("state_slug") == "nsw" and str(upcoming.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):
-                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"))
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming)
                 condition = f'<div id="camp-closure">{block}</div>' + condition
             notes = alert_notes_html(c)
             if notes:
@@ -2648,12 +2718,12 @@ def emit_state(state, camps, include_home):
                 url = str(cl.get("source_url") or "")
                 wording = cl.get("desc") or cl.get("reason")
                 if url.startswith("https://"):
-                    block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"))
+                    block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"), record=cl)
                 else:
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}</div>'
                 bits.append(f'<div id="camp-closure">{block}</div>')
             elif upcoming and (upcoming.get("desc") or upcoming.get("start")):
-                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"))
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming)
                 bits.append(f'<div id="camp-closure">{block}</div>')
             else:
                 bits.append("<p><strong>No status in this layer.</strong> The NPWS Visitor Area record does not include open or closed status, fees or facilities.</p>")
@@ -2693,7 +2763,7 @@ def emit_state(state, camps, include_home):
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="{LINKS.get('bom_forecast') or ''}">BOM forecast</a> · {dated}</p>
-<div class="box"><h2>Been here recently?</h2><p><a href="{report_href(c)}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
+{camper_reports(c)}<div class="box"><h2>Been here recently?</h2><p><a href="{report_href(c)}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 multi_state = len(statecfg.enabled()) > 1
 emit_state(primary, by_state[primary["slug"]], not multi_state)
 for state in statecfg.enabled():
@@ -2993,6 +3063,10 @@ def weekend_rows(now=None):
     out = []
     for state in statecfg.enabled():
         for c in by_state[state["slug"]]:
+            rec = c.get("closure") or c.get("upcoming_closure") or {}
+            if rec.get("closed_days") and not {5, 6} & set(rec["closed_days"]):
+                # Weekly closure that leaves the camp open at weekends (Flea Creek).
+                continue
             if c.get("status") == "closed":
                 rec = c.get("closure") or {}
                 ends = record_at(rec.get("reopen"), rec.get("reopen_time"))
@@ -3034,8 +3108,12 @@ def weekend_page():
                 dates = []
                 if rec.get("start") and up:
                     dates.append("Starts " + spoken_day(rec["start"], rec.get("start_time")))
-                if rec.get("reopen"):
+                if weekly_when(rec):
+                    dates.append(weekly_when(rec))
+                elif rec.get("reopen"):
                     dates.append("Reopens " + spoken_day(rec["reopen"], rec.get("reopen_time")))
+                elif rec.get("estimated_end"):
+                    dates.append("NPWS estimated end date " + spoken_day(rec["estimated_end"]))
                 elif not up:
                     dates.append("No reopening date recorded")
                 status = '<span class="badge check">Closure starts this weekend</span>' if up else badge(c)
@@ -3106,6 +3184,12 @@ def slug_redirect_lines():
                 print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
                 continue
             lines += [f"/nsw/camp/{old} /nsw/camp/{new}/ 301", f"/nsw/camp/{old}/ /nsw/camp/{new}/ 301"]
+    # Camps that were built under the wrong state: full paths, e.g. "vic/camp/x": "nsw/camp/y".
+    for old, new in sorted((doc.get("cross_state") or {}).items()):
+        if os.path.isdir(os.path.join(OUT, old)) or not os.path.isfile(os.path.join(OUT, new, "index.html")):
+            print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
+            continue
+        lines += [f"/{old} /{new}/ 301", f"/{old}/ /{new}/ 301"]
     return lines
 open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /about/ 301
 /contact/ /about/ 301

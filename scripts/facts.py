@@ -89,6 +89,11 @@ def stay_label(value, nights=None):
     if raw.isdigit():
         number = int(raw)
         return f"{number} night" if number == 1 else f"{number} nights"
+    hours = re.fullmatch(r"(\d+)\s*\((\d+)\s*hours?\)", raw, re.I)
+    if hours:
+        # "3 (72 hours)" reads as "3 nights (72 hours)".
+        number = int(hours.group(1))
+        return f"{number} night{'' if number == 1 else 's'} ({hours.group(2)} hours)"
     if raw:
         return raw
     if isinstance(nights, int) and 0 < nights <= 365:

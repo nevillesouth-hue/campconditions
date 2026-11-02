@@ -415,6 +415,14 @@ if unsub_api.returncode != 0:
 CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Campground details from DataVic and Explore Outdoors © State of Victoria (DEECA), CC BY 4.0, and Parks Victoria."
 sys.path.insert(0, os.path.join(root, "scripts"))
 import states
+import facts as _stay_facts
+for _raw, _want in (("3 (72 hours)", "3 nights (72 hours)"), ("1 (24 hours)", "1 night (24 hours)"), ("2", "2 nights"), ("72 hours", "72 hours")):
+  if _stay_facts.stay_label(_raw) != _want: bad.append(("stay label", _raw, _stay_facts.stay_label(_raw)))
+if re.search(r"Max stay: \d+ \(\d+ hours\)", open(os.path.join(D, "nsw", "camp", "lions-park-bulahdelah", "index.html"), encoding="utf-8").read()): bad.append(("lions-park-bulahdelah", "stay nights"))
+# Moira Shire sits on the Murray, not in the Yarra Ranges.
+for _slug in ("lions-park-numurkah", "numurkah-showgrounds", "lions-rv-park-tungamah", "katamatite-lions-memorial-park"):
+  _row = next((c for c in feed["camps"] if c.get("slug") == _slug), None)
+  if not _row or _row.get("region") != "murray-mallee": bad.append((_slug, "region", _row and _row.get("region")))
 if states.by_slug("vic").get("credit") != CREDIT: bad.append(("states", "credit"))
 if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "enabled"))
 if not states.by_slug("nsw").get("enabled") or not states.by_slug("vic").get("enabled"): bad.append(("states", "flags"))

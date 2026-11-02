@@ -21,7 +21,7 @@ for u in sm:
 feed=json.load(open(os.path.join(D,"status.json")))
 vic_feed=[c for c in feed["camps"] if "/vic/camp/" in c.get("url","")]
 _STATUS_FROM = {"o": "open", "k": "check", "x": "closed"}
-_STATE_FROM = {"v": ("vic", "Victoria"), "n": ("nsw", "New South Wales")}
+_STATE_FROM = {"v": ("vic", "Victoria"), "n": ("nsw", "New South Wales"), "q": ("qld", "Queensland")}
 def expand_map_point(pt):
   if isinstance(pt, dict):
     return pt
@@ -192,11 +192,11 @@ for r, _, fs in os.walk(D):
       elif needle.lower() in blob:
         # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
         rel = os.path.join(r, f)
-        # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating.
+        # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating; QLD pages quote the BoM one.
         shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}")))
         # CFA district ratings are an official feed. The old ban was the VicEmergency warning text.
         cfa_ok = needle == "fire danger" and ("cfa.vic.gov.au" in blob or "country fire authority" in blob)
-        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
+        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f"{os.sep}qld{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
           continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
@@ -492,6 +492,8 @@ if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.pn
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
 for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw.png?v=20261029"', 'content="1200"', 'content="630"', 'content="summary_large_image"', 'property="og:image:alt" content="Camp conditions and closures for VIC and NSW"', 'name="twitter:image:alt" content="Camp conditions and closures for VIC and NSW"', 'property="og:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"', 'property="og:description" content="Camp conditions and closures for VIC and NSW."', 'name="twitter:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"', 'name="twitter:description" content="Camp conditions and closures for VIC and NSW."'):
+  if os.path.isdir(os.path.join(D, "qld")) and ("og:title" in icon or "og:description" in icon or "twitter:title" in icon or "twitter:description" in icon):
+    icon = icon.replace("for VIC and NSW", "for VIC, NSW and QLD")
   if icon not in home: bad.append(("/", "icon " + icon))
 if "Victorian camp conditions and closures" in home: bad.append(("/", "old share text"))
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
@@ -1349,7 +1351,7 @@ if os.path.isfile(nsw_index):
   if "nsw-towns.json" in home or "map-nsw.js" in home: bad.append(("/", "nsw towns on the victoria page"))
   split = tempfile.mkdtemp(prefix="campconditions-digest-states-")
   split_env = os.environ.copy()
-  split_env["CAMPCONDITIONS_ENABLE"] = "nsw"
+  split_env["CAMPCONDITIONS_ENABLE"] = "nsw,qld" if os.path.isdir(os.path.join(D, "qld")) else "nsw"
   split_run = subprocess.run([sys.executable, os.path.join(root, "scripts", "digest.py"), "--current", os.path.join(D, "status.json"), "--out", split], cwd=root, capture_output=True, text=True, env=split_env)
   if split_run.returncode != 0:
     bad.append(("digest states", (split_run.stderr or split_run.stdout)[-240:]))
@@ -1364,7 +1366,9 @@ if os.path.isfile(nsw_index):
     def camp_count(blob):
       found = re.search(r"of (\d+) campgrounds are closed", blob)
       return int(found.group(1)) if found else -1
-    if camp_count(vic_draft) + camp_count(nsw_draft) != len(feed["camps"]):
+    qld_draft = open(os.path.join(split, "qld", "digest.html"), encoding="utf-8").read() if os.path.isdir(os.path.join(D, "qld")) else ""
+    if qld_draft and ("Queensland" not in qld_draft or "Brewery Flat" in qld_draft): bad.append(("digest states", "qld copy"))
+    if camp_count(vic_draft) + camp_count(nsw_draft) + (camp_count(qld_draft) if qld_draft else 0) != len(feed["camps"]):
       bad.append(("digest states", f"{camp_count(vic_draft)}+{camp_count(nsw_draft)}!={len(feed['camps'])}"))
   if "Spatial Services" not in nsw_html or "Creative Commons Attribution 4.0" not in nsw_html: bad.append(("nsw", "town attribution"))
   nsw_map = open(os.path.join(D, "map-nsw.js"), encoding="utf-8").read()
@@ -1380,8 +1384,9 @@ if os.path.isfile(nsw_index):
     bad.append(("/", "inline map json"))
   vic_n = sum(str(p.get("url", "")).startswith("/vic/camp/") for p in home_map_pts)
   nsw_n = sum(str(p.get("url", "")).startswith("/nsw/camp/") for p in home_map_pts)
-  if vic_n != len(vic_feed) or nsw_n < 1 or vic_n + nsw_n != len(home_map_pts): bad.append(("/", f"national points {vic_n}+{nsw_n}"))
-  if any(p.get("stateName") not in ("Victoria", "New South Wales") for p in home_map_pts): bad.append(("/", "stateName"))
+  qld_n = sum(str(p.get("url", "")).startswith("/qld/camp/") for p in home_map_pts)
+  if vic_n != len(vic_feed) or nsw_n < 1 or vic_n + nsw_n + qld_n != len(home_map_pts) or (qld_n > 0) != os.path.isdir(os.path.join(D, "qld")): bad.append(("/", f"national points {vic_n}+{nsw_n}+{qld_n}"))
+  if any(p.get("stateName") not in ("Victoria", "New South Wales", "Queensland") for p in home_map_pts): bad.append(("/", "stateName"))
   if any(p.get("stateName") != "Victoria" for p in vic_pts): bad.append(("/vic/", "stateName on combined build"))
   nsw_towns = json.load(open(os.path.join(D, "nsw-towns.json"), encoding="utf-8"))
   town_names = {row.get("name", "").casefold() for row in nsw_towns}
@@ -1431,7 +1436,7 @@ if os.path.isfile(nsw_index):
   home_footer = home.split("<footer>", 1)[-1].split("</footer>", 1)[0]
   vic_footer = vic.split("<footer>", 1)[-1].split("</footer>", 1)[0]
   nsw_footer = nsw_html.split("<footer>", 1)[-1].split("</footer>", 1)[0]
-  if home_footer.count("<p>") != 3 or 'href="/about/#vic-sources"' not in home_footer or 'href="/about/#nsw-sources"' not in home_footer:
+  if home_footer.count("<p>") != (4 if os.path.isdir(os.path.join(D, "qld")) else 3) or 'href="/about/#vic-sources"' not in home_footer or 'href="/about/#nsw-sources"' not in home_footer:
     bad.append(("/", "footer lines"))
   if vic_footer.count("<p>") != 2 or 'href="/about/#vic-sources"' not in vic_footer or "nsw-sources" in vic_footer:
     bad.append(("/vic/", "footer lines"))
@@ -1440,9 +1445,10 @@ if os.path.isfile(nsw_index):
   if "Data and attribution" in home_footer or "Data and attribution" in vic_footer or "Data and attribution" in nsw_footer:
     bad.append(("footer", "long attribution"))
   home_map_file = open(os.path.join(D, "map-points", "home.json"), "rb").read()
-  if not home_map_file.startswith(b"[[") or len(gzip.compress(home_map_file)) > 110000:
+  # Budget per build: two states 110 kB gzip, three states 140 kB.
+  if not home_map_file.startswith(b"[[") or len(gzip.compress(home_map_file)) > (140000 if os.path.isdir(os.path.join(D, "qld")) else 110000):
     bad.append(("home.json", f"raw {len(home_map_file)} gzip {len(gzip.compress(home_map_file))}"))
-  if feed.get("region") != "Victoria and New South Wales, Australia": bad.append(("status.json", feed.get("region")))
+  if feed.get("region") != ("Victoria, New South Wales and Queensland, Australia" if os.path.isdir(os.path.join(D, "qld")) else "Victoria and New South Wales, Australia"): bad.append(("status.json", feed.get("region")))
   joined = " ".join(feed.get("attribution") or [])
   if "Victoria:" not in feed.get("disclaimer", "") or "New South Wales:" not in feed.get("disclaimer", ""): bad.append(("status.json", "disclaimer"))
   for credit in ("NPWS Visitor Area", "NSW Rural Fire Service", "Spatial Services", "livetraffic.com"):
@@ -1715,7 +1721,7 @@ for _path in _info:
 if national:
     for _name in ("## Victoria", "## New South Wales", "### Victoria regions", "### New South Wales regions"):
         if _name not in _llms: bad.append(("llms.txt", "section", _name))
-    if _llms.count("- Attribution: ") != 2: bad.append(("llms.txt", "attribution per state"))
+    if _llms.count("- Attribution: ") != (3 if os.path.isfile(os.path.join(D, "qld", "index.html")) else 2): bad.append(("llms.txt", "attribution per state"))
 _headers = open(os.path.join(D, "_headers"), encoding="utf-8").read()
 for _path in _info:
     if _path + "*\n  Cache-Control: no-cache" not in _headers: bad.append(("_headers", _path))
@@ -1741,6 +1747,97 @@ if _berlang_row and MEL_TODAY <= "2026-11-06":
     _bhtml = open(_bp, encoding="utf-8").read() if os.path.isfile(_bp) else ""
     if _rec and "Reopens 10am Saturday 7 November 2026" not in _bhtml: bad.append(("berlang page", "spoken reopen"))
     if _rec and f'href="{urllib.parse.urlparse(_berlang_row["url"]).path}"' not in _wk: bad.append(("berlang", "not on weekend page"))
+# Queensland unit tests: fixtures only, so they run whether or not Queensland is enabled.
+import datetime as _qdt
+import qld_conditions as qldc
+_sq = lambda x, y, d=0.1: [[[x, y], [x + d, y], [x + d, y + d], [x, y + d], [x, y]]]
+_q_estates = qldc.estate_records({"estates": [
+    {"name": "Testa National Park", "type": "National Park", "rings": _sq(150.0, -25.0)},
+    {"name": "Paluma Range National Park", "type": "National Park", "rings": _sq(146.0, -19.0)},
+    {"name": "Danbulla State Forest", "type": "State Forest", "rings": _sq(145.6, -17.2)},
+]})
+def _q_rss(items):
+    body = "".join(f"<item><title>{t}</title><link>https://parks.qld.gov.au/park-alerts/{i}</link><pubDate>Mon, 02 Nov 2026 09:00:00 +1000</pubDate>"
+                   f"<description>{html.escape(d)} Affected parks: {p}</description></item>" for i, (t, d, p) in enumerate(items))
+    return f'<?xml version="1.0"?><rss version="2.0"><channel><title>QPWS</title>{body}</channel></rss>'.encode()
+_q_items = qldc.parse_rss(_q_rss([
+    ("Testa National Park closed", "Due to flooding, Testa National Park is closed until further notice.", "Testa National Park"),
+    ("Section closed", "Due to damage, the Jourama Falls section, Paluma Range National Park is closed.", "Paluma Range National Park"),
+    ("Fong-On Bay camping area closure", "Fong-On Bay camping area will close on 20 November 2026 and reopen on 7 December 2026.", "Danbulla State Forest 1"),
+]))
+if len(_q_items) != 3 or _q_items[2]["park_loose"] != {qldc.loose_key("Danbulla State Forest")}: bad.append(("qld", "rss parse", len(_q_items)))
+_q_now = _qdt.datetime(2026, 11, 2, 12, 0, tzinfo=qldc.BRISBANE)
+_q_camps = [
+    {"name": "Testa Creek camping area", "lat": -24.95, "lon": 150.05, "status": "check", "source": "qpws"},
+    {"name": "Big Crystal Creek camping area", "lat": -18.95, "lon": 146.05, "status": "check", "source": "qpws"},
+    {"name": "Fong-On Bay camping area", "lat": -17.15, "lon": 145.65, "status": "check", "source": "qpws"},
+    {"name": "Lake Tinaroo camping area", "lat": -17.15, "lon": 145.62, "status": "check", "source": "qpws"},
+]
+_q_sum = qldc.apply_alert_items(_q_camps, _q_estates, _q_items, _q_now)
+if _q_camps[0]["status"] != "closed" or not (_q_camps[0].get("closure") or {}).get("source_url", "").startswith("https://parks.qld.gov.au/"): bad.append(("qld", "whole park closure"))
+if _q_camps[1]["status"] != "check" or not _q_camps[1].get("alerts"): bad.append(("qld", "section is not the whole park", _q_camps[1].get("closure")))
+_q_up = _q_camps[2].get("upcoming_closure") or {}
+if _q_camps[2]["status"] != "check" or _q_up.get("start") != "2026-11-20": bad.append(("qld", "upcoming named camp", _q_up))
+if _q_camps[3].get("closure") or _q_camps[3].get("upcoming_closure"): bad.append(("qld", "other camp in park closed"))
+if _q_sum["closed"] != 1 or _q_sum["upcoming"] != 1: bad.append(("qld", "summary", _q_sum))
+# 'up to and including' is inclusive, and ordinals are read.
+_q_t = qldc.timing("The camping area is closed from 1 November up to and including 29th of November 2026.", _q_now)
+if _q_t.get("reopen") != "2026-11-30": bad.append(("qld", "inclusive end", _q_t))
+# Permit-only council areas are excluded by default and kept only by the flag.
+_q_state = {"permit_only_areas": {"include_permit_only_areas": False, "lgas": ["Testshire Aboriginal Shire"]}}
+_q_lga = {"regions": [{"name": "Testshire Aboriginal Shire", "rings": _sq(142.0, -12.0)}, {"name": "Open Regional", "rings": _sq(150.0, -25.0)}]}
+_q_pc = [{"name": "A", "lat": -11.95, "lon": 142.05, "source": "osm"}, {"name": "B", "lat": -24.95, "lon": 150.05, "source": "qpws"}]
+_q_kept, _q_drop = qldc.exclude_permit_only([dict(c) for c in _q_pc], _q_state, _q_lga)
+if [c["name"] for c in _q_kept] != ["B"] or [c["name"] for c in _q_drop] != ["A"]: bad.append(("qld", "permit-only exclusion"))
+_q_state["permit_only_areas"]["include_permit_only_areas"] = True
+if len(qldc.exclude_permit_only([dict(c) for c in _q_pc], _q_state, _q_lga)[0]) != 2: bad.append(("qld", "permit-only flag"))
+_q_cfg = json.load(open(os.path.join(root, "config", "states", "qld.json"), encoding="utf-8"))
+if (_q_cfg.get("permit_only_areas") or {}).get("include_permit_only_areas") is not False: bad.append(("qld", "permit-only default"))
+# BoM fire danger: district ratings by Queensland date.
+_q_fdr = qldc.parse_fdr(b'<?xml version="1.0"?><product><amoc><issue-time-utc>2026-11-02T06:00:00Z</issue-time-utc></amoc><forecast>'
+    b'<area aac="QLD_FW001" description="Testa" type="fire-district"><forecast-period start-time-local="2026-11-02T00:00:00+10:00"><text type="fire_danger">High</text></forecast-period>'
+    b'<forecast-period start-time-local="2026-11-03T00:00:00+10:00"><text type="fire_danger">Extreme</text></forecast-period></area></forecast></product>')
+_q_fc = [{"name": "X", "lat": -24.95, "lon": 150.05}]
+qldc.apply_fire(_q_fc, qldc.area_records([{"name": "Testa", "rings": _sq(150.0, -25.0)}]), _q_fdr[0], _q_fdr[1], "https://www.bom.gov.au/fwo/IDQ13016.xml",
+                {"fire_bans": "https://www.fire.qld.gov.au/", "fire_bans_button": "Check local fire bans (QFD)"}, _q_now)
+_q_f = _q_fc[0].get("fire") or {}
+if _q_f.get("today") != "High" or _q_f.get("tomorrow") != "Extreme" or _q_f.get("ban_today") or not _q_f.get("ban_note"): bad.append(("qld", "fire danger", _q_f))
+if "AEDT" not in (_q_f.get("issued") or ""): bad.append(("qld", "fire issued AEDT", _q_f.get("issued")))
+# QLDTraffic: skipped without the key; with a key the key never reaches the source log.
+_q_log = {}
+if qldc.apply_traffic(_q_fc, {"url": "https://api.qldtraffic.qld.gov.au/v2/events", "key_env": "QLDTRAFFIC_API_KEY"}, lambda *a, **k: b"", _q_log, env={}) is not None: bad.append(("qld", "traffic without key"))
+if (_q_log.get("qldtraffic") or {}).get("ok") is not False: bad.append(("qld", "traffic skip logged"))
+def _q_fetch(name, url, headers=None):
+  _q_log[name] = {"ok": False, "url": url, "error": "HTTP 401 for " + url}
+  return b""
+qldc.apply_traffic(_q_fc, {"url": "https://api.qldtraffic.qld.gov.au/v2/events"}, _q_fetch, _q_log, env={"QLDTRAFFIC_API_KEY": "SECRETKEY123"})
+if "SECRETKEY123" in json.dumps(_q_log): bad.append(("qld", "traffic key leaked to source log"))
+_q_urls = []
+qldc.apply_traffic([], {"url": "https://api.qldtraffic.qld.gov.au/v2/events", "public_key": "PUBKEY"}, lambda name, url, *a, **k: _q_urls.append(url) or b'{"features": []}', {}, env={})
+if len(_q_urls) != 1 or "apikey=PUBKEY" not in _q_urls[0]: bad.append(("qld", "traffic public key fallback", _q_urls))
+_q_urls = []
+qldc.apply_traffic([], {"url": "https://api.qldtraffic.qld.gov.au/v2/events", "public_key": "PUBKEY"}, lambda name, url, *a, **k: _q_urls.append(url) or b'{"features": []}', {}, env={"QLDTRAFFIC_API_KEY": "OWNKEY"})
+if len(_q_urls) != 1 or "apikey=OWNKEY" not in _q_urls[0]: bad.append(("qld", "traffic own key first", _q_urls))
+_q_ev = qldc.traffic_events({"features": [
+  {"geometry": {"type": "Point", "coordinates": [150.06, -24.95]}, "properties": {"event_type": "Flooding", "road_summary": {"road_name": "Test Rd", "locality": "Testa"}, "description": "Water over road"}},
+  {"geometry": {"type": "Point", "coordinates": [150.06, -24.95]}, "properties": {"event_type": "Roadworks", "impact": {"impact_type": "Lane narrowing"}}}]})
+if len(_q_ev) != 1 or qldc.apply_traffic_events(_q_fc, _q_ev, 5) != 1: bad.append(("qld", "traffic events"))
+# Queensland pages, when the preview build includes them.
+if os.path.isfile(os.path.join(D, "qld", "index.html")):
+  _q_feed = [c for c in feed["camps"] if "/qld/camp/" in (c.get("url") or "")]
+  if len(_q_feed) < 500: bad.append(("qld", "feed camps", len(_q_feed)))
+  _q_closed = [c for c in _q_feed if c.get("status") == "closed"]
+  for _c in _q_closed:
+    if not str(((_c.get("closure") or {}).get("source_url")) or "").startswith("https://parks.qld.gov.au/"): bad.append(("qld", "closure without QPWS link", _c.get("slug")))
+  for _c in _q_feed[:2000]:
+    if _c.get("source") == "qpws":
+      _p = os.path.join(D, "qld", "camp", _c["slug"], "index.html")
+      # Visible text only: the shared closure script names NPWS for NSW estimated end dates.
+      _t = re.sub(r"<script.*?</script>", "", open(_p, encoding="utf-8").read() if os.path.isfile(_p) else "", flags=re.S)
+      if "NPWS" in _t.replace("QPWS", ""): bad.append(("qld", "NPWS wording on QPWS page", _c["slug"])); break
+  if 'value="qld"' in home or 'id="digest-form"' in open(os.path.join(D, "qld", "index.html"), encoding="utf-8").read(): bad.append(("qld", "digest signup offered"))
+  _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
+  if "apikey" in _q_src.lower(): bad.append(("qld", "api key in status.json"))
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

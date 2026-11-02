@@ -35,13 +35,14 @@ def alerts_line(slug):
         return ""
     label = html.escape(str(info.get("label") or "Alerts"))
     feed = html.escape(str(info.get("feed") or ""))
-    link = f' <a href="{feed}">NPWS alerts</a>' if feed.startswith("https://") else ""
+    agency = html.escape(str(info.get("agency") or "NPWS"))
+    link = f' <a href="{feed}">{agency} alerts</a>' if feed.startswith("https://") else ""
     when = info.get("updated") or ""
-    stale_msg = (f"{label} may be out of date: the newest NPWS alert update is more than "
-                 f"{ALERTS_STALE_DAYS} days old. Check the NPWS alerts page before you travel.")
+    stale_msg = (f"{label} may be out of date: the newest {agency} alert update is more than "
+                 f"{ALERTS_STALE_DAYS} days old. Check the {agency} alerts page before you travel.")
     if not when:
         return (f'<p class="muted alerts-updated">{label} could not be fetched in this update.{link}</p>'
-                f'<div class="warn alerts-stale">{label} were unavailable when this page was built. Check the NPWS alerts page before you travel.</div>')
+                f'<div class="warn alerts-stale">{label} were unavailable when this page was built. Check the {agency} alerts page before you travel.</div>')
     stamp = dt.datetime.fromisoformat(when).astimezone(TZ)
     shown = stamp.strftime("%-d %B %Y, %-I:%M %p %Z")
     stale = (NOW - stamp) > dt.timedelta(days=ALERTS_STALE_DAYS)
@@ -634,12 +635,16 @@ for state in statecfg.enabled():
     visitor = (STATE.get("sources") or {}).get("npws_visitor_areas") or {}
     if visitor.get("url") and visitor.get("camping_subtype") not in (None, ""):
         official, state_closures = load_npws(seen), []
+    elif ((STATE.get("sources") or {}).get("qpws_camps") or {}).get("url"):
+        import qld_conditions
+        official = qld_conditions.load_camps(STATE, fetch, region, slug, seen, LABELS.get("park_category") or "")
+        state_closures = []
     else:
         official, state_closures = load_official(seen)
     loaded.append((state, official, load_osm(seen), state_closures))
 def assign_filters(camp):
     """Cost is the known fee. Type is the place filter, separate from the page label."""
-    if camp.get("source") == "npws":
+    if camp.get("source") in ("npws", "qpws"):
         camp["cost"] = ""
         camp["type_filter"] = LABELS.get("type_filter") or ""
         return camp
@@ -741,12 +746,20 @@ by_state = {}
 for state, official, osm_rows, state_closures in loaded:
     bind(state)
     visitor = (state.get("sources") or {}).get("npws_visitor_areas") or {}
-    if official and visitor.get("url"):
+    qpws = (state.get("sources") or {}).get("qpws_camps") or {}
+    if official and (visitor.get("url") or qpws.get("url")):
         import build_osm
         before = len(osm_rows)
         osm_rows = build_osm.dedupe_datavic(osm_rows, official)
-        print(f"OSM camps near an NPWS point left out: {before - len(osm_rows)}")
+        print(f"OSM camps near an {'NPWS' if visitor.get('url') else 'QPWS'} point left out: {before - len(osm_rows)}")
     state_camps = official + osm_rows
+    if state.get("permit_only_areas"):
+        import qld_conditions
+        state_camps, dropped = qld_conditions.exclude_permit_only(state_camps, state)
+        no_lga = sum(1 for camp in state_camps if not camp.get("lga"))
+        print(f"Permit-only council areas: {len(dropped)} camps left out "
+              f"({sum(1 for camp in dropped if camp.get('source') != 'osm')} QPWS, {sum(1 for camp in dropped if camp.get('source') == 'osm')} OpenStreetMap); "
+              f"{no_lga} kept camps are outside every council polygon")
     if statecfg.path(state, "enrichment"):
         apply_datavic_enrichment(state_camps)
     sources = state.get("sources") or {}
@@ -759,6 +772,17 @@ for state, official, osm_rows, state_closures in loaded:
                 "label": f"{state.get('abbrev') or state['slug'].upper()} alerts",
                 "updated": stamped.get("alerts_updated") or "",
                 "feed": stamped.get("alerts_feed") or (sources.get("npws_alerts_api") or {}).get("page") or "",
+            }
+            bind(state)
+    if sources.get("qpws_alerts_rss") or sources.get("bom_fdr_qld") or sources.get("qldtraffic"):
+        import qld_conditions
+        stamp = qld_conditions.apply(state_camps, state, fetch, fetch_text, SRC)
+        if sources.get("qpws_alerts_rss"):
+            ALERTS_UPDATED[state["slug"]] = {
+                "label": f"{state.get('abbrev') or state['slug'].upper()} alerts",
+                "agency": LABELS.get("alerts_agency") or "QPWS",
+                "updated": stamp.get("updated") or "",
+                "feed": stamp.get("feed") or (sources.get("qpws_alerts_rss") or {}).get("page") or "",
             }
             bind(state)
     if sources.get("cfa_fdr") and sources.get("cfa_tfb_districts"):
@@ -1435,7 +1459,7 @@ def footer(shared=False):
     return f"""<footer>{footer_credits(shared)}
 <p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
-{FRESH_JS}"""
+{_qpws_js(FRESH_JS) if _qld_enabled() else FRESH_JS}"""
 def vicemergency_url(lat, lon, name="", slug=""):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
     base = LINKS.get("emergency") or ""
@@ -1501,7 +1525,7 @@ def region_label(c):
     return names.get(c.get("region") or "", "")
 region_label.cache = {}
 _STATUS_CODE = {"open": "o", "check": "k", "closed": "x"}
-_STATE_CODE = {"vic": "v", "nsw": "n"}
+_STATE_CODE = {"vic": "v", "nsw": "n", "qld": "q"}
 def _flag_cell(c, field):
     value = c.get(field)
     if value is True: return 1
@@ -1528,7 +1552,7 @@ def map_row(c):
         _flag_cell(c, "fac_motorhomes"),
     ]
     reg = ""
-    if (c.get("state_slug") or SLUG) == "nsw":
+    if (c.get("state_slug") or SLUG) in ("nsw", "qld"):
         reg = region_label(c) or ""
     note = "Closure record may be outdated" if (c.get("closure") or {}).get("outdated") else ""
     if reg or note:
@@ -1546,8 +1570,8 @@ def map_points_object(c):
     if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
     if len(statecfg.enabled()) > 1:
         slug = c.get("state_slug") or SLUG
-        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales"}.get(slug, slug)
-    if (c.get("state_slug") or SLUG) == "nsw":
+        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales", "qld": "Queensland"}.get(slug, slug)
+    if (c.get("state_slug") or SLUG) in ("nsw", "qld"):
         label = region_label(c)
         if label:
             pt["reg"] = label
@@ -1616,7 +1640,7 @@ def directions(c):
     # traffic.transport.vic.gov.au. Its app reads a disruption id query only,
     # not lat/lng or zoom, so this opens the main map.
     roads = LINKS.get("roads") or ""
-    road_label = "Check Live Traffic NSW" if (LINKS.get("roads_name") or "") == "Live Traffic NSW" else "Check road closures"
+    road_label = "Check Live Traffic NSW" if (LINKS.get("roads_name") or "") == "Live Traffic NSW" else ("Check QLDTraffic" if (LINKS.get("roads_name") or "") == "QLDTraffic" else "Check road closures")
     return (f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a> '
             f'<a class="btn" href="{toilets}" target="_blank" rel="noopener noreferrer">Find nearby toilets</a> '
             f'<a class="btn" href="{roads}" target="_blank" rel="noopener noreferrer">{road_label}</a></p>'
@@ -2134,6 +2158,9 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     if path == "/":
         og_title = "Camp conditions and closures for VIC and NSW | CampConditions.au"
         og_desc = "Camp conditions and closures for VIC and NSW."
+        if _qld_enabled():
+            og_title = "Camp conditions and closures for VIC, NSW and QLD | CampConditions.au"
+            og_desc = "Camp conditions and closures for VIC, NSW and QLD."
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(og_title)}"><meta property="og:description" content="{e(og_desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
@@ -2145,9 +2172,21 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
 {banner(on_home, national)}
 {FRESH_BAR}
 <main>{body}</main>{footer(shared)}{foot}</body></html>"""
-    h = external_blank(h)
+    # The privacy policy describes the email digest, which is Victoria and New South Wales only until a Queensland list exists.
+    h = external_blank(h if path == "/privacy/" else _multi_state(h))
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
     os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w", encoding="utf-8").write(h)
+_MULTI_STATE = (
+    ("Victoria and New South Wales", "Victoria, New South Wales and Queensland"),
+    ("Victorian and New South Wales", "Victorian, New South Wales and Queensland"),
+)
+def _multi_state(text):
+    """Site-wide coverage wording. Unchanged unless Queensland is enabled."""
+    if not _qld_enabled():
+        return text
+    for old, new in _MULTI_STATE:
+        text = text.replace(old, new)
+    return text
 def badge(c):
     if isinstance(c, str):
         status, text = c, {"open": "No known issues", "closed": "Closed", "check": "Check conditions"}[c]
@@ -2234,8 +2273,12 @@ def news_section(heading=None, preselect=None):
         return html_form
     if preselect is None:
         preselect = SLUG
+    # A state with "digest_signup": false is not offered yet: the subscribe API only accepts the states it has a mailing list for.
+    offered = [state for state in statecfg.enabled() if state.get("digest_signup", True)]
+    if preselect and preselect not in {state["slug"] for state in offered}:
+        return ""
     boxes = []
-    for state in statecfg.enabled():
+    for state in offered:
         picked = state.get("slug") == preselect
         checked = " checked" if picked else ""
         boxes.append(
@@ -2331,7 +2374,7 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
             nearest, after = NSW_NEAREST_FN, NSW_AFTER_TOWNS.replace("__PLACES_URL__", places_url)
         else:
             nearest, after = VIC_NEAREST_FN, "return rows;"
-    return (MAP_JS
+    js = (MAP_JS
         .replace("__REDRAW_BODY__", redraw_body)
         .replace("__TOWNS_URL__", towns_url)
         .replace("__REGION_FN__", statecfg.js_region_function(STATE))
@@ -2342,6 +2385,28 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
         .replace("__NEAREST_FN__", nearest)
         .replace("__CLUSTER__", cluster)
         .replace("__REGION_BIT__", region_bit))
+    return _qpws_js(js) if _qld_enabled() else js
+def _qld_enabled():
+    return any(state["slug"] == "qld" for state in statecfg.enabled())
+_QPWS_JS = (
+    ('if (upOsm && upOsm.desc && upOsm.source_url && String(upOsm.source_url).indexOf("nationalparks.nsw.gov.au") !== -1) {',
+     'var osmAg = String((upOsm && upOsm.source_url) || "").indexOf("parks.qld.gov.au") !== -1 ? "QPWS" : "NPWS";\n'
+     '      if (upOsm && upOsm.desc && upOsm.source_url && (String(upOsm.source_url).indexOf("nationalparks.nsw.gov.au") !== -1 || osmAg === "QPWS")) {'),
+    ("' <span class=\"muted\">Official NPWS wording.</span> <a href=\"' + esc(upOsm.source_url) + '\">NPWS alert</a></div>';",
+     "' <span class=\"muted\">Official ' + osmAg + ' wording.</span> <a href=\"' + esc(upOsm.source_url) + '\">' + osmAg + ' alert</a></div>';"),
+    ('if (c.source === "npws") {',
+     'if (c.source === "npws" || c.source === "qpws") {\n      var ag = c.source === "qpws" ? "QPWS" : "NPWS";'),
+    ("'\">NPWS alert</a>' : \"\";", "'\">' + ag + ' alert</a>' : \"\";"),
+    ("' <span class=\"muted\">Official NPWS wording.</span>' + npwsLink", "' <span class=\"muted\">Official ' + ag + ' wording.</span>' + npwsLink"),
+    ('var stateSlug = {v: "vic", n: "nsw"};', 'var stateSlug = {v: "vic", n: "nsw", q: "qld"};'),
+    ('var stateName = {v: "Victoria", n: "New South Wales"};', 'var stateName = {v: "Victoria", n: "New South Wales", q: "Queensland"};'),
+)
+def _qpws_js(js):
+    """Closure popups name QPWS for Queensland camps. Only used when Queensland is built, so the Victorian and NSW scripts are unchanged."""
+    for old, new in _QPWS_JS:
+        if old in js:
+            js = js.replace(old, new)
+    return js
 def home_town_after():
     """Victoria's town file is fetched first. Other states are appended and tagged."""
     urls, tags = [], []
@@ -2375,7 +2440,7 @@ def home_town_after():
 def write_map_js(state):
     bind(state)
     name = "map.js" if state["slug"] == primary["slug"] else f"map-{state['slug']}.js"
-    bit = "camp.reg || regionName(camp.lat, camp.lon)" if state["slug"] == "nsw" else "regionName(camp.lat, camp.lon)"
+    bit = "camp.reg || regionName(camp.lat, camp.lon)" if state["slug"] in ("nsw", "qld") else "regionName(camp.lat, camp.lon)"
     open(os.path.join(OUT, name), "w", encoding="utf-8").write(render_map_js(region_bit=bit))
 def write_home_map_js():
     """One map script for the national page. /map.js stays the Victorian search."""
@@ -2426,12 +2491,22 @@ def fire_line(c):
     fire = c.get("fire") or {}
     district, today, ban = fire.get("district") or "", fire.get("today") or "", fire.get("ban_today") or ""
     url = fire.get("source_url") or ""
-    if not district or not today or not ban or not str(url).startswith("https://"):
+    note = fire.get("ban_note") or ""
+    if note:
+        # Queensland: BoM ratings, and no fire ban feed. The afternoon issue starts tomorrow.
+        if not district or not (today or fire.get("tomorrow")) or not str(url).startswith("https://"):
+            return ""
+        days = [f"{today} today"] if today else []
+        if fire.get("tomorrow"):
+            days.append(f"{fire['tomorrow']} tomorrow")
+        sentence = f"{district}: " + ", ".join(days) + f" (Bureau of Meteorology). {note}."
+    elif not district or not today or not ban or not str(url).startswith("https://"):
         return ""
-    sentence = f"{district}: {today} today"
-    if fire.get("tomorrow"):
-        sentence += f", {fire['tomorrow']} tomorrow"
-    sentence += f". Total fire ban: {ban}."
+    else:
+        sentence = f"{district}: {today} today"
+        if fire.get("tomorrow"):
+            sentence += f", {fire['tomorrow']} tomorrow"
+        sentence += f". Total fire ban: {ban}."
     if fire.get("issued"):
         sentence += f" Issued {fire['issued']}."
     if fire.get("fetched"):
@@ -2476,7 +2551,7 @@ def weekly_when(record):
     if record.get("reopen"):
         out += ", until " + spoken_day(record["reopen"], record.get("reopen_time"))
     return out
-def official_npws_closure(desc, url, published, start=None, reopen=None, upcoming=False, start_time=None, reopen_time=None, record=None):
+def official_npws_closure(desc, url, published, start=None, reopen=None, upcoming=False, start_time=None, reopen_time=None, record=None, agency="NPWS"):
     """Quoted NPWS alert text. A future start is an upcoming notice, not Closed.
     Dates are spoken with the clock NPWS printed, so a 2pm start reads 2pm.
     A weekly closure (Flea Creek) says which days it is closed instead of a reopening,
@@ -2484,7 +2559,7 @@ def official_npws_closure(desc, url, published, start=None, reopen=None, upcomin
     record = record or {}
     when = feed_date(published)
     dated = f" Alert dated {e(when)}." if when else ""
-    link = f' <a href="{e(url)}">NPWS alert</a>' if str(url).startswith("https://") else ""
+    link = f' <a href="{e(url)}">{agency} alert</a>' if str(url).startswith("https://") else ""
     label = "Upcoming closure" if upcoming else "Closed"
     extra = ""
     weekly = weekly_when(record)
@@ -2496,7 +2571,12 @@ def official_npws_closure(desc, url, published, start=None, reopen=None, upcomin
         extra += " · Reopens " + e(spoken_day(reopen, reopen_time))
     elif record.get("estimated_end"):
         extra += " · NPWS estimated end date " + e(spoken_day(record["estimated_end"]))
-    return f'<div class="warn"><strong>{label}:</strong> {e(desc)}{extra} <span class="muted">Official NPWS wording.{dated}</span>{link}</div>'
+    if agency == "QPWS":
+        dated += " Times are Queensland time (AEST)." if (start_time or reopen_time) else ""
+    return f'<div class="warn"><strong>{label}:</strong> {e(desc)}{extra} <span class="muted">Official {agency} wording.{dated}</span>{link}</div>'
+def _agency(c):
+    """NPWS or QPWS: the parks agency whose alerts this camp's state uses."""
+    return "QPWS" if (c.get("state_slug") or SLUG) == "qld" else "NPWS"
 def alert_notes_html(c):
     rows, seen = [], set()
     for alert in c.get("alerts") or []:
@@ -2516,7 +2596,8 @@ def alert_notes_html(c):
         rows.append((f'<a href="{e(url)}">{e(heading)}</a>' if url.startswith("https://") else e(heading)) + dated)
     if not rows:
         return ""
-    return '<p class="muted">Official NPWS wording. NPWS alerts: ' + "; ".join(rows) + ".</p>"
+    agency = _agency(c)
+    return f'<p class="muted">Official {agency} wording. {agency} alerts: ' + "; ".join(rows) + ".</p>"
 def row_attrs(c):
     return (f'data-slug="{e(c["slug"])}" data-url="{camp_url(c)}" data-type="{e(c.get("type_filter") or "")}" data-cost="{e(c.get("cost") or "")}" data-status="{e(c["status"])}" '
             f'data-dogs="{flag_attr(c,"fac_dogs")}" '
@@ -2691,15 +2772,16 @@ def emit_state(state, camps, include_home):
             source_url = str((cl or {}).get("source_url") or "").strip()
             upcoming = c.get("upcoming_closure") or None
             if wording and source_url:
-                if c.get("state_slug") == "nsw" and "nationalparks.nsw.gov.au" in source_url:
-                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"), record=cl)
+                if (c.get("state_slug") == "nsw" and "nationalparks.nsw.gov.au" in source_url) or (c.get("state_slug") == "qld" and "parks.qld.gov.au" in source_url):
+                    block = official_npws_closure(wording, source_url, (cl or {}).get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"), record=cl, agency=_agency(c))
                 else:
                     reopen = str((cl or {}).get("reopen") or "")[:10]
                     when = f" · Reopens {e(reopen)}" if reopen else ""
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}{when} <a href="{e(source_url)}">{e(source_url)}</a></div>'
                 condition = f'<div id="camp-closure">{block}</div>' + condition
-            elif upcoming and c.get("state_slug") == "nsw" and str(upcoming.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"):
-                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming)
+            elif upcoming and ((c.get("state_slug") == "nsw" and str(upcoming.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"))
+                               or (c.get("state_slug") == "qld" and str(upcoming.get("source_url") or "").startswith("https://parks.qld.gov.au/"))):
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming, agency=_agency(c))
                 condition = f'<div id="camp-closure">{block}</div>' + condition
             notes = alert_notes_html(c)
             if notes:
@@ -2711,38 +2793,50 @@ def emit_state(state, camps, include_home):
                 title = f"{page_name} — closed | CampConditions.au"
                 desc = desc.replace("Conditions: check with the operator.", "Status: closed.")
             dated = COPY["osm_source_line"]
-        elif c.get("source") == "npws":
+        elif c.get("source") in ("npws", "qpws"):
+            agency = _agency(c)
             bits = []
             upcoming = c.get("upcoming_closure") or None
             if cl and (cl.get("desc") or cl.get("reason")):
                 url = str(cl.get("source_url") or "")
                 wording = cl.get("desc") or cl.get("reason")
                 if url.startswith("https://"):
-                    block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"), record=cl)
+                    block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"), record=cl, agency=agency)
                 else:
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}</div>'
                 bits.append(f'<div id="camp-closure">{block}</div>')
             elif upcoming and (upcoming.get("desc") or upcoming.get("start")):
-                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming)
+                block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming, agency=agency)
                 bits.append(f'<div id="camp-closure">{block}</div>')
+            elif agency == "QPWS":
+                bits.append("<p><strong>No QPWS closure alert names this camping area or closes its park.</strong> The QSpatial record does not include open or closed status, fees or facilities. Check the park page and book with QPWS before you go.</p>")
             else:
                 bits.append("<p><strong>No status in this layer.</strong> The NPWS Visitor Area record does not include open or closed status, fees or facilities.</p>")
             notes = alert_notes_html(c)
             if notes:
                 bits.append(notes)
+            if c.get("parks"):
+                bits.append(f"<p>Park: {e('; '.join(c['parks']))}</p>")
+            if c.get("permit_area"):
+                bits.append(f"<p>Camping permit area: {e(c['permit_area'])} ({e(c.get('permit_park') or '')}), as listed in the QPWS camping permits data.</p>")
             if c.get("asset_style"):
                 bits.append(f"<p>Visitor area style: {e(c['asset_style'])}</p>")
             if c.get("asset_type"):
                 bits.append(f"<p>Visitor area type: {e(c['asset_type'])}</p>")
             if c.get("source_ref"):
-                bits.append(f"<p>Asset id: {e(c['source_ref'])}</p>")
+                bits.append(f"<p>{'Feature id' if agency == 'QPWS' else 'Asset id'}: {e(c['source_ref'])}</p>")
             condition = "".join(bits)
             title = f"{page_name} | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)
             feed = str(c.get("alerts_feed") or "")
-            dated = "Source: NPWS Visitor Area layer (camping areas)"
+            if agency == "QPWS":
+                dated = "Source: " + (LABELS.get("official_layer") or "QSpatial tourist points layer (camping grounds)")
+                if c.get("data_date"):
+                    dated += f", point dated {e(c['data_date'][:10])}"
+            else:
+                dated = "Source: NPWS Visitor Area layer (camping areas)"
             if c.get("alerts_checked") and feed.startswith("https://"):
-                dated += f'. <a href="{e(feed)}">NPWS alerts</a>'
+                dated += f'. <a href="{e(feed)}">{agency} alerts</a>'
         else:
             closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
             condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
@@ -2789,6 +2883,8 @@ if multi_state:
     names = " and ".join(state["name"] for state in statecfg.enabled())
     safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
     browse = '<p>Browse <a href="/vic/">Victoria</a> or <a href="/nsw/">New South Wales</a>.</p>'
+    if _qld_enabled():
+        browse = '<p>Browse <a href="/vic/">Victoria</a>, <a href="/nsw/">New South Wales</a> or <a href="/qld/">Queensland</a>.</p>'
     write_home_map_js()
     national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in Victoria and New South Wales."},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
@@ -2875,6 +2971,11 @@ def about_body():
             + '<li>Live Traffic NSW (<a href="https://www.livetraffic.com/">livetraffic.com</a>) is linked from New South Wales camp pages. Road-closure data is not copied onto this site.</li></ul>'
             + (nsw_copy.get("footer_attribution") or "") + "<p>" + (nsw_copy.get("about_tail") or "") + "</p>"
         )
+        if _qld_enabled():
+            qld_copy = statecfg.by_slug("qld").get("copy") or {}
+            roads += "<p>" + (qld_copy.get("about_roads") or "") + " Road-closure data is not copied onto this site.</p>"
+            sources += ('<h3 id="qld-sources">Queensland</h3><ul>' + (qld_copy.get("about_sources") or "") + "</ul>"
+                        + (qld_copy.get("footer_attribution") or "") + "<p>" + (qld_copy.get("about_tail") or "") + "</p>")
     return f"""<h1>About</h1><p>{lead}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>{roads}
@@ -2922,7 +3023,7 @@ for state in statecfg.enabled():
         if line and line not in attribution:
             attribution.append(line)
 if len(statecfg.enabled()) > 1:
-    feed_region = "Victoria and New South Wales, Australia"
+    feed_region = _multi_state("Victoria and New South Wales, Australia")
     feed_disclaimer = " ".join(
         f"{state['name']}: {(state.get('copy') or {}).get('feed_disclaimer') or ''}".strip()
         for state in statecfg.enabled()
@@ -2962,7 +3063,8 @@ def faq_items():
         ("Where does the information come from?",
          "Victoria: DataVic Recreation Sites and Explore Outdoors (DEECA), Parks Victoria / DEECA MapShare closures and CFA fire danger ratings. "
          "New South Wales: the NPWS Visitor Area layer, the NPWS alerts and closures data and NSW RFS fire danger ratings. "
-         "Extra campgrounds come from OpenStreetMap. The About the data page lists every source."),
+         + ("Queensland: QPWS camping grounds from the QSpatial tourist points layer, the QPWS park alerts RSS and Bureau of Meteorology fire danger ratings. " if _qld_enabled() else "")
+         + "Extra campgrounds come from OpenStreetMap. The About the data page lists every source."),
         ("How often is the site updated?", UPDATE_CADENCE),
         ("What do Closed, Check conditions and No known issues mean?",
          "Closed means an official source records a closure for that campground. Check conditions means there is no closure on record, "
@@ -2972,7 +3074,9 @@ def faq_items():
          "A closure that starts later is shown as an upcoming closure with its start and reopening dates. The camp is marked Closed once the closure has started. "
          "NPWS times such as 2pm are taken into account."),
         ("Does the site show bushfire, flood or other emergency warnings?",
-         "No. Incident warnings are linked, not republished. Check VicEmergency in Victoria, NSW Rural Fire Service and NSW SES in New South Wales, and the Bureau of Meteorology before you travel. In an emergency call 000."),
+         "No. Incident warnings are linked, not republished. Check VicEmergency in Victoria, NSW Rural Fire Service and NSW SES in New South Wales, "
+         + ("the Queensland Fire Department and QLDTraffic in Queensland, " if _qld_enabled() else "")
+         + "and the Bureau of Meteorology before you travel. In an emergency call 000."),
         ("Which camps are closed this weekend?",
          "The Closures this weekend page lists every camp with a recorded closure over the coming Saturday and Sunday, and closures that start during the weekend. It is rebuilt with the rest of the site."),
         ("Something is wrong or missing. How do I tell you?",

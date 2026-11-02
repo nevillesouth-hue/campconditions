@@ -1,0 +1,267 @@
+{
+  "slug": "qld",
+  "name": "Queensland",
+  "adjective": "Queensland",
+  "abbrev": "QLD",
+  "enabled": false,
+  "digest_signup": false,
+  "banner": {
+    "covering": "Covering Queensland now",
+    "coming": "Victoria remains the live site"
+  },
+  "credit": "QPWS camping grounds from the QSpatial tourist points layer, CC BY 4.0. Other campgrounds © OpenStreetMap contributors (ODbL).",
+  "labels": {
+    "paid_book": "",
+    "book_ahead_note": "",
+    "book_ahead_with": "",
+    "type_filter": "QPWS",
+    "agency": "Queensland Parks and Wildlife Service",
+    "phone": "",
+    "official_short": "QPWS",
+    "park_category": "QPWS camping area",
+    "closure_status": "",
+    "alerts_agency": "QPWS",
+    "alerts_link_text": "QPWS park alerts",
+    "official_layer": "QSpatial tourist points layer (camping grounds)"
+  },
+  "files": {
+    "boundary": "",
+    "towns": "data/qld-towns.json",
+    "places": "data/qld-place-points.json",
+    "osm_camps": "data/osm-camps-qld.json",
+    "osm_csv": "",
+    "enrichment": "",
+    "corrections": "data/manual-corrections-qld.json",
+    "pending": "",
+    "flags": "",
+    "tourism_regions": "data/qld-tourism-regions.json",
+    "lgas": "data/qld-lgas.json",
+    "estates": "data/qpws-estates.json",
+    "fire_districts": "data/qld-fire-districts.json",
+    "permit_areas": "data/qpws-permit-areas.json"
+  },
+  "osm": {
+    "pbf_url": "https://download.geofabrik.de/australia-oceania/australia/queensland-latest.osm.pbf",
+    "default_pbf": "/tmp/osm/queensland-latest.osm.pbf",
+    "bbox": [],
+    "outside_note": ""
+  },
+  "leased_names": [],
+  "permit_only_areas": {
+    "include_permit_only_areas": false,
+    "permit_only_qpws_exempt": false,
+    "lgas": [
+      "Aurukun Shire",
+      "Cherbourg Aboriginal Shire",
+      "Doomadgee Aboriginal Shire",
+      "Hope Vale Aboriginal Shire",
+      "Kowanyama Aboriginal Shire",
+      "Lockhart River Aboriginal Shire",
+      "Mapoon Aboriginal Shire",
+      "Napranum Aboriginal Shire",
+      "Palm Island Aboriginal Shire",
+      "Pormpuraaw Aboriginal Shire",
+      "Woorabinda Aboriginal Shire",
+      "Wujal Wujal Aboriginal Shire",
+      "Yarrabah Aboriginal Shire",
+      "Mornington Shire",
+      "Northern Peninsula Area Regional",
+      "Torres Strait Island Regional",
+      "Torres Shire"
+    ],
+    "note": "Aboriginal shire and Torres Strait council areas, where entry or camping needs a permit from the community or traditional owners. Every camp inside these council areas (QSpatial QPWS points and OpenStreetMap camps) is left out while include_permit_only_areas is false. Set permit_only_qpws_exempt to true to keep QPWS camps there and leave out only the others."
+  },
+  "sources": {
+    "qpws_camps": {
+      "url": "https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Structure/PhysicalInfrastructure/FeatureServer/60",
+      "key": "qpws_camps",
+      "source_id": "qpws",
+      "where": "feature_type='Camping Ground'",
+      "agencies": [
+        "Department of Environment, Science and Innovation",
+        "Qld_Dept National Parks, Sports and Racing"
+      ],
+      "note": "QSpatial tourist points layer, feature_type Camping Ground, State of Queensland, CC BY 4.0. A point is kept as a QPWS camp when its attribute_source is the Queensland environment or national parks department, or it lies inside a QPWS park or state forest. Other points (council, water authority and private sites) are left to OpenStreetMap and council batches. The layer has no fee, facility or open status fields. Fetched when this state is built."
+    },
+    "qpws_estates": {
+      "url": "https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Boundaries/AdminBoundariesFramework/FeatureServer/77",
+      "file": "data/qpws-estates.json",
+      "note": "QSpatial protected areas and state forests (estatename, esttype, qpwsreg), CC BY 4.0. Prepared into data/qpws-estates.json by scripts/fetch_qld_reference.py. Used to match park alerts to camps."
+    },
+    "qpws_alerts_rss": {
+      "url": "https://parks.qld.gov.au/xml/rss/parkalerts.xml",
+      "page": "https://parks.qld.gov.au/park-alerts",
+      "note": "QPWS park alerts RSS. Each item ends with 'Affected parks: …' and links to its alert page. A camp is marked closed only where the alert closes the whole park, or names that camping area as closed, and the closure has started. A later start is an upcoming notice. Other alerts are notes. Fetched when this state is built."
+    },
+    "bom_fdr_qld": {
+      "url": "https://www.bom.gov.au/fwo/IDQ13016.xml",
+      "page": "https://www.bom.gov.au/qld/forecasts/fire-danger-ratings.shtml",
+      "note": "Bureau of Meteorology Fire Danger Ratings 4 Days (QLD), IDQ13016. The rating for today and tomorrow (Queensland local dates) is shown for the fire weather district that contains the camp. Fetched when this state is built with a browser user agent (BoM refuses script user agents). If the feed is unavailable, the line is omitted."
+    },
+    "qld_fire_districts": {
+      "url": "https://services1.arcgis.com/vkTwD8kHw2woKBqV/arcgis/rest/services/New_Fire_Districts/FeatureServer/2",
+      "file": "data/qld-fire-districts.json",
+      "note": "Queensland fire weather districts (New_Fire_Districts), Public Safety Business Agency for the Queensland Fire Department, published with the QFD story map 'Queensland Fire Weather District changes 19 August'. DIST_NAME matches the IDQ13016 area description."
+    },
+    "qldtraffic": {
+      "url": "https://api.qldtraffic.qld.gov.au/v2/events",
+      "key_env": "QLDTRAFFIC_API_KEY",
+      "public_key": "3e83add325cbb69ac4d8e5bf433d770b",
+      "public_key_source": "https://qldtraffic.qld.gov.au/media/moreDevelopers-and-Data/qldtraffic-website-api-specification-v1-10.pdf (public API access key, globally limited to 100 requests/minute)",
+      "radius_km": 5,
+      "note": "QLDTraffic GeoJSON API v2 (Department of Transport and Main Roads), CC BY 4.0. Uses the registered key in the QLDTRAFFIC_API_KEY environment variable when set; otherwise TMR's published public key (delete public_key to skip instead). Flooding events and road closures within 5 km of a camp are listed on its page."
+    },
+    "qpws_permits": {
+      "url": "https://www.data.qld.gov.au/dataset/camping-and-vehicle-permits",
+      "file": "data/qpws-permit-areas.json",
+      "note": "QPWS camping permits CSV (data.qld.gov.au, CC BY 4.0). Park and camping area names only, used to cross-check camps."
+    },
+    "abs_tourism_regions": {
+      "url": "https://geo.abs.gov.au/arcgis/rest/services/ASGS2021/TR/FeatureServer/0",
+      "note": "ABS ASGS Edition 3 Tourism Regions 2021, Queensland only. CC BY 4.0. Prepared into data/qld-tourism-regions.json. A camp is grouped by the region that contains it."
+    },
+    "qld_lgas": {
+      "url": "https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Boundaries/AdminBoundariesFramework/FeatureServer/11",
+      "note": "QSpatial Local Government areas, CC BY 4.0. Names the council area of each camp and drives the permit-only exclusion."
+    }
+  },
+  "closure_checker": "",
+  "safety_html": "<div class=\"warn\"><strong>Not an official warning service.</strong> A camp page can show the Bureau of Meteorology fire danger rating for that camp's Queensland fire weather district. Queensland declares local fire bans by area, and they are not copied here: check <a href=\"https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions\">Queensland Fire Department fire bans and restrictions</a>. It does not republish incident warnings. Always check the <a href=\"https://www.fire.qld.gov.au/\">Queensland Fire Department</a>, <a href=\"https://www.ses.qld.gov.au/\">Queensland SES</a>, <a href=\"https://qldtraffic.qld.gov.au/\">QLDTraffic</a> and the <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\">Bureau of Meteorology warnings for Queensland</a> before you travel. In the wet season many northern and western roads and parks close. In an emergency call <a href=\"tel:000\">000</a>.</div>",
+  "regions": {
+    "gold-coast": {
+      "name": "Gold Coast",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "brisbane": {
+      "name": "Brisbane",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "sunshine-coast": {
+      "name": "Sunshine Coast",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "fraser-coast": {
+      "name": "Fraser Coast",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "southern-queensland-country": {
+      "name": "Southern Queensland Country",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "bundaberg": {
+      "name": "Bundaberg",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "mackay": {
+      "name": "Mackay",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "whitsundays": {
+      "name": "Whitsundays",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "townsville": {
+      "name": "Townsville",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "tropical-north-queensland": {
+      "name": "Tropical North Queensland",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "outback-queensland": {
+      "name": "Outback Queensland",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "capricorn": {
+      "name": "Capricorn",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    },
+    "gladstone": {
+      "name": "Gladstone",
+      "blurb": "ABS Tourism Region (ASGS Edition 3, 2021): an approximation of the Tourism Research Australia region of the same name. Not a Tourism and Events Queensland boundary."
+    }
+  },
+  "region_rules": [],
+  "links": {
+    "emergency": "https://www.fire.qld.gov.au/",
+    "emergency_bbox": false,
+    "emergency_name": "Queensland Fire Department",
+    "emergency_button": "Check Queensland Fire Department",
+    "fire_bans": "https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions",
+    "fire_bans_button": "Check local fire bans (QFD)",
+    "bom_warnings": "https://www.bom.gov.au/weather-and-climate/warnings-and-alerts",
+    "bom_warnings_rss": "https://www.bom.gov.au/fwo/IDZ00056.warnings_qld.xml",
+    "bom_forecast": "https://www.bom.gov.au/qld/forecasts/",
+    "conditions": "https://parks.qld.gov.au/",
+    "conditions_name": "Queensland Parks and Wildlife Service",
+    "alerts": "https://parks.qld.gov.au/park-alerts",
+    "roads": "https://qldtraffic.qld.gov.au/",
+    "roads_name": "QLDTraffic"
+  },
+  "copy": {
+    "home_title": "Queensland camp conditions — {count} sites | CampConditions.au",
+    "home_description": "QPWS camping areas and OpenStreetMap camps in Queensland. {count} sites. Fees and facilities are left blank where the source does not record them.",
+    "home_h1": "Queensland camp conditions",
+    "home_intro": "Closures and fire danger ratings for <strong>{count}</strong> camping areas across Queensland. <strong>{official}</strong> are QPWS camping areas with QPWS park alerts. <strong>{osm}</strong> more are from OpenStreetMap and council sites — check with the operator, and call a showground first.",
+    "home_map": "Map of Queensland campgrounds",
+    "home_weather": "Weather warnings: <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\">check BOM's Queensland warnings</a> (<a href=\"https://www.bom.gov.au/fwo/IDZ00056.warnings_qld.xml\">RSS</a>). Bushfire and other emergency warnings: check the <a href=\"https://www.fire.qld.gov.au/\">Queensland Fire Department</a>. Local fire bans: <a href=\"https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions\">QFD fire bans and restrictions</a>. They are not republished here.",
+    "website_description": "Camp and campground conditions for {count} sites in Queensland, Australia.",
+    "state_title": "Queensland campground conditions — {count} sites | CampConditions.au",
+    "state_description": "Closures and conditions for {count} Queensland camping areas from QSpatial QPWS camping grounds, QPWS park alerts, local council pages and OpenStreetMap.",
+    "state_h1": "Queensland",
+    "state_intro": "<strong>{count}</strong> camping areas. Fees and facilities are left blank. A camp is marked closed only where a QPWS park alert or a linked council page records a closure that has started. A later start is an upcoming notice. Otherwise the status stays check. Aboriginal shire and Torres Strait areas that need an entry or camping permit are not listed.",
+    "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
+    "region_description": "{count} camping areas in {name}. {blurb}",
+    "region_list_name": "Campgrounds in {name}",
+    "newsletter_h2": "Get the free weekly Queensland digest",
+    "osm_place": "{name} in {region}, Queensland. Conditions: check with the operator. Type: {category}.",
+    "official_place": "{name} in {region}, Queensland. QPWS camping ground in the QSpatial tourist points layer. Closed only where a QPWS park alert applies. Fees and facilities are not in this layer.",
+    "osm_source_line": "Source: OpenStreetMap contributors (ODbL). A closure is shown only where a QPWS park alert or a linked council page applies to this place.",
+    "place_admin": "{region}, Queensland",
+    "feed_region": "Queensland, Australia",
+    "feed_attribution_extra": "QPWS camping grounds from the QSpatial tourist points layer, CC BY 4.0. Closures come from the QPWS park alerts RSS where the alert applies. Fees and facilities are not in that layer.",
+    "feed_disclaimer": "Not an official warning service. Incident warnings are not included. A camp is closed only where a QPWS park alert records a closure. The QLD alerts updated time is the newest QPWS alert. Fire danger rating is the camp's Queensland fire weather district from the Bureau of Meteorology. Local fire bans are not included. Do not treat check as open.",
+    "status_credits": [
+      "Fire danger ratings: © Commonwealth of Australia, Bureau of Meteorology, https://www.bom.gov.au/fwo/IDQ13016.xml.",
+      "Camping grounds, park and state forest boundaries, council areas and towns: © State of Queensland (QSpatial), Creative Commons Attribution 4.0.",
+      "Fire weather districts: © State of Queensland (Public Safety Business Agency, Queensland Fire Department).",
+      "Park alerts: Queensland Parks and Wildlife Service, https://parks.qld.gov.au/xml/rss/parkalerts.xml.",
+      "Road closures and flooding: QLDTraffic, Department of Transport and Main Roads, Creative Commons Attribution 4.0, https://qldtraffic.qld.gov.au/."
+    ],
+    "llms_intro": "Current conditions for {count} campgrounds in Queensland, Australia: QPWS closures from the QPWS park alerts RSS, and Bureau of Meteorology fire danger ratings on camp pages. A camp is closed only where a QPWS alert records a closure. Fees and facilities are omitted where the source does not provide them. Incident warnings and local fire bans are not republished. Aboriginal shire and Torres Strait areas that need a permit are left out. Rebuilt several times daily. Not an official warning service.",
+    "llms_closures": "Closures are taken from the QPWS park alerts RSS (https://parks.qld.gov.au/xml/rss/parkalerts.xml) where the alert closes the whole park or names the camping area as closed. Other alerts are notes and the status stays check. Fire danger rating is the camp's Queensland fire weather district from the Bureau of Meteorology forecast https://www.bom.gov.au/fwo/IDQ13016.xml, placed with the Queensland Fire Department fire weather district polygons. Do not treat a check status as open. If a feed is unavailable, that part is left off.",
+    "footer_short": "Queensland: QPWS camping grounds, park boundaries and towns © State of Queensland (QSpatial), CC BY 4.0. Fire danger ratings © Commonwealth of Australia, Bureau of Meteorology. Park alerts: QPWS. <a href=\"/about/#qld-sources\">Sources</a>.",
+    "footer_attribution": "<p><strong>Data and attribution.</strong> Camping grounds from the <a href=\"https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Structure/PhysicalInfrastructure/FeatureServer/60\">QSpatial tourist points layer</a> (camping grounds attributed to the Queensland environment department or inside a QPWS park or state forest), CC BY 4.0. That layer does not include fees, facilities or open status, so those are left blank. Closures and alert notes are from the <a href=\"https://parks.qld.gov.au/xml/rss/parkalerts.xml\">QPWS park alerts RSS</a>, matched to <a href=\"https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Boundaries/AdminBoundariesFramework/FeatureServer/77\">QSpatial park and state forest boundaries</a>. A camp is marked closed only where that alert records a closure. Fire danger rating is the camp's district from the <a href=\"https://www.bom.gov.au/fwo/IDQ13016.xml\">Bureau of Meteorology fire danger forecast</a> (© Commonwealth of Australia), using <a href=\"https://services1.arcgis.com/vkTwD8kHw2woKBqV/arcgis/rest/services/New_Fire_Districts/FeatureServer/2\">Queensland fire weather district</a> boundaries (Queensland Fire Department). Local fire bans are not copied: see <a href=\"https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions\">QFD fire bans and restrictions</a>. Other campgrounds: OpenStreetMap contributors (ODbL). Towns and council areas: © State of Queensland (QSpatial), CC BY 4.0. Incident warnings are linked, not republished: <a href=\"https://www.fire.qld.gov.au/\">Queensland Fire Department</a>, <a href=\"https://www.ses.qld.gov.au/\">Queensland SES</a>, <a href=\"https://qldtraffic.qld.gov.au/\">QLDTraffic</a> and the <a href=\"https://www.bom.gov.au/weather-and-climate/warnings-and-alerts\">Bureau of Meteorology</a>.</p>",
+    "directions_note": "Check QFD, local fire bans and QLDTraffic before you travel.",
+    "outdated_html": "",
+    "about_lead": "CampConditions.au lists Queensland camping areas from the QSpatial tourist points layer (QPWS camping grounds) and OpenStreetMap. Some entries are checked against local council pages.",
+    "about_roads": "Each camp page links to <a href=\"https://qldtraffic.qld.gov.au/\">QLDTraffic</a>.",
+    "about_sources": "<li>QPWS camping grounds from the QSpatial tourist points layer, CC BY 4.0. No fee, facility or status fields. Names are cross-checked against the <a href=\"https://www.data.qld.gov.au/dataset/camping-and-vehicle-permits\">QPWS camping permits data</a>.</li><li>QPWS park alerts RSS for closures and notes. A camp is closed only where the alert closes that park or names that camping area. Park and state forest boundaries: QSpatial, CC BY 4.0.</li><li>Bureau of Meteorology fire danger ratings (IDQ13016) for the Queensland fire weather district that contains the camp. District boundaries: Queensland Fire Department.</li><li>QLDTraffic road closures and flooding within 5 km of a camp, when available (Department of Transport and Main Roads, CC BY 4.0).</li><li>OpenStreetMap campgrounds (ODbL).</li><li>Local council and operator pages for some camps outside national parks.</li><li>Towns and council areas: QSpatial localities, population centres and Local Government areas, © State of Queensland, CC BY 4.0.</li><li>Aboriginal shire and Torres Strait council areas, where entry or camping needs a permit, are not listed.</li>",
+    "about_tail": "Queensland Fire Department incident warnings and local fire bans are not republished. The district fire danger rating is the Bureau of Meteorology value.",
+    "privacy_who": "CampConditions.au publishes campground conditions. Contact us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a>.",
+    "digest_subject": "Queensland camps this week",
+    "digest_intro": "G'day! Here's what's changed for Queensland free camps and campgrounds, {date}.",
+    "digest_warnings": "Warnings are not listed here. Check the Queensland Fire Department, local fire bans, QLDTraffic and the Bureau of Meteorology before you go.",
+    "digest_footer": "Not an official warning service. ",
+    "faq": [
+      {
+        "q": "Does the QSpatial camping layer say if a Queensland camp is open?",
+        "a": "No. The camping-ground points do not include open or closed status, fees or facilities. Fees and facilities stay blank. The site reads the QPWS park alerts RSS: a camp is marked closed only where an alert closes the whole park or names that camping area as closed, and the closure has started. A later start is an upcoming notice. Every other camp stays check. The camp page also shows its Queensland fire weather district fire danger rating from the Bureau of Meteorology."
+      },
+      {
+        "q": "Why is there no Total Fire Ban line for Queensland camps?",
+        "a": "Queensland declares local fire bans by area rather than Total Fire Bans by district, and there is no official machine-readable feed to copy. Queensland camp pages show the Bureau of Meteorology fire danger rating and link to the Queensland Fire Department fire bans and restrictions page."
+      },
+      {
+        "q": "Why are some Cape York, Gulf and Torres Strait camps missing?",
+        "a": "Camps in Aboriginal shire and Torres Strait council areas, where entry or camping needs a permit from the community or traditional owners, are not listed. Check with the council or land trust before you travel."
+      }
+    ]
+  },
+  "closure_flag_log": "",
+  "map": {
+    "fallback_lat": -22.5,
+    "fallback_lon": 144.5,
+    "fallback_zoom": 5
+  }
+}

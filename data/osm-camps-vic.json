@@ -1,7 +1,7 @@
 {
  "attribution": "© OpenStreetMap contributors, ODbL 1.0 (openstreetmap.org/copyright)",
- "count": 1327,
- "generated": "2026-10-26T19:18:58Z",
+ "count": 1326,
+ "generated": "2026-11-02T19:22:04Z",
  "sites": [
   {
    "name": "1 Wild Cherry Camp",
@@ -7218,7 +7218,7 @@
    "toilets": "yes (Envirodome composting)",
    "phone": "",
    "email": "",
-   "website": "https://www.wintonwetlands.org.au/camping",
+   "website": "https://wintonwetlands.org.au/camping/",
    "operator": "Winton Wetlands Committee of Management",
    "label": "check with operator",
    "needs_review": false,
@@ -10489,7 +10489,7 @@
    "toilets": "yes",
    "phone": "0448 276 631",
    "email": "charltoncaravanpark@gmail.com",
-   "website": "https://www.charltoncaravanpark.com.au",
+   "website": "https://charltoncaravanpark.com.au/",
    "operator": "Charlton Caravan Park",
    "label": "check with operator",
    "needs_review": true,
@@ -10957,10 +10957,13 @@
    "website": "",
    "operator": "Parks Victoria",
    "label": "check with operator",
-   "needs_review": false,
+   "needs_review": true,
    "lat": -36.646972,
    "lon": 145.033112,
-   "osm_id": "n1808391865"
+   "osm_id": "n1808391865",
+   "source_note": "Visitor report 29 Oct 2026: fallen tree blocking the south end of Greens Road, reported as down for about a week. Not confirmed by Parks Victoria; the Parks Victoria Whroo page and changes of conditions showed no closure on 30 Oct 2026.",
+   "description": "Visitor report 29 Oct 2026: fallen tree blocking the south end of Greens Road, reported as down for about a week. Not confirmed by Parks Victoria.",
+   "checked_date": "2026-10-30"
   },
   {
    "name": "Greens Lake Camping Area",
@@ -12452,7 +12455,7 @@
    "toilets": "yes",
    "phone": "(03) 5261 2932",
    "email": "",
-   "website": "https://www.janjucpark.com.au/",
+   "website": "https://janjucpark.com.au/",
    "operator": "Jan Juc Park Pty. Ltd.",
    "label": "check with operator",
    "needs_review": false,
@@ -12460,7 +12463,7 @@
    "lon": 144.291471,
    "osm_id": "w189986731",
    "fee_type": "paid",
-   "source_url": "https://www.janjucpark.com.au/",
+   "source_url": "https://janjucpark.com.au/",
    "description": "Holiday park at Jan Juc with cabins and powered and unpowered camping, toilets, hot showers, a pool and laundry. A paid park with a no-dogs policy.",
    "checked_date": "2026-10-18"
   },
@@ -13907,7 +13910,8 @@
     "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/mount-buffalo-national-park/where-to-stay/lake-catani-campground",
     "wording": "Lake Catani Campground is CLOSED for all camping from August 31st until October 30th 2026.",
     "until": "2026-10-30",
-    "checked_date": "2026-10-26"
+    "reopen": "2026-10-31",
+    "checked_date": "2026-10-30"
    }
   },
   {
@@ -14373,14 +14377,15 @@
    "website": "",
    "operator": "",
    "label": "call first",
-   "needs_review": false,
+   "needs_review": true,
    "lat": -38.267651,
    "lon": 145.561158,
    "osm_id": "w464508758",
    "fee_type": "paid",
    "description": "Showgrounds near the Lang Lang town centre; low-cost unpowered camping offered for events only.",
-   "source_url": "https://outdoors.cardinia.vic.gov.au/places/lang-lang-showgrounds/",
-   "checked_date": "2026-10-16"
+   "source_url": "https://langlang.org.au/",
+   "source_note": "The Cardinia Outdoors page now redirects to a 404 and the council has no replacement page. The showgrounds are managed by the Lang Lang Pastoral, Agricultural and Horticultural Society (LLPA&H). Event-only camping is from the old council page.",
+   "checked_date": "2026-11-02"
   },
   {
    "name": "Langfords West Campground",
@@ -16204,6 +16209,11 @@
    "lat": -36.097311,
    "lon": 146.217923,
    "category": "free",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/warby-ovens-national-park/things-to-do/camping",
+    "wording": "Mcquades Bend: areas temporarily closed due to flood damage. McQuade's Bend Track is temporarily closed until repairs can be carried out.",
+    "checked_date": "2026-11-01"
+   },
    "osm_id": "new:mcquades-bend-warby-ovens-national-park"
   },
   {
@@ -18155,7 +18165,7 @@
    "toilets": "unknown",
    "phone": "",
    "email": "",
-   "website": "https://www.wintonwetlands.org.au/camping",
+   "website": "https://wintonwetlands.org.au/camping/",
    "operator": "Winton Wetlands Committee of Management",
    "label": "check with operator",
    "needs_review": false,
@@ -18651,7 +18661,8 @@
     "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/greater-bendigo-national-park/where-to-stay/notley-campground-and-picnic-area",
     "wording": "Notley Camping & Picnic Area - closed for upgrades",
     "until": "2026-10-30",
-    "checked_date": "2026-10-26"
+    "reopen": "2026-10-31",
+    "checked_date": "2026-10-30"
    }
   },
   {
@@ -19113,9 +19124,15 @@
    "osm_id": "n1808392043",
    "fee_type": "free",
    "potable_water": "no (bring your own)",
-   "source_note": "PV Paddys Ranges SP page: basic campground with picnic tables and a toilet block; camping is free; designated campground only; no drinking water; dogs not allowed. Page also says Paddy's Ranges Campground is closed for upgrades (dates not shown) - check before going.",
+   "source_note": "PV Paddys Ranges SP page: basic campground with picnic tables and a toilet block; camping is free; designated campground only; no drinking water; dogs not allowed. Page and PV changes of conditions (checked 30 Oct 2026) say Paddy's Ranges Campground is closed for upgrades from Wednesday 9 September 2026 until Monday 30 November 2026.",
    "description": "Basic campground in Paddys Ranges State Park near Maryborough with picnic tables and a toilet block. Free; no drinking water; no dogs. Parks Victoria lists the campground as closed for upgrades, so check before you go.",
-   "checked_date": "2026-10-19"
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park",
+    "wording": "Closed For Upgrades - Paddy's Ranges Campground: closed from Wednesday 09/09/2026 until Monday 30/11/2026 while works are undertaken for campground improvements",
+    "until": "2026-11-30",
+    "checked_date": "2026-10-30"
+   },
+   "checked_date": "2026-10-30"
   },
   {
    "name": "Paradise Beach Campground",
@@ -21040,7 +21057,12 @@
    "potable_water": "no (bring your own)",
    "source_note": "PV Lake Tyers camping page: no fees or bookings; self-sufficient, bring firewood and drinking water; Pettmans is the only site with toilets, all other sites have no facilities; dogs allowed on a leash; no camping within 20 m of the water.",
    "description": "Reedy Arm No. 2: lakeside bush camp in Lake Tyers State Park. Free, no bookings, no facilities, so bring water and your own toilet. Dogs on a leash. Camp at least 20 m from the water.",
-   "checked_date": "2026-10-19"
+   "checked_date": "2026-10-19",
+   "closed_override": {
+    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/lake-tyers-state-park/things-to-do/camping",
+    "wording": "Track closures in Lake Tyers State Park: Cameron's arm number 2, Morass Break Track, Reedy Arm Number 1 and 2 and Happy Valley Track have been closed due to the impact of severe weather.",
+    "checked_date": "2026-11-01"
+   }
   },
   {
    "name": "Reedy Swamp Camping Area 1 (Lower Goulburn National Park, Goulburn River Heritage River)",
@@ -23011,7 +23033,7 @@
    "toilets": "yes",
    "phone": "",
    "email": "",
-   "website": "https://www.parks.vic.gov.au/places-to-see/sites/slaty-creek-camping-area-no-1",
+   "website": "https://www.parks.vic.gov.au/places-to-see/parks/creswick-regional-park",
    "operator": "Parks Victoria",
    "label": "check with operator",
    "needs_review": true,
@@ -23448,7 +23470,7 @@
    "osm_id": "n1808394557",
    "fee_type": "free",
    "description": "Council open space on the Nariel Creek at Staceys Bridge listed for fishing, camping and wood BBQs.",
-   "source_url": "https://www.towong.vic.gov.au/2-residents/recreation-and-facilities/parks-playgrounds-and-open-spaces",
+   "source_url": "https://www.towong.vic.gov.au/residents/recreation-and-facilities/parks-playgrounds-and-open-spaces",
    "checked_date": "2026-10-16"
   },
   {
@@ -23963,7 +23985,7 @@
    "toilets": "unknown",
    "phone": "",
    "email": "",
-   "website": "https://www.towong.vic.gov.au/4-visitors/public-dumping-points",
+   "website": "https://www.towong.vic.gov.au/visitors/public-dumping-points",
    "operator": "",
    "label": "call first",
    "needs_review": true,
@@ -23971,7 +23993,7 @@
    "lon": 147.167767,
    "osm_id": "w299167293",
    "description": "Tallangatta showgrounds has a public dump point near the front gate (Coorilla and Werama Sts). Camping not confirmed: call first.",
-   "source_url": "https://www.towong.vic.gov.au/4-visitors/public-dumping-points",
+   "source_url": "https://www.towong.vic.gov.au/visitors/public-dumping-points",
    "checked_date": "2026-10-16"
   },
   {
@@ -24266,7 +24288,7 @@
    "max_nights": "",
    "dogs": "no",
    "dump_point": "unknown",
-   "showers": "yes",
+   "showers": "no (cubicle for your own portable shower)",
    "toilets": "yes",
    "phone": "13 1963",
    "email": "",
@@ -24278,9 +24300,9 @@
    "lon": 143.262561,
    "osm_id": "n316598509",
    "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-camping-area",
-   "checked_date": "2026-10-17",
+   "checked_date": "2026-11-02",
    "fee_type": "free",
-   "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Facilities noted: toilets, fire pits.",
+   "description": "Camping area in Kara Kara National Park, managed by Parks Victoria. Flushing toilets and a cubicle to hang your own portable shower. Wood-fired barbecues; firewood collection in the park is prohibited.",
    "closed_override": {
     "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/teddington-camping-area",
     "wording": "Upper Teddington Reservoir - closed for maintenance",
@@ -24537,8 +24559,9 @@
    "lat": -35.841917,
    "lon": 145.151625,
    "osm_id": "n7650872822",
-   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-gulf-camping-area",
-   "checked_date": "2026-10-17",
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/barmah-national-park",
+   "source_note": "The old the-gulf-camping-area page is 404. Parks Vic now has separate pages for The Gulf Camping Areas 1 to 4, and their numbering does not match the OSM points, so this one links to the park page until it is matched.",
+   "checked_date": "2026-11-02",
    "description": "Bush camping area in Barmah National Park, managed by Parks Victoria."
   },
   {
@@ -25532,26 +25555,6 @@
    "description": "Beachfront park at Torquay Back Beach run by the Great Ocean Road Coast and Parks Authority; camp kitchen and BBQ area; dogs on set sites in the cooler months.",
    "source_url": "https://greatoceanroadparks.com.au/find-a-park/torquay",
    "checked_date": "2026-10-16"
-  },
-  {
-   "name": "Towong Reserve",
-   "category": "free",
-   "suits": "tent|caravan",
-   "self_contained_only": "unknown",
-   "max_nights": "",
-   "dogs": "unknown",
-   "dump_point": "unknown",
-   "showers": "unknown",
-   "toilets": "unknown",
-   "phone": "",
-   "email": "",
-   "website": "",
-   "operator": "Snowy Valleys Council",
-   "label": "check with operator",
-   "needs_review": false,
-   "lat": -36.123575,
-   "lon": 147.997581,
-   "osm_id": "n1811199421"
   },
   {
    "name": "Track 1 Loch Gary Camping Area (Lower Goulburn National Park, Goulburn River Heritage River)",
@@ -27470,7 +27473,7 @@
    "toilets": "unknown",
    "phone": "",
    "email": "",
-   "website": "https://www.wintonwetlands.org.au/camping",
+   "website": "https://wintonwetlands.org.au/camping/",
    "operator": "Winton Wetlands Committee of Management",
    "label": "check with operator",
    "needs_review": false,

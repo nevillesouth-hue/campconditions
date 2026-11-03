@@ -30,8 +30,8 @@ function sameHex(a, b) {
   return diff === 0;
 }
 
-export const STATE_ORDER = ["vic", "nsw"];
-const STATE_LABELS = { vic: "Victoria", nsw: "New South Wales" };
+export const STATE_ORDER = ["vic", "nsw", "qld"];
+const STATE_LABELS = { vic: "Victoria", nsw: "New South Wales", qld: "Queensland" };
 
 export function chosenStates(raw) {
   const list = Array.isArray(raw) ? raw : String(raw == null ? "" : raw).split(/[,\s]+/);

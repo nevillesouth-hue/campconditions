@@ -4,7 +4,7 @@
 // A valid token marks the Resend contact unsubscribed and removes it from RESEND_SEGMENT_ID.
 import { signupsReady, unsubscribeTokenMatches } from "../_lib/token.js";
 import { sitePage } from "../_lib/page.js";
-import { segmentPath } from "./confirm.js";
+import { segmentPath, qldSegmentId } from "./confirm.js";
 
 function failureMessage(result) {
   const name = String(result?.data?.name || "");
@@ -29,13 +29,16 @@ async function resend(env, path, method, body, doFetch) {
 
 // Mark the contact unsubscribed and remove them from the digest segment.
 // 404 on either call means that step is already done.
-// RESEND_SEGMENT_NSW_ID is optional. When it is set, that segment is removed too.
+// RESEND_SEGMENT_NSW_ID is optional. When it is set, that segment is removed too. The Queensland segment is always removed.
 export async function unsubscribeContact(env, email, doFetch = fetch) {
   const patched = await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { unsubscribed: true }, doFetch);
   const removed = await resend(env, segmentPath(email, env.RESEND_SEGMENT_ID), "DELETE", undefined, doFetch);
   const nswId = String(env.RESEND_SEGMENT_NSW_ID || "").trim();
   const removedNsw = nswId ? await resend(env, segmentPath(email, nswId), "DELETE", undefined, doFetch) : null;
   if (removedNsw && !removedNsw.ok && removedNsw.status !== 404) return removedNsw;
+  const qldId = qldSegmentId(env);
+  const removedQld = qldId ? await resend(env, segmentPath(email, qldId), "DELETE", undefined, doFetch) : null;
+  if (removedQld && !removedQld.ok && removedQld.status !== 404) return removedQld;
   if (patched.ok || removed.ok || (patched.status === 404 && removed.status === 404)) return { ok: true, status: 200, data: {} };
   return patched.ok ? removed : patched;
 }

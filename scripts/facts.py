@@ -82,10 +82,31 @@ def nights_from(value):
     return number if 0 < number <= 365 else None
 
 
+_STAY_UNITS = r"(?:nights?|days?|weeks?|months?|hours?|hrs?)"
+
+
+def tidy_stay(raw):
+    """Tidy free-text max stays: no wrapping quote marks, lower-case units,
+    "w/out" spelled out, and a bare leading number gets "night(s)"
+    ("21 (35 in peak)" -> "21 nights (35 in peak)")."""
+    text = str(raw or "").strip()
+    text = re.sub(r'^["\u201c\u2018\']+|["\u201d\u2019\']+$', "", text).strip()
+    text = re.sub(r"\b(Nights?|Days?|Weeks?|Months?|Hours?)\b", lambda m: m.group(1).lower(), text)
+    text = re.sub(r"\bw/out\b", "without", text, flags=re.I)
+    if text.isdigit() or re.fullmatch(r"\d+\s*\(\d+\s*hours?\)", text, re.I):
+        return text
+    bare = re.match(r"^(\d+)(?=\s*\(|\s+(?!" + _STAY_UNITS + r"\b|consecutive\b|x\b|-|to\b|or\b|and\b)[a-z])", text, re.I)
+    if bare:
+        number = int(bare.group(1))
+        text = f"{number} night{'' if number == 1 else 's'}" + text[bare.end():]
+    return text
+
+
 def stay_label(value, nights=None):
     raw = scrub_money(value)
     if not raw or raw.lower() == "unknown":
         raw = ""
+    raw = tidy_stay(raw)
     if raw.isdigit():
         number = int(raw)
         return f"{number} night" if number == 1 else f"{number} nights"

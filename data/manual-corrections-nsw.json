@@ -714,7 +714,7 @@
  },
  "w97173128": {
   "name": "Bendeela Recreation Area",
-  "category": "park_campground",
+  "category": "free",
   "operator": "WaterNSW",
   "fee_note": "book_ahead",
   "booking": "required: all campers must have a valid booking",
@@ -722,12 +722,16 @@
   "toilets": "yes",
   "dump_point": "yes (portable toilet)",
   "suits": "tent|caravan",
-  "website": "https://www.waternsw.com.au/supply/visit/bendeela-recreational-area",
+  "website": "https://www.waternsw.com.au/nsw-dams/greater-sydney-dams/bendeela-recreation-area",
   "description": "WaterNSW camping and recreation area on the Kangaroo River (Lake Yarrunga), about 150 km south of Sydney. All campers must hold a valid booking. Front camping area open 24 hours; rear camping area open to vehicles in Christmas, Easter and spring school holidays and Friday noon to Sunday 4pm, October to March. Drinking water, toilets, portable-toilet dump point. May close during high rainfall.",
-  "source_url": "https://www.waternsw.com.au/supply/visit/bendeela-recreational-area",
-  "source_note": "OSM says reservation=no; WaterNSW now requires bookings. Fee not stated on the page.",
+  "source_url": "https://www.waternsw.com.au/nsw-dams/greater-sydney-dams/bendeela-recreation-area",
+  "source_note": "WaterNSW: free recreation area; all campers must have a valid booking; each site booking is for up to six people for a maximum of seven consecutive days (OSM maxstay of 50 days not supported). No dogs or pets, no wood fires. Recreation areas at WaterNSW dams close on all Total Fire Ban days.",
   "needs_review": false,
-  "checked_date": "2026-10-29"
+  "checked_date": "2026-11-04",
+  "fee_type": "free",
+  "max_nights": "7 days",
+  "dogs": "no",
+  "fires": "no (gas barbecues only; none on total fire ban days)"
  },
  "n1811179341": {
   "category": "rest_area",

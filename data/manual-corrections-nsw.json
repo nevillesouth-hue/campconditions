@@ -4492,5 +4492,589 @@
   "source_note": "Matches TfNSW 'Bredbo Centennial Park' (Council, 0.20 km). No overnight rule.",
   "needs_review": true,
   "checked_date": "2026-11-01"
+ },
+ "n1811159471": {
+  "name": "Araluen Creek Campground",
+  "category": "free",
+  "operator": "Queanbeyan-Palerang Regional Council",
+  "fee_type": "free",
+  "booking": "no",
+  "dogs": "yes",
+  "toilets": "yes",
+  "email": "council@qprc.nsw.gov.au",
+  "description": "Free overnight camping under casuarinas beside Araluen Creek; gold panning in the creek. Upgraded in 2022 with a water tank and solar pump, amenities block with solar lighting, solar BBQ and picnic tables. Pet-friendly; no pre-booking.",
+  "source_url": "https://www.queanbeyanpalerang.com.au/stay/araluen-creek-campground/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n12646033638": {
+  "name": "Braidwood Showground",
+  "category": "showground",
+  "operator": "Braidwood Showground (via Braidwood Colonial Motel)",
+  "fee_type": "paid",
+  "fee_note": "$25 (council tourism listing)",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes (on lead)",
+  "phone": "0412 889 507",
+  "email": "office@bwdcolonialmotel.com.au",
+  "description": "Powered and unpowered sites at 6247 Kings Hwy, Braidwood, for tents, caravans, camper trailers and motorhomes; drive-through sites. Showers and toilets; on-lead pets welcome. Dump point nearby in Monkittee St. Contact the Colonial Motel for availability and access.",
+  "source_url": "https://www.queanbeyanpalerang.com.au/stay/braidwood-showground-caravans-and-camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w374539053": {
+  "name": "Bungendore Showground",
+  "category": "showground",
+  "operator": "Bungendore Showground Crown Reserve",
+  "fee_type": "paid",
+  "fee_note": "powered $30, unpowered $20 a night (2 adults, 2 children); extra $5 per person over 5 a night",
+  "max_nights": "7",
+  "showers": "yes (hot)",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "dogs": "yes (under control)",
+  "fires": "yes (in braziers/drums only, not in fire danger period)",
+  "phone": "0455 174 463",
+  "booking": "yes (phone ahead)",
+  "description": "Large grassed, shaded camping area 3 km west of Bungendore for tents to large rigs. Hot showers and toilets 24 hours, dump point. Casual camping most of the year but limited during major events. Maximum stay 7 nights.",
+  "source_url": "https://bungendoreshowground.com.au/camping-and-caravanning/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n3780223749": {
+  "name": "Wilkins Memorial Park",
+  "category": "free",
+  "operator": "Captains Flat Area Section 355 Committee (for QPRC)",
+  "fee_type": "donation",
+  "fee_note": "no set fee; donations welcome",
+  "showers": "yes",
+  "toilets": "yes",
+  "potable_water": "yes",
+  "dogs": "yes (on leash)",
+  "fires": "no",
+  "description": "Camping at Wilkins Memorial Park, Captains Flat, in the marked areas (not on the football field). Toilets and showers; drinking water on site and tank refill in the carpark. Generators 8am-8pm only. No comfort fires. Donations via the Men's Shed mailbox or direct deposit.",
+  "source_url": "https://captainsflat.org.au/camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n1811184910": {
+  "name": "Majors Creek Recreation Reserve",
+  "category": "free",
+  "operator": "Majors Creek Recreation Reserve Land Manager",
+  "fee_type": "donation",
+  "fee_note": "small donation requested (donation box behind the sheltered picnic area)",
+  "toilets": "yes",
+  "showers": "no",
+  "potable_water": "yes",
+  "description": "Overnight camping at the recreation reserve in Hill St, Majors Creek: 100+ sites for tents and campervans, toilet block (no showers), tank water, BBQ, picnic tables, playground and tennis courts. No power.",
+  "source_url": "https://recreationreserve.majorscreek.org.au/general-information/camping/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w13867474": {
+  "category": "rest_area",
+  "operator": "Queanbeyan-Palerang Regional Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Warri Shoalhaven River Rest Area Westbound' (Council, 0.11 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
+ },
+ "n4333617439": {
+  "name": "Billy Grace Reserve",
+  "category": "council_park",
+  "operator": "Reflections Holiday Parks",
+  "booking": "yes",
+  "showers": "yes (hot)",
+  "toilets": "yes (flush)",
+  "dump_point": "yes",
+  "dogs": "yes",
+  "description": "Largest of the Wee Jasper reserves, on the Goodradigbee River at Wee Jasper Creek: reception and kiosk, hot showers, flush toilets, playground, BBQ area, picnic tables, dump point. Unpowered, unmarked sites suit large vans. Dog-friendly. Bookings via Reflections (1 vehicle per booking).",
+  "source_url": "https://reflectionsholidays.com.au/parks/wee-jasper/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n1811186696": {
+  "name": "Micalong Creek Reserve",
+  "category": "council_park",
+  "operator": "Reflections Holiday Parks",
+  "booking": "yes",
+  "showers": "yes (hot)",
+  "toilets": "yes (flush and drop)",
+  "dogs": "yes",
+  "description": "Wee Jasper reserve on Micalong Creek with large flat shaded sites, walking trails and the Micalong swimming hole. Flush and drop toilets, hot showers. Unpowered; dog-friendly; book via Reflections.",
+  "source_url": "https://reflectionsholidays.com.au/parks/wee-jasper/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n1811197121": {
+  "name": "Swinging Bridge Reserve",
+  "category": "council_park",
+  "operator": "Reflections Holiday Parks",
+  "booking": "yes",
+  "showers": "no",
+  "toilets": "yes (flush)",
+  "dogs": "yes",
+  "description": "Smallest Wee Jasper reserve, 3 km from Billy Grace on the Goodradigbee River; flat sites for tents, caravans and motorhomes. Flush toilets, no showers. Unpowered; dog-friendly; book via Reflections.",
+  "source_url": "https://reflectionsholidays.com.au/parks/wee-jasper/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w475972619": {
+  "exclude": true,
+  "exclude_reason": "Operator (Reflections Wee Jasper) states camping is now prohibited at Carey's Reserve; day use and launching of vessels only.",
+  "source_url": "https://reflectionsholidays.com.au/parks/wee-jasper/",
+  "checked_date": "2026-11-02"
+ },
+ "w87323612": {
+  "name": "Yass Caravan Park",
+  "category": "council_park",
+  "operator": "Yass Valley Council",
+  "fee_type": "paid",
+  "dogs": "yes (not in cabins)",
+  "phone": "02 6226 1173",
+  "description": "Caravan park at the corner of Laidlaw and Grampian Sts on the northern side of Yass, 5 minutes off the Hume Hwy: cabins, camping sites and drive-through caravan sites. BBQ and laundry. Pets allowed with your own van or tent.",
+  "source_url": "https://www.yassvalley.com.au/stay/caravan-camping-and-holiday-parks/yass-caravan-park/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w87560677": {
+  "name": "Yass Showground",
+  "category": "showground",
+  "operator": "Yass Show Society",
+  "fee_type": "paid",
+  "fee_note": "$25 a night flat fee incl. power and showers (from Jan 2025)",
+  "max_nights": "20",
+  "booking": "yes (Trybooking)",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "yes (on lead)",
+  "phone": "02 6226 1615",
+  "description": "Short-term (under 21 days) camping at Yass Showground; $25 flat fee includes power and showers. Book via Trybooking. Closed for the Yass Show (March), Swap Meet (April) and Rodeo (November).",
+  "source_url": "https://www.yassshow.org.au/camping",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n1811179321": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Jeir Truck Parking Bay Northbound' (TfNSW, Barton Hwy, 30 km from Canberra and  27 km to near Yass): parking area heavy rest areas with tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
+ },
+ "w683036902": {
+  "name": "Barbour Park Rest Area",
+  "category": "free",
+  "operator": "Upper Lachlan Shire Council",
+  "fee_type": "free",
+  "max_nights": "2",
+  "showers": "yes (hot)",
+  "toilets": "yes",
+  "potable_water": "yes",
+  "dump_point": "yes (across the street)",
+  "phone": "02 4832 1988",
+  "description": "Free camping in Yass St, Gunning, beside Meadow Creek for up to 48 hours (fully self-contained vehicles per the RV Friendly Town page). Hot showers, toilets, free BBQs, playground and shade; short walk to the main street.",
+  "source_url": "https://www.visitupperlachlan.com.au/stay/caravan-camping-and-holiday-parks/barbour-park-rest-area/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n4069481263": {
+  "name": "Crookwell Caravan Park",
+  "category": "council_park",
+  "operator": "Upper Lachlan Shire Council",
+  "fee_type": "paid",
+  "toilets": "yes",
+  "dogs": "yes",
+  "description": "Council caravan park in Laggan Rd, Crookwell: seating and tables, BBQ, communal kitchen, toilets and laundry. Pet friendly.",
+  "source_url": "https://upperlachlan.nsw.gov.au/community/venues/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n12616860372": {
+  "category": "rest_area",
+  "operator": "Upper Lachlan Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Binda Rest Area' (Council, 0.15 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
+ },
+ "n1811200194": {
+  "category": "rest_area",
+  "operator": "Upper Lachlan Shire Council",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches TfNSW 'Tuena Picnic Area' (Council, 0.17 km). No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
+ },
+ "w661289901": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n1811200194 Tuena Recreation Camping Reserve (recreation ground area outline).",
+  "checked_date": "2026-11-02"
+ },
+ "n337208220": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a toilet block (amenity=toilets) at Gunning Showground; the camp area is w683036898.",
+  "checked_date": "2026-11-02"
+ },
+ "n11413533230": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a toilet block (amenity=toilets) at Taralga Showground.",
+  "checked_date": "2026-11-02"
+ },
+ "n11413533231": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a toilet block (amenity=toilets) at Taralga Showground.",
+  "checked_date": "2026-11-02"
+ },
+ "w237644217": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of n1811197153 Taralga Showgrounds (showground area outline).",
+  "checked_date": "2026-11-02"
+ },
+ "w171005300": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a road (highway=service) named Showground Lane.",
+  "checked_date": "2026-11-02"
+ },
+ "w1320516353": {
+  "name": "Goulburn Recreation Area",
+  "category": "showground",
+  "operator": "Goulburn Mulwaree Council",
+  "fee_type": "paid",
+  "fee_note": "2025/26 council fees: powered $40, non-powered $30 per site per night; 30% off for 10+ sites; check current schedule",
+  "email": "council@goulburn.nsw.gov.au",
+  "description": "Goulburn Recreation Area and Showground, managed by council as trustee; camping fees are in the council fees and charges schedule. Dogs on lead.",
+  "source_url": "https://www.goulburn.nsw.gov.au/files/sharedassets/public/v/1/finance-ipampr-docs/fees-and-charges-2025-2026.pdf",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w1348652085": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Dalys Clearing, 5 km west of the Hume Hwy via Bunnygalore Rd in Belanglo State Forest: a good level camp spot surrounded by pines, also a picnic area.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/belanglo-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w395053759": {
+  "operator": "Forestry Corporation of NSW",
+  "category": "free",
+  "description": "Wingello Forest campground 4 km south-east of Wingello village among radiata pines; recreation area with nature playground, picnic facilities, toilets and mountain bike trail access. Check solid fuel fire bans.",
+  "source_url": "https://www.forestrycorporation.com.au/visit/forests/wingello-state-forest",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w556601494": {
+  "name": "Moss Vale Showground",
+  "category": "showground",
+  "operator": "Moss Vale Show Society",
+  "fee_type": "paid",
+  "fee_note": "$35 per night",
+  "booking": "yes (caretaker)",
+  "showers": "yes (hot)",
+  "toilets": "yes",
+  "dump_point": "yes",
+  "dogs": "yes",
+  "phone": "0474 186 458",
+  "email": "mvsgc16@gmail.com",
+  "description": "12 grassed sites (about half shaded) for tents to large motorhomes; toilets, hot showers and on-site dump point. Pet-friendly. Short stay (length set by the caretaker). Book with the caretaker.",
+  "source_url": "https://www.visitsouthernhighlands.com.au/operator/moss-vale-showground/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w441086889": {
+  "name": "Mittagong Holiday Park",
+  "category": "council_park",
+  "operator": "Mittagong Holiday Park",
+  "fee_type": "paid",
+  "booking": "yes",
+  "dump_point": "yes",
+  "dogs": "yes (conditions apply)",
+  "description": "Holiday park a short walk from Mittagong town centre with powered caravan sites and cabins. Camp kitchen, laundry, BBQs, BYO fire pit, playground, car wash bay, dump point and free wifi. Pet friendly (conditions).",
+  "source_url": "https://www.mittagongholidaypark.com.au/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n7137602551": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches (0.26 km away) 'Sutton Forrest Stopping Bay Northbound' (TfNSW, Hume Hwy, 31 km south of Mittagong): informal heavy rest areas with no toilets listed. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
+ },
+ "w764293912": {
+  "category": "rest_area",
+  "operator": "Transport for NSW",
+  "source_url": "https://opendata.transport.nsw.gov.au/data/dataset/nsw-rest-areas",
+  "source_note": "Matches 'Mackey VC Rest Area' (TfNSW, Hume Hwy, 26 km south of Mittagong): light vehicle only rest area with toilets, shelter and tables. No overnight rule.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
+ },
+ "n12208691371": {
+  "name": "Warragamba RV Short Stay Site",
+  "category": "free",
+  "operator": "Wollondilly Shire Council",
+  "fee_type": "free",
+  "max_nights": "2",
+  "booking": "no",
+  "toilets": "yes (locked at night)",
+  "potable_water": "yes",
+  "dump_point": "yes",
+  "phone": "02 4677 1100",
+  "email": "council@wollondilly.nsw.gov.au",
+  "description": "Free 48-hour parking for self-contained RVs (max 12.5 m) in Farnsworth Ave, Warragamba, near shops and Warragamba Dam. Boom gate open sunrise to sunset; after hours use the intercom to council's after-hours service. Toilets, free BBQs, potable water and free dump point.",
+  "source_url": "https://www.visitwollondilly.com.au/stay/caravan-and-camping/warragamba-rv-short-stay-site/",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n3896719213": {
+  "name": "Blackheath Glen Reserve",
+  "category": "free",
+  "operator": "Blue Mountains City Council",
+  "fee_type": "free",
+  "max_nights": "10",
+  "potable_water": "no",
+  "description": "Council campground 6 km from Blackheath on Megalong Valley Rd, beside a creek, with picnic tables. No water: bring washing and drinking water. Bring a gas or fuel stove; firewood must be bought (no collecting). Maximum stay 10 days.",
+  "source_url": "https://www.bmcc.nsw.gov.au/camping",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n1811190996": {
+  "name": "Old Ford Reserve",
+  "category": "free",
+  "operator": "Blue Mountains City Council",
+  "fee_type": "free",
+  "max_nights": "10",
+  "potable_water": "no",
+  "description": "Council campground about 15 km from Blackheath on Megalong Valley Rd, beside a river, with picnic tables. No water: bring your own. Gas or fuel stove; buy firewood (no collecting). Maximum stay 10 days.",
+  "source_url": "https://www.bmcc.nsw.gov.au/camping",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n3796302022": {
+  "name": "Mt York Campground",
+  "category": "free",
+  "operator": "Blue Mountains City Council",
+  "fee_type": "free",
+  "max_nights": "4",
+  "potable_water": "no",
+  "description": "Small council camping area (limited sites, tents) at the end of Mt York Rd, 5 km from Mt Victoria; popular climbing area with historic roads. No water. Maximum stay 4 days.",
+  "source_url": "https://www.bmcc.nsw.gov.au/camping",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w271446759": {
+  "name": "Katoomba Falls Tourist Park",
+  "category": "council_park",
+  "operator": "Blue Mountains City Council (Blue Mountains Tourist Parks)",
+  "fee_type": "paid",
+  "booking": "yes",
+  "description": "Council tourist park on Cliff Drive, 2 km south of Katoomba station: self-contained cabins, powered sites and non-powered camping sites. Book via the Blue Mountains Tourist Parks website.",
+  "source_url": "https://www.bmcc.nsw.gov.au/camping",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "w273631457": {
+  "category": "free",
+  "operator": "Blue Mountains City Council",
+  "source_url": "https://www.bmcc.nsw.gov.au/camping",
+  "source_note": "Council campground (Cathedral Ferns Reserve, Mt Wilson) is temporarily closed: Mt Wilson Rd closed to general traffic from 3 Apr 2026, so not accessible for camping.",
+  "needs_review": true,
+  "checked_date": "2026-11-02"
+ },
+ "w565282867": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a road (highway=service) named Showground Lane.",
+  "checked_date": "2026-11-02"
+ },
+ "w56721560": {
+  "exclude": true,
+  "exclude_reason": "Duplicate of w39360740 Katoomba Showground (oval area outline).",
+  "checked_date": "2026-11-02"
+ },
+ "w1125966259": {
+  "name": "Upper Colo Reserve",
+  "category": "council_park",
+  "operator": "Hawkesbury City Council",
+  "fee_type": "paid",
+  "fee_note": "fees paid in advance on booking",
+  "booking": "yes",
+  "toilets": "yes (basic)",
+  "showers": "yes (bore water)",
+  "potable_water": "no",
+  "dogs": "yes (on leash)",
+  "fires": "yes (own fire pit only; check fire danger)",
+  "phone": "(02) 4560 4444",
+  "description": "Basic bookable camping on the Colo River at Hulbert Rd, Upper Colo. Communal gas BBQ and picnic shelter, basic toilets and bore water showers; bring drinking water. 2WD access; campervans and small trailers but not caravans. Family friendly, no parties. Flood-affected area; limited phone coverage.",
+  "source_url": "https://www.hawkesbury.nsw.gov.au/your-spaces/book-a-space/camping/upper-colo-reserve",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n4333395930": {
+  "exclude": true,
+  "exclude_reason": "Not a public camp: operator (Hawkesbury District Agricultural Association) says the showground camping area is for use during events only, no casual camping.",
+  "source_url": "https://hawkesburyshowground.com.au/venue/buildings-facilities",
+  "checked_date": "2026-11-02"
+ },
+ "n2300867798": {
+  "name": "Wallacia Caravan Park (Blaxland Crossing)",
+  "category": "council_park",
+  "operator": "Wallacia Caravan Park",
+  "fee_type": "paid",
+  "showers": "yes",
+  "toilets": "yes",
+  "dogs": "at manager's discretion",
+  "phone": "02 4773 8077",
+  "description": "Small caravan park at 2 Alwyn Ave, Wallacia, backing onto the Nepean River (Blaxland Crossing reserve). Six visitor sites for vehicle-based camping only (no tents); shelter sheds, coin laundry, showers and toilets; no camp kitchen. On-site manager.",
+  "source_url": "https://www.visitpenrith.com.au/places-to-stay/camping-holiday-parks/wallacia-caravan-park",
+  "needs_review": false,
+  "checked_date": "2026-11-02"
+ },
+ "n2433654131": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n8013559605": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n8013559644": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n7099609408": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2432219449": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2432219443": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n8013559673": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2433654126": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2432232249": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2458959858": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2433654125": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2429903395": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n8013550355": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2429957255": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2432219455": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2458959859": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2429957243": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2404616876": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n8013559637": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n601479976": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n2802939828": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n3016615212": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a metro station stop position (railway=stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n12839135981": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is bicycle parking (amenity=bicycle_parking).",
+  "checked_date": "2026-11-02"
+ },
+ "w646291759": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a commuter car park (amenity=parking, parking=multi-storey).",
+  "checked_date": "2026-11-02"
+ },
+ "w692526646": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a cycleway (highway=cycleway).",
+  "checked_date": "2026-11-02"
+ },
+ "n12303159998": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "n12323264166": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a bus stop (highway=bus_stop).",
+  "checked_date": "2026-11-02"
+ },
+ "w42307030": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a playground (leisure=playground).",
+  "checked_date": "2026-11-02"
+ },
+ "n5290746995": {
+  "exclude": true,
+  "exclude_reason": "Not a camp: OSM object is a market place (amenity=marketplace) at Fairfield Showground.",
+  "checked_date": "2026-11-02"
  }
 }

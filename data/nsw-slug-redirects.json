@@ -102,7 +102,14 @@
   "willow-tree-freedom-camp": "willow-tree-recreation-ground",
   "woolbrook-rest-area": "woolbrook",
   "wooldridge-uralla-fossicking-area": "wooldridge-recreation-and-fossicking-reserve",
-  "yarrowyck-crossing": "yarrowyck-crossing-reserve"
+  "yarrowyck-crossing": "yarrowyck-crossing-reserve",
+  "araluen-creek": "araluen-creek-campground",
+  "yass-showgrounds": "yass-showground",
+  "barbour-park-free-caravan-park": "barbour-park-rest-area",
+  "goulburn-recreation-area-and-showground": "goulburn-recreation-area",
+  "moss-vale-showgrounds": "moss-vale-showground",
+  "warragamba-reserve-camp": "warragamba-rv-short-stay-site",
+  "blaxland-crossing-recreation-and-rest-grounds": "wallacia-caravan-park-blaxland-crossing"
  },
  "duplicates": {
   "stroud-showground": "stroud-showground-camping",
@@ -143,7 +150,13 @@
   "weethalle-showground-events": "weethalle-showground-camping",
   "weethalle-showgrounds": "weethalle-showground-camping",
   "west-wyalong-showground": "west-wyalong-showgrounds",
-  "barraba-showground-w493879492": "barraba-showground"
+  "barraba-showground-w493879492": "barraba-showground",
+  "tuena-camping-and-recreation-area": "tuena-recreation-camping-reserve",
+  "taralga-showground": "taralga-showgrounds",
+  "taralga-showground-customers": "taralga-showgrounds",
+  "taralga-showground-disabled": "taralga-showgrounds",
+  "katoomba-showground-oval": "katoomba-showground",
+  "gunning-showground": "gunning-showground-camp-area"
  },
  "excluded_replaced": {
   "bulahdelah-rest-area": "lions-park-bulahdelah"

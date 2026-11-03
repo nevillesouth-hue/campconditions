@@ -424,14 +424,15 @@ for _slug in ("lions-park-numurkah", "numurkah-showgrounds", "lions-rv-park-tung
   _row = next((c for c in feed["camps"] if c.get("slug") == _slug), None)
   if not _row or _row.get("region") != "murray-mallee": bad.append((_slug, "region", _row and _row.get("region")))
 if states.by_slug("vic").get("credit") != CREDIT: bad.append(("states", "credit"))
-if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "enabled"))
-if not states.by_slug("nsw").get("enabled") or not states.by_slug("vic").get("enabled"): bad.append(("states", "flags"))
+if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld"]: bad.append(("states", "enabled"))
+if not all(states.by_slug(_s).get("enabled") for _s in ("vic", "nsw", "qld")): bad.append(("states", "flags"))
 os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
 try:
-  if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "preview enable"))
+  if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld"]: bad.append(("states", "preview enable"))
 finally:
   os.environ.pop("CAMPCONDITIONS_ENABLE", None)
-if [state["slug"] for state in states.enabled()] != ["vic", "nsw"]: bad.append(("states", "enable reset"))
+if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld"]: bad.append(("states", "enable reset"))
+if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in about: bad.append(("credit", "footer or about"))
 if "Department of Energy, Environment and Climate Action" not in about or "Explore Outdoors" not in about or "Recreation Assets" not in about: bad.append(("credit", "explore outdoors"))

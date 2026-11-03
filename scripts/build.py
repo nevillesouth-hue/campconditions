@@ -2880,7 +2880,8 @@ if multi_state:
         if label and label not in seen_types:
             type_labels.append(label)
             seen_types.add(label)
-    names = " and ".join(state["name"] for state in statecfg.enabled())
+    _n = [state["name"] for state in statecfg.enabled()]
+    names = _n[0] if len(_n) == 1 else ", ".join(_n[:-1]) + " and " + _n[-1]
     safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
     browse = '<p>Browse <a href="/vic/">Victoria</a> or <a href="/nsw/">New South Wales</a>.</p>'
     if _qld_enabled():
@@ -3341,7 +3342,8 @@ for state in statecfg.enabled():
 {regions}""")
 bind(primary)
 llms_states = "".join(f"- [{s['name']}]({SITE}/{s['slug']}/)\n" for s in statecfg.enabled())
-state_names = " and ".join(s["name"] for s in statecfg.enabled())
+_sn = [s["name"] for s in statecfg.enabled()]
+state_names = _sn[0] if len(_sn) == 1 else ", ".join(_sn[:-1]) + " and " + _sn[-1]
 open(os.path.join(OUT, "llms.txt"), "w").write(f"""# CampConditions.au
 
 > Campground conditions and closures for {state_names}, Australia, from official sources and OpenStreetMap. Each state is covered on the same terms. Rebuilt several times daily. Not an official warning service.

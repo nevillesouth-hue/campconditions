@@ -140,6 +140,12 @@
    "id": "murray-mallee"
   },
   {
+   "lat_gt": -36.2,
+   "lon_gte": 145.3,
+   "lon_lt": 146.0,
+   "id": "murray-mallee"
+  },
+  {
    "lat_lt": -38.2,
    "lon_lt": 145,
    "id": "otways-surf-coast"

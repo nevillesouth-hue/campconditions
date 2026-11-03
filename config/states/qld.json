@@ -3,7 +3,7 @@
   "name": "Queensland",
   "adjective": "Queensland",
   "abbrev": "QLD",
-  "enabled": false,
+  "enabled": true,
   "digest_signup": false,
   "banner": {
     "covering": "Covering Queensland now",

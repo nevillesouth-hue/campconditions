@@ -594,6 +594,10 @@ def load_osm(seen):
     allowed = set(CAT_LABEL) | set(CAT_LABEL.values())
     for row in rows:
         name = (row.get("name") or "").strip()
+        # OSM names sometimes arrive wrapped in quote marks ('"Hotel Hilton"').
+        quoted = re.fullmatch(r'["\u201c\u2018\'](.+?)["\u201d\u2019\']', name)
+        if quoted:
+            name = quoted.group(1).strip()
         raw_cat = (row.get("category") or "").strip()
         if not name or not re.search(r"[A-Za-z0-9]", name) or raw_cat not in allowed: continue
         s = slug(name)
@@ -2612,7 +2616,7 @@ def tel_href(phone):
 def osm_blocks(c):
     if c.get("category") == "Showground":
         bits = ["<p><strong>Call first.</strong></p>"]
-    elif c.get("category") == PV_LABEL:
+    elif PV_LABEL and c.get("category") == PV_LABEL:
         phone = c.get("phone") or LABELS.get("phone") or ""
         bits = [f'<p><strong>{e(PV_LABEL)}.</strong> {LABELS.get("book_ahead_with") or ""} on <a href="{e(tel_href(phone))}">{e(phone)}</a>.</p>']
     elif c.get("category") == "Pub stay":
@@ -3276,21 +3280,25 @@ def headers_text():
     return "\n".join(parts)
 open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
 def slug_redirect_lines():
-    """301s for NSW camp slugs that changed in correction batches."""
-    path = os.path.join(ROOT, "data", "nsw-slug-redirects.json")
-    if not os.path.isfile(path):
-        return []
-    with open(path, encoding="utf-8") as handle:
-        doc = json.load(handle)
+    """301s for NSW and QLD camp slugs that changed in correction batches."""
     lines = []
-    for group in ("renamed", "duplicates", "excluded_replaced"):
-        for old, new in sorted((doc.get(group) or {}).items()):
-            old_dir = os.path.join(OUT, "nsw", "camp", old)
-            new_dir = os.path.join(OUT, "nsw", "camp", new)
-            if os.path.isdir(old_dir) or not os.path.isfile(os.path.join(new_dir, "index.html")):
-                print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
-                continue
-            lines += [f"/nsw/camp/{old} /nsw/camp/{new}/ 301", f"/nsw/camp/{old}/ /nsw/camp/{new}/ 301"]
+    doc = {}
+    for st in ("nsw", "qld"):
+        path = os.path.join(ROOT, "data", f"{st}-slug-redirects.json")
+        if not os.path.isfile(path) or not os.path.isdir(os.path.join(OUT, st)):
+            continue
+        with open(path, encoding="utf-8") as handle:
+            sdoc = json.load(handle)
+        if st == "nsw":
+            doc = sdoc
+        for group in ("renamed", "duplicates", "excluded_replaced"):
+            for old, new in sorted((sdoc.get(group) or {}).items()):
+                old_dir = os.path.join(OUT, st, "camp", old)
+                new_dir = os.path.join(OUT, st, "camp", new)
+                if os.path.isdir(old_dir) or not os.path.isfile(os.path.join(new_dir, "index.html")):
+                    print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
+                    continue
+                lines += [f"/{st}/camp/{old} /{st}/camp/{new}/ 301", f"/{st}/camp/{old}/ /{st}/camp/{new}/ 301"]
     # Camps that were built under the wrong state: full paths, e.g. "vic/camp/x": "nsw/camp/y".
     for old, new in sorted((doc.get("cross_state") or {}).items()):
         if os.path.isdir(os.path.join(OUT, old)) or not os.path.isfile(os.path.join(OUT, new, "index.html")):

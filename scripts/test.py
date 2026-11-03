@@ -234,7 +234,8 @@ if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
 else:
   priv = open(priv_path, encoding="utf-8").read()
-  for bit in ("Last updated 27 October 2026", "campconditions@outlook.com", "Victoria and New South Wales", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
+  _qld_priv = os.path.isdir(os.path.join(D, "qld"))
+  for bit in ("Last updated 4 November 2026" if _qld_priv else "Last updated 27 October 2026", "campconditions@outlook.com", "Victoria, New South Wales and Queensland" if _qld_priv else "Victoria and New South Wales", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
     if bit not in priv: bad.append(("/privacy/", bit))
 for r, _, fs in os.walk(D):
   if draft_dir(r): continue
@@ -370,6 +371,19 @@ const mockLost = async (url, init) => {
 };
 const kept = await confirmSubscription(envWithSecret, email, mockLost, ["vic"], true);
 if (!kept.ok || !callsLost.some((call) => String(call.url).endsWith("/segments/" + segment))) process.exit(1);
+import { QLD_SEGMENT_ID } from "./functions/api/confirm.js";
+import { chosenStates, statePhrase } from "./functions/_lib/token.js";
+if (chosenStates(["qld", "vic", "bogus"]).join(",") !== "vic,qld" || statePhrase(["vic", "nsw", "qld"]) !== "Victoria, New South Wales and Queensland") process.exit(1);
+const qldRead = await readToken(await makeToken(email, "test-secret", 60 * 60 * 48, ["qld"]), "test-secret");
+if (!qldRead || qldRead.states.join(",") !== "qld") process.exit(1);
+const callsQld = [];
+const mockQld = async (url, init) => { callsQld.push({ url, method: init.method, body: init.body }); return new Response(JSON.stringify({ id: "c1" }), { status: 201 }); };
+const qldOnly = await confirmSubscription({ ...envWithSecret, RESEND_SEGMENT_NSW_ID: "nsw-segment" }, email, mockQld, ["qld"], true);
+if (!qldOnly.ok || callsQld.some((call) => String(call.url).includes(segment) || String(call.url).includes("nsw-segment"))) process.exit(2);
+if (!callsQld.some((call) => String(call.url).endsWith("/segments/" + QLD_SEGMENT_ID) && call.method === "POST")) process.exit(3);
+const callsQldEnv = [];
+await confirmSubscription({ ...envWithSecret, RESEND_SEGMENT_QLD_ID: "qld-override" }, email, async (url, init) => { callsQldEnv.push(url); return new Response("{}", { status: 201 }); }, ["vic", "qld"], true);
+if (!callsQldEnv.some((u) => u.endsWith("/segments/qld-override")) || !callsQldEnv.some((u) => u.endsWith("/segments/" + segment))) process.exit(4);
 """], cwd=root, capture_output=True, text=True)
 if confirm_api.returncode != 0:
   bad.append(("confirm api", (confirm_api.stderr or confirm_api.stdout)[-400:]))
@@ -396,11 +410,12 @@ const url = "https://campconditions.au/api/unsubscribe?e=" + encodeURIComponent(
 const got = await onRequestGet({ request: new Request(url), env });
 const html = await got.text();
 if (got.status !== 200 || !html.includes("You're unsubscribed") || !html.includes("/privacy/")) process.exit(1);
-if (calls.length !== 2 || calls[0].method !== "PATCH" || !calls[0].body.includes('"unsubscribed":true')) process.exit(1);
+if (calls.length !== 3 || calls[0].method !== "PATCH" || !calls[0].body.includes('"unsubscribed":true')) process.exit(1);
 if (calls[1].method !== "DELETE" || !calls[1].url.endsWith("/contacts/reader%40example.com/segments/" + segment)) process.exit(1);
+if (calls[2].method !== "DELETE" || !calls[2].url.endsWith("/segments/2488900b-f026-44e8-9d74-098d38ef3468")) process.exit(1);
 calls.length = 0;
 const posted = await onRequestPost({ request: new Request(url, { method: "POST", body: "List-Unsubscribe=One-Click" }), env });
-if (posted.status !== 200 || !(await posted.text()).includes("You're unsubscribed") || calls.length !== 2) process.exit(1);
+if (posted.status !== 200 || !(await posted.text()).includes("You're unsubscribed") || calls.length !== 3) process.exit(1);
 calls.length = 0;
 const badToken = await onRequestGet({ request: new Request(url + "nope"), env });
 if (badToken.status !== 400 || calls.length !== 0) process.exit(1);
@@ -1836,7 +1851,17 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
       # Visible text only: the shared closure script names NPWS for NSW estimated end dates.
       _t = re.sub(r"<script.*?</script>", "", open(_p, encoding="utf-8").read() if os.path.isfile(_p) else "", flags=re.S)
       if "NPWS" in _t.replace("QPWS", ""): bad.append(("qld", "NPWS wording on QPWS page", _c["slug"])); break
-  if 'value="qld"' in home or 'id="digest-form"' in open(os.path.join(D, "qld", "index.html"), encoding="utf-8").read(): bad.append(("qld", "digest signup offered"))
+  # QLD digest sign-up: home offers QLD unticked; QLD pages carry the form with QLD ticked and both digest links stay on the page.
+  if 'name="states" value="qld"' not in home or 'name="states" value="qld" checked' in home: bad.append(("/", "qld signup state"))
+  _q_pages = [os.path.join(D, "qld", "index.html")]
+  _q_first = next((c for c in _q_feed if c.get("source") == "qpws"), None)
+  if _q_first: _q_pages.append(os.path.join(D, "qld", "camp", _q_first["slug"], "index.html"))
+  for _qp in _q_pages:
+    _qh = open(_qp, encoding="utf-8").read() if os.path.isfile(_qp) else ""
+    if 'id="digest-form"' not in _qh or 'name="states" value="qld" checked' not in _qh or 'name="states" value="vic" checked' in _qh or 'name="states" value="nsw" checked' in _qh: bad.append((_qp[len(D):], "qld signup form"))
+    if 'class="digest-cta" href="#newsletter"' not in _qh or '<a href="#newsletter">Free digest</a>' not in _qh or _qh.count('class="banner-row"') != 2: bad.append((_qp[len(D):], "qld digest links"))
+  _priv = open(os.path.join(D, "privacy", "index.html"), encoding="utf-8").read()
+  if "Victoria, New South Wales and Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
   _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
   if "apikey" in _q_src.lower(): bad.append(("qld", "api key in status.json"))
 # A problem with one camp (for example an override that clashes with the feed) is a warning:

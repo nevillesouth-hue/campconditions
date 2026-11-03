@@ -65,7 +65,7 @@ export async function onRequestPost({ request, env }) {
   let explicit = false;
   if (choosing) {
     states = chosenStates(signup.states);
-    if (!states.length) return page("Pick a state", "Choose Victoria, New South Wales, or both.", 400);
+    if (!states.length) return page("Pick a state", "Choose Victoria, New South Wales, Queensland, or any mix of them.", 400);
     explicit = true;
   }
   const token = explicit ? await makeToken(email, env.CONFIRM_SECRET, 60 * 60 * 48, states) : await makeToken(email, env.CONFIRM_SECRET);

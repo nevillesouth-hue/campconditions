@@ -9,6 +9,14 @@ import { sitePage as page } from "../_lib/page.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
 
+// Resend "Queensland digest" segment. A segment id is not a secret (it only works with the API key).
+// RESEND_SEGMENT_QLD_ID overrides it when set on the Pages project.
+export const QLD_SEGMENT_ID = "2488900b-f026-44e8-9d74-098d38ef3468";
+
+export function qldSegmentId(env) {
+  return String((env && env.RESEND_SEGMENT_QLD_ID) || QLD_SEGMENT_ID).trim();
+}
+
 export function segmentPath(email, segmentId) {
   return `/contacts/${encodeURIComponent(email)}/segments/${encodeURIComponent(segmentId)}`;
 }
@@ -38,6 +46,7 @@ async function resend(env, path, method, body, doFetch) {
 // 409 means that step already happened. states is stored only when the confirmation
 // link named the states. A missing contact property must not undo the signup.
 // NSW joins RESEND_SEGMENT_NSW_ID when that variable is set, and is not added to the Victoria segment.
+// QLD joins the Queensland digest segment (qldSegmentId), and is not added to the Victoria segment.
 export async function confirmSubscription(env, email, doFetch = fetch, states = ["vic"], recordStates = false) {
   const picked = chosenStates(states);
   const want = picked.length ? picked : ["vic"];
@@ -59,6 +68,8 @@ export async function confirmSubscription(env, email, doFetch = fetch, states = 
   if (!recordStates || want.includes("vic")) segmentIds.push(env.RESEND_SEGMENT_ID);
   const nswId = String(env.RESEND_SEGMENT_NSW_ID || "").trim();
   if (recordStates && want.includes("nsw") && nswId) segmentIds.push(nswId);
+  const qldId = qldSegmentId(env);
+  if (recordStates && want.includes("qld") && qldId) segmentIds.push(qldId);
   if (!segmentIds.length) return { ok: true, status: 200, data: created.data || {} };
   let added = created;
   for (const id of segmentIds) {

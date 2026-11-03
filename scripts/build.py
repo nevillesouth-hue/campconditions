@@ -1057,8 +1057,10 @@ def state_nav(national=False):
     return (f'<details class="state-pick"><summary aria-label="State: {label}">{e(abbrev)} '
             f'{caret}</summary>'
             f'<div class="state-menu">{"".join(options)}</div></details>')
-def banner(on_home=False, national=False):
-    href = "#newsletter" if on_home else "/#newsletter"
+def banner(on_home=False, national=False, own_form=False):
+    # own_form: the page carries its own #newsletter form (Queensland pages), so both digest links stay on the page with QLD ticked.
+    href = "#newsletter" if (on_home or own_form) else "/#newsletter"
+    nav_href = "#newsletter" if own_form else "/#newsletter"
     states = statecfg.enabled()
     multi = len(states) > 1
     nav_links = state_nav(national)
@@ -1066,7 +1068,7 @@ def banner(on_home=False, national=False):
     cover = (STATE.get("banner") or {}).get("covering") or ""
     coming = (STATE.get("banner") or {}).get("coming") or ""
     soon = "" if multi else f"""<p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>"""
-    return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="/#newsletter">Free digest</a><a href="/report/">Report<span class="nav-x"> conditions</span></a><a href="/faq/">FAQ</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header>""" + soon + SHARE_JS
+    return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="{nav_href}">Free digest</a><a href="/report/">Report<span class="nav-x"> conditions</span></a><a href="/faq/">FAQ</a><a href="/about/">About</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header>""" + soon + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -2169,11 +2171,10 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
 <meta name="campconditions-built" content="{built}">
 {STANDALONE_BOOT}
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
-{banner(on_home, national)}
+{banner(on_home, national, own_form=path.startswith("/qld/") and 'id="newsletter"' in body)}
 {FRESH_BAR}
 <main>{body}</main>{footer(shared)}{foot}</body></html>"""
-    # The privacy policy describes the email digest, which is Victoria and New South Wales only until a Queensland list exists.
-    h = external_blank(h if path == "/privacy/" else _multi_state(h))
+    h = external_blank(_multi_state(h))
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
     os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w", encoding="utf-8").write(h)
 _MULTI_STATE = (
@@ -2273,8 +2274,7 @@ def news_section(heading=None, preselect=None):
         return html_form
     if preselect is None:
         preselect = SLUG
-    # A state with "digest_signup": false is not offered yet: the subscribe API only accepts the states it has a mailing list for.
-    offered = [state for state in statecfg.enabled() if state.get("digest_signup", True)]
+    offered = statecfg.enabled()
     if preselect and preselect not in {state["slug"] for state in offered}:
         return ""
     boxes = []
@@ -2987,6 +2987,8 @@ privacy_date = "16 October 2026"
 if len(statecfg.enabled()) > 1:
     privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
     privacy_date = "27 October 2026"
+    if _qld_enabled():
+        privacy_date = "4 November 2026"
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
  f"<h1>Privacy</h1><p>Last updated {privacy_date}.</p>\n<h2>Who we are</h2><p>{privacy_who}</p>\n" + """<h2>What we collect</h2><p>If you sign up, we collect your email address and the date and time of your sign-up and confirmation. We don't use tracking cookies. Cloudflare, which hosts this site, may log basic technical data such as your IP address for security.</p>
 <h2>Why we collect it</h2><p>We use your email only to send the digest and service emails about your subscription, such as the confirmation message.</p>

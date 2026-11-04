@@ -384,6 +384,22 @@ if (!callsQld.some((call) => String(call.url).endsWith("/segments/" + QLD_SEGMEN
 const callsQldEnv = [];
 await confirmSubscription({ ...envWithSecret, RESEND_SEGMENT_QLD_ID: "qld-override" }, email, async (url, init) => { callsQldEnv.push(url); return new Response("{}", { status: 201 }); }, ["vic", "qld"], true);
 if (!callsQldEnv.some((u) => u.endsWith("/segments/qld-override")) || !callsQldEnv.some((u) => u.endsWith("/segments/" + segment))) process.exit(4);
+const callsMerge = [];
+const mockMerge = async (url, init) => {
+  callsMerge.push({ url, method: init.method, body: init.body });
+  if (url.endsWith("/contacts") && init.method === "POST") return new Response(JSON.stringify({ name: "already_exists" }), { status: 409 });
+  if (init.method === "GET") return new Response(JSON.stringify({ email, properties: { states: "vic,nsw" } }), { status: 200 });
+  return new Response("{}", { status: 200 });
+};
+const merged = await confirmSubscription(envWithSecret, email, mockMerge, ["qld"], true);
+if (!merged.ok || !callsMerge.some((c) => c.method === "PATCH" && c.body && c.body.includes('"states":"vic,nsw,qld"'))) process.exit(5);
+if (callsMerge.some((c) => String(c.url).endsWith("/segments/" + segment))) process.exit(6);
+const callsNew = [];
+await confirmSubscription(envWithSecret, email, async (url, init) => { callsNew.push({ url, method: init.method, body: init.body }); return new Response(JSON.stringify({ id: "c1" }), { status: 201 }); }, ["qld"], true);
+if (callsNew.some((c) => c.method === "GET") || !callsNew.some((c) => c.method === "PATCH" && c.body && c.body.includes('"states":"qld"'))) process.exit(7);
+const callsLookupFail = [];
+await confirmSubscription(envWithSecret, email, async (url, init) => { callsLookupFail.push({ url, method: init.method, body: init.body }); if (url.endsWith("/contacts") && init.method === "POST") return new Response("{}", { status: 409 }); if (init.method === "GET") return new Response("no", { status: 500 }); return new Response("{}", { status: 200 }); }, ["qld"], true);
+if (!callsLookupFail.some((c) => c.method === "PATCH" && c.body && c.body.includes('"states":"qld"'))) process.exit(8);
 """], cwd=root, capture_output=True, text=True)
 if confirm_api.returncode != 0:
   bad.append(("confirm api", (confirm_api.stderr or confirm_api.stdout)[-400:]))

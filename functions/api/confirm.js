@@ -42,6 +42,17 @@ async function resend(env, path, method, body, doFetch) {
   return { ok: res.ok, status: res.status, data };
 }
 
+// States already saved on an existing contact, so a reader adding QLD keeps VIC and NSW.
+// Unknown shapes or a failed lookup give no states (the new choice is still saved).
+export function existingStates(result) {
+  if (!result || !result.ok) return [];
+  const data = result.data || {};
+  const props = data.properties || (data.data && data.data.properties) || {};
+  let raw = props.states;
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) raw = raw.value;
+  return chosenStates(raw);
+}
+
 // Create the contact, then add them to the segment for each chosen state.
 // 409 means that step already happened. states is stored only when the confirmation
 // link named the states. A missing contact property must not undo the signup.
@@ -62,7 +73,12 @@ export async function confirmSubscription(env, email, doFetch = fetch, states = 
     await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { unsubscribe_token: token } }, doFetch);
   }
   if (recordStates) {
-    await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { states: want.join(",") } }, doFetch);
+    let stored = want;
+    if (created.status === 409) {
+      const existing = await resend(env, `/contacts/${encodeURIComponent(email)}`, "GET", undefined, doFetch);
+      stored = chosenStates([...existingStates(existing), ...want]);
+    }
+    await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { states: stored.join(",") } }, doFetch);
   }
   const segmentIds = [];
   if (!recordStates || want.includes("vic")) segmentIds.push(env.RESEND_SEGMENT_ID);

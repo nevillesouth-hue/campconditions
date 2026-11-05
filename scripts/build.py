@@ -1084,8 +1084,8 @@ ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link r
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CampConditions.au">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Camp conditions and closures for VIC and NSW">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta name="twitter:image:alt" content="Camp conditions and closures for VIC and NSW">"""
+<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta name="twitter:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type="button" id="a2hs-dismiss" aria-label="Dismiss add to home screen tip">×</button></div>
@@ -2158,6 +2158,10 @@ def external_blank(html):
         if "target=" in tag: return tag
         return tag[:-1] + ' target="_blank" rel="noopener noreferrer">'
     return re.sub(r'<a\b[^>]*\bhref="https?://[^"]*"[^>]*>', repl, html)
+NATIONAL_TOTAL = 0
+def rounded_count(n):
+    """4,806 as '4,800+'. Rounded down to the hundred."""
+    return f"{(int(n) // 100) * 100:,}+"
 def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     canon = SITE + path
     built = NOW.isoformat()
@@ -2167,11 +2171,13 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/", "/faq/", "/about-the-data/", "/closures-this-weekend/"}
     og_title, og_desc = title, desc
     if path == "/":
-        og_title = "Camp conditions and closures for VIC and NSW | CampConditions.au"
-        og_desc = "Camp conditions and closures for VIC and NSW."
-        if _qld_enabled():
-            og_title = "Camp conditions and closures for VIC, NSW and QLD | CampConditions.au"
-            og_desc = "Camp conditions and closures for VIC, NSW and QLD."
+        # Link-preview copy uses a rounded count (4,800+) so it does not go stale on
+        # every build. Rounded down to the hundred, never above the real total.
+        codes = " and ".join(["VIC", "NSW"]) if not _qld_enabled() else "VIC, NSW and QLD"
+        og_title = f"Camp conditions and closures for {codes} | CampConditions.au"
+        og_desc = f"Camp conditions and closures for {codes}."
+        if NATIONAL_TOTAL >= 100:
+            og_desc = f"Closures, fire danger ratings and camp conditions for {rounded_count(NATIONAL_TOTAL)} campgrounds across {codes}."
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(og_title)}"><meta property="og:description" content="{e(og_desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
@@ -2495,8 +2501,28 @@ def list_note(c):
         return c["alerts"][0].get("heading") or ""
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
     return ""
+FIRE_HEAD = '<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>'
+_UNMAPPED_LAYER = {"CFA": "CFA fire district", "NSW RFS": "NSW fire weather area", "QFD": "Queensland fire weather district"}
+def unmapped_fire_line(c):
+    """Feed and boundaries loaded, but no official district within the fallback distance
+    (offshore islands). Says "No fire district mapped", never "No Rating": that is the
+    official AFDRS rating name for a low-danger day."""
+    info = c.get("fire_unmapped") or {}
+    if not info.get("label"):
+        return ""
+    layer = _UNMAPPED_LAYER.get(info.get("authority") or "", "official fire district")
+    sentence = (f"{info['label']}. This camp is outside every official {layer} boundary (often an offshore island), "
+                "so no district rating is shown here. Check the official rating before you go.")
+    bits = [FIRE_HEAD, f'<p class="muted fire-line fire-unmapped" style="margin:.05rem 0 .55rem">{e(sentence)}</p>']
+    page_url, label = str(info.get("page_url") or ""), str(info.get("button") or "")
+    if page_url.startswith("https://") and label:
+        bits.append(f'<p><a class="btn-alert" href="{e(page_url)}">{e(label)}</a></p>')
+    return "".join(bits)
 def fire_line(c):
-    """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon."""
+    """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon
+    or the nearest-district fallback applied (nsw_conditions.FIRE_FALLBACK_KM)."""
+    if not c.get("fire") and c.get("fire_unmapped"):
+        return unmapped_fire_line(c)
     fire = c.get("fire") or {}
     district, today, ban = fire.get("district") or "", fire.get("today") or "", fire.get("ban_today") or ""
     url = fire.get("source_url") or ""
@@ -2520,8 +2546,10 @@ def fire_line(c):
         sentence += f" Issued {fire['issued']}."
     if fire.get("fetched"):
         sentence += f" Fetched {fire['fetched']}."
-    bits = ['<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>',
-            f'<p class="muted fire-line" style="margin:.05rem 0 .55rem">{e(sentence)}</p>']
+    if "fallback_km" in fire:
+        import nsw_conditions
+        sentence += " " + nsw_conditions.fallback_note(fire["fallback_km"])
+    bits = [FIRE_HEAD, f'<p class="muted fire-line" style="margin:.05rem 0 .55rem">{e(sentence)}</p>']
     page_url = str(fire.get("page_url") or "")
     label = str(fire.get("button") or "")
     if page_url.startswith("https://") and label:
@@ -2896,6 +2924,7 @@ if multi_state:
     if _qld_enabled():
         browse = '<p>Browse <a href="/vic/">Victoria</a>, <a href="/nsw/">New South Wales</a> or <a href="/qld/">Queensland</a>.</p>'
     write_home_map_js()
+    NATIONAL_TOTAL = len(all_rows)
     national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in Victoria and New South Wales."},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
     page("/", "Camp conditions | CampConditions.au",

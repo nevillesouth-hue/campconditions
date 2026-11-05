@@ -589,6 +589,10 @@ def parse_fdr(payload):
     return found, issued
 
 
+# BoM's Queensland fire danger ratings page (the human page for IDQ13016).
+BOM_FDR_PAGE = "https://www.bom.gov.au/qld/forecasts/fire-danger-ratings.shtml"
+
+
 def apply_fire(camps, district_records, ratings, issued, source_url, links, now=None):
     """Today's and tomorrow's rating (Queensland dates) for the camp's fire weather district."""
     grid = nc._index(district_records)
@@ -600,17 +604,23 @@ def apply_fire(camps, district_records, ratings, issued, source_url, links, now=
         issued_text = local.strftime("%-I:%M %p %Z %A %-d %B %Y").replace("AM", "am").replace("PM", "pm")
     matched = 0
     for camp in camps:
-        rating = None
-        for area in nc._reserves_containing(grid, camp["lon"], camp["lat"]):
-            rating = ratings.get(area["key"])
-            if rating:
-                break
-        if not rating:
+        # Shore camps just outside the coastline-clipped QFD edge, and Dumaresq/
+        # Macintyre border-river camps, take the nearest Queensland district
+        # (nsw_conditions FIRE_FALLBACK_KM rule). Islands 1 km or more offshore
+        # keep no district: "No fire district mapped", never "No Rating".
+        def rated(key):
+            days = (ratings.get(key) or {}).get("days") or {}
+            return bool(days.get(today.isoformat()) or days.get(tomorrow.isoformat()))
+        area, km, how = nc.district_for(grid, district_records, camp["lon"], camp["lat"], rated)
+        if how == "unmapped":
+            nc.mark_unmapped(camp, "QFD", links.get("fire_danger_page") or BOM_FDR_PAGE,
+                             links.get("fire_danger_button") or "Check BoM fire danger ratings")
+        if not area:
             continue
+        rating = ratings[area["key"]]
         day_today = rating["days"].get(today.isoformat(), "")
         day_tomorrow = rating["days"].get(tomorrow.isoformat(), "")
-        if not day_today and not day_tomorrow:
-            continue
+        camp.pop("fire_unmapped", None)
         camp["fire"] = {
             "district": rating["district"], "today": day_today, "tomorrow": day_tomorrow,
             "ban_today": "", "ban_tomorrow": "",
@@ -620,6 +630,8 @@ def apply_fire(camps, district_records, ratings, issued, source_url, links, now=
             "button": links.get("fire_bans_button") or "",
             "issued": issued_text,
         }
+        if how == "fallback":
+            camp["fire"]["fallback_km"] = km
         matched += 1
     return matched
 

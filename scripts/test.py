@@ -523,10 +523,18 @@ if 'class="back-map" href="/">← Back to map' not in report or 'id="report-mail
 if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
-for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"', 'content="1200"', 'content="630"', 'content="summary_large_image"', 'property="og:image:alt" content="Camp conditions and closures for VIC and NSW"', 'name="twitter:image:alt" content="Camp conditions and closures for VIC and NSW"', 'property="og:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"', 'property="og:description" content="Camp conditions and closures for VIC and NSW."', 'name="twitter:title" content="Camp conditions and closures for VIC and NSW | CampConditions.au"', 'name="twitter:description" content="Camp conditions and closures for VIC and NSW."'):
-  if os.path.isdir(os.path.join(D, "qld")) and ("og:title" in icon or "og:description" in icon or "twitter:title" in icon or "twitter:description" in icon):
-    icon = icon.replace("for VIC and NSW", "for VIC, NSW and QLD")
+_codes = "VIC, NSW and QLD" if os.path.isdir(os.path.join(D, "qld")) else "VIC and NSW"
+for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"', 'content="1200"', 'content="630"', 'content="summary_large_image"',
+             'property="og:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD"', 'name="twitter:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD"',
+             f'property="og:title" content="Camp conditions and closures for {_codes} | CampConditions.au"', f'name="twitter:title" content="Camp conditions and closures for {_codes} | CampConditions.au"'):
   if icon not in home: bad.append(("/", "icon " + icon))
+# Link-preview description: rounded count (row 56), never above the live total, same for Twitter.
+_og_desc = re.search(r'property="og:description" content="([^"]*)"', home)
+_tw_desc = re.search(r'name="twitter:description" content="([^"]*)"', home)
+_og_n = re.search(r"for ([\d,]+)\+ campgrounds across " + re.escape(_codes) + r"\.$", _og_desc.group(1)) if _og_desc else None
+if not _og_n or not _tw_desc or _tw_desc.group(1) != _og_desc.group(1): bad.append(("/", "og description", _og_desc and _og_desc.group(1)))
+elif not (len(feed["camps"]) - 100 < int(_og_n.group(1).replace(",", "")) <= len(feed["camps"])): bad.append(("/", "og rounded count", _og_n.group(1), len(feed["camps"])))
+if "VIC and NSW" in home.split("</head>", 1)[0] and os.path.isdir(os.path.join(D, "qld")): bad.append(("/", "VIC and NSW share text"))
 if "Victorian camp conditions and closures" in home: bad.append(("/", "old share text"))
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
 if "/site.webmanifest" not in not_found or "og-image-vic-nsw-qld.png?v=20261105" not in not_found: bad.append(("404", "icons"))
@@ -1021,6 +1029,40 @@ try:
         bad.append(("alerts", "fire polygon snap"))
 except Exception as _exc:
     bad.append(("alerts", "fire polygon " + str(_exc)))
+# Fire-district fallback (row 57, Nev 6 Nov 2026): nearest SAME-state district only within
+# FIRE_FALLBACK_KM (border river, shore); islands further out stay unmapped, never "No Rating".
+try:
+    _fa = {"name": "Alpha", "key": "alpha", "prep": nswcond._prepare([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])}
+    _fb = {"name": "Beta", "key": "beta", "prep": nswcond._prepare([[[1, 0], [1, 1], [2, 1], [2, 0], [1, 0]]])}
+    _fgrid = nswcond._index([_fa, _fb])
+    _rated = lambda key: key in ("alpha", "beta")
+    _r, _km, _how = nswcond.district_for(_fgrid, [_fa, _fb], 0.5, 0.5, _rated)
+    if _how != "inside" or _r["key"] != "alpha" or _km != 0: bad.append(("fire fallback", "inside", _how))
+    _r, _km, _how = nswcond.district_for(_fgrid, [_fa, _fb], -0.0008, 0.5, _rated)  # ~89 m west of Alpha
+    if _how != "fallback" or _r["key"] != "alpha" or not (0.07 < _km < 0.11): bad.append(("fire fallback", "border river", _how, _km))
+    _r, _km, _how = nswcond.district_for(_fgrid, [_fa, _fb], 1.5, -0.005, _rated)  # ~550 m south of Beta
+    if _how != "fallback" or _r["key"] != "beta": bad.append(("fire fallback", "shore nearest", _how))
+    _r, _km, _how = nswcond.district_for(_fgrid, [_fa, _fb], -0.03, 0.5, _rated)  # ~3.3 km offshore island
+    if _how != "unmapped" or _r is not None: bad.append(("fire fallback", "island 1-10 km kept unmapped", _how))
+    _r, _km, _how = nswcond.district_for(_fgrid, [_fa, _fb], 0.5, 0.5, lambda key: key == "beta")
+    if _how != "unrated" or _r is not None: bad.append(("fire fallback", "inside unrated never takes a neighbour", _how))
+    if nswcond.FIRE_FALLBACK_KM != 1.0 or nswcond.NO_FIRE_DISTRICT != "No fire district mapped": bad.append(("fire fallback", "rule constants"))
+    if "no rating" in nswcond.NO_FIRE_DISTRICT.lower() or "no rating" in nswcond.fallback_note(0.08).lower(): bad.append(("fire fallback", "No Rating wording"))
+    if "80 m" not in nswcond.fallback_note(0.08) or "a few metres" not in nswcond.fallback_note(0.0): bad.append(("fire fallback", "note distance"))
+    _fcamps = [{"lon": -0.0008, "lat": 0.5}, {"lon": -0.03, "lat": 0.5}, {"lon": 0.5, "lat": 0.5}]
+    _frat = {k: {"district": n, "today": "High", "tomorrow": "Moderate", "ban_today": "No", "ban_tomorrow": "No"} for k, n in (("alpha", "Alpha"), ("beta", "Beta"))}
+    nswcond.apply_fire_records(_fcamps, [_fa, _fb], _frat, "https://www.rfs.nsw.gov.au/feeds/fdrToban.xml")
+    if (_fcamps[0].get("fire") or {}).get("today") != "High" or "fallback_km" not in (_fcamps[0].get("fire") or {}): bad.append(("fire fallback", "nsw fallback keeps official rating", _fcamps[0]))
+    if _fcamps[1].get("fire") or (_fcamps[1].get("fire_unmapped") or {}).get("label") != "No fire district mapped": bad.append(("fire fallback", "nsw island unmapped", _fcamps[1]))
+    if "fallback_km" in (_fcamps[2].get("fire") or {}) or _fcamps[2].get("fire_unmapped"): bad.append(("fire fallback", "nsw inside", _fcamps[2]))
+    import cfa_conditions as _cfa
+    _vc = [{"lon": -0.0008, "lat": 0.5}, {"lon": -0.2, "lat": 0.5}]
+    _cfa.apply_fire_records(_vc, [_fa], {"alpha": {"district": "Alpha", "today": "No Rating", "ban_today": "No"}}, {}, "https://www.cfa.vic.gov.au/cfa/rssfeed/tfbfdrforecast_rss.xml", {}, "Check CFA fire danger")
+    # Victoria's official "No Rating" stays as the real rating of the fallback district.
+    if (_vc[0].get("fire") or {}).get("today") != "No Rating" or "fallback_km" not in _vc[0]["fire"]: bad.append(("fire fallback", "cfa fallback", _vc[0]))
+    if (_vc[1].get("fire_unmapped") or {}).get("label") != "No fire district mapped" or not (_vc[1]["fire_unmapped"].get("page_url") or "").startswith("https://www.cfa.vic.gov.au/"): bad.append(("fire fallback", "cfa unmapped", _vc[1]))
+except Exception as _exc:
+    bad.append(("fire fallback", "error " + repr(_exc)))
 for _cfg, _old in (("config/states/nsw.json", "bom.gov.au/nsw/warnings"), ("config/states/vic.json", "bom.gov.au/vic/warnings")):
     _text = open(os.path.join(root, _cfg), encoding="utf-8").read()
     if _old in _text or "weather-and-climate/warnings-and-alerts" not in _text:
@@ -1845,6 +1887,14 @@ qldc.apply_fire(_q_fc, qldc.area_records([{"name": "Testa", "rings": _sq(150.0, 
 _q_f = _q_fc[0].get("fire") or {}
 if _q_f.get("today") != "High" or _q_f.get("tomorrow") != "Extreme" or _q_f.get("ban_today") or not _q_f.get("ban_note"): bad.append(("qld", "fire danger", _q_f))
 if "AEDT" not in (_q_f.get("issued") or ""): bad.append(("qld", "fire issued AEDT", _q_f.get("issued")))
+# QLD fallback: a shore camp 200 m outside the coastline-clipped district takes it; an island 5 km out does not.
+_q_fb = [{"name": "Shore", "lat": -24.95, "lon": 150.102}, {"name": "Island", "lat": -24.95, "lon": 150.15}]
+qldc.apply_fire(_q_fb, qldc.area_records([{"name": "Testa", "rings": _sq(150.0, -25.0)}]), _q_fdr[0], _q_fdr[1], "https://www.bom.gov.au/fwo/IDQ13016.xml",
+                {"fire_bans": "https://www.fire.qld.gov.au/", "fire_bans_button": "Check local fire bans (QFD)"}, _q_now)
+if (_q_fb[0].get("fire") or {}).get("today") != "High" or (_q_fb[0].get("fire") or {}).get("district") != "Testa" or "fallback_km" not in _q_fb[0]["fire"]:
+  bad.append(("qld", "shore fallback", _q_fb[0]))
+if _q_fb[1].get("fire") or (_q_fb[1].get("fire_unmapped") or {}).get("label") != "No fire district mapped" or (_q_fb[1]["fire_unmapped"].get("page_url") or "") != "https://www.bom.gov.au/qld/forecasts/fire-danger-ratings.shtml":
+  bad.append(("qld", "island unmapped", _q_fb[1]))
 # QLDTraffic: skipped without the key; with a key the key never reaches the source log.
 _q_log = {}
 if qldc.apply_traffic(_q_fc, {"url": "https://api.qldtraffic.qld.gov.au/v2/events", "key_env": "QLDTRAFFIC_API_KEY"}, lambda *a, **k: b"", _q_log, env={}) is not None: bad.append(("qld", "traffic without key"))
@@ -1890,6 +1940,28 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
   if "Victoria, New South Wales and Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
   _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
   if "apikey" in _q_src.lower(): bad.append(("qld", "api key in status.json"))
+# Built pages: an unmapped camp says "No fire district mapped" (never "No Rating" for that),
+# and a fallback camp shows its district's official rating plus the boundary note.
+_unmapped_pages = _fallback_pages = 0
+for _st in ("vic", "nsw", "qld"):
+  _cdir = os.path.join(D, _st, "camp")
+  if not os.path.isdir(_cdir): continue
+  for _slug in os.listdir(_cdir):
+    _fp = os.path.join(_cdir, _slug, "index.html")
+    if not os.path.isfile(_fp): continue
+    _t = open(_fp, encoding="utf-8").read()
+    if "fire-unmapped" in _t:
+      _unmapped_pages += 1
+      _para = re.search(r'<p class="muted fire-line fire-unmapped"[^>]*>(.*?)</p>', _t, re.S)
+      if not _para or "No fire district mapped" not in _para.group(1) or "no rating" in _para.group(1).lower():
+        bad.append((_slug, "unmapped fire wording")); continue
+      if _t.count('class="banner-row"') != 2: bad.append((_slug, "header rows"))
+    if "Nearest official district:" in _t:
+      _fallback_pages += 1
+      _line = re.search(r'<p class="muted fire-line"[^>]*>(.*?)</p>', _t, re.S)
+      if not _line or not re.search(r": [A-Z][A-Za-z ]+ (today|tomorrow)", _line.group(1)):
+        bad.append((_slug, "fallback without official rating"))
+print(f"fire fallback: {_fallback_pages} camp pages use the nearest district, {_unmapped_pages} show No fire district mapped")
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

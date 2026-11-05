@@ -1395,6 +1395,110 @@ def _reserve_records(features):
     return records
 
 
+# ---------- fire-district fallback (Nev approved 6 Nov 2026, row 57) ----------
+#
+# A camp gets the fire weather district whose official polygon contains it
+# (CFA tfb_district for Victoria, NSW_Fire_Area for New South Wales, QFD
+# New_Fire_Districts for Queensland). Some camp points sit just outside every
+# polygon of their own state:
+#   (a) border-river camps (mostly the Murray, also the Dumaresq/Macintyre),
+#       where the point is a few metres over the state line in the river;
+#   (b) Queensland beach and shore camps a little outside the coastline-clipped
+#       district edge.
+# For those, and only those, the camp takes the NEAREST district of the SAME
+# state's official layer (each state's layer only holds that state's districts,
+# so a fallback never crosses a state line), when the point is no more than
+# FIRE_FALLBACK_KM from that polygon. The 5 Nov 2026 diagnosis measured every
+# such camp at 0.36 km or less, and the closest island camp at 1.09 km.
+# Islands 1-10 km offshore and far islands over 10 km are left WITHOUT a
+# district: they are further than FIRE_FALLBACK_KM, and no district is ever
+# invented for them. Their page says "No fire district mapped". Never call that
+# "No Rating": that is Victoria's official AFDRS label for a low-danger day.
+# A camp that falls back shows the real official rating for that district
+# from the same feed, plus a note that the point is just outside its boundary.
+FIRE_FALLBACK_KM = 1.0
+NO_FIRE_DISTRICT = "No fire district mapped"
+
+
+def _segment_km(px, py, ax, ay, bx, by):
+    """Point to segment distance in km. Local flat projection, fine under a few km."""
+    kx = 111.32 * math.cos(math.radians(py))
+    ky = 110.574
+    x0, y0 = (ax - px) * kx, (ay - py) * ky
+    x1, y1 = (bx - px) * kx, (by - py) * ky
+    dx, dy = x1 - x0, y1 - y0
+    length = dx * dx + dy * dy
+    t = 0.0 if length == 0 else max(0.0, min(1.0, -(x0 * dx + y0 * dy) / length))
+    cx, cy = x0 + t * dx, y0 + t * dy
+    return math.hypot(cx, cy)
+
+
+def edge_km(prep, lon, lat, limit_km=None):
+    """Shortest distance in km from the point to the polygon's edges.
+
+    With limit_km, polygons and segments whose box is further away are skipped."""
+    kx = 111.32 * math.cos(math.radians(lat))
+    ky = 110.574
+    if limit_km is not None:
+        gap_x = max(prep["minx"] - lon, lon - prep["maxx"], 0) * kx
+        gap_y = max(prep["miny"] - lat, lat - prep["maxy"], 0) * ky
+        if math.hypot(gap_x, gap_y) > limit_km:
+            return math.inf
+    best = math.inf
+    for ring in prep["rings"]:
+        for i in range(len(ring) - 1):
+            (ax, ay), (bx, by) = ring[i][:2], ring[i + 1][:2]
+            reach = best if limit_km is None else min(best, limit_km)
+            gap_x = max(min(ax, bx) - lon, lon - max(ax, bx), 0) * kx
+            gap_y = max(min(ay, by) - lat, lat - max(ay, by), 0) * ky
+            if gap_x > reach or gap_y > reach:
+                continue
+            d = _segment_km(lon, lat, ax, ay, bx, by)
+            if d < best:
+                best = d
+    return best
+
+
+def district_for(grid, records, lon, lat, has_rating, max_km=FIRE_FALLBACK_KM):
+    """(record, km, how) for a camp point against one state's fire district layer.
+
+    how is "inside" (km 0), "fallback" (nearest rated district of the same layer
+    within max_km, km outside), "unrated" (inside a polygon the feed did not
+    rate: no line, and never a neighbour's rating) or "unmapped" (km to the
+    nearest district, or None when none is near)."""
+    inside = _reserves_containing(grid, lon, lat)
+    for area in inside:
+        if has_rating(area["key"]):
+            return area, 0.0, "inside"
+    if inside:
+        return None, 0.0, "unrated"
+    best, best_km = None, math.inf
+    for area in records:
+        if not has_rating(area["key"]):
+            continue
+        km = edge_km(area["prep"], lon, lat, max_km)
+        if km < best_km:
+            best, best_km = area, km
+    if best is not None and best_km <= max_km:
+        return best, round(best_km, 3), "fallback"
+    return None, None, "unmapped"
+
+
+def fallback_note(km):
+    """Plain words for a camp that took the nearest district."""
+    metres = int(round((km or 0) * 1000 / 10.0)) * 10
+    where = f"{metres} m" if metres >= 10 else "a few metres"
+    return f"Nearest official district: the camp point is {where} outside its mapped boundary (border river or shoreline)."
+
+
+def mark_unmapped(camp, authority, page_url, button):
+    """The feed and boundaries loaded, but no official district covers the camp."""
+    camp.pop("fire", None)
+    camp["fire_unmapped"] = {"label": NO_FIRE_DISTRICT, "authority": authority,
+                             "page_url": page_url if str(page_url).startswith("https://") else "",
+                             "button": button if str(page_url).startswith("https://") else ""}
+
+
 def _fire_records(features):
     records = []
     for feature in features or []:
@@ -1480,18 +1584,24 @@ def apply_alert_records(camps, reserve_records, items):
     return {"noted": noted, "closed": closed, "upcoming": upcoming, "affected": affected, "unmatched_closed": closed_titles}
 
 
+RFS_FDR_PAGE = "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans"
+
+
 def apply_fire_records(camps, area_records, ratings, source_url):
-    """Attach a district rating only where the polygon name matches the RFS feed."""
+    """Attach a district rating where the polygon name matches the RFS feed.
+
+    A border-river point just outside its NSW fire area takes the nearest NSW
+    fire area (FIRE_FALLBACK_KM rule above). Further out, no district."""
     grid = _index(area_records)
     matched = 0
     for camp in camps:
-        rating = None
-        for area in reserves_at(grid, camp["lon"], camp["lat"]):
-            rating = ratings.get(area["key"])
-            if rating:
-                break
-        if not rating:
+        area, km, how = district_for(grid, area_records, camp["lon"], camp["lat"], lambda key: bool(ratings.get(key)))
+        if how == "unmapped":
+            mark_unmapped(camp, "NSW RFS", RFS_FDR_PAGE, "Check NSW RFS fire danger ratings")
+        if not area:
             continue
+        rating = ratings[area["key"]]
+        camp.pop("fire_unmapped", None)
         camp["fire"] = {
             "district": rating["district"],
             "today": rating["today"],
@@ -1500,6 +1610,8 @@ def apply_fire_records(camps, area_records, ratings, source_url):
             "ban_tomorrow": rating["ban_tomorrow"],
             "source_url": source_url,
         }
+        if how == "fallback":
+            camp["fire"]["fallback_km"] = km
         matched += 1
     return matched
 

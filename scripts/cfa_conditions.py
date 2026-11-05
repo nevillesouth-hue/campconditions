@@ -263,6 +263,10 @@ def _ratings(row, require_ban):
     return found
 
 
+# The CFA page listing every district's fire danger rating and Total Fire Ban.
+CFA_FDR_PAGE = "https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings"
+
+
 def _rings(geometry):
     kind = (geometry or {}).get("type") or ""
     coords = (geometry or {}).get("coordinates") or []
@@ -290,19 +294,20 @@ def _district_records(doc):
 
 
 def apply_fire_records(camps, records, today, tomorrow, source_url, pages, button, issued="", fetched=""):
-    """Attach a district rating only where the polygon matches the CFA feed."""
+    """Attach a district rating where the polygon matches the CFA feed.
+
+    A Murray-bank point just outside its CFA district takes the nearest CFA
+    district (nsw_conditions FIRE_FALLBACK_KM rule). Further out, no district."""
     grid = nsw_conditions._index(records)
     matched = 0
     for camp in camps:
-        chosen = None
-        for area in nsw_conditions.reserves_at(grid, camp["lon"], camp["lat"]):
-            rating = today.get(area["key"])
-            if rating:
-                chosen = (area, rating)
-                break
-        if not chosen:
+        area, km, how = nsw_conditions.district_for(grid, records, camp["lon"], camp["lat"], lambda key: bool(today.get(key)))
+        if how == "unmapped":
+            nsw_conditions.mark_unmapped(camp, "CFA", CFA_FDR_PAGE, button or "Check CFA fire danger")
+        if not area:
             continue
-        area, rating = chosen
+        rating = today[area["key"]]
+        camp.pop("fire_unmapped", None)
         later = tomorrow.get(area["key"]) or {}
         page = str(pages.get(area["key"]) or "")
         camp["fire"] = {
@@ -317,6 +322,8 @@ def apply_fire_records(camps, records, today, tomorrow, source_url, pages, butto
             "issued": issued or "",
             "fetched": fetched or "",
         }
+        if how == "fallback":
+            camp["fire"]["fallback_km"] = km
         matched += 1
     return matched
 

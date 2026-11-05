@@ -781,6 +781,16 @@ if facts.override_expired("2026-10-26", "2026-10-26") or facts.override_expired(
   bad.append(("facts", "until still current"))
 build_src = open(os.path.join(root, "scripts", "build.py"), encoding="utf-8").read()
 if "statecfg.enabled" not in build_src: bad.append(("build.py", "enabled states"))
+# Home-screen shortcut: the sticky freshness bar must not cover the state menu.
+_fresh_z = re.search(r"html\.standalone \.freshness\{([^}]*)\}", build_src)
+_menu_z = re.search(r"\.state-menu\{([^}]*)\}", build_src)
+def _z_index(rule):
+  found = re.search(r"z-index:\s*(\d+)", rule or "")
+  return int(found.group(1)) if found else -1
+_fresh_zi = _z_index(_fresh_z.group(1) if _fresh_z else "")
+_menu_zi = _z_index(_menu_z.group(1) if _menu_z else "")
+if _fresh_zi < 0 or _menu_zi <= _fresh_zi:
+  bad.append(("build.py", "state menu under standalone freshness bar"))
 nsw = states.by_slug("nsw")
 if not nsw.get("enabled"): bad.append(("states", "nsw enabled"))
 nsw_hooks = {

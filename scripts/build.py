@@ -1011,6 +1011,11 @@ SHARE_JS = r"""<script>
   });
 })();
 </script>"""
+# The menu hangs over the freshness bar. On a home-screen shortcut that bar is
+# position:sticky at z-index 45 (see html.standalone .freshness). At 40 the bar
+# paints over the first state, so Victoria is missing and the menu looks clipped.
+# 50 keeps every state above the bar. Safari leaves the bar in normal flow, so
+# the menu already covered it there and this does not change that layout.
 STATE_PICK_CSS = """<style>
 .state-pick{position:relative;flex:0 0 auto;margin:0;line-height:1}
 .state-pick summary{list-style:none;cursor:pointer;color:#fff;font-weight:700;font-size:.95rem;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:.28rem;min-height:44px;padding:0 .45rem;border:1px solid rgba(255,255,255,.85);border-radius:6px;background:rgba(255,255,255,.14)}
@@ -1019,7 +1024,7 @@ STATE_PICK_CSS = """<style>
 .state-pick summary:focus-visible{outline:3px solid #fff;outline-offset:2px}
 .state-caret{display:block;width:16px;height:16px;flex:0 0 auto;transition:transform .15s ease}
 .state-pick[open] .state-caret{transform:rotate(180deg)}
-.state-menu{position:absolute;z-index:40;left:0;top:calc(100% + .3rem);min-width:11.5rem;margin:0;padding:.2rem 0;background:#244a2e;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
+.state-menu{position:absolute;z-index:50;left:0;top:calc(100% + .3rem);min-width:11.5rem;margin:0;padding:.2rem 0;background:#244a2e;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.28)}
 .state-menu a{display:block;padding:.45rem .75rem;color:#fff;font-size:.95rem;white-space:nowrap}
 .state-menu a[aria-current="page"]{font-weight:700}
 @media (max-width:860px){.state-pick summary{font-size:clamp(.78rem,2.4vw,.95rem)}}

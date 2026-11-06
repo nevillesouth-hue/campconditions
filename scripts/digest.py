@@ -54,6 +54,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
         body_rows.append(para(f"<strong>{e(name)}</strong><br>" + ("<br>".join(link(c) + (" *" if (c.get("closure") or {}).get("outdated") else "") for c in sorted(group, key=lambda c: c["name"].lower())) or "None.")))
     body_rows.append(para('<span style="font-size:13px;color:#666666;">* Reopening date has passed — the closure record may be outdated.</span>'))
     body_rows.append(para('Been somewhere lately? <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'))
+    body_rows.append(para('The digests stay free. If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty.<br>→ Chip in $5, $10 or $20: <a href="https://campconditions.au/support" style="color:#2f5d3a;">https://campconditions.au/support</a><br>No pressure either way.'))
     unsub = "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}"
     foot = (copy["digest_footer"]
             + f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '

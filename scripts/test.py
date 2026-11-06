@@ -1,4 +1,14 @@
 import gzip,os,re,json,sys,html,math,subprocess,tempfile,urllib.parse
+def tip_presentation(label, html_blob, txt_blob, bad):
+  """Approved digest tip presentation (HTML + plain text)."""
+  if '<strong>Been somewhere lately?</strong>' not in html_blob: bad.append((label, "bold report"))
+  if '<strong>The digests stay free.</strong> If they’re useful' not in html_blob or html_blob.count("<strong>The digests stay free") != 1: bad.append((label, "bold tip opener"))
+  if '<br><a href="https://campconditions.au/support" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.' not in html_blob: bad.append((label, "chip in link"))
+  if html_blob.count("campconditions.au/support") != 1 or ">https://campconditions.au/support" in html_blob or "→ Chip in" in html_blob or "campconditions.au/support/" in html_blob: bad.append((label, "support url visible"))
+  if txt_blob:
+    if "\nChip in $5, $10 or $20\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
+  for blob in (html_blob, txt_blob):
+    if blob and not (0 <= blob.find("Been somewhere lately?") < blob.find("The digests stay free.") < blob.find("Chip in") < blob.find("No pressure either way.") < blob.find("Not an official warning service")): bad.append((label, "tip order"))
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
@@ -273,18 +283,16 @@ else:
     bad.append(("digest meta", "List-Unsubscribe-Post"))
   tip_html = open(os.path.join(draft, "digest.html"), encoding="utf-8").read()
   tip_txt = open(os.path.join(draft, "digest.txt"), encoding="utf-8").read()
-  tip_phrase = "The digests stay free. If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
-  tip_line = "→ Chip in $5, $10 or $20:"
+  tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
   for label, blob in (("digest.html", tip_html), ("digest.txt", tip_txt)):
     if tip_phrase not in blob: bad.append((label, "tip block"))
-    if tip_line not in blob or "https://campconditions.au/support" not in blob: bad.append((label, "tip link"))
     if "No pressure either way." not in blob: bad.append((label, "tip close"))
     if blob.count(tip_phrase) != 1: bad.append((label, "tip once"))
     report_at = blob.find("Been somewhere lately?")
     tip_at = blob.find(tip_phrase)
     foot_at = blob.find("Not an official warning service")
     if not (0 <= report_at < tip_at < foot_at): bad.append((label, "tip placement"))
-  if 'href="https://campconditions.au/support"' not in tip_html: bad.append(("digest.html", "tip href"))
+  tip_presentation("digest", tip_html, tip_txt, bad)
 confirm = subprocess.run(["node", "--input-type=module", "-e", """
 import { confirmationMessage } from "./functions/api/subscribe.js";
 const unsub = "https://campconditions.au/api/unsubscribe?e=reader%40example.com&t=abc";
@@ -1466,10 +1474,12 @@ if os.path.isfile(nsw_index):
       return int(found.group(1)) if found else -1
     qld_draft = open(os.path.join(split, "qld", "digest.html"), encoding="utf-8").read() if os.path.isdir(os.path.join(D, "qld")) else ""
     if qld_draft and ("Queensland" not in qld_draft or "Brewery Flat" in qld_draft): bad.append(("digest states", "qld copy"))
-    tip_phrase = "The digests stay free. If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
+    tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
     for label, blob in (("digest states vic", vic_draft), ("digest states nsw", nsw_draft), ("digest states qld", qld_draft)):
       if not blob: continue
       if blob.count(tip_phrase) != 1: bad.append((label, "tip once"))
+      sub = {"digest states vic": "", "digest states nsw": "nsw", "digest states qld": "qld"}[label]
+      tip_presentation(label, blob, open(os.path.join(split, sub, "digest.txt"), encoding="utf-8").read(), bad)
       if not (0 <= blob.find("Been somewhere lately?") < blob.find(tip_phrase) < blob.find("Not an official warning service")):
         bad.append((label, "tip placement"))
     if camp_count(vic_draft) + camp_count(nsw_draft) + (camp_count(qld_draft) if qld_draft else 0) != len(feed["camps"]):

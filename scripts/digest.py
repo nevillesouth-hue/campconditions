@@ -53,8 +53,8 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
         group = [c for c in closed if c["region"] == key]
         body_rows.append(para(f"<strong>{e(name)}</strong><br>" + ("<br>".join(link(c) + (" *" if (c.get("closure") or {}).get("outdated") else "") for c in sorted(group, key=lambda c: c["name"].lower())) or "None.")))
     body_rows.append(para('<span style="font-size:13px;color:#666666;">* Reopening date has passed — the closure record may be outdated.</span>'))
-    body_rows.append(para('Been somewhere lately? <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'))
-    body_rows.append(para('The digests stay free. If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty.<br>→ Chip in $5, $10 or $20: <a href="https://campconditions.au/support" style="color:#2f5d3a;">https://campconditions.au/support</a><br>No pressure either way.'))
+    body_rows.append(para('<strong>Been somewhere lately?</strong> <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'))
+    body_rows.append(para('<strong>The digests stay free.</strong> If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty.<br><a href="https://campconditions.au/support" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.'))
     unsub = "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}"
     foot = (copy["digest_footer"]
             + f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
@@ -67,7 +67,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
 <tr><td style="padding-top:16px;"><img src="https://campconditions.au/assets/brand/logo-160.png" width="77" height="77" alt="CampConditions.au" style="display:block;border:0;"></td></tr>
 <tr><td style="{style}font-size:22px;line-height:28px;font-weight:bold;color:#2f5d3a;padding-top:8px;">CampConditions.au</td></tr>
 {body}</table></td></tr></table></body></html>"""
-    txt = re.sub(r"<br>", "\n", doc[doc.index("<body"):]); txt = re.sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", txt)
+    txt = re.sub(r"<br>", "\n", doc[doc.index("<body"):]); txt = re.sub(r'<a href="https://campconditions.au/support"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", txt)
     txt = re.sub(r"</tr>", "\n", txt); txt = html.unescape(re.sub(r"<[^>]+>", "", txt)); txt = re.sub(r"\n\s*\n+", "\n\n", txt).strip()
     os.makedirs(dest, exist_ok=True)
     open(os.path.join(dest, "digest.html"), "w", encoding="utf-8").write(doc)

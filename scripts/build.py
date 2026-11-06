@@ -3344,6 +3344,8 @@ open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /
 /contact/ /about/ 301
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
+/support https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302
+/support/ https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302
 """ + "".join(line + "\n" for line in slug_redirect_lines()))
 urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:

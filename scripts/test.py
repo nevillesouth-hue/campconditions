@@ -271,6 +271,20 @@ else:
     bad.append(("digest meta", "List-Unsubscribe"))
   if headers.get("List-Unsubscribe-Post") != "List-Unsubscribe=One-Click":
     bad.append(("digest meta", "List-Unsubscribe-Post"))
+  tip_html = open(os.path.join(draft, "digest.html"), encoding="utf-8").read()
+  tip_txt = open(os.path.join(draft, "digest.txt"), encoding="utf-8").read()
+  tip_phrase = "The digests stay free. If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
+  tip_line = "→ Chip in $5, $10 or $20:"
+  for label, blob in (("digest.html", tip_html), ("digest.txt", tip_txt)):
+    if tip_phrase not in blob: bad.append((label, "tip block"))
+    if tip_line not in blob or "https://campconditions.au/support" not in blob: bad.append((label, "tip link"))
+    if "No pressure either way." not in blob: bad.append((label, "tip close"))
+    if blob.count(tip_phrase) != 1: bad.append((label, "tip once"))
+    report_at = blob.find("Been somewhere lately?")
+    tip_at = blob.find(tip_phrase)
+    foot_at = blob.find("Not an official warning service")
+    if not (0 <= report_at < tip_at < foot_at): bad.append((label, "tip placement"))
+  if 'href="https://campconditions.au/support"' not in tip_html: bad.append(("digest.html", "tip href"))
 confirm = subprocess.run(["node", "--input-type=module", "-e", """
 import { confirmationMessage } from "./functions/api/subscribe.js";
 const unsub = "https://campconditions.au/api/unsubscribe?e=reader%40example.com&t=abc";
@@ -1452,6 +1466,12 @@ if os.path.isfile(nsw_index):
       return int(found.group(1)) if found else -1
     qld_draft = open(os.path.join(split, "qld", "digest.html"), encoding="utf-8").read() if os.path.isdir(os.path.join(D, "qld")) else ""
     if qld_draft and ("Queensland" not in qld_draft or "Brewery Flat" in qld_draft): bad.append(("digest states", "qld copy"))
+    tip_phrase = "The digests stay free. If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
+    for label, blob in (("digest states vic", vic_draft), ("digest states nsw", nsw_draft), ("digest states qld", qld_draft)):
+      if not blob: continue
+      if blob.count(tip_phrase) != 1: bad.append((label, "tip once"))
+      if not (0 <= blob.find("Been somewhere lately?") < blob.find(tip_phrase) < blob.find("Not an official warning service")):
+        bad.append((label, "tip placement"))
     if camp_count(vic_draft) + camp_count(nsw_draft) + (camp_count(qld_draft) if qld_draft else 0) != len(feed["camps"]):
       bad.append(("digest states", f"{camp_count(vic_draft)}+{camp_count(nsw_draft)}!={len(feed['camps'])}"))
   if "Spatial Services" not in nsw_html or "Creative Commons Attribution 4.0" not in nsw_html: bad.append(("nsw", "town attribution"))
@@ -1508,7 +1528,9 @@ if os.path.isfile(nsw_index):
   if "/nsw/nsw/" in brewery_page or ">New South Wales</a> › <a href=\"/nsw/nsw/\">" in brewery_page: bad.append(("Brewery Flat", "one region"))
   if "Riverina" not in brewery_page: bad.append(("Brewery Flat", "region"))
   redirects = open(os.path.join(D, "_redirects"), encoding="utf-8").read()
-  for line in ("/contact /about/ 301", "/contact/ /about/ 301", "/nsw/nsw /nsw/ 301", "/nsw/nsw/ /nsw/ 301"):
+  for line in ("/contact /about/ 301", "/contact/ /about/ 301", "/nsw/nsw /nsw/ 301", "/nsw/nsw/ /nsw/ 301",
+               "/support https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302",
+               "/support/ https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302"):
     if line not in redirects: bad.append(("_redirects", line))
   for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301"):
     if line not in redirects: bad.append(("_redirects", line))

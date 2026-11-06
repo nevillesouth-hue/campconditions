@@ -849,6 +849,7 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 .digest-cta{order:2;margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:.32rem;background:#f6c445;color:#1a1208;text-decoration:none;font-weight:700;font-size:.76rem;line-height:1.1;padding:.32rem .6rem;border-radius:6px;white-space:nowrap;min-height:32px}
 .digest-cta:hover{background:#ffd36a;color:#1a1208}
 .digest-cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.tip-list{list-style:none;margin:1.5em 0;padding:0;display:flex;flex-direction:column;gap:1em;max-width:20em}.tip-btn{display:block;text-align:center;padding:.9em 1em;background:var(--g);color:#fff;border-radius:8px;font-weight:600;font-size:1.1em;text-decoration:none}.tip-btn:hover{background:#244a2e}.tip-btn:focus-visible{outline:3px solid var(--o);outline-offset:3px}
 .digest-icon{display:block;flex:0 0 auto;width:14px;height:14px}
 .digest-cta-short,.digest-cta-narrow{display:none}.digest-cta-mini{display:none}
 .soon{margin:0;padding:6px 1rem;text-align:center;font-size:16px;font-weight:700;line-height:1.25;color:#fff;background:var(--o)}
@@ -2934,6 +2935,15 @@ if multi_state:
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
 
 
+TIP_CHECKOUTS = (
+    ("Tip A$5", "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01"),
+    ("Tip A$10", "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02"),
+    ("Tip A$20", "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"),
+)
+# Each button opens its own fixed-amount Stripe checkout (no add-ons, no custom amount).
+page("/support/", "CampConditions tip | CampConditions.au", "Optional one-off tip for CampConditions.au.",
+ "<h1>Support CampConditions</h1>\n<p>The digests stay free. If you find them useful, an optional one-off tip helps cover the running costs. Thank you.</p>\n<ul class=\"tip-list\">"
+ + "".join(f'<li><a class="tip-btn" href="{url}">{label}</a></li>' for label, url in TIP_CHECKOUTS) + "</ul>")
 page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",
  """<h1>Unsubscribe</h1>
 <p>Every CampConditions email has a one-click unsubscribe link. It works without an account, and you don't need to log in. Open the link in the email and you're off the list.</p>
@@ -3344,8 +3354,6 @@ open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /
 /contact/ /about/ 301
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
-/support https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302
-/support/ https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302
 """ + "".join(line + "\n" for line in slug_redirect_lines()))
 urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:

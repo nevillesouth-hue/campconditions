@@ -871,6 +871,14 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
 .card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
 .box{background:#fff;border:2px dashed var(--o);border-radius:10px;padding:1rem;margin:1rem 0}input,textarea,select,button{font:inherit;padding:.45rem;border:1px solid #bbb;border-radius:6px}button{background:var(--o);color:#fff;border:0;cursor:pointer}
+.visitor-report{display:flex;flex-direction:column;align-items:stretch;gap:.7rem;max-width:32rem;margin:.35rem 0 0}
+.vr-field{display:flex;flex-direction:column;gap:.15rem}
+.visitor-report label{font-weight:700}
+.visitor-report input,.visitor-report textarea{width:100%;max-width:100%}
+.visitor-report textarea{min-height:5.5rem;resize:vertical}
+.visitor-report button{align-self:flex-start;font-weight:700;min-height:44px;padding:.55rem 1rem}
+.visitor-report input:focus,.visitor-report textarea:focus,.visitor-report button:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+#report-camp{white-space:pre-line}
 a{color:var(--g)}
 .signup label{display:block;font-weight:700;margin:0 0 .35rem}
 .signup-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
@@ -1528,6 +1536,73 @@ def camper_reports(c):
 
 def report_href(c):
     return "/report/?" + urllib.parse.urlencode({"camp": c["slug"], "name": c.get("name") or ""})
+# Same mailto body as /report/. A camp-page form only opens the email; it stores nothing.
+# Checked reports are added by hand to data/camper-reports.json and then shown above the form.
+VISITOR_REPORT_JS = r"""<script>
+(function () {
+  var form = document.querySelector("form.visitor-report");
+  if (!form) return;
+  function one(value, max) {
+    return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
+  }
+  function line(label, value, max) {
+    var text = one(value, max);
+    return text ? label + ": " + text : label + ":";
+  }
+  form.addEventListener("submit", function (ev) {
+    var params;
+    try { params = new URLSearchParams(new FormData(form)); }
+    catch (err) { return; }
+    ev.preventDefault();
+    var reportUrl = "/report/?" + params.toString();
+    var fallback = document.getElementById("visitor-report-fallback");
+    var note = document.getElementById("visitor-report-sent");
+    if (fallback) fallback.href = reportUrl;
+    if (note) note.hidden = false;
+    var name = one(params.get("name"), 120);
+    var visited = one(params.get("visited"), 40);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(visited)) visited = "";
+    var state = one(params.get("state"), 12);
+    var campPage = one(params.get("page"), 160);
+    var who = one(params.get("by"), 40);
+    var subject = name ? "Camp conditions report: " + name : "Camp conditions report";
+    var lines = [
+      "Camp: " + name,
+      line("Date visited", visited, 40),
+      line("How full", params.get("full"), 80),
+      line("Road access", params.get("access"), 80),
+      line("Notes", params.get("notes"), 500)
+    ];
+    if (who) lines.push("Name: " + who);
+    if (state === "vic" || state === "nsw" || state === "qld") lines.push("State: " + state);
+    if (/^\/(vic|nsw|qld)\/camp\/[a-z0-9-]+\/$/.test(campPage)) lines.push("Page: " + campPage);
+    window.location.href = "mailto:campconditions@outlook.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(lines.join("\n") + "\n");
+  });
+})();
+</script>"""
+def visitor_report_box(c):
+    """Short conditions form on the camp page. Submitting opens the existing report email."""
+    slug = c.get("slug") or ""
+    name = c.get("name") or ""
+    state = c.get("state_slug") or SLUG
+    path = camp_url(c)
+    return f"""<div class="box" id="visitor-report"><h2 id="visitor-report-title">Been here recently?</h2>
+<p>Leave a short report for the next camper: how full, the road in, water and phone coverage. This prepares an email to <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>. You send that email yourself. After we check it, the report is shown on this page. Official sources still decide whether the camp is open or closed.</p>
+<form class="visitor-report" method="get" action="/report/" aria-labelledby="visitor-report-title">
+<input type="hidden" name="camp" value="{e(slug)}">
+<input type="hidden" name="name" value="{e(name)}">
+<input type="hidden" name="state" value="{e(state)}">
+<input type="hidden" name="page" value="{e(path)}">
+<div class="vr-field"><label for="vr-visited">Date visited</label><input id="vr-visited" name="visited" type="date" maxlength="10" autocomplete="off"></div>
+<div class="vr-field"><label for="vr-full">How full</label><input id="vr-full" name="full" type="text" maxlength="80" autocomplete="off" placeholder="For example, 3 of 12 sites taken"></div>
+<div class="vr-field"><label for="vr-access">Road access</label><input id="vr-access" name="access" type="text" maxlength="80" autocomplete="off" placeholder="For example, sealed and open"></div>
+<div class="vr-field"><label for="vr-notes">Notes</label><textarea id="vr-notes" name="notes" maxlength="500" rows="3" placeholder="Water, phone coverage, fees, anything that would help"></textarea></div>
+<div class="vr-field"><label for="vr-by">Your name <span class="muted">(optional, first name and initial)</span></label><input id="vr-by" name="by" type="text" maxlength="40" autocomplete="name" placeholder="Alex S."></div>
+<button type="submit">Email this report</button>
+</form>
+<p class="muted">Or <a href="{report_href(c)}">use the report page</a>.</p>
+<p class="muted" id="visitor-report-sent" hidden>If your email app did not open, <a id="visitor-report-fallback" href="{report_href(c)}">open the report page</a> with this report filled in. Send the email yourself. It is not shown here until we have checked it.</p>
+{VISITOR_REPORT_JS}</div>"""
 def region_label(c):
     slug = c.get("state_slug") or SLUG
     names = region_label.cache.get(slug)
@@ -2897,7 +2972,7 @@ def emit_state(state, camps, include_home):
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="{LINKS.get('bom_forecast') or ''}">BOM forecast</a> · {dated}</p>
-{camper_reports(c)}<div class="box"><h2>Been here recently?</h2><p><a href="{report_href(c)}">Report conditions at {e(c['name'])}</a> — how full, road access, water, phone coverage.</p></div>{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
+{camper_reports(c)}{visitor_report_box(c)}{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 multi_state = len(statecfg.enabled()) > 1
 emit_state(primary, by_state[primary["slug"]], not multi_state)
 for state in statecfg.enabled():
@@ -2985,25 +3060,58 @@ document.getElementById("unsub-form").addEventListener("submit", async (ev) => {
   }
 });
 </script>""")
-page("/report/", "Report campground conditions | CampConditions.au", "Email campconditions@outlook.com with what you saw: how full, access, water, coverage.",
- """<p><a class="back-map" href="/">← Back to map</a></p><h1>Report conditions</h1>
-<p>This page does not store a report and it has no form to submit. It opens an email to <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a> with the camp name filled in when you opened a camp's report link. The message is sent only when you send that email.</p>
-<p id="report-camp" class="muted"></p>
-<p><a class="btn" id="report-mail" href="mailto:campconditions@outlook.com?subject=Camp%20conditions%20report&amp;body=Camp%3A%0ADate%20visited%3A%0AHow%20full%3A%0ARoad%20access%3A%0ANotes%3A%0A">Email a report</a></p>
-<script>
+REPORT_PAGE_JS = r"""<script>
 (function () {
   var params = new URLSearchParams(location.search);
+  function one(value, max) {
+    return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
+  }
+  function line(label, value, max) {
+    var text = one(value, max);
+    return text ? label + ": " + text : label + ":";
+  }
   var slug = params.get("camp") || "";
   var given = params.get("name") || "";
-  var name = given.replace(/\\s+/g, " ").trim() || slug.replace(/-/g, " ").replace(/\\s+/g, " ").trim();
+  var name = one(given, 120) || one(String(slug).replace(/-/g, " "), 120);
+  var visited = one(params.get("visited"), 40);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(visited)) visited = "";
+  var who = one(params.get("by"), 40);
+  var state = one(params.get("state"), 12);
+  var campPage = one(params.get("page"), 160);
   var subject = name ? "Camp conditions report: " + name : "Camp conditions report";
-  var body = "Camp: " + name + "\\nDate visited:\\nHow full:\\nRoad access:\\nNotes:\\n";
+  var lines = [
+    "Camp: " + name,
+    line("Date visited", visited, 40),
+    line("How full", params.get("full"), 80),
+    line("Road access", params.get("access"), 80),
+    line("Notes", params.get("notes"), 500)
+  ];
+  if (who) lines.push("Name: " + who);
+  if (state === "vic" || state === "nsw" || state === "qld") lines.push("State: " + state);
+  if (/^\/(vic|nsw|qld)\/camp\/[a-z0-9-]+\/$/.test(campPage)) lines.push("Page: " + campPage);
   var link = document.getElementById("report-mail");
-  if (link) link.href = "mailto:campconditions@outlook.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body);
-  var line = document.getElementById("report-camp");
-  if (line && name) line.textContent = "Camp: " + name;
+  if (link) link.href = "mailto:campconditions@outlook.com?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(lines.join("\n") + "\n");
+  var summary = document.getElementById("report-camp");
+  if (summary && name) {
+    var shown = ["Camp: " + name];
+    var full = one(params.get("full"), 80);
+    var access = one(params.get("access"), 80);
+    var notes = one(params.get("notes"), 500);
+    if (visited) shown.push("Date visited: " + visited);
+    if (full) shown.push("How full: " + full);
+    if (access) shown.push("Road access: " + access);
+    if (notes) shown.push("Notes: " + notes);
+    if (who) shown.push("Name: " + who);
+    summary.textContent = shown.join("\n");
+  }
 })();
-</script>""")
+</script>"""
+page("/report/", "Report campground conditions | CampConditions.au", "Email campconditions@outlook.com with what you saw: how full, access, water, coverage.",
+ """<p><a class="back-map" href="/">← Back to map</a></p><h1>Report conditions</h1>
+<p>This page does not store a report and it has no form to submit. It opens an email to <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a> with the camp name filled in when you opened a camp's report link, and with the date, how full, road access and notes when you used the form on a camp page. The message is sent only when you send that email.</p>
+<p id="report-camp" class="muted"></p>
+<p><a class="btn" id="report-mail" href="mailto:campconditions@outlook.com?subject=Camp%20conditions%20report&amp;body=Camp%3A%0ADate%20visited%3A%0AHow%20full%3A%0ARoad%20access%3A%0ANotes%3A%0A">Email a report</a></p>
+""" + REPORT_PAGE_JS)
 def about_body():
     lead = COPY["about_lead"]
     roads = f"<p>{COPY['about_roads']}</p>"

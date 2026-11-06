@@ -1529,9 +1529,17 @@ if os.path.isfile(nsw_index):
   if "Riverina" not in brewery_page: bad.append(("Brewery Flat", "region"))
   redirects = open(os.path.join(D, "_redirects"), encoding="utf-8").read()
   for line in ("/contact /about/ 301", "/contact/ /about/ 301", "/nsw/nsw /nsw/ 301", "/nsw/nsw/ /nsw/ 301",
-               "/support https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302",
-               "/support/ https://donate.stripe.com/fZu4gs0Oafib8eX0QUfQI00 302"):
+):
     if line not in redirects: bad.append(("_redirects", line))
+  if "/support" in redirects or "fZu4gs0Oafib8eX0QUfQI00" in redirects: bad.append(("_redirects", "old support redirect"))
+  support = open(os.path.join(D, "support", "index.html"), encoding="utf-8").read()
+  tips = {"Tip A$5": "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01", "Tip A$10": "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02", "Tip A$20": "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"}
+  for label, url in tips.items():
+    if not re.search(r'class="tip-btn" href="' + re.escape(url) + r'"[^>]*>' + re.escape(label) + '</a>', support): bad.append(("support", label))
+  if support.count('class="tip-btn"') != 3 or support.count("donate.stripe.com") != 3: bad.append(("support", "three buttons"))
+  if "fZu4gs0Oafib8eX0QUfQI00" in support or "plink_" in support: bad.append(("support", "old link"))
+  if "The digests stay free. If you find them useful, an optional one-off tip helps cover the running costs. Thank you." not in support: bad.append(("support", "wording"))
+  if "<title>CampConditions tip" not in support or any(w in support.lower() for w in ("tax-deductible", "charity", "donation", "recurring")): bad.append(("support", "title/claims"))
   for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301"):
     if line not in redirects: bad.append(("_redirects", line))
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()

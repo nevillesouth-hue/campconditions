@@ -522,8 +522,14 @@ headers = open(os.path.join(D, "_headers"), encoding="utf-8").read()
 if "/status.json" not in headers or "/vic/*" not in headers or headers.count("Cache-Control: no-cache") < 8 or "/assets/" in headers:
   bad.append(("_headers", "no-cache"))
 _rep = home.find('href="/report/">Report<span class="nav-x"> conditions</span></a>')
-if _rep < 0 or home.find('<a href="/faq/">FAQ</a><a href="/about/">About</a></nav>') < _rep or ".nav-x{display:none}" not in home:
+if _rep < 0 or home.find('<a href="/faq/">FAQ</a><a href="/about/">About</a><a href="/support/">Chip in</a></nav>') < _rep or ".nav-x{display:none}" not in home:
   bad.append(("/", "about nav"))
+if '<a href="/support/">Chip in</a></nav>' not in home:
+  bad.append(("/", "chip in nav"))
+if 'The digests stay free. If they’re useful, you can <a href="/support/">chip in</a>.' not in home:
+  bad.append(("/", "chip in signup line"))
+if '· <a href="/support/">Chip in</a> ·' not in home.split("<footer>", 1)[-1].split("</footer>", 1)[0]:
+  bad.append(("/", "chip in footer"))
 if "flex:1 0 100%;flex-wrap:nowrap" not in home:
   bad.append(("/", "nav collapse"))
 if 'class="filter-status"' not in overview or 'class="filter-status-rule"' not in overview or overview.find('class="hide-closed"') > overview.find('id="filter-count"'):

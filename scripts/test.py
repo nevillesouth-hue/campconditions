@@ -526,7 +526,7 @@ if _rep < 0 or home.find('<a href="/faq/">FAQ</a><a href="/about/">About</a><a h
   bad.append(("/", "about nav"))
 if '<a href="/support/">Chip in</a></nav>' not in home:
   bad.append(("/", "chip in nav"))
-if 'The digests stay free. If they’re useful, you can <a href="/support/">chip in</a>.' not in home:
+if '<strong>The digests stay free. If they’re useful, you can <a href="/support/">chip in</a>.</strong>' not in home:
   bad.append(("/", "chip in signup line"))
 if '· <a href="/support/">Chip in</a> ·' not in home.split("<footer>", 1)[-1].split("</footer>", 1)[0]:
   bad.append(("/", "chip in footer"))

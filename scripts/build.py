@@ -859,7 +859,7 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 @media (max-width:860px){.logo{width:clamp(2.9rem,15.9vw,4.8rem);height:clamp(2.9rem,15.9vw,4.8rem)}nav{gap:.2rem .55rem}nav a{font-size:clamp(.78rem,2.4vw,.95rem)}}
 @media (max-width:720px){.banner{padding-left:.55rem;padding-right:.55rem}.brand{font-size:clamp(1.2rem,4.7vw,2.4rem);gap:.3rem}}
 @media (max-width:640px){.digest-cta-long{display:none}.digest-cta-short{display:inline}}
-@media (max-width:420px){.brand{font-size:clamp(1.12rem,5vw,1.35rem)}.digest-cta{padding:.2rem .4rem;gap:.2rem;min-height:0}.digest-cta-short{display:none}.digest-cta-narrow{display:inline}nav{gap:.12rem .26rem}nav a{font-size:.7rem}}
+@media (max-width:420px){.brand{font-size:clamp(1.12rem,5vw,1.35rem)}.digest-cta{padding:.2rem .4rem;gap:.2rem;min-height:0}.digest-cta-short{display:none}.digest-cta-narrow{display:inline}nav{gap:.12rem .2rem}nav a{font-size:.68rem}}
 @media (max-width:370px){nav{gap:.08rem .2rem}nav a{font-size:.64rem}}
 @media (max-width:430px){.nav-x{display:none}}
 @media (max-width:359px){.digest-cta{padding:.1rem .28rem;gap:.12rem;font-size:.68rem}.digest-icon{width:12px;height:12px}.digest-cta-narrow{display:none}.digest-cta-mini{display:inline}}
@@ -2755,11 +2755,12 @@ def emit_state(state, camps, include_home):
     home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
     faq_entities = [{"@type": "Question", "name": item.get("q") or "", "acceptedAnswer": {"@type": "Answer", "text": item.get("a") or ""}} for item in COPY.get("faq") or []]
     def full_home(path, on_home):
+        plan_link = '<p class="muted"><a href="https://campconditions.au/closures-this-weekend/">Planning this weekend?</a></p>' if path != "/" else ""
         home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + path, "inLanguage": "en-AU", "description": COPY["website_description"].format(count=len(camps))},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
                    {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq_entities}]
         page(path, COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
-         f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>
+         f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>{plan_link}
 {map_block(camps, COPY["home_map"], external=SLUG)}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
 <p>{COPY["home_weather"]}</p>{news_section()}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
     multi = len(statecfg.enabled()) > 1

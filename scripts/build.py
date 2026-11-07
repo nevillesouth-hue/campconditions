@@ -2220,7 +2220,7 @@ NEWS = """<section class="box" id="newsletter"><h2>__NEWSLETTER_H2__</h2><p>Ever
 <form id="digest-form" class="signup" action="/api/subscribe" method="post"><label for="digest-email">Your email</label><div class="signup-row"><input id="digest-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"> <button type="submit">Subscribe</button></div></form>
 <div id="digest-note" class="notice" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
 <p class="muted">We'll only use your email to send the CampConditions digest. We never sell or share it. <a href="/unsubscribe/">Unsubscribe any time</a>.</p>
-<p class="muted">The digests stay free. If they’re useful, you can <a href="/support/">chip in</a>.</p>
+<p class="muted"><strong>The digests stay free. If they’re useful, you can <a href="/support/">chip in</a>.</strong></p>
 <script>
 document.getElementById("digest-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();

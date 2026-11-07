@@ -5080,5 +5080,10 @@
   "exclude": true,
   "exclude_reason": "Not a camp: OSM object is a market place (amenity=marketplace) at Fairfield Showground.",
   "checked_date": "2026-11-02"
+ },
+ "n3879236694": {
+  "phone": "0408 023 568",
+  "source_note": "Owner correction 7 Nov 2026 via camp-page form (Andrew Osborne): phone updated to mobile.",
+  "checked_date": "2026-11-08"
  }
 }

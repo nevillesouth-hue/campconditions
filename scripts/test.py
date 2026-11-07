@@ -548,6 +548,46 @@ if "Check road closures" not in about or 'href="https://traffic.transport.vic.go
 report = open(os.path.join(D, "report", "index.html"), encoding="utf-8").read()
 if 'class="back-map" href="/">← Back to map' not in report or 'id="report-mail"' not in report or "mailto:campconditions@outlook.com" not in report or "nothing was sent" in report or "<form" in report:
   bad.append(("report", "mailto"))
+# Camp-page form fills the same email. /report/ still has no form and stores nothing.
+for _field in ('params.get("visited")', 'params.get("full")', 'params.get("access")', 'params.get("notes")', 'params.get("by")', 'params.get("state")', 'params.get("page")'):
+  if _field not in report: bad.append(("report", "visitor field", _field))
+if 'class="visitor-report"' in report or 'class="visitor-report"' in home or 'id="visitor-report"' in home:
+  bad.append(("report", "form on the wrong page"))
+def _sample_camp(state_slug):
+  for camp in feed["camps"]:
+    if f"/{state_slug}/camp/" in (camp.get("url") or ""):
+      return camp
+  return None
+for _state in ("vic", "nsw", "qld"):
+  _sample = _sample_camp(_state)
+  if not _sample:
+    if os.path.isdir(os.path.join(D, _state)): bad.append((_state, "no camp for visitor report"))
+    continue
+  _rel = _sample["url"].split("campconditions.au/", 1)[-1]
+  _html = open(os.path.join(D, _rel, "index.html"), encoding="utf-8").read()
+  _need = (
+    'id="visitor-report"', 'class="visitor-report"', 'method="get"', 'action="/report/"',
+    'name="visited"', 'name="full"', 'name="access"', 'name="notes"', 'name="by"',
+    'name="camp"', 'name="state"', 'name="page"', "Email this report",
+    "mailto:campconditions@outlook.com", "After we check it, the report is shown on this page.", "This prepares an email",
+    f'name="camp" value="{_sample["slug"]}"', f'name="state" value="{_state}"',
+    'class="banner-row"', "flex:1 0 100%;flex-wrap:nowrap",
+  )
+  if any(bit not in _html for bit in _need) or _html.count('class="banner-row"') != 2 or _html.find("</header>") > _html.find('id="visitor-report"'):
+    bad.append((_sample["slug"], "visitor report form"))
+_reports = json.load(open(os.path.join(root, "data", "camper-reports.json"), encoding="utf-8"))
+for _state, _camps in _reports.items():
+  if str(_state).startswith("_") or not isinstance(_camps, dict): continue
+  for _slug, _rows in _camps.items():
+    _path = os.path.join(D, _state, "camp", _slug, "index.html")
+    if not os.path.isfile(_path):
+      bad.append((_slug, "camper report page missing")); continue
+    _page = open(_path, encoding="utf-8").read()
+    if "<h2>Camper reports</h2>" not in _page or "not checked by the land manager" not in _page:
+      bad.append((_slug, "camper reports box"))
+    for _row in _rows:
+      if html.escape(_row.get("text") or "", quote=True) not in _page or html.escape(_row.get("by") or "a camper", quote=True) not in _page:
+        bad.append((_slug, "camper report text"))
 if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))

@@ -962,13 +962,15 @@ a.back-map:focus-visible{outline:3px solid var(--g);outline-offset:2px}
 #updated-line{font-weight:700;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .refresh-btn{flex:0 0 auto;background:#fff;color:var(--g);border:1px solid var(--g);border-radius:5px;font-weight:700;font-size:.72rem;line-height:1.1;padding:.12rem .4rem;min-height:0;box-shadow:none;cursor:pointer}
 .refresh-btn:focus-visible{outline:3px solid var(--g);outline-offset:2px}
+.fresh-actions{flex:0 0 auto;display:inline-flex;align-items:center;gap:.5rem}
+.share-btn.share-btn-m{display:none}
+@media (max-width:600px){.banner .share-btn{display:none}.share-btn.share-btn-m{display:inline-flex;margin-left:0;color:var(--g);border-color:var(--g);background:#fff}.share-btn-m:focus-visible{outline-color:var(--g)}.freshness{padding:.1rem .75rem}#updated-line{white-space:normal;overflow:visible;line-height:1.25}.fresh-actions .refresh-btn,.fresh-actions .share-btn{min-height:40px;min-width:44px;padding:.12rem .6rem}}
 html.standalone .freshness{position:sticky;top:0;z-index:45}
 html.standalone .refresh-btn{background:var(--g);color:#fff}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
 SHARE_JS = r"""<script>
 (function () {
-  var btn = document.getElementById("share-page");
-  if (!btn) return;
+  Array.prototype.forEach.call(document.querySelectorAll(".share-btn"), function (btn) {
   function flash(message) {
     var label = btn.querySelector(".share-label");
     if (!label) return;
@@ -1017,6 +1019,7 @@ SHARE_JS = r"""<script>
       return;
     }
     copyLink(url);
+  });
   });
 })();
 </script>"""
@@ -1121,7 +1124,7 @@ A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type=
 })();
 </script>"""
 STANDALONE_BOOT = """<script>try{if(window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true)document.documentElement.classList.add("standalone")}catch(e){}</script>"""
-FRESH_BAR = f'<p class="freshness" id="freshness" role="status"><span id="updated-line">Updated {STAMP}</span><button type="button" class="refresh-btn" id="refresh-data" aria-label="Refresh camp data">Refresh</button></p>'
+FRESH_BAR = f'<p class="freshness" id="freshness" role="status"><span id="updated-line">Updated {STAMP}</span><span class="fresh-actions"><button type="button" class="refresh-btn" id="refresh-data" aria-label="Refresh camp data">Refresh</button><button type="button" class="share-btn share-btn-m" id="share-page-m" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></span></p>'
 FRESH_JS = r"""<script>
 (function () {
   var meta = document.querySelector('meta[name="campconditions-built"]');

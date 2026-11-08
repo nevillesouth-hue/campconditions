@@ -1199,6 +1199,8 @@ must("abbotsford-bend", murray, ["<strong>Free</strong>", "Booking required:</st
 orchard = page_of("the-orchard")
 must("the-orchard", orchard, ["Toilets: Yes (sealed pump-out)", "Drinking water: No", "Water source: reliable access to water (not stated as drinkable)", "Booking required:</strong> No", "<strong>Free</strong>", "Caravans: Yes", "Access: 2WD access", "Area:</strong> Delatite Arm Reserve, Lake Eildon", "reserve-wide", "toilet from the DataVic Recreation Assets layer", "exploreoutdoors.vic.gov.au", "Checked against official source, 18 October 2026"])
 if "Tents: Yes" in orchard or "Matched via the Delatite" in orchard or "Operator: MANSFIELD" in orchard or "Resolved 18 Oct" in orchard: bad.append(("the-orchard", "suits, flag or raw maintainer"))
+orchard_footer = orchard.split("<footer>", 1)[-1].split("</footer>", 1)[0] if orchard else ""
+if "Victoria: DataVic, Explore Outdoors and Parks Victoria" not in orchard_footer or "Vicmap Admin" not in orchard_footer or 'href="/about/#vic-sources"' not in orchard_footer: bad.append(("the-orchard", "footer attribution"))
 tunnel = page_of("tunnel-bend")
 must("tunnel-bend", tunnel, ["Area:</strong> Upper Goulburn State Forest (Goulburn River)", "area-wide statements on the Explore Outdoors page upper-goulburn-and-big-river-camping, not site-specific"])
 burrum = page_of("lake-burrumbeet-south-1")
@@ -1596,6 +1598,14 @@ if os.path.isfile(nsw_index):
   if "fZu4gs0Oafib8eX0QUfQI00" in support or "plink_" in support: bad.append(("support", "old link"))
   if "The digests stay free. If you find them useful, an optional one-off tip helps cover the running costs. Thank you." not in support: bad.append(("support", "wording"))
   if "<title>CampConditions tip" not in support or any(w in support.lower() for w in ("tax-deductible", "charity", "donation", "recurring")): bad.append(("support", "title/claims"))
+  support_footer = support.split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  support_main = support.split("<main>", 1)[-1].split("</main>", 1)[0]
+  if support_footer.count("<p>") != 1 or "Site built" not in support_footer or "without warranty" not in support_footer: bad.append(("support", "standard footer"))
+  for link in ('href="/about/"', 'href="/support/"', 'href="/faq/"', 'href="/about-the-data/"', 'href="/closures-this-weekend/"', 'href="/privacy/"', 'href="/terms/"', 'href="/status.json"', 'href="/llms.txt"'):
+    if link not in support_footer: bad.append(("support", "footer " + link))
+  for marker in ("DataVic", "Explore Outdoors", "Parks Victoria", "DEECA", "Vicmap", "cfa.vic.gov.au", "NPWS", "QSpatial", "Rural Fire Service", 'href="/about/#vic-sources"', 'href="/about/#nsw-sources"', 'href="/about/#qld-sources"'):
+    if marker in support_footer or marker in support_main: bad.append(("support", "data attribution " + marker))
+  if 'class="banner-row"' not in support or 'class="tip-btn"' not in support_main: bad.append(("support", "header or tips"))
   for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301"):
     if line not in redirects: bad.append(("_redirects", line))
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
@@ -1608,10 +1618,18 @@ if os.path.isfile(nsw_index):
   nsw_footer = nsw_html.split("<footer>", 1)[-1].split("</footer>", 1)[0]
   if home_footer.count("<p>") != (4 if os.path.isdir(os.path.join(D, "qld")) else 3) or 'href="/about/#vic-sources"' not in home_footer or 'href="/about/#nsw-sources"' not in home_footer:
     bad.append(("/", "footer lines"))
-  if vic_footer.count("<p>") != 2 or 'href="/about/#vic-sources"' not in vic_footer or "nsw-sources" in vic_footer:
+  if vic_footer.count("<p>") != 2 or 'href="/about/#vic-sources"' not in vic_footer or "nsw-sources" in vic_footer or "Victoria: DataVic, Explore Outdoors and Parks Victoria" not in vic_footer:
     bad.append(("/vic/", "footer lines"))
-  if nsw_footer.count("<p>") != 2 or 'href="/about/#nsw-sources"' not in nsw_footer or "vic-sources" in nsw_footer:
+  if nsw_footer.count("<p>") != 2 or 'href="/about/#nsw-sources"' not in nsw_footer or "vic-sources" in nsw_footer or "NPWS camping areas" not in nsw_footer:
     bad.append(("/nsw/", "footer lines"))
+  qld_index = os.path.join(D, "qld", "index.html")
+  if os.path.isfile(qld_index):
+    qld_footer = open(qld_index, encoding="utf-8").read().split("<footer>", 1)[-1].split("</footer>", 1)[0]
+    if qld_footer.count("<p>") != 2 or "QPWS camping grounds" not in qld_footer or 'href="/about/#qld-sources"' not in qld_footer or "vic-sources" in qld_footer:
+      bad.append(("/qld/", "footer attribution"))
+  privacy_footer = open(os.path.join(D, "privacy", "index.html"), encoding="utf-8").read().split("<footer>", 1)[-1].split("</footer>", 1)[0]
+  if "Victoria: DataVic, Explore Outdoors and Parks Victoria" not in privacy_footer or "NPWS camping areas" not in privacy_footer:
+    bad.append(("privacy", "footer attribution"))
   if "Data and attribution" in home_footer or "Data and attribution" in vic_footer or "Data and attribution" in nsw_footer:
     bad.append(("footer", "long attribution"))
   home_map_file = open(os.path.join(D, "map-points", "home.json"), "rb").read()

@@ -1485,8 +1485,10 @@ def footer_credits(shared=False):
         if line:
             blocks.append(f"<p>{line}</p>")
     return "\n".join(blocks)
-def footer(shared=False):
-    return f"""<footer>{footer_credits(shared)}
+def footer(shared=False, credits=True):
+    # credits=False on pages that publish no camp data. /support/ is one of those.
+    block = footer_credits(shared) if credits else ""
+    return f"""<footer>{block}
 <p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/support/">Chip in</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
 {_qpws_js(FRESH_JS) if _qld_enabled() else FRESH_JS}"""
@@ -2255,6 +2257,8 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
         on_home = path == "/"
     national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
     shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/", "/faq/", "/about-the-data/", "/closures-this-weekend/"}
+    # /support/ is not a data page. Leave every other page's state credit line alone.
+    show_credits = path != "/support/"
     og_title, og_desc = title, desc
     if path == "/":
         # Link-preview copy uses a rounded count (4,800+) so it does not go stale on
@@ -2274,7 +2278,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
 <link rel="alternate" type="application/json" href="/status.json" title="Campground status feed"><style>{CSS}</style>{head}{''.join(ld(x) for x in extra_ld)}</head><body>
 {banner(on_home, national, own_form=path.startswith("/qld/") and 'id="newsletter"' in body)}
 {FRESH_BAR}
-<main>{body}</main>{footer(shared)}{foot}</body></html>"""
+<main>{body}</main>{footer(shared, show_credits)}{foot}</body></html>"""
     h = external_blank(_multi_state(h))
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
     os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w", encoding="utf-8").write(h)

@@ -868,6 +868,7 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem .75rem;margin:.1rem 0 .15rem}
 .page-head h1{margin:0;flex:1 1 auto}.head-counts{margin:0;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.inline-signup-box{background:#f3f7f1;border:1px solid #cfdcc9;border-left:4px solid #2f5d3a;border-radius:8px;padding:.7rem .9rem;margin:.8rem 0}.inline-signup-box.closed{background:#fbf1f0;border-color:#e5c6c3;border-left-color:#b71c1c}.inline-signup-box p{margin:0 0 .45rem}.inline-signup-box .inline-signup-small{margin:.35rem 0 0;font-size:.82rem}.inline-signup-box .signup-row button{min-height:44px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
 .card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
@@ -2367,6 +2368,60 @@ document.getElementById("digest-form").addEventListener("submit", async (ev) => 
 })();
 </script>
 </section>"""
+INLINE_SIGNUP_JS = """<script>
+(function () {
+  document.querySelectorAll("form.inline-signup").forEach(function (form) {
+    var note = form.parentNode.querySelector(".inline-signup-note");
+    form.addEventListener("submit", async function (ev) {
+      ev.preventDefault();
+      var button = form.querySelector("button");
+      var show = function (kind, msg) { note.hidden = false; note.className = "notice inline-signup-note " + kind; note.textContent = msg; };
+      show("", "One moment\u2026");
+      button.disabled = true;
+      try {
+        var res = await fetch("/api/subscribe", { method: "POST", body: new FormData(form), headers: { accept: "text/plain" } });
+        if (res.ok) {
+          show("ok", "Check your email and click the confirmation link. You won't be added until you do.");
+          Array.from(form.elements).forEach(function (el) { el.disabled = true; });
+          return;
+        }
+        button.disabled = false;
+        show("err", res.status === 503 ? "Sign-ups open soon." : "Please check that address and try again.");
+      } catch (err) {
+        button.disabled = false;
+        show("err", "Something went wrong. Please try again.");
+      }
+    });
+  });
+})();
+</script>"""
+
+def inline_signup(kind, region_name, camp=None):
+    """Growth item 1: short sign-up box under the status line. Uses the existing /api/subscribe double opt-in.
+    kind: "camp", "closed" or "region". The hidden reopen_alert/source fields are ignored by the current backend;
+    they are there so per-camp reopen alerts can be captured once the backend stores them."""
+    state = STATE.get("abbrev") or STATE["name"]
+    fid = "inline-signup-email"
+    hidden = f'<input type="hidden" name="states" value="{e(SLUG)}"><input type="hidden" name="choose_states" value="1"><input type="hidden" name="source" value="{e(kind)}">'
+    if kind == "closed":
+        hidden += f'<input type="hidden" name="reopen_alert" value="{e(camp["slug"])}">'
+        head = f'<strong>{e(camp["name"])} is closed right now.</strong> Want to know when it reopens?'
+        sub = f"Reopenings are listed in the free {e(state)} closures email each Thursday."
+        btn = "Tell me"
+    elif kind == "camp":
+        head = f'<strong>Heading to {e(camp["name"])}?</strong>'
+        sub = f"Get the weekend closures for {e(region_name)} free each Thursday."
+        btn = "Sign me up"
+    else:
+        head = f'<strong>Camping in {e(region_name)}?</strong>'
+        sub = f"Get the weekend closures for {e(region_name)} and the rest of {e(STATE['name'])} free each Thursday."
+        btn = "Sign me up"
+    return (f'<section class="inline-signup-box {e(kind)}" aria-label="Email sign-up"><p>{head} {sub}</p>'
+            f'<form class="signup inline-signup" action="/api/subscribe" method="post">{hidden}'
+            f'<label for="{fid}" class="sr-only">Your email</label><div class="signup-row"><input id="{fid}" type="email" name="email" required placeholder="you@example.com" autocomplete="email"> <button type="submit">{btn}</button></div></form>'
+            '<div class="notice inline-signup-note" role="status" aria-live="polite" hidden></div>'
+            '<p class="muted inline-signup-small">Free. We email a confirmation link first. <a href="/unsubscribe/">Unsubscribe any time</a>.</p>'
+            f'</section>{INLINE_SIGNUP_JS}')
 def news_section(heading=None, preselect=None):
     """Pre-tick the state being browsed. An empty preselect leaves every box clear."""
     title = (COPY.get("newsletter_h2") or "") if heading is None else heading
@@ -2864,7 +2919,7 @@ def emit_state(state, camps, include_home):
         rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
         il = {"@context": "https://schema.org", "@type": "ItemList", "name": COPY["region_list_name"].format(name=n), "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}{camp_url(c)}", "name": c["name"]} for i, c in enumerate(lst)]}
         page(f"/{SLUG}/{k}/", COPY["region_title"].format(name=n, count=len(lst)), COPY["region_description"].format(count=len(lst), name=n, blurb=d),
-             f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › {e(n)}</p><h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{map_block(lst, f"Map of {n} campgrounds", external=SLUG + "-" + k)}{SAFETY}<table id="camp-list"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or "<tr><td colspan=4>No campgrounds listed.</td></tr>"}</tbody></table>{news_section()}',
+             f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › {e(n)}</p><h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{inline_signup("region", n)}{map_block(lst, f"Map of {n} campgrounds", external=SLUG + "-" + k)}{SAFETY}<table id="camp-list"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or "<tr><td colspan=4>No campgrounds listed.</td></tr>"}</tbody></table>{news_section()}',
              [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
     for c in camps:
         rn = REGIONS[c["region"]][0]
@@ -2977,6 +3032,7 @@ def emit_state(state, camps, include_home):
             lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": posted, "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
         page(camp_path, title, desc,
          f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
+{inline_signup("closed" if c["status"] == "closed" else "camp", rn, c)}
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}

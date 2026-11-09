@@ -689,5 +689,15 @@
     "esa_named_feeds": "CC BY 4.0 for News Alerts and Current Incidents only",
     "osm": "ODbL",
     "licences_flattened": false
-  }
+  },
+  "manifest_observation": {
+    "url_count": 516,
+    "pdf_assets": 111,
+    "fetch_errors": 2,
+    "campground_count": null,
+    "recounted_in_repo": false,
+    "note": "Reported URL totals. The full URL list is not stored. A small classifier sample is tested instead."
+  },
+  "osm_locations": "OSM identities are the location reference. Missing official surveyed coordinates do not make a reviewed OSM location unusable.",
+  "official_coordinate_checks_do_not_reject_osm": true
 }

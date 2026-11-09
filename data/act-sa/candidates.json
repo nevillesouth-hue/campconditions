@@ -60,7 +60,7 @@
       },
       "official_geometry_test_executed": false,
       "geometry": null,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:northern-border",
@@ -98,7 +98,7 @@
       },
       "official_geometry_test_executed": false,
       "geometry": null,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:cotter",
@@ -127,7 +127,7 @@
         "official_geometry_test_executed": false
       },
       "official_geometry_test_executed": false,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:honeysuckle",
@@ -156,7 +156,7 @@
       },
       "official_geometry_test_executed": false,
       "geometry": null,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:kowen",
@@ -190,7 +190,7 @@
       },
       "official_geometry_test_executed": false,
       "geometry": null,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:mount-clear",
@@ -219,7 +219,7 @@
       },
       "official_geometry_test_executed": false,
       "geometry": null,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:orrorral",
@@ -248,7 +248,7 @@
       },
       "official_geometry_test_executed": false,
       "geometry": null,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:woods-reserve",
@@ -278,7 +278,7 @@
       },
       "official_geometry_test_executed": false,
       "geometry": null,
-      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here."
     },
     {
       "id": "act:nil-desperandum",
@@ -351,7 +351,7 @@
       "parent_id": "sa:onkaparinga-river-national-park",
       "allocated_sites_reported": 11,
       "geometry": null,
-      "geometry_note": "OSM way is not an entrance or navigation coordinate. No official point is stored.",
+      "geometry_note": "OSM type and id are the location reference. A missing official survey does not make that OSM location unusable. The point is not copied here.",
       "licence": {
         "status": "CC BY 3.0 AU",
         "url": "https://creativecommons.org/licenses/by/3.0/au/",

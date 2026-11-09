@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 os.chdir(ROOT)
 
 import act_sa_fixtures
+import act_sa_html
 import act_sa_status as status
 import states
 
@@ -367,7 +368,7 @@ def main():
     preview_woods = one(report["statuses"], "act:woods-reserve")
     expect(preview_woods["status"] == "closed", "preview woods")
     expect(not status.contains_no_rating(report), "preview wording")
-    expect(any("html extraction" in item.casefold() for item in report["not_implemented"]), "parser gap listed")
+    expect(any("403" in item for item in report["not_implemented"]), "act fetch limit listed")
     expect("RESEND_SEGMENT_ACT_ID" in [item["name"] for item in report["resend"]["variables"]], "act segment named")
     expect(all(item["read_by_signup"] is False for item in report["resend"]["variables"]), "segment vars unread")
     expect("licence_parks_esa" in report["blockers"]["act"], "act licence blocker")
@@ -379,6 +380,18 @@ def main():
     written = open(os.path.join(preview_dir, "preview.txt"), encoding="utf-8").read()
     expect("Do not send" in written and "Do not enrol" in written, "preview banner")
     expect("No Rating" not in written and "{{{EMAIL}}}" not in written, "preview is not a send file")
+    sa_digest = open(os.path.join(preview_dir, "digest", "sa", "digest.txt"), encoding="utf-8").read()
+    sa_meta = json.load(open(os.path.join(preview_dir, "digest", "sa", "meta.json"), encoding="utf-8"))
+    expect("Do not send" in sa_digest and "{{{EMAIL}}}" not in sa_digest, "sa preview digest")
+    expect(sa_meta.get("send") is False and sa_meta.get("reads_segment_env") is False, "sa digest does not send")
+    ingest = json.load(open(os.path.join(preview_dir, "ingest.json"), encoding="utf-8"))
+    by_camp = {row["camp_id"]: row for row in ingest["statuses"]}
+    expect(by_camp["sa:wirra"]["status"] == "closed" and by_camp["sa:pink-gum"]["status"] == "unknown", "fixture html reaches the matcher")
+    expect(by_camp["sa:mambray-creek"]["status"] == "upcoming" and ingest["open_inferred"] is False, "mambray upcoming from html")
+    empty = act_sa_html.parse_closure_html(open(os.path.join(ROOT, "data", "act-sa", "fixtures", "html", "empty.html"), encoding="utf-8").read(), "https://www.parks.sa.gov.au/example", "2026-11-09T00:00:00+00:00")
+    expect(empty["ok"] is False and empty["open_inferred"] is False and empty["status"] == "unknown", "empty html is unknown")
+    blocked = act_sa_html.fetch_public_html("https://example.com/secret")
+    expect(blocked["ok"] is False and blocked["error"] == "host_not_allowed" and blocked["open_inferred"] is False, "other hosts are not fetched")
     refused = subprocess.run(
         [sys.executable, os.path.join(ROOT, "scripts", "act_sa_preview.py"), "--out", os.path.join(ROOT, "dist", "act-sa-preview")],
         cwd=ROOT, capture_output=True, text=True,
@@ -431,12 +444,17 @@ def main():
     expect(kids["child_features"] == 35 and kids["representative_points_inside_parent"] == 35, "35 child points")
     expect(kids["entire_polygons_inside_parent"] == 32 and kids["boundary_crossing_review"] == 3, "three polygons need review")
     expect(kids["publish_as_new_campgrounds"] is False and kids["added_to_camp_count"] == 0, "children do not inflate")
-    manifest = status.load_json(os.path.join(ROOT, "data", "act-sa", "evidence", "source-manifest-rows.json"))
-    classified = status.classify_manifest(manifest["rows"])
-    expect(classified["url_count"] == 516 and classified["campground_count"] is None, "516 urls are not camps")
-    expect(classified["by_kind"].get("pdf_asset_not_HTML") == 111, "pdf assets separated")
-    expect(classified["fetch_errors"] == 2 and classified["fetch_errors_are_camps"] is False, "404 and 500 are not camps")
-    expect(classified["alert_pages_are_active_closures"] is False, "listed alerts are not all active")
+    sample_rows = [
+        {"source_kind": "pdf_asset_not_HTML", "error": ""},
+        {"source_kind": "official_alerts_HTML", "error": ""},
+        {"source_kind": "fetch_error", "error": "HTTP Error 404: Not Found"},
+        {"source_kind": "fetch_error", "error": "HTTP Error 500: Internal Server Error"},
+    ]
+    classified = status.classify_manifest(sample_rows)
+    expect(classified["campground_count"] is None and classified["pdf_assets_are_camps"] is False, "sample manifest is not camps")
+    expect(classified["fetch_errors"] == 2 and classified["alert_pages_are_active_closures"] is False, "errors and alerts are not camp counts")
+    observed = slim.get("manifest_observation") or {}
+    expect(observed.get("url_count") == 516 and observed.get("campground_count") is None and observed.get("recounted_in_repo") is False, "516 is a labelled observation")
     expect(slim["licences"]["sa_html"] != slim["licences"]["sa_legacy_json"], "html and legacy licences differ")
     expect(slim["licences"]["geopdf_explicit_map_or_derived_geometry_grant"] is False, "geopdf grant absent")
     expect(slim["licences"]["act_gov_general_licence_covers_parks_or_esa"] is False, "act.gov.au is not the parks grant")
@@ -482,13 +500,16 @@ def main():
 
 
 NODE = r"""
-import { chosenStates, heldSignupStates, makeToken, readToken } from "./functions/_lib/token.js";
+import { chosenStates, heldSignupStates, heldSignupPreview, makeToken, readToken } from "./functions/_lib/token.js";
 import { signupChoice } from "./functions/api/subscribe.js";
 import { confirmSubscription, segmentPlan } from "./functions/api/confirm.js";
 
 const email = "reader@example.com";
 if (chosenStates(["act", "sa", "vic", "qld"]).join(",") !== "vic,qld") process.exit(1);
 if (heldSignupStates(["sa", "act", "vic"]).join(",") !== "act,sa") process.exit(2);
+const preview = heldSignupPreview("act");
+if (!preview || preview.enrol || preview.send || preview.readsSegmentEnv || preview.requiredEnv !== "RESEND_SEGMENT_ACT_ID") process.exit(13);
+if (heldSignupPreview("vic")) process.exit(14);
 const held = signupChoice(["act", "sa"], true);
 if (held.ok || held.reason !== "not_open" || held.enrol.length) process.exit(3);
 const mixed = signupChoice(["vic", "act"], true);

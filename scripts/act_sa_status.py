@@ -902,7 +902,7 @@ def build_preview_report(moment=None):
             "Explicit local preview report",
         ],
         "not_implemented": [
-            "Live HTML extraction",
+            "ACT Parks HTML is blocked with HTTP 403 from this client, so those pages are a source failure",
             "Network fetch of the ACT or SA inventories during the public build",
             "Statewide OpenStreetMap extract, state-boundary clipping, or official coordinate verification",
             "Publication of GeoPDF-derived geometry or campground map images",

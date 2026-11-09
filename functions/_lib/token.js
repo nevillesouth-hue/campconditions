@@ -43,6 +43,13 @@ export const HELD_SEGMENT_ENV = {
   sa: "RESEND_SEGMENT_SA_ID",
 };
 
+// Preview only. Names the env var a future activation would need and does not read it.
+export function heldSignupPreview(slug) {
+  const key = HELD_SEGMENT_ENV[slug];
+  if (!key) return null;
+  return { slug, enrol: false, send: false, readsSegmentEnv: false, requiredEnv: key };
+}
+
 export function heldSignupStates(raw) {
   const list = Array.isArray(raw) ? raw : String(raw == null ? "" : raw).split(/[,\s]+/);
   const have = new Set();

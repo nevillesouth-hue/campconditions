@@ -9,6 +9,7 @@ import hashlib, importlib, io, json, math, os, re, html, shutil, sys, urllib.par
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
 import states as statecfg
+import town_pages
 SITE = "https://campconditions.au"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "dist")
@@ -25,6 +26,8 @@ WFS = MS = ""
 # NSW alerts freshness per state slug: {"updated": ISO or "", "feed": url}.
 ALERTS_UPDATED = {}
 ALERTS_STALE_DAYS = 2
+# Filled while each state is emitted. Sitemap and llms.txt read it afterwards.
+TOWN_PAGES = []
 
 def alerts_line(slug):
     """Visible "NSW alerts updated <time>" with a warning past two days.
@@ -871,7 +874,7 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .inline-signup-box{background:#f3f7f1;border:1px solid #cfdcc9;border-left:4px solid #2f5d3a;border-radius:8px;padding:.7rem .9rem;margin:.8rem 0}.inline-signup-box.closed{background:#fbf1f0;border-color:#e5c6c3;border-left-color:#b71c1c}.inline-signup-box p{margin:0 0 .45rem}.inline-signup-box .inline-signup-small{margin:.35rem 0 0;font-size:.82rem}.inline-signup-box .signup-row button{min-height:44px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
-.card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
+.card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}.near-table{min-width:34rem}.town-links{margin:.2rem 0 1rem;padding-left:1.2rem}.town-links li{margin:.25rem 0}.near-camps{list-style:none;margin:.4rem 0 1rem;padding:0}.near-camps li{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.55rem .7rem;margin:0 0 .45rem}.near-camps .badge{margin:0 .35rem}.near-note{display:block;color:#444;font-size:.88rem;margin-top:.25rem}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
 .box{background:#fff;border:2px dashed var(--o);border-radius:10px;padding:1rem;margin:1rem 0}input,textarea,select,button{font:inherit;padding:.45rem;border:1px solid #bbb;border-radius:6px}button{background:var(--o);color:#fff;border:0;cursor:pointer}
 .visitor-report{display:flex;flex-direction:column;align-items:stretch;gap:.7rem;max-width:32rem;margin:.35rem 0 0}
 .vr-field{display:flex;flex-direction:column;gap:.15rem}
@@ -2416,6 +2419,11 @@ def inline_signup(kind, region_name, camp=None):
         head = f'<strong>Heading to {e(camp["name"])}?</strong>'
         sub = f"Get the weekend closures for {e(region_name)} free each Thursday."
         btn = "Sign me up"
+    elif kind == "town":
+        # Same state digest as the region box. The email is not limited to this town.
+        head = f'<strong>Camping near {e(region_name)}?</strong>'
+        sub = f"Get the weekend closures for {e(STATE['name'])} free each Thursday."
+        btn = "Sign me up"
     else:
         head = f'<strong>Camping in {e(region_name)}?</strong>'
         sub = f"Get the weekend closures for {e(region_name)} and the rest of {e(STATE['name'])} free each Thursday."
@@ -2886,9 +2894,139 @@ for state in statecfg.enabled():
         src = statecfg.path(state, key)
         if src and os.path.isfile(src):
             shutil.copyfile(src, os.path.join(OUT, os.path.basename(src)))
+def near_line(c):
+    """Keep the existing 'Near Town' text, and link the town page when one exists."""
+    bits = []
+    if c.get("near_place"):
+        bits.append(f'Near {e(c["near_place"])}')
+    if c.get("town_page"):
+        bits.append(f'<a href="{c["town_page"]}">Camping near {e(c["town_page_name"])}</a>')
+    if not bits:
+        return ""
+    return f'<p class="muted">{" · ".join(bits)}</p>'
+def nearby_camps_html(c, index):
+    """Other camps in this state within the town-page radius. Facts already on the camp."""
+    hits = town_pages.nearest(index, c)
+    if not hits:
+        return ""
+    items = []
+    for dist, other in hits:
+        note = town_pages.closure_text(other)
+        note_html = f'<span class="near-note">{e(note)}</span>' if note else ""
+        label = other.get("page_name") or other["name"]
+        items.append(
+            f'<li><a href="{camp_url(other)}">{e(label)}</a> {badge(other)} '
+            f'<span class="muted">{e(town_pages.km_text(dist))}</span>{note_html}</li>'
+        )
+    return (f'<h2>Nearby camps</h2><p class="muted">Other camps in {e(STATE["name"])} within '
+            f'{town_pages.RADIUS_KM:g} kilometres in a straight line, closest first. Distances are not by road.</p>'
+            f'<ul class="near-camps">{"".join(items)}</ul>')
+def _town_items(towns):
+    return "".join(
+        f'<li><a href="{t["url"]}">Camping near {e(t["name"])}</a> '
+        f'<span class="muted">— {t["count"]} camps within {town_pages.RADIUS_KM:g} km in a straight line</span></li>'
+        for t in sorted(towns, key=lambda t: t["name"].casefold())
+    )
+def town_section(chosen):
+    """State-page links to town pages, under the region that contains the town point."""
+    if not chosen:
+        return ""
+    by = {}
+    for town in chosen:
+        by.setdefault(town.get("region") or "", []).append(town)
+    parts = [
+        "<h2>Camping near a town</h2>",
+        f'<p class="muted">A town is listed when at least {town_pages.MIN_CAMPS} camps are within '
+        f'{town_pages.RADIUS_KM:g} kilometres in a straight line of its place point. '
+        f'A place closer than {town_pages.SEPARATION_KM:g} kilometres to one already listed is left off, '
+        f'so two pages do not repeat the same camps.</p>',
+    ]
+    for key, (name, _blurb) in REGIONS.items():
+        rows = by.get(key) or []
+        if not rows:
+            continue
+        parts.append(f'<h3><a href="/{SLUG}/{key}/">{e(name)}</a></h3><ul class="town-links">{_town_items(rows)}</ul>')
+    return "".join(parts)
+def town_links_for_region(key, chosen):
+    rows = [t for t in chosen if t.get("region") == key]
+    if not rows:
+        return ""
+    return f'<h2>Camping near a town</h2><ul class="town-links">{_town_items(rows)}</ul>'
+def write_town_page(town, index):
+    """One town page. Counts, distances, status and closures come from this build's camps."""
+    pairs = [(dist, index.camps[i]) for dist, i in town["nearby"]]
+    lst = [camp for _dist, camp in pairs]
+    region_key = town.get("region") or ""
+    region_name = REGIONS[region_key][0] if region_key in REGIONS else ""
+    label = town["name"]
+    if town["slug"] != town_pages.slugify(town["name"]) and region_name:
+        label = f'{town["name"]}, {region_name}'
+    town["label"] = label
+    n_closed = sum(camp["status"] == "closed" for camp in lst)
+    n_check = sum(camp["status"] == "check" for camp in lst)
+    where = f" in the {region_name} region" if region_name else ""
+    plain = (f"{len(lst)} camps within {town_pages.RADIUS_KM:g} kilometres, in a straight line, of {label}{where}, "
+             f"{STATE['name']}. {n_closed} closed and {n_check} to check in this build. "
+             "Distances are straight-line, not by road.")
+    region_html = f'<p>Listed with the <a href="/{SLUG}/{region_key}/">{e(region_name)} campgrounds</a>.</p>' if region_name else ""
+    rows = "".join(
+        f'<tr {row_attrs(camp)}><td><a href="{camp_url(camp)}">{e(camp.get("page_name") or camp["name"])}</a></td>'
+        f'<td>{dist:.1f} km</td><td>{e(camp.get("category") or "")}</td>'
+        f'<td class="camp-badge">{badge(camp)}</td><td class="camp-note">{e(list_note(camp))}</td></tr>'
+        for dist, camp in pairs
+    )
+    others = town.get("siblings") or []
+    sibling_html = f'<h2>Other towns in {e(region_name)}</h2><ul class="town-links">{_town_items(others)}</ul>' if others and region_name else ""
+    crumbs_items = [("Home", "/"), (STATE["name"], f"/{SLUG}/")]
+    if region_name:
+        crumbs_items.append((region_name, f"/{SLUG}/{region_key}/"))
+    crumbs_items.append((f"Camping near {label}", town["url"]))
+    item_list = {"@context": "https://schema.org", "@type": "ItemList", "name": f"Camping near {label}",
+                 "numberOfItems": len(lst), "itemListElement": [
+                     {"@type": "ListItem", "position": i + 1, "url": f"{SITE}{camp_url(camp)}", "name": camp["name"]}
+                     for i, (_dist, camp) in enumerate(pairs)]}
+    place_ld = {"@context": "https://schema.org", "@type": "Place", "name": town["name"], "url": SITE + town["url"],
+                "description": plain,
+                "geo": {"@type": "GeoCoordinates", "latitude": round(town["lat"], 5), "longitude": round(town["lon"], 5)},
+                "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"}}
+    if region_name:
+        place_ld["containedInPlace"] = {"@type": "AdministrativeArea", "name": region_name}
+    page(town["url"], f"Camping near {label}, {STATE['name']} | CampConditions.au", plain,
+         f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a>'
+         + (f' › <a href="/{SLUG}/{region_key}/">{e(region_name)}</a>' if region_name else "")
+         + f'</p><h1>Camping near {e(label)}</h1><p>{e(plain)}</p>{region_html}'
+         f'{inline_signup("town", label)}'
+         f'{map_block(lst, f"Map of camps within {town_pages.RADIUS_KM:g} km of {label}", external=SLUG + "-near-" + town["slug"])}'
+         f'{SAFETY}'
+         f'<div class="table-wrap"><table id="camp-list" class="near-table"><thead><tr><th>Campground</th><th>Straight-line</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead>'
+         f'<tbody>{rows}</tbody></table></div>{sibling_html}{news_section()}',
+         [crumbs(crumbs_items), item_list, place_ld], head=leaflet_head(True), foot=leaflet_foot(True))
 def emit_state(state, camps, include_home):
     """Write one state's pages. Home is the Victoria page, so only the primary state includes it."""
     bind(state)
+    camp_index = town_pages.CampIndex(camps)
+    known_regions = set(REGIONS)
+    def region_of(lon, lat):
+        key = statecfg.region_id(state, lon, lat) or ""
+        return key if key in known_regions else ""
+    names = town_pages.PREFERRED.get(state["slug"]) or ()
+    chosen, skipped = town_pages.choose_named(town_pages.candidate_rows(state), camp_index, region_of, names)
+    for row in skipped:
+        print(f"Town page skipped ({state['slug']}): {row['name']}: {row['why']}")
+    for town in chosen:
+        town["url"] = f"/{SLUG}/near/{town['slug']}/"
+        town["state"] = SLUG
+        region_name = REGIONS[town["region"]][0] if town.get("region") in REGIONS else ""
+        town["label"] = town["name"]
+        if town["slug"] != town_pages.slugify(town["name"]) and region_name:
+            town["label"] = f'{town["name"]}, {region_name}'
+    by_region_towns = {}
+    for town in chosen:
+        by_region_towns.setdefault(town.get("region") or "", []).append(town)
+    for town in chosen:
+        town["siblings"] = [other for other in by_region_towns.get(town.get("region") or "", []) if other is not town]
+    town_pages.attach(camps, chosen)
+    TOWN_PAGES.extend(chosen)
     by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
     n_closed = sum(c["status"] == "closed" for c in camps)
     n_check = sum(c["status"] == "check" for c in camps)
@@ -2905,7 +3043,7 @@ def emit_state(state, camps, include_home):
         page(path, COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
          f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>{plan_link}
 {map_block(camps, COPY["home_map"], external=SLUG)}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
-<p>{COPY["home_weather"]}</p>{news_section()}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
+<p>{COPY["home_weather"]}</p>{town_section(chosen)}{news_section()}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
     multi = len(statecfg.enabled()) > 1
     state_is_home = multi and state.get("slug") == primary["slug"] and not include_home
     if include_home:
@@ -2913,17 +3051,19 @@ def emit_state(state, camps, include_home):
     if state_is_home:
         full_home(f"/{SLUG}/", True)
     else:
-        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p><p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>"
+        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p><p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{town_section(chosen)}"
         if multi:
             state_body += news_section()
         page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
              state_body, [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))
+    for town in chosen:
+        write_town_page(town, camp_index)
     for k, (n, d) in REGIONS.items():
         lst = by_reg[k]
         rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
         il = {"@context": "https://schema.org", "@type": "ItemList", "name": COPY["region_list_name"].format(name=n), "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}{camp_url(c)}", "name": c["name"]} for i, c in enumerate(lst)]}
         page(f"/{SLUG}/{k}/", COPY["region_title"].format(name=n, count=len(lst)), COPY["region_description"].format(count=len(lst), name=n, blurb=d),
-             f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › {e(n)}</p><h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{inline_signup("region", n)}{map_block(lst, f"Map of {n} campgrounds", external=SLUG + "-" + k)}{SAFETY}<table id="camp-list"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or "<tr><td colspan=4>No campgrounds listed.</td></tr>"}</tbody></table>{news_section()}',
+             f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › {e(n)}</p><h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{town_links_for_region(k, chosen)}{inline_signup("region", n)}{map_block(lst, f"Map of {n} campgrounds", external=SLUG + "-" + k)}{SAFETY}<table id="camp-list"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or "<tr><td colspan=4>No campgrounds listed.</td></tr>"}</tbody></table>{news_section()}',
              [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
     for c in camps:
         rn = REGIONS[c["region"]][0]
@@ -3035,11 +3175,12 @@ def emit_state(state, camps, include_home):
             posted = feed_iso(cl.get("source_published")) or NOW.isoformat()
             lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": posted, "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
         page(camp_path, title, desc,
-         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
+         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{near_line(c)}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
 {inline_signup("closed" if c["status"] == "closed" else "camp", rn, c)}
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
+{nearby_camps_html(c, camp_index)}
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="{LINKS.get('bom_forecast') or ''}">BOM forecast</a> · {dated}</p>
 {camper_reports(c)}{visitor_report_box(c)}{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 multi_state = len(statecfg.enabled()) > 1
@@ -3544,6 +3685,7 @@ if len(statecfg.enabled()) > 1:
         urls += [f"/{SLUG}/{k}/" for k in REGIONS]
         urls += [camp_url(c) for c in by_state[state["slug"]]]
     bind(primary)
+urls += [town["url"] for town in TOWN_PAGES]
 # lastmod is the build date for pages built from live data. Pages whose text only
 # changes with a code edit carry the date of that edit, so crawlers are not told
 # they changed every three hours.
@@ -3562,6 +3704,11 @@ for state in statecfg.enabled():
     intro = COPY["llms_intro"].format(count=len(rows_state))
     llms_intros.append(intro)
     regions = "".join(f"- [{name}]({SITE}/{SLUG}/{key}/): {blurb}\n" for key, (name, blurb) in REGIONS.items())
+    town_lines = "".join(
+        f"- [Camping near {town['label']}]({SITE}{town['url']}): {town['count']} camps within {town_pages.RADIUS_KM:g} km in a straight line\n"
+        for town in sorted((town for town in TOWN_PAGES if town["state"] == state["slug"]), key=lambda town: town["name"].casefold())
+    )
+    towns_section = f"\n### {state['name']} towns\n{town_lines}" if town_lines else ""
     n_osm = sum(c.get("source") == "osm" for c in rows_state)
     llms_sections.append(f"""## {state['name']}
 {intro}
@@ -3572,7 +3719,7 @@ for state in statecfg.enabled():
 - Attribution: {CREDIT}
 
 ### {state['name']} regions
-{regions}""")
+{regions}{towns_section}""")
 bind(primary)
 llms_states = "".join(f"- [{s['name']}]({SITE}/{s['slug']}/)\n" for s in statecfg.enabled())
 _sn = [s["name"] for s in statecfg.enabled()]
@@ -3605,6 +3752,9 @@ n_dv = len(camps) - n_osm
 n_closed = sum(c["status"] == "closed" for c in camps)
 n_check = sum(c["status"] == "check" for c in camps)
 print(f"Built {len(urls)} pages, {len(camps)} camps ({n_dv} {LABELS.get('official_short') or 'official'}, {n_osm} OSM, {n_closed} closed, {n_check} check), {len(closures)} closure features")
+print(f"Town pages: {len(TOWN_PAGES)} (radius {town_pages.RADIUS_KM:g} km, minimum {town_pages.MIN_CAMPS}, separation {town_pages.SEPARATION_KM:g} km)")
+for town in TOWN_PAGES:
+    print(f"  {town['count']:3d}  {town['url']}  {town['label']}  {town.get('region') or ''}")
 renamed = [c for c in camps if c.get("former_name")]
 print(f"Renamed {len(renamed)} indexed OSM names; slugs unchanged")
 for camp in sorted(renamed, key=lambda c: c["former_name"].lower()):

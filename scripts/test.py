@@ -771,7 +771,7 @@ if border_dupes & {c.get("slug") for c in osm}: bad.append(("osm", "border dupli
 if len(named) - len(osm) != len(border_dupes): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1096, "Camping area": 5, "Council park": 76, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
+expect_counts = {"Free": 1095, "Camping area": 5, "Council park": 76, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
@@ -2066,6 +2066,97 @@ for _st in ("vic", "nsw", "qld"):
       if not _line or not re.search(r": [A-Z][A-Za-z ]+ (today|tomorrow)", _line.group(1)):
         bad.append((_slug, "fallback without official rating"))
 print(f"fire fallback: {_fallback_pages} camp pages use the nearest district, {_unmapped_pages} show No fire district mapped")
+# Town landing pages. Counts and distances come from the camp coordinates.
+import town_pages as _towns
+def _tcamps(*rows):
+  return [{"name": n, "lat": la, "lon": lo, "slug": n, "status": "open"} for n, la, lo in rows]
+def _north(lat, kilometres):
+  return lat + kilometres / 111.0
+_rows = [(f"a{i}", _north(0, 1 + i), 0.01) for i in range(6)]
+_rows += [(f"g{i}", _north(2.0, i * 0.01), 0.0) for i in range(6)]
+_rows += [("solo", 5.0, 5.0)]
+_idx = _towns.CampIndex(_tcamps(*_rows))
+_chosen, _skipped = _towns.choose_named(
+  [{"name": "Alpha", "lat": 0, "lon": 0, "place": "town"},
+   {"name": "Beta", "lat": 0, "lon": 5 / 111.0, "place": "town"},
+   {"name": "Gamma", "lat": 2, "lon": 0, "place": "town"},
+   {"name": "Thin", "lat": 5, "lon": 5, "place": "town"}],
+  _idx, lambda lon, lat: "west",
+  ["Alpha", "Beta", "Thin", "Gamma", "Missing"])
+if {c["name"] for c in _chosen} != {"Alpha", "Gamma"}: bad.append(("towns", "chosen", [c["name"] for c in _chosen]))
+if _chosen and any(c["count"] < _towns.MIN_CAMPS for c in _chosen): bad.append(("towns", "minimum"))
+_why = {row["name"]: row["why"] for row in _skipped}
+if "Beta" not in _why or "Thin" not in _why or "Missing" not in _why: bad.append(("towns", "skipped", _why))
+def _at(lat, lon, kilometres):
+  # Scale a northward step so the haversine distance matches kilometres.
+  guess = lat + kilometres / 100.0
+  dist = _towns.km(lat, lon, guess, lon) or 1
+  return lat + (guess - lat) * (kilometres / dist)
+_base_lat, _base_lon = -37.0, 145.0
+_rim = _at(_base_lat, _base_lon, _towns.RADIUS_KM)
+while _towns.km(_base_lat, _base_lon, _rim, _base_lon) > _towns.RADIUS_KM:
+  _rim -= 1e-7
+_edge = _towns.CampIndex([{"name": "here", "lat": _base_lat, "lon": _base_lon, "slug": "here", "status": "open"},
+                          {"name": "rim", "lat": _rim, "lon": _base_lon, "slug": "rim", "status": "open"}])
+if len(_edge.within(_base_lat, _base_lon, _towns.RADIUS_KM)) != 2: bad.append(("towns", "radius edge"))
+_over = _towns.CampIndex([{"name": "here", "lat": _base_lat, "lon": _base_lon, "slug": "here", "status": "open"},
+                          {"name": "out", "lat": _at(_base_lat, _base_lon, _towns.RADIUS_KM + 1), "lon": _base_lon, "slug": "out", "status": "open"}])
+if len(_over.within(_base_lat, _base_lon, _towns.RADIUS_KM)) != 1: bad.append(("towns", "radius over"))
+_town_pages = []
+for _st in ("vic", "nsw", "qld"):
+  _dir = os.path.join(D, _st, "near")
+  if not os.path.isdir(_dir):
+    bad.append((_st, "town dir")); continue
+  for _slug in sorted(os.listdir(_dir)):
+    _fp = os.path.join(_dir, _slug, "index.html")
+    if os.path.isfile(_fp):
+      _town_pages.append((_st, _slug, _fp))
+if not (30 <= len(_town_pages) <= 50): bad.append(("towns", "count", len(_town_pages)))
+_feed_by = {}
+for _c in feed["camps"]:
+  _feed_by[_c["url"].replace("https://campconditions.au", "")] = _c
+for _st, _slug, _fp in _town_pages:
+  _html = open(_fp, encoding="utf-8").read()
+  _path = f"/{_st}/near/{_slug}/"
+  if _path not in sm: bad.append((_path, "sitemap")); break
+  if f"<h1>Camping near " not in _html or "in a straight line" not in _html or "not by road" not in _html:
+    bad.append((_path, "wording")); break
+  if f'name="states" value="{_st}" checked' not in _html:
+    bad.append((_path, "signup")); break
+  for _other in ("vic", "nsw", "qld"):
+    if _other != _st and f'name="states" value="{_other}" checked' in _html:
+      bad.append((_path, "other state ticked")); break
+  _blocks = _ld_blocks(_html)
+  _types = [b.get("@type") for b in _blocks]
+  if "ItemList" not in _types or "BreadcrumbList" not in _types or "Place" not in _types:
+    bad.append((_path, "json-ld", _types)); break
+  _place = next(b for b in _blocks if b.get("@type") == "Place")
+  _geo = _place.get("geo") or {}
+  _item = next(b for b in _blocks if b.get("@type") == "ItemList")
+  _camp_hrefs = re.findall(r'href="(/%s/camp/[^"]+/)"' % _st, _html)
+  if len(_camp_hrefs) != len(set(_camp_hrefs)) or len(_camp_hrefs) != _item.get("numberOfItems") or len(_camp_hrefs) < _towns.MIN_CAMPS:
+    bad.append((_path, "camp count", len(_camp_hrefs), _item.get("numberOfItems"))); break
+  if str(len(_camp_hrefs)) not in _html.split("<h1>", 1)[-1][:400]:
+    bad.append((_path, "count not in intro")); break
+  _far = None
+  for _href in _camp_hrefs:
+    _camp = _feed_by.get(_href)
+    if not _camp:
+      bad.append((_path, "unknown camp", _href)); _far = True; break
+    if _towns.km(_geo.get("latitude"), _geo.get("longitude"), _camp["lat"], _camp["lon"]) > _towns.RADIUS_KM + 0.05:
+      bad.append((_path, "outside radius", _camp.get("name"))); _far = True; break
+  if _far: break
+  _sample = _camp_hrefs[0]
+  _camp_html = open(os.path.join(D, _sample.strip("/"), "index.html"), encoding="utf-8").read()
+  if _path not in _camp_html:
+    bad.append((_sample, "camp does not link to its town")); break
+  if "Nearby camps" not in _camp_html or "in a straight line" not in _camp_html:
+    bad.append((_sample, "nearby camps")); break
+  _region = re.search(r'href="(/%s/[a-z0-9-]+/)"' % _st, _html.split("<h1>", 1)[0])
+  if _region and _path not in open(os.path.join(D, _region.group(1).strip("/"), "index.html"), encoding="utf-8").read():
+    bad.append((_path, "region does not link back")); break
+if os.path.isdir(os.path.join(D, "act")) or os.path.isdir(os.path.join(D, "sa")):
+  bad.append(("towns", "act or sa built"))
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

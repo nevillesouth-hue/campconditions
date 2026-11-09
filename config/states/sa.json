@@ -8,7 +8,7 @@
     "covering": "",
     "coming": ""
   },
-  "coverage_label": "Disabled inventory only. 73 Parks SA campgrounds have confident coordinates and 35 eligible non-park camps are included. Held and excluded places are not published. This is not a state launch.",
+  "coverage_label": "Disabled inventory only. 73 Parks SA campgrounds have confident coordinates and 34 eligible non-park camps are included. Pondalowie stays out until there is an official location. Held and excluded places are not published. This is not a state launch.",
   "credit": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). The 2017 parks JSON is CC BY 4.0 and is not this inventory.",
   "safety_html": "<div class=\"warn\">South Australia is not published. This preview is not a launch. A page with no current notice is not a confirmation the camp is open.</div>",
   "licence": {
@@ -158,7 +158,7 @@
       {
         "id": "inventory_audit",
         "ok": false,
-        "detail": "A disabled build can list 73 confident Parks SA campgrounds and 35 eligible non-park camps. 76 official campgrounds remain held without coordinates. This is not a statewide launch."
+        "detail": "A disabled build can list 73 confident Parks SA campgrounds and 34 eligible non-park camps. Pondalowie is held out because the OSM point is outside the official area. 76 official campgrounds remain held without coordinates. This is not a statewide launch."
       },
       {
         "id": "official_source_parser",

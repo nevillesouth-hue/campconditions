@@ -568,7 +568,7 @@ def main():
 
     sa_camps = sa_inventory.load_camps(set())
     counted = sa_inventory.summary(sa_camps)
-    expect(counted["official_confident"] == 73 and counted["eligible_osm"] == 35 and counted["published"] == 108, "sa inventory counts")
+    expect(counted["official_confident"] == 73 and counted["eligible_osm"] == 34 and counted["published"] == 107, "sa inventory counts")
     expect(counted["open_inferred"] is False and counted["fire_rating_count"] == 0, "sa inventory not open and not rated")
     expect(all(row["status"] != "open" for row in sa_camps), "no confirmed open")
     booking = {}
@@ -578,11 +578,19 @@ def main():
         for item in row["booking_ids"]:
             expect(item not in booking, "booking id is one camp")
             booking[item] = row
-    expect("85012" not in booking and "73196" not in booking and "67592" not in booking, "held camps stay out")
+    expect("85012" not in booking and "73196" not in booking and "67592" not in booking and "67453" not in booking and "69782" not in booking, "held camps stay out")
     springs = booking["73101"]
     expect(springs["name"].startswith("Black Springs Campground") and springs["notice_status"] == "no_current_notice", "black springs separate")
-    pond = booking["67453"]
-    expect(pond is booking["69782"] and pond["needs_review"] is True and pond["inventory_group"] == "eligible_osm", "pondalowie is one eligible camp")
+    by_osm = {row["osm_id"]: row for row in sa_camps if row.get("osm_id")}
+    west = by_osm["way/75460499"]
+    waikerie = by_osm["way/671003129"]
+    kingston = by_osm["way/943231647"]
+    renmark = by_osm["way/663118408"]
+    expect(west["name"] == "Discovery Parks – West Beach Parks" and west["slug"] == "big4-west-beach-parks" and west["needs_review"] is False, "west beach rename keeps its slug")
+    expect(waikerie["name"] == "Echo Holiday Parks – Waikerie" and waikerie["slug"] == "echo-holiday-park" and waikerie["needs_review"] is False, "waikerie rename keeps its slug")
+    expect(kingston["name"] == "BIG4 Kingston SE Foreshore Holiday Park" and kingston["slug"] == "kingston-caravan-park" and kingston["needs_review"] is False, "kingston rename keeps its slug")
+    expect(renmark["name"] == "Echo Holiday Parks - Renmark" and renmark["slug"] != waikerie["slug"] and renmark["needs_review"] is False, "echo renmark stays separate")
+    expect("way/852240175" not in by_osm, "pondalowie stays out of the preview")
     expect(booking["73157"]["notice_status"] == "closed" and booking["73157"]["status"] == "closed", "grindells closed")
     expect(booking["73157"]["notice_url"].startswith("https://www.parks.sa.gov.au/"), "closed camps link the notice")
     expect(all(not row["notice_url"] for row in sa_camps if row["notice_status"] == "no_current_notice"), "no-notice camps do not link a notice")
@@ -591,7 +599,7 @@ def main():
     expect(quiet["status_label"] == "No current notice" and quiet["status"] != "open", "no notice is not open")
     expect(all(sa_inventory.ATTRIBUTION in row["attribution"] for row in sa_camps if row["source"] == "parks_sa"), "parks attribution")
     expect(all(row["fire_link"]["rating"] is None and row["fire_link"]["url"].startswith("https://www.cfs.sa.gov.au/") for row in sa_camps), "cfs link without a rating")
-    expect(sum(1 for row in sa_camps if row["needs_review"]) == 16, "unchecked camps stay flagged")
+    expect(sum(1 for row in sa_camps if row["needs_review"]) == 0, "finished checks are no longer flagged")
     expect("district polygons" in " ".join(sa_inventory.FIRE_NEEDED), "fire gap named")
     saved_preview = os.environ.get("CAMPCONDITIONS_PREVIEW")
     saved_out = os.environ.get("CAMPCONDITIONS_OUT")

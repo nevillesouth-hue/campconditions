@@ -28,6 +28,34 @@ FIRE_NEEDED = (
     "A separate rule for whether a total fire ban closes that camp. A ban alone is not a park closure",
 )
 REGION = "south-australia"
+# George's finished check of the 16 camps that still needed one, 9 Nov 2026.
+# Slugs stay on the previous name. Pondalowie stays out of the preview.
+CHECKED_OSM = {
+    "way/189870423",  # Whyalla Caravan & Tourist Park
+    "way/189966968",  # Brighton Beachfront Holiday Park
+    "way/266080094",  # Balgowan Caravan & Camping Area
+    "way/266254600",  # Port Vincent Foreshore Caravan Park
+    "way/296586601",  # Moana Beach Tourist Park
+    "way/310185448",  # Quorn Caravan Park
+    "way/315185148",  # Port Lincoln Tourist Park
+    "way/342488807",  # Kalganyi Holiday Park
+    "way/375867507",  # Discovery Parks - Clare
+    "way/663118408",  # Echo Holiday Parks - Renmark
+    "way/819859535",  # Adelaide Showground Caravan Park
+    "way/856987896",  # Pine Country Caravan Park
+    "way/75460499",
+    "way/671003129",
+    "way/943231647",
+}
+DISPLAY_NAME = {
+    "way/75460499": "Discovery Parks – West Beach Parks",
+    "way/671003129": "Echo Holiday Parks – Waikerie",
+    "way/943231647": "BIG4 Kingston SE Foreshore Holiday Park",
+}
+# Name and operator are confirmed. The OSM point is outside the official area.
+HELD_FROM_PREVIEW = {
+    "way/852240175": "OSM point is outside the official campground area",
+}
 
 
 def _slug(name):
@@ -279,6 +307,8 @@ def load_camps(seen=None, moment=None):
         lat, lon = _number(row.get("osm_lat")), _number(row.get("osm_lon"))
         if lat is None or lon is None:
             raise SystemExit("eligible camp missing coordinates: %s" % osm_id)
+        if osm_id in HELD_FROM_PREVIEW:
+            continue
         checked = spot.get(osm_id) or {}
         if checked.get("verdict") == "downgrade_to_hold":
             continue
@@ -289,19 +319,25 @@ def load_camps(seen=None, moment=None):
         used_osm.add(osm_id)
         source_url = _first_url(row.get("official_or_operator_url") or "")
         source = "parks_sa" if booking_ids else "sa_operator"
-        slug = _unique_slug(row.get("name"), seen, osm_id.replace("/", "-"))
-        camp = _blank_camp(row.get("name") or osm_id, slug, lat, lon, source, source_url)
+        original_name = row.get("name") or osm_id
+        slug = _unique_slug(original_name, seen, osm_id.replace("/", "-"))
+        camp = _blank_camp(DISPLAY_NAME.get(osm_id) or original_name, slug, lat, lon, source, source_url)
+        if osm_id in DISPLAY_NAME:
+            camp["former_name"] = original_name
         camp["id"] = booking_ids[0] if booking_ids else osm_id
         camp["booking_ids"] = booking_ids
         camp["osm_id"] = osm_id
         camp["category"] = "Parks SA campground" if booking_ids else "Campground"
         camp["inventory_group"] = "eligible_osm"
         confirmed = checked.get("check_status") == "checked" and checked.get("verdict") == "confirmed_eligible"
-        if not confirmed:
+        if osm_id in CHECKED_OSM:
+            camp["needs_review"] = False
+            camp["check_reason"] = "checked"
+        elif not confirmed:
             camp["needs_review"] = True
             camp["check_reason"] = "not_spot_checked"
             needs_check += 1
-        if booking_ids:
+        if booking_ids and osm_id not in CHECKED_OSM:
             camp["attribution"] = ATTRIBUTION + ". " + OSM_ATTRIBUTION
             camp["check_reason"] = camp["check_reason"] or "official_coordinate_hold"
             if not camp["needs_review"]:
@@ -314,8 +350,8 @@ def load_camps(seen=None, moment=None):
         camps.append(camp)
 
     published_eligible = [camp for camp in camps if camp.get("inventory_group") == "eligible_osm"]
-    if len(published_eligible) != 35:
-        raise SystemExit("expected to publish 35 eligible camps, found %s" % len(published_eligible))
+    if len(published_eligible) != 34:
+        raise SystemExit("expected to publish 34 eligible camps, found %s" % len(published_eligible))
     notice_doc = _load_json(notice_path)
     moment = moment or dt.datetime.fromisoformat(notice_doc["as_of_adelaide"])
     scored = act_sa_notices.evaluate_all(notice_doc["notices"], moment)

@@ -35,10 +35,10 @@ def _inventory():
     camps = sa_inventory.load_camps(set())
     counted = sa_inventory.summary(camps)
     needs = [camp["name"] for camp in camps if camp.get("needs_review")]
-    ok = counted["published"] == 108 and counted["official_confident"] == 73 and counted["eligible_osm"] == 35 and len(needs) == 16
-    reason = "108 camps (73 official, 35 eligible). Needs a check (%s): %s." % (len(needs), "; ".join(needs))
+    ok = counted["published"] == 107 and counted["official_confident"] == 73 and counted["eligible_osm"] == 34 and len(needs) == 0
+    reason = "107 camps (73 official, 34 eligible). Pondalowie is held out: the OSM point is outside the official campground area. Needs a check: 0."
     if not ok:
-        reason = "expected 108 camps and 16 needs-check rows, found %s and %s" % (counted["published"], len(needs))
+        reason = "expected 107 camps and no needs-check rows, found %s and %s (%s)" % (counted["published"], len(needs), "; ".join(needs))
     return _check("inventory", ok, reason), camps
 
 

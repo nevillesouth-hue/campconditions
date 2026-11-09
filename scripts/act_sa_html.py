@@ -36,28 +36,30 @@ def fetch_public_html(url, timeout=25):
     checked = dt.datetime.now(dt.timezone.utc).isoformat()
     host = urllib.request.urlparse(url).hostname or ""
     if urllib.request.urlparse(url).scheme != "https" or host not in ALLOWED_HOSTS:
-        return {"ok": False, "source_url": url, "http_status": None, "body": "", "checked_at": checked,
+        return {"ok": False, "source_url": url, "http_status": None, "body": "", "headers": {}, "checked_at": checked,
                 "error": "host_not_allowed", "open_inferred": False}
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html"})
     try:
         with urllib.request.urlopen(request, timeout=timeout) as response:
             raw = response.read(1_500_000)
             charset = response.headers.get_content_charset() or "utf-8"
+            headers = {key: value for key, value in response.headers.items()}
             return {
                 "ok": response.status == 200,
                 "source_url": url,
                 "http_status": response.status,
                 "body": raw.decode(charset, errors="replace"),
+                "headers": headers,
                 "checked_at": checked,
                 "error": "" if response.status == 200 else "http_%s" % response.status,
                 "open_inferred": False,
             }
     except urllib.error.HTTPError as exc:
-        return {"ok": False, "source_url": url, "http_status": exc.code, "body": "", "checked_at": checked,
+        return {"ok": False, "source_url": url, "http_status": exc.code, "body": "", "headers": {}, "checked_at": checked,
                 "error": "http_%s" % exc.code, "open_inferred": False}
     except Exception as exc:
         kind = "timeout" if "timed out" in str(exc).lower() else "unavailable"
-        return {"ok": False, "source_url": url, "http_status": kind, "body": "", "checked_at": checked,
+        return {"ok": False, "source_url": url, "http_status": kind, "body": "", "headers": {}, "checked_at": checked,
                 "error": kind, "open_inferred": False}
 
 
@@ -101,7 +103,7 @@ def parse_closure_html(page_html, url, checked_at=None):
     if record["until_further_notice"]:
         record["intervals"] = []
         record["reopen_at"] = None
-    return record
+    return mark_handled(record)
 
 
 def closure_failure(fetch_result):
@@ -184,7 +186,15 @@ def preview_digest(slug, statuses, generated):
     lines.append("Required before any send: %s" % ("RESEND_SEGMENT_ACT_ID" if slug == "act" else "RESEND_SEGMENT_SA_ID" if slug == "sa" else "none"))
     lines.append("That variable is not read while the state is disabled.")
     text = "\n".join(lines) + "\n"
-    meta = {"state": slug, "send": False, "enrol": False, "reads_segment_env": False, "closed": len(closed), "upcoming": len(upcoming)}
+    meta = {
+        "state": slug,
+        "send": False,
+        "enrol": False,
+        "reads_segment_env": False,
+        "working_digest_coverage": False,
+        "closed": len(closed),
+        "upcoming": len(upcoming),
+    }
     return {"text": text, "meta": meta}
 
 
@@ -347,3 +357,97 @@ def _clock(token):
 def _slash_date(value):
     day, month, year = value.split("/")
     return "%04d-%02d-%02d" % (int(year), int(month), int(day))
+
+
+SA_INDEX = "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"
+ACT_INDEX = "https://www.parks.act.gov.au/before-you-go/alerts"
+
+
+def source_health(headers, http_status, checked_at):
+    """Retrieval metadata. Cache Age is not an origin timestamp."""
+    headers = {str(key).lower(): value for key, value in (headers or {}).items()}
+    age_raw = headers.get("age")
+    age = int(age_raw) if str(age_raw or "").isdigit() else None
+    return {
+        "http_status": http_status,
+        "retrieved_at": checked_at,
+        "cache_age_seconds": age,
+        "origin_freshness_known": False,
+        "last_modified": headers.get("last-modified") or "",
+        "schema": "ok",
+    }
+
+
+def discover_sa_notices(page_html):
+    """Detail notice URLs from the public index. Help anchors are not notices."""
+    found = []
+    for match in re.finditer(r'href="(https://www\.parks\.sa\.gov\.au/know-before-you-go/closures-and-alerts/[^"#]+)"', page_html or ""):
+        url = match.group(1).rstrip("/")
+        if url.endswith("/closures-and-alerts") or "park-closure-descriptions" in url:
+            continue
+        if url not in found:
+            found.append(url)
+    return found
+
+
+def completeness(discovered, parsed_records):
+    """How many index URLs were fetched is not how many camps were matched."""
+    discovered = list(discovered or [])
+    handled = [row for row in parsed_records or [] if row.get("handled")]
+    handled_urls = {row.get("source_url") for row in handled}
+    return {
+        "discovered_detail_notices": len(discovered),
+        "parsed_handled": len(handled_urls & set(discovered)) if discovered else len(handled),
+        "not_parsed_or_unhandled": max(0, len(discovered) - len(handled_urls & set(discovered))),
+        "all_discovered_supported": False,
+        "match_confidence": "separate_from_discovery",
+        "camp_count": None,
+    }
+
+
+def parse_act_alerts_index(page_html, headers=None, checked_at=None, http_status=200):
+    """Minimal Woods fact from the public alerts index, not the detail page."""
+    checked_at = checked_at or dt.datetime.now(dt.timezone.utc).isoformat()
+    health = source_health(headers, http_status, checked_at)
+    text = visible_text(page_html or "")
+    woods = "woods reserve" in text.casefold() and "until further notice" in text.casefold()
+    early = re.search(r"early-?\s*2027", text, re.I) is not None
+    if http_status != 200 or not woods:
+        health["schema"] = "drift" if http_status == 200 else "unavailable"
+        return {
+            "ok": False,
+            "source_url": ACT_INDEX,
+            "status": "unknown",
+            "open_inferred": False,
+            "reopen_at": None,
+            "retain_known_closure": True,
+            "source_health": health,
+            "prose_stored": False,
+        }
+    return {
+        "ok": True,
+        "source_url": ACT_INDEX,
+        "camp_id": "act:woods-reserve",
+        "operating_status": "closed",
+        "until_further_notice": True,
+        "expected_note": "early 2027" if early else None,
+        "reopen_at": None,
+        "open_inferred": False,
+        "handled": True,
+        "source_health": health,
+        "prose_stored": False,
+    }
+
+
+def mark_handled(record):
+    record = dict(record)
+    record["handled"] = bool(record.get("ok") and (
+        record.get("until_further_notice") or record.get("recurrence") or record.get("intervals") or record.get("ambiguous")
+    ))
+    if record.get("ok") and not record["handled"]:
+        record["match_confidence"] = "manual_review"
+        record["status"] = "unknown"
+        record["open_inferred"] = False
+    elif record.get("handled"):
+        record["match_confidence"] = "handled_pattern"
+    return record

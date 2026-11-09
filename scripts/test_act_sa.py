@@ -16,6 +16,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 os.chdir(ROOT)
 
+import act_sa_eligibility
 import act_sa_fixtures
 import act_sa_html
 import act_sa_status as status
@@ -383,7 +384,7 @@ def main():
     sa_digest = open(os.path.join(preview_dir, "digest", "sa", "digest.txt"), encoding="utf-8").read()
     sa_meta = json.load(open(os.path.join(preview_dir, "digest", "sa", "meta.json"), encoding="utf-8"))
     expect("Do not send" in sa_digest and "{{{EMAIL}}}" not in sa_digest, "sa preview digest")
-    expect(sa_meta.get("send") is False and sa_meta.get("reads_segment_env") is False, "sa digest does not send")
+    expect(sa_meta.get("send") is False and sa_meta.get("reads_segment_env") is False and sa_meta.get("working_digest_coverage") is False, "preview digest is not coverage")
     ingest = json.load(open(os.path.join(preview_dir, "ingest.json"), encoding="utf-8"))
     by_camp = {row["camp_id"]: row for row in ingest["statuses"]}
     expect(by_camp["sa:wirra"]["status"] == "closed" and by_camp["sa:pink-gum"]["status"] == "unknown", "fixture html reaches the matcher")
@@ -489,6 +490,47 @@ def main():
     expect(unnamed["status"] == "unknown" and unnamed["closed"] is False, "unnamed mount remarkable camp not closed")
     expect(status.proximity_decision(200)["merged"] is False and status.proximity_decision(444.3)["merged"] is False, "proximity does not merge")
     expect(status.use_html_point_as_camp_geometry("-35.145477,138.5785801") is False, "park html point rejected")
+
+    holds = status.load_json(os.path.join(ROOT, "data", "act-sa", "evidence", "eligibility-holds.json"))
+    classified = [act_sa_eligibility.classify(row) for row in holds["rows"]]
+    by_hold = {row["record_id"]: row for row in classified}
+    expect(act_sa_eligibility.camp_count(holds["rows"]) is None, "ledger rows are not a camp count")
+    expect(holds["ledger_rows_not_camps"] == 1358, "1358 is the hold size")
+    expect(holds["excluded_counts_from_ledger"]["act_child_camp_site"] == 35, "35 cottermouth children")
+    expect(holds["excluded_counts_from_ledger"]["sa_allocated_children"] == 57, "57 allocated children")
+    expect(by_hold["way/1567012314"]["excluded"] and by_hold["node/3107057998"]["excluded"], "child sites are not camps")
+    expect(by_hold["node/8441973436"]["excluded"] and by_hold["way/280952772"]["eligible_camp"], "epic is one identity")
+    expect(by_hold["way/265761463"]["excluded"] and by_hold["way/265761467"]["excluded"] and by_hold["node/1811199869"]["eligible_camp"], "trig sectors are not camps")
+    expect(by_hold["node/775893673"]["excluded"] and by_hold["way/315306819"]["eligible_camp"], "trezona duplicate dropped")
+    expect(by_hold["way/1015330682"]["excluded"] and by_hold["node/1811173346"]["eligible_camp"], "engine point subarea dropped")
+    expect(all(by_hold[item]["excluded"] for item in ("node/1956246563", "node/9738925392", "node/11182471275", "way/265146867")), "out of state excluded")
+    woods_hold = by_hold["woods"]
+    expect(woods_hold["operating_status"] == "closed" and woods_hold["reopen_at"] is None and woods_hold["open_inferred"] is False, "woods is the closed hold")
+    expect(all(row["open_inferred"] is False and row["operating_status"] != "open" for row in classified), "no hold is open")
+    rodeo = next(row for row in holds["rows"] if row["record_id"] == "node/1811160487")
+    cliffs = next(row for row in holds["rows"] if row["record_id"] == "node/1811163200")
+    rest = next(row for row in holds["rows"] if row["record_id"] == "way/495027493")
+    springs = next(row for row in holds["rows"] if row["record_id"] == "node/3439215546")
+    expect(act_sa_eligibility.same_camp(rodeo, {"record_id": "sa:baroota-ruins"}, 50)["merged"] is False, "rodeo is not baroota ruins")
+    expect("140962" in cliffs["rejected_match_urls"] and act_sa_eligibility.same_camp(cliffs, {"record_id": "sa:yapari"}, 200)["merged"] is False, "border cliffs is not yapari")
+    expect("67320" in rest["rejected_match_urls"], "rest area is not mambray camp")
+    expect("85012" in springs["rejected_match_urls"], "main black springs is not the overflow")
+    expect(sum(1 for row in classified if row["eligible_camp"]) != 1358, "eligible set is not the ledger")
+
+    index_html = open(os.path.join(ROOT, "data", "act-sa", "fixtures", "html", "act-alerts-index.html"), encoding="utf-8").read()
+    index_record = act_sa_html.parse_act_alerts_index(index_html, {"Age": "21772"}, "2026-11-09T02:00:21+00:00", 200)
+    expect(index_record["operating_status"] == "closed" and index_record["reopen_at"] is None and index_record["expected_note"] == "early 2027", "act index woods stays closed")
+    expect(index_record["source_health"]["cache_age_seconds"] == 21772 and index_record["source_health"]["origin_freshness_known"] is False, "cache age is not origin freshness")
+    drifted = act_sa_html.parse_act_alerts_index("<h1>Alerts</h1><p>Nothing listed</p>", {}, "2026-11-09T02:00:21+00:00", 200)
+    expect(drifted["ok"] is False and drifted["retain_known_closure"] is True and drifted["open_inferred"] is False, "schema drift does not reopen")
+    blocked_index = act_sa_html.parse_act_alerts_index("", {}, "2026-11-09T02:00:21+00:00", 403)
+    expect(blocked_index["status"] == "unknown" and blocked_index["retain_known_closure"] is True and blocked_index["reopen_at"] is None, "index 403 keeps the known closure")
+    sa_index = open(os.path.join(ROOT, "data", "act-sa", "fixtures", "html", "sa-alerts-index.html"), encoding="utf-8").read()
+    discovered = act_sa_html.discover_sa_notices(sa_index)
+    expect("park-closure-descriptions" not in " ".join(discovered) and len(discovered) == 4, "help anchors are not notices")
+    report_complete = act_sa_html.completeness(discovered, [{"source_url": discovered[0], "handled": True}])
+    expect(report_complete["all_discovered_supported"] is False and report_complete["camp_count"] is None, "parsed notices are not full coverage")
+    expect(report_complete["discovered_detail_notices"] > report_complete["parsed_handled"], "discovery stays ahead of handled parses")
 
     if FAILURES:
         print("ACT/SA foundation failures: %s" % len(FAILURES))

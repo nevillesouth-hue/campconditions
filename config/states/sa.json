@@ -1,0 +1,128 @@
+{
+  "slug": "sa",
+  "name": "South Australia",
+  "adjective": "South Australian",
+  "abbrev": "SA",
+  "enabled": false,
+  "banner": {
+    "covering": "",
+    "coming": ""
+  },
+  "coverage_label": "Research records only. Neither the three-camp test set nor the 28-facility cohort is a state launch or a statewide inventory.",
+  "credit": "Pilot facts are attributed separately from OpenStreetMap. Current parks.sa.gov.au pages are CC BY 3.0 Australia. The 2017 parks JSON is CC BY 4.0 and is not the website licence. OSM data is ODbL.",
+  "licence": {
+    "current_site": "CC BY 3.0 AU",
+    "current_site_url": "https://creativecommons.org/licenses/by/3.0/au/",
+    "legacy_dataset": "CC BY 4.0",
+    "legacy_dataset_url": "http://creativecommons.org/licenses/by/4.0",
+    "osm": "ODbL",
+    "osm_url": "https://www.openstreetmap.org/copyright",
+    "agency_name_unconfirmed": true,
+    "attribution_form": "Department of Environment, Water and Natural Resources, the Government of South Australia, [title], Sourced on 9 November 2026, [URL]",
+    "photos": false,
+    "booking_prose": false,
+    "note": "The attribution form keeps the agency name printed with the licence. Do not silently rewrite it. Do not apply CC BY 4.0 to current website or booking pages. HTML CC BY 3.0 AU and the legacy JSON CC BY 4.0 stay distinct.",
+    "geopdf_explicit_map_or_derived_geometry_grant": false,
+    "image_republication": false,
+    "coordinate_derived_publication": false
+  },
+  "fire": {
+    "mode": "link_out_unknown",
+    "authority": "South Australian Country Fire Service",
+    "url": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+    "borrow_nsw_rfs": false,
+    "tfb_equals_park_closure": false,
+    "machine_values": "unverified",
+    "unmapped_label": "Fire danger / total fire ban status not verified here"
+  },
+  "files": {
+    "candidates": "data/act-sa/candidates.json"
+  },
+  "sources": {
+    "legacy_parks_json": {
+      "url": "https://data.sa.gov.au/data/dataset/parks-listings",
+      "live_fetch": false,
+      "use": "reviewed_alias_hints_only",
+      "note": "2017 park records. Not a campground inventory. Camping flags must not drop Pink Gum or Wirra."
+    },
+    "sitemap_index": {
+      "url": "https://www.parks.sa.gov.au/sitemaps-1-sitemap.xml",
+      "live_fetch": false,
+      "note": "Discovery URLs only. 146 park pages, 320 booking pages and 50 alert pages are not campground counts."
+    },
+    "cfs_tfb": {
+      "url": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+      "live_fetch": false,
+      "machine_parser": false
+    }
+  },
+  "links": {
+    "conditions": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts",
+    "conditions_name": "National Parks and Wildlife Service South Australia closures and alerts",
+    "emergency": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+    "emergency_name": "SA Country Fire Service",
+    "desert_bulletin": "https://www.parks.sa.gov.au/know-before-you-go/desert-parks-bulletin-2",
+    "outback_roads": "https://dit.sa.gov.au/OutbackRoads"
+  },
+  "copy": {
+    "digest_subject": "PREVIEW ONLY SA pilot camps — do not send",
+    "digest_intro": "Preview of three selected South Australian campgrounds. This draft is not a digest and must not be sent.",
+    "newsletter_h2": ""
+  },
+  "release": {
+    "public": false,
+    "signup": false,
+    "digest": false,
+    "live_html_parser": false,
+    "live_fetch": false,
+    "targets_provisional": ["2026-11-14"],
+    "targets_are_not_permission_to_ship": true,
+    "code_holds": [
+      "functions/_lib/token.js HELD_SIGNUP_STATES",
+      "scripts/states.py public_build_allowed"
+    ],
+    "gates": [
+      {
+        "id": "inventory_audit",
+        "ok": false,
+        "detail": "Pink Gum, Wirra and Stringybark are a test subset. Sitemap URL counts and the 2017 JSON are not campground counts."
+      },
+      {
+        "id": "official_source_parser",
+        "ok": false,
+        "detail": "Live parks.sa.gov.au HTML is not parsed. The matcher accepts structured fixtures only."
+      },
+      {
+        "id": "osm_reconciliation",
+        "ok": false,
+        "detail": "Pink Gum way/1192258723 is one camp. Its camp_pitch children are not camps. Geometry is not an entrance."
+      },
+      {
+        "id": "licence_split",
+        "ok": false,
+        "detail": "Current site CC BY 3.0 AU, legacy JSON CC BY 4.0 and OSM ODbL stay separate. Agency naming in the attribution form is unconfirmed. No booking prose or photos."
+      },
+      {
+        "id": "fire_machine",
+        "ok": false,
+        "detail": "No dated CFS district values. Link-out only. A total fire ban is not a universal park closure."
+      },
+      {
+        "id": "closure_review",
+        "ok": false,
+        "detail": "Pink Gum's booking exception stays unknown. Wirra recurrence is tested on fixtures only. Chowilla and desert sites stay out of the pilot."
+      },
+      {
+        "id": "digest_segment",
+        "ok": false,
+        "env": "RESEND_SEGMENT_SA_ID",
+        "detail": "Segment is not created here. The variable must not enrol anyone until this gate and the token.js hold change together."
+      },
+      {
+        "id": "regression_activation",
+        "ok": false,
+        "detail": "Foundation tests are not a substitute for a fresh VIC, NSW and QLD check at activation."
+      }
+    ]
+  }
+}

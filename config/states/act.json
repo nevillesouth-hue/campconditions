@@ -1,0 +1,126 @@
+{
+  "slug": "act",
+  "name": "Australian Capital Territory",
+  "adjective": "ACT",
+  "abbrev": "ACT",
+  "enabled": false,
+  "banner": {
+    "covering": "",
+    "coming": ""
+  },
+  "coverage_label": "Selected Parks ACT campgrounds; official alerts linked; other ACT camping not yet comprehensively covered.",
+  "credit": "ACT camp records are not published. Parks ACT and ESA reuse terms are unresolved. OpenStreetMap samples stay separate under ODbL.",
+  "licence": {
+    "status": "unresolved",
+    "parks_site": "unresolved",
+    "esa": "unresolved",
+    "not_extended_from": "https://www.act.gov.au/copyright",
+    "note": "The ACT government site's CC BY 4.0 statement does not establish a parks.act.gov.au or ESA grant. No licence is invented here. act.gov.au is not proof for those separate domains.",
+    "esa_named_feeds": {
+      "page": "https://esa.act.gov.au/be-emergency-ready/warnings-alerts",
+      "licence": "CC BY 4.0",
+      "credit": "ACT Emergency Services Agency",
+      "covers": ["News Alerts", "Current Incidents"],
+      "covers_parks_text": false,
+      "covers_fdr_tfb": false,
+      "cap_support_implemented": false
+    }
+  },
+  "fire": {
+    "mode": "link_out_unknown",
+    "authority": "ACT Emergency Services Agency",
+    "url": "https://esa.act.gov.au/be-emergency-ready/total-fire-bans",
+    "homepage": "https://esa.act.gov.au/",
+    "borrow_nsw_rfs": false,
+    "partial_area_possible": true,
+    "state_wide_from_partial": false,
+    "machine_values": "unverified",
+    "unmapped_label": "Fire danger / total fire ban status not verified here"
+  },
+  "files": {
+    "candidates": "data/act-sa/candidates.json"
+  },
+  "sources": {
+    "parks_act_stays": {
+      "url": "https://www.parks.act.gov.au/where-to-stay",
+      "live_fetch": false,
+      "note": "Index of eight campground candidates plus two non-camping stays. Not an ACT-wide census. Not fetched by the public build."
+    },
+    "parks_act_alerts": {
+      "url": "https://www.parks.act.gov.au/before-you-go/alerts",
+      "live_fetch": false
+    },
+    "act_esa_tfb": {
+      "url": "https://esa.act.gov.au/be-emergency-ready/total-fire-bans",
+      "live_fetch": false,
+      "machine_parser": false
+    }
+  },
+  "links": {
+    "conditions": "https://www.parks.act.gov.au/before-you-go/alerts",
+    "conditions_name": "Parks ACT alerts",
+    "emergency": "https://esa.act.gov.au/be-emergency-ready/total-fire-bans",
+    "emergency_name": "ACT Emergency Services Agency"
+  },
+  "copy": {
+    "digest_subject": "PREVIEW ONLY ACT camps — do not send",
+    "digest_intro": "Preview of selected Parks ACT campgrounds. This draft is not a digest and must not be sent.",
+    "newsletter_h2": ""
+  },
+  "release": {
+    "public": false,
+    "signup": false,
+    "digest": false,
+    "live_html_parser": false,
+    "live_fetch": false,
+    "targets_provisional": ["2026-11-12"],
+    "targets_are_not_permission_to_ship": true,
+    "code_holds": [
+      "functions/_lib/token.js HELD_SIGNUP_STATES",
+      "scripts/states.py public_build_allowed"
+    ],
+    "gates": [
+      {
+        "id": "inventory_audit",
+        "ok": false,
+        "detail": "Eight index candidates are not audited records and are not an ACT-wide census. Woods Reserve stays listed and closed."
+      },
+      {
+        "id": "official_source_parser",
+        "ok": false,
+        "detail": "Live Parks ACT HTML is not parsed. The matcher accepts structured fixtures only."
+      },
+      {
+        "id": "osm_reconciliation",
+        "ok": false,
+        "detail": "Cotter node/6084060977 is a sample identity. No distance test and no statewide extract."
+      },
+      {
+        "id": "licence_parks_esa",
+        "ok": false,
+        "detail": "Parks ACT and ESA reuse are unresolved. act.gov.au CC BY 4.0 is not extended."
+      },
+      {
+        "id": "fire_machine",
+        "ok": false,
+        "detail": "No dated ESA value. Link-out only. No NSW RFS fallback and no territory-wide closure from a partial ban."
+      },
+      {
+        "id": "coordinates",
+        "ok": false,
+        "detail": "Official coordinates are not verified. The Cotter point is an OSM sample, not an entrance."
+      },
+      {
+        "id": "digest_segment",
+        "ok": false,
+        "env": "RESEND_SEGMENT_ACT_ID",
+        "detail": "Segment is not created here. The variable must not enrol anyone until this gate and the token.js hold change together."
+      },
+      {
+        "id": "regression_activation",
+        "ok": false,
+        "detail": "Foundation tests are not a substitute for a fresh VIC, NSW and QLD check at activation."
+      }
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "dataset_url": "https://data.sa.gov.au/data/dataset/parks-listings",
+  "updated": "2017-07-07",
+  "licence": "CC BY 4.0",
+  "licence_url": "http://creativecommons.org/licenses/by/4.0",
+  "reported_record_count": 127,
+  "count_kind": "park_records_not_campgrounds",
+  "note": "Two omission examples plus the old Deep Creek name. The other 2017 rows are not copied here and are not a campground list.",
+  "records": [
+    {
+      "slug": "onkaparinga-river",
+      "name": "Onkaparinga River",
+      "campingAndAccommodation": false,
+      "note": "Park-level flags are false while the current Pink Gum campground exists. National Park and Recreation Park are different places."
+    },
+    {
+      "slug": "para-wirra",
+      "name": "Para Wirra Conservation Park",
+      "campingAndAccommodation": false,
+      "note": "Park-level flags are false while the current Wirra campground exists."
+    },
+    {
+      "slug": "deep-creek",
+      "name": "Deep Creek Conservation Park",
+      "campingAndAccommodation": null,
+      "note": "Old name. Not a second park and not auto-merged with Deep Creek National Park."
+    }
+  ]
+}

@@ -30,6 +30,8 @@ async function resend(env, path, method, body, doFetch) {
 // Mark the contact unsubscribed and remove them from the digest segment.
 // 404 on either call means that step is already done.
 // RESEND_SEGMENT_NSW_ID is optional. When it is set, that segment is removed too. The Queensland segment is always removed.
+// RESEND_SEGMENT_ACT_ID and RESEND_SEGMENT_SA_ID are not read. Those digests are not open, so this
+// must not call Resend for them. When a later change opens signup, remove those segments here too.
 export async function unsubscribeContact(env, email, doFetch = fetch) {
   const patched = await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { unsubscribed: true }, doFetch);
   const removed = await resend(env, segmentPath(email, env.RESEND_SEGMENT_ID), "DELETE", undefined, doFetch);

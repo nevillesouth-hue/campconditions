@@ -33,6 +33,26 @@ function sameHex(a, b) {
 export const STATE_ORDER = ["vic", "nsw", "qld"];
 const STATE_LABELS = { vic: "Victoria", nsw: "New South Wales", qld: "Queensland" };
 
+// Held until inventory, licence, fire, digest and regression gates pass.
+// chosenStates ignores these, so a crafted body cannot enrol them.
+// Creating RESEND_SEGMENT_ACT_ID or RESEND_SEGMENT_SA_ID must not change that.
+// Activation has to remove the slug here in the same change that opens the gate.
+export const HELD_SIGNUP_STATES = ["act", "sa"];
+export const HELD_SEGMENT_ENV = {
+  act: "RESEND_SEGMENT_ACT_ID",
+  sa: "RESEND_SEGMENT_SA_ID",
+};
+
+export function heldSignupStates(raw) {
+  const list = Array.isArray(raw) ? raw : String(raw == null ? "" : raw).split(/[,\s]+/);
+  const have = new Set();
+  for (const item of list) {
+    const slug = String(item || "").trim().toLowerCase();
+    if (HELD_SIGNUP_STATES.includes(slug)) have.add(slug);
+  }
+  return HELD_SIGNUP_STATES.filter((slug) => have.has(slug));
+}
+
 export function chosenStates(raw) {
   const list = Array.isArray(raw) ? raw : String(raw == null ? "" : raw).split(/[,\s]+/);
   const have = new Set();

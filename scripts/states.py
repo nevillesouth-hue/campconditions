@@ -1,7 +1,10 @@
 """Load per-state configuration. Only enabled states are built.
 
-Victoria and New South Wales are both enabled. Victoria stays first so the
-shared map script and the top-level digest draft remain Victorian.
+Victoria stays first so the shared map script and the top-level digest draft
+remain Victorian. Australian Capital Territory and South Australia can exist
+as config files before their release gates pass. Those files are not a
+public build, digest or signup. CAMPCONDITIONS_ENABLE cannot bypass a failed
+gate.
 """
 import json
 import math
@@ -30,22 +33,80 @@ def all_states():
     return found
 
 
-def enabled():
-    """States the build should emit.
+def release_of(state):
+    return (state or {}).get("release") or {}
 
-    A state with enabled true is always included. Production does not set
-    CAMPCONDITIONS_ENABLE; that variable only adds extra slugs for a preview
-    and does not change the flag stored in the config file. Victoria is
-    ordered first. Later states follow by slug.
+
+def gates_pass(state):
+    """Historical states have no release block and are not gated here.
+
+    A foundation state passes only when it lists gates and every gate is ok.
+    An empty gate list does not pass.
     """
-    chosen = [state for state in all_states() if state.get("enabled")]
+    release = release_of(state)
+    if not release:
+        return True
+    gates = release.get("gates") or []
+    return bool(gates) and all(gate.get("ok") is True for gate in gates)
+
+
+def public_build_allowed(state):
+    """Whether build.py may emit this state.
+
+    Victoria, New South Wales and Queensland have no release block, so this
+    stays true for them. A foundation stays false until release.public is true
+    and every gate is ok. Setting enabled, or CAMPCONDITIONS_ENABLE, is not
+    enough.
+    """
+    release = release_of(state)
+    if not release:
+        return True
+    if release.get("public") is not True:
+        return False
+    return gates_pass(state)
+
+
+def digest_allowed(state):
+    """Public digest drafts. Foundations also need release.digest true."""
+    if not public_build_allowed(state):
+        return False
+    release = release_of(state)
+    if not release:
+        return True
+    return release.get("digest") is True
+
+
+def signup_allowed(state):
+    """Public newsletter promise. Foundations also need release.signup true."""
+    if not public_build_allowed(state):
+        return False
+    release = release_of(state)
+    if not release:
+        return True
+    return release.get("signup") is True
+
+
+def enabled():
+    """States the public build should emit.
+
+    A state with enabled true is included when its release gates allow a
+    public build. States with no release block keep the previous behaviour.
+    Production does not set CAMPCONDITIONS_ENABLE; that variable only adds
+    extra slugs for a preview and does not change the flag stored in the
+    config file. It cannot add a state whose gates fail. Victoria is ordered
+    first. Later states follow by slug.
+    """
+    chosen = [state for state in all_states() if state.get("enabled") and public_build_allowed(state)]
     have = {state.get("slug") for state in chosen}
     extra = os.environ.get("CAMPCONDITIONS_ENABLE") or ""
     for slug in extra.split(","):
         slug = slug.strip()
         if not slug or slug in have:
             continue
-        chosen.append(by_slug(slug))
+        state = by_slug(slug)
+        if not public_build_allowed(state):
+            continue
+        chosen.append(state)
         have.add(slug)
     chosen.sort(key=lambda state: (state.get("slug") != "vic", state.get("slug") or ""))
     return chosen

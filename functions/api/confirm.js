@@ -4,7 +4,7 @@
 //   POST /contacts                         { email, unsubscribed: false }
 //   POST /contacts/{email}/segments/{id}   no body
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
-import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, statePhrase } from "../_lib/token.js";
+import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
@@ -53,14 +53,34 @@ export function existingStates(result) {
   return chosenStates(raw);
 }
 
+// Segment ids this confirmation would touch. ACT and SA env vars are ignored.
+// A request that names only held states does not fall back to the Victoria segment.
+export function segmentPlan(env, states, recordStates) {
+  const picked = chosenStates(states);
+  const held = heldSignupStates(states);
+  if (!picked.length && held.length) return { enrol: [], refuse: "not_open", segmentIds: [] };
+  const want = picked.length ? picked : ["vic"];
+  const segmentIds = [];
+  if (!recordStates || want.includes("vic")) segmentIds.push(env.RESEND_SEGMENT_ID);
+  const nswId = String((env && env.RESEND_SEGMENT_NSW_ID) || "").trim();
+  if (recordStates && want.includes("nsw") && nswId) segmentIds.push(nswId);
+  const qldId = qldSegmentId(env);
+  if (recordStates && want.includes("qld") && qldId) segmentIds.push(qldId);
+  return { enrol: want, refuse: "", segmentIds };
+}
+
 // Create the contact, then add them to the segment for each chosen state.
 // 409 means that step already happened. states is stored only when the confirmation
 // link named the states. A missing contact property must not undo the signup.
 // NSW joins RESEND_SEGMENT_NSW_ID when that variable is set, and is not added to the Victoria segment.
 // QLD joins the Queensland digest segment (qldSegmentId), and is not added to the Victoria segment.
+// RESEND_SEGMENT_ACT_ID and RESEND_SEGMENT_SA_ID are not read. Setting them enrols nobody.
 export async function confirmSubscription(env, email, doFetch = fetch, states = ["vic"], recordStates = false) {
-  const picked = chosenStates(states);
-  const want = picked.length ? picked : ["vic"];
+  const plan = segmentPlan(env, states, recordStates);
+  if (plan.refuse === "not_open") {
+    return { ok: false, status: 400, data: { name: "signup_not_open", message: "Those digests are not open. No address was added." } };
+  }
+  const want = plan.enrol;
   const token = env.CONFIRM_SECRET ? await makeUnsubscribeToken(email, env.CONFIRM_SECRET) : "";
   const contact = { email, unsubscribed: false };
   if (token) contact.properties = { unsubscribe_token: token };
@@ -80,12 +100,7 @@ export async function confirmSubscription(env, email, doFetch = fetch, states = 
     }
     await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { states: stored.join(",") } }, doFetch);
   }
-  const segmentIds = [];
-  if (!recordStates || want.includes("vic")) segmentIds.push(env.RESEND_SEGMENT_ID);
-  const nswId = String(env.RESEND_SEGMENT_NSW_ID || "").trim();
-  if (recordStates && want.includes("nsw") && nswId) segmentIds.push(nswId);
-  const qldId = qldSegmentId(env);
-  if (recordStates && want.includes("qld") && qldId) segmentIds.push(qldId);
+  const segmentIds = plan.segmentIds;
   if (!segmentIds.length) return { ok: true, status: 200, data: created.data || {} };
   let added = created;
   for (const id of segmentIds) {
@@ -102,6 +117,9 @@ export async function onRequestGet({ request, env }) {
     const parsed = await readToken(token, env.CONFIRM_SECRET);
     if (!parsed) return page("Link not valid", "That confirmation link is invalid or has expired. Please sign up again.", 400);
     const result = await confirmSubscription(env, parsed.email, fetch, parsed.states, parsed.explicit);
+    if (!result.ok && result.data && result.data.name === "signup_not_open") {
+      return page("Not open yet", "Those digests are not open. No address was added.", 400);
+    }
     if (!result.ok) return page("Could not confirm", failureMessage(result), 503);
     return page("You're confirmed", `Thanks — you're confirmed for the free weekly CampConditions.au digest for ${statePhrase(parsed.states)}. The first one goes out on Thursday.`);
   } catch {

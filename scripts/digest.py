@@ -85,7 +85,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
 cur = json.load(open(a.current, encoding="utf-8"))
 prev = json.load(open(a.previous, encoding="utf-8")) if a.previous and os.path.isfile(a.previous) else None
 generated = dt.datetime.fromisoformat(cur["generated"])
-enabled = states.enabled()
+enabled = [state for state in states.enabled() if states.digest_allowed(state)]
 primary = enabled[0]
 prev_camps = prev["camps"] if prev else None
 write_digest(primary, camps_for(primary, cur["camps"]), camps_for(primary, prev_camps) if prev_camps is not None else None, generated, cur["generated"], a.out)

@@ -1,0 +1,693 @@
+{
+  "artifact_type": "slim_research_observations_not_a_release_list",
+  "ready_to_publish": false,
+  "geometry_copied": false,
+  "statewide_denominator_known": false,
+  "note": "Identifiers and flags only. Coordinates are not copied. Every selected record is ready_to_publish false. This is not a campground census.",
+  "act_raw_camping_tag_features": {
+    "all_camping_tag_features": 126,
+    "camp_site": 50,
+    "caravan_site": 3,
+    "camp_pitch": 73
+  },
+  "sa_raw_camping_tag_features": 1385,
+  "verified_counts": {
+    "ACT_named_official_asset_vicinity_correlations": 3,
+    "ACT_context_only_asset_correlations": 5,
+    "ACT_surveyed_campground_entrance_or_boundary_coords": 0,
+    "SA_defined_cohort_routes": 43,
+    "SA_defined_distinct_facilities": 28,
+    "SA_non_camp_exclusions_in_cohort_routes": 14,
+    "SA_named_OSM_official_map_support": 18,
+    "SA_unclassified_product_in_cohort_routes": 1
+  },
+  "act": {
+    "official_index_campgrounds": [
+      {
+        "name": "Blue Range Recreation Area",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/murrumbidgee-river-corridor/blue-range-recreation-area",
+        "osm_type": "relation",
+        "osm_id": 6574778,
+        "osm_version": 5,
+        "osm_name": "Blue Range Campground",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      },
+      {
+        "name": "Northern Border Campground",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/canberra-centenary-trail/northern-border-campground",
+        "osm_type": "way",
+        "osm_id": 938228941,
+        "osm_version": 5,
+        "osm_name": "Northern Border Campsite",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      },
+      {
+        "name": "Cotter Campground",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/murrumbidgee-river-corridor/cotter-campground",
+        "osm_type": "node",
+        "osm_id": 6084060977,
+        "osm_version": 2,
+        "osm_name": "Cotter Campground",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      },
+      {
+        "name": "Honeysuckle Campground",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/honeysuckle-campground",
+        "osm_type": "way",
+        "osm_id": 583604424,
+        "osm_version": 3,
+        "osm_name": "Honeysuckle Campground",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      },
+      {
+        "name": "Old Kowen Homestead Campground",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/plantations/kowen-forest",
+        "osm_type": "way",
+        "osm_id": 406528899,
+        "osm_version": 2,
+        "osm_name": "Old Kowen Homestead Camping Area",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      },
+      {
+        "name": "Mount Clear Campground",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/mount-clear-campground",
+        "osm_type": "node",
+        "osm_id": 574151624,
+        "osm_version": 6,
+        "osm_name": "Mount Clear Campground",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      },
+      {
+        "name": "Orroral Campground",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/orroral-campground",
+        "osm_type": "way",
+        "osm_id": 857353600,
+        "osm_version": 3,
+        "osm_name": "Orroral Campground - Namadgi NP",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      },
+      {
+        "name": "Woods Reserve",
+        "official_detail_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/woods-reserve",
+        "osm_type": "way",
+        "osm_id": 1303501587,
+        "osm_version": 2,
+        "osm_name": "Woods Reserve Recreation Area",
+        "osm_geometry_valid_reported": true,
+        "official_geometry_test_executed": false,
+        "ready_to_publish": false,
+        "geometry_copied": false
+      }
+    ],
+    "official_coordinate_checks": 0,
+    "cottermouth_parent_osm": "way/27879946",
+    "cottermouth_child_camp_sites": [
+      {
+        "osm_id": 1567012314,
+        "name": "Site 19",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012315,
+        "name": "Site 20",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012316,
+        "name": "Site 18",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012317,
+        "name": "Site 17",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012318,
+        "name": "Site 16",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012319,
+        "name": "Site 14",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012320,
+        "name": "Site 15",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012321,
+        "name": "Site 13",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012322,
+        "name": "Site 12",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012323,
+        "name": "Site 25",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012324,
+        "name": "Site 26",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": false
+      },
+      {
+        "osm_id": 1567012325,
+        "name": "Site 27",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012326,
+        "name": "Site 28",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012327,
+        "name": "Site 24",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": false
+      },
+      {
+        "osm_id": 1567012328,
+        "name": "Site 23",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012329,
+        "name": "Site 21",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012330,
+        "name": "Site 22",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": false
+      },
+      {
+        "osm_id": 1567012332,
+        "name": "Site 31",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012333,
+        "name": "Site 30",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012334,
+        "name": "Site 29",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012335,
+        "name": "Site 33",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012336,
+        "name": "Site 32",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012337,
+        "name": "Site 34",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012338,
+        "name": "Site 35",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012339,
+        "name": "Site 36",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012341,
+        "name": "Site 45",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012342,
+        "name": "Site 44",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012343,
+        "name": "Site 47",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012345,
+        "name": "Site 37",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012346,
+        "name": "Site 38",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012347,
+        "name": "Site 39",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012348,
+        "name": "Site 40",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012349,
+        "name": "Site 41",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012350,
+        "name": "Site 42",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      },
+      {
+        "osm_id": 1567012351,
+        "name": "Site 43",
+        "representative_point_inside_parent": true,
+        "entire_polygon_inside_parent": true
+      }
+    ]
+  },
+  "sa": {
+    "facility_count": 28,
+    "facilities": [
+      {
+        "name": "Cobbler Hill",
+        "booking_id": "73176",
+        "booking_url": "https://www.parks.sa.gov.au/parks/deep-creek-national-park/booking/73176",
+        "parent_park_slug": "deep-creek-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Wuldi Krikin Ngawanthi (Eagle Waterhole)",
+        "booking_id": "141386",
+        "booking_url": "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/141386",
+        "parent_park_slug": "wild-south-coast-way",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Stringybark",
+        "booking_id": "65694",
+        "booking_url": "https://www.parks.sa.gov.au/parks/deep-creek-national-park/booking/65694",
+        "parent_park_slug": "deep-creek-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Trig",
+        "booking_id": "73170",
+        "booking_url": "https://www.parks.sa.gov.au/parks/deep-creek-national-park/booking/73170",
+        "parent_park_slug": "deep-creek-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Tapanappa",
+        "booking_id": "73174",
+        "booking_url": "https://www.parks.sa.gov.au/parks/deep-creek-national-park/booking/73174",
+        "parent_park_slug": "deep-creek-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Yapari Ngawanthi (Cliffs)",
+        "booking_id": "140962",
+        "booking_url": "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/140962",
+        "parent_park_slug": "wild-south-coast-way",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Wirra",
+        "booking_id": "90928",
+        "booking_url": "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park/booking/90928",
+        "parent_park_slug": "para-wirra-conservation-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Cable Bay",
+        "booking_id": "69783",
+        "booking_url": "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/69783",
+        "parent_park_slug": "dhilba-guuranda-innes-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Casuarina",
+        "booking_id": "69839",
+        "booking_url": "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/69839",
+        "parent_park_slug": "dhilba-guuranda-innes-national-park",
+        "identity_status": "reviewed_spelling_alias_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Gym Beach",
+        "booking_id": "67592",
+        "booking_url": "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/67592",
+        "parent_park_slug": "dhilba-guuranda-innes-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Pondalowie tent",
+        "booking_id": "67453",
+        "booking_url": "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/67453",
+        "parent_park_slug": "dhilba-guuranda-innes-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Pondalowie large vehicle",
+        "booking_id": "69782",
+        "booking_url": "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/69782",
+        "parent_park_slug": "dhilba-guuranda-innes-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Stenhouse Bay",
+        "booking_id": "67985",
+        "booking_url": "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/67985",
+        "parent_park_slug": "dhilba-guuranda-innes-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Shell Beach",
+        "booking_id": "69784",
+        "booking_url": "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/69784",
+        "parent_park_slug": "dhilba-guuranda-innes-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Yangie Bay",
+        "booking_id": "73093",
+        "booking_url": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/73093",
+        "parent_park_slug": "coffin-bay-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Big Yangie Bay",
+        "booking_id": "85010",
+        "booking_url": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/85010",
+        "parent_park_slug": "coffin-bay-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Black Springs",
+        "booking_id": "73101",
+        "booking_url": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/73101",
+        "parent_park_slug": "coffin-bay-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Black Springs Overflow",
+        "booking_id": "85012",
+        "booking_url": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/85012",
+        "parent_park_slug": "coffin-bay-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Morgans Landing",
+        "booking_id": "73102",
+        "booking_url": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/73102",
+        "parent_park_slug": "coffin-bay-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Sensation Beach",
+        "booking_id": "73104",
+        "booking_url": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/73104",
+        "parent_park_slug": "coffin-bay-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "The Pool",
+        "booking_id": "73103",
+        "booking_url": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/73103",
+        "parent_park_slug": "coffin-bay-national-park",
+        "identity_status": "official_map_evidence_no_named_OSM_geometry_match",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Mambray Creek",
+        "booking_id": "67320",
+        "booking_url": "https://www.parks.sa.gov.au/parks/mount-remarkable-national-park/booking/67320",
+        "parent_park_slug": "mount-remarkable-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Baroota Ruins",
+        "booking_id": "69837",
+        "booking_url": "https://www.parks.sa.gov.au/parks/mount-remarkable-national-park/booking/69837",
+        "parent_park_slug": "mount-remarkable-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Pink Gum",
+        "booking_id": "92322",
+        "booking_url": "https://www.parks.sa.gov.au/parks/onkaparinga-river-national-park/booking/92322",
+        "parent_park_slug": "onkaparinga-river-national-park",
+        "identity_status": "identity_and_mapped_vicinity_supported_NOT_entrance_or_boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Hideaway Campsite",
+        "booking_id": "143123",
+        "booking_url": "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park/booking/143123",
+        "parent_park_slug": "para-wirra-conservation-park",
+        "identity_status": "Official distinct camping facility; no named camping-tagged OSM match in extracted snapshot",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Helipad Large Group Campground",
+        "booking_id": "95350",
+        "booking_url": "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park/booking/95350",
+        "parent_park_slug": "para-wirra-conservation-park",
+        "identity_status": "Official distinct camping facility; no named camping-tagged OSM match in extracted snapshot",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Natunyuru Ngawanthi (Sand Dunes campground)",
+        "booking_id": "141387",
+        "booking_url": "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/141387",
+        "parent_park_slug": "wild-south-coast-way",
+        "identity_status": "Reviewed official identity plus named OSM within official GeoPDF vicinity, not entrance or boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      {
+        "name": "Kurri Ngawanthi (Creek Campground)",
+        "booking_id": "140592",
+        "booking_url": "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/140592",
+        "parent_park_slug": "wild-south-coast-way",
+        "identity_status": "Reviewed official identity plus named OSM within official GeoPDF vicinity, not entrance or boundary",
+        "ready_to_publish": false,
+        "operating_status_claim": "not_asserted_open",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      }
+    ],
+    "gym_beach": {
+      "booking_id": "67592",
+      "osm_node": 6589905285,
+      "viewport_edge_m": 444.3,
+      "pitch3_label_to_osm_point_m": 663.2,
+      "same_measurement": false,
+      "resolved": false
+    },
+    "hideaway_booking_id": "143123",
+    "helipad_booking_id": "95350",
+    "geometry_unresolved_booking_ids": [
+      "67592",
+      "143123",
+      "95350"
+    ]
+  },
+  "esa_feed_grant": {
+    "page": "https://esa.act.gov.au/be-emergency-ready/warnings-alerts",
+    "licence": "CC BY 4.0",
+    "credit": "ACT Emergency Services Agency",
+    "covers": [
+      "News Alerts",
+      "Current Incidents"
+    ],
+    "covers_parks_text": false,
+    "covers_fdr_tfb": false,
+    "cap_endpoint_licence_explicit": false,
+    "georss_status": "HTTP 500",
+    "news_rss_discovered": false,
+    "cap_support_implemented": false,
+    "zero_rss_means_no_incidents": false
+  },
+  "licences": {
+    "sa_html": "CC BY 3.0 AU",
+    "sa_legacy_json": "CC BY 4.0",
+    "geopdf_explicit_map_or_derived_geometry_grant": false,
+    "image_republication": false,
+    "act_parks_and_esa_pages": "unresolved",
+    "act_gov_general_licence_covers_parks_or_esa": false,
+    "esa_named_feeds": "CC BY 4.0 for News Alerts and Current Incidents only",
+    "osm": "ODbL",
+    "licences_flattened": false
+  }
+}

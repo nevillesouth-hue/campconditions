@@ -485,6 +485,8 @@ try:
 finally:
   os.environ.pop("CAMPCONDITIONS_ENABLE", None)
 if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld"]: bad.append(("states", "enable reset"))
+act_sa = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_act_sa.py")], cwd=root)
+if act_sa.returncode != 0: bad.append(("act-sa foundations", "test_act_sa.py failed"))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in about: bad.append(("credit", "footer or about"))

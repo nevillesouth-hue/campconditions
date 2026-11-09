@@ -1,0 +1,584 @@
+{
+  "evidence": "George source brief and evidence CSV, 9 November 2026. Unverified assumptions. This change did not refetch the pages.",
+  "inventory_reconciliation": "continuing elsewhere",
+  "statewide": false,
+  "audited": false,
+  "discovery_observations": {
+    "checked": "2026-11-09",
+    "validation_level": "reported_xml_count_not_re_fetched",
+    "parks_page_urls": 146,
+    "booking_page_urls": 320,
+    "alert_page_urls": 50,
+    "campground_count": null,
+    "note": "URL counts are not campground counts."
+  },
+  "crosswalk": [
+    {
+      "official_id": "act:cotter",
+      "osm_type": "node",
+      "osm_id": 6084060977,
+      "reviewed": true,
+      "distance_tested": false,
+      "reject_second_camp": true,
+      "merged_database_cleared": false
+    },
+    {
+      "official_id": "sa:pink-gum",
+      "osm_type": "way",
+      "osm_id": 1192258723,
+      "reviewed": true,
+      "distance_tested": false,
+      "reject_second_camp": true,
+      "merged_database_cleared": false
+    }
+  ],
+  "records": [
+    {
+      "id": "act:blue-range",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Blue Range Recreation Area",
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/murrumbidgee-river-corridor/blue-range-recreation-area",
+      "source_record_id": "blue-range",
+      "detail_verified": false,
+      "parent_id": "",
+      "closes_on_verified_tfb": false,
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "relation",
+        "id": 6574778,
+        "version": 5,
+        "name": "Blue Range Campground",
+        "url": "https://www.openstreetmap.org/relation/6574778",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry": null,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:northern-border",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Northern Border Campground",
+      "reviewed_aliases": [
+        "Centenary Trail Northern Border Campground"
+      ],
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/canberra-centenary-trail/northern-border-campground",
+      "source_record_id": "northern-border-campground",
+      "detail_verified": false,
+      "parent_id": "",
+      "access": {
+        "vehicle": false,
+        "walk": true,
+        "cycle": true
+      },
+      "closes_on_verified_tfb": true,
+      "jurisdiction": "act",
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "way",
+        "id": 938228941,
+        "version": 5,
+        "name": "Northern Border Campsite",
+        "url": "https://www.openstreetmap.org/way/938228941",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry": null,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:cotter",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Cotter Campground",
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/murrumbidgee-river-corridor/cotter-campground",
+      "source_record_id": "cotter-campground",
+      "detail_verified": false,
+      "parent_id": "act:murrumbidgee-river-corridor",
+      "closes_on_verified_tfb": false,
+      "geometry": null,
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "node",
+        "id": 6084060977,
+        "version": 2,
+        "name": "Cotter Campground",
+        "url": "https://www.openstreetmap.org/node/6084060977",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:honeysuckle",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Honeysuckle",
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/honeysuckle-campground",
+      "source_record_id": "honeysuckle",
+      "detail_verified": false,
+      "parent_id": "",
+      "closes_on_verified_tfb": false,
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "way",
+        "id": 583604424,
+        "version": 3,
+        "name": "Honeysuckle Campground",
+        "url": "https://www.openstreetmap.org/way/583604424",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry": null,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:kowen",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Old Kowen Homestead",
+      "reviewed_aliases": [
+        "Kowen",
+        "Kowen Recreation Area",
+        "Old Kowen Homestead"
+      ],
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/plantations/kowen-forest",
+      "source_record_id": "kowen",
+      "detail_verified": false,
+      "parent_id": "",
+      "closes_on_verified_tfb": false,
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "way",
+        "id": 406528899,
+        "version": 2,
+        "name": "Old Kowen Homestead Camping Area",
+        "url": "https://www.openstreetmap.org/way/406528899",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry": null,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:mount-clear",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Mount Clear",
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/mount-clear-campground",
+      "source_record_id": "mount-clear",
+      "detail_verified": false,
+      "parent_id": "",
+      "closes_on_verified_tfb": false,
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "node",
+        "id": 574151624,
+        "version": 6,
+        "name": "Mount Clear Campground",
+        "url": "https://www.openstreetmap.org/node/574151624",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry": null,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:orrorral",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Orroral",
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/orroral-campground",
+      "source_record_id": "orrorral",
+      "detail_verified": false,
+      "parent_id": "",
+      "closes_on_verified_tfb": false,
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "way",
+        "id": 857353600,
+        "version": 3,
+        "name": "Orroral Campground - Namadgi NP",
+        "url": "https://www.openstreetmap.org/way/857353600",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry": null,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:woods-reserve",
+      "state": "act",
+      "entity_type": "campground",
+      "inventory_role": "candidate",
+      "name": "Woods Reserve",
+      "source_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/woods-reserve",
+      "source_record_id": "woods-reserve",
+      "detail_verified": false,
+      "parent_id": "act:namadgi-national-park",
+      "generic_camping_text": true,
+      "closes_on_verified_tfb": false,
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false,
+      "osm_identity": {
+        "type": "way",
+        "id": 1303501587,
+        "version": 2,
+        "name": "Woods Reserve Recreation Area",
+        "url": "https://www.openstreetmap.org/way/1303501587",
+        "geometry_copied": false,
+        "official_geometry_test_executed": false
+      },
+      "official_geometry_test_executed": false,
+      "geometry": null,
+      "geometry_note": "OSM identity is recorded by type and id only. The representative point is not an entrance and is not republished. No official coordinate test was run."
+    },
+    {
+      "id": "act:nil-desperandum",
+      "state": "act",
+      "entity_type": "accommodation",
+      "inventory_role": "excluded",
+      "name": "Nil Desperandum",
+      "source_url": "https://actparks.bookeasy.com/book/nil-desperandum",
+      "source_record_id": "nil-desperandum",
+      "reason": "Heritage accommodation. No camping at the property or in Tidbinbilla reserve. Booking prose is not republished.",
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false
+    },
+    {
+      "id": "act:ready-cut-cottage",
+      "state": "act",
+      "entity_type": "accommodation",
+      "inventory_role": "excluded",
+      "name": "Ready-Cut Cottage",
+      "source_url": "https://www.parks.act.gov.au/where-to-stay",
+      "source_record_id": "ready-cut-cottage",
+      "reason": "Cottage accommodation on the stays index.",
+      "licence": {
+        "status": "unresolved",
+        "republish_text": false
+      },
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:onkaparinga-river-national-park",
+      "state": "sa",
+      "entity_type": "park",
+      "inventory_role": "context",
+      "name": "Onkaparinga River National Park",
+      "source_url": "https://www.parks.sa.gov.au/parks/onkaparinga-river-national-park",
+      "not_the_same_as": "Onkaparinga River Recreation Park",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:para-wirra-conservation-park",
+      "state": "sa",
+      "entity_type": "park",
+      "inventory_role": "context",
+      "name": "Para Wirra Conservation Park",
+      "source_url": "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:deep-creek-national-park",
+      "state": "sa",
+      "entity_type": "park",
+      "inventory_role": "context",
+      "name": "Deep Creek National Park",
+      "source_url": "https://www.parks.sa.gov.au/parks/deep-creek-national-park",
+      "reviewed_aliases": [],
+      "old_name_auto_merge": false,
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:pink-gum",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "pilot",
+      "name": "Pink Gum",
+      "source_url": "https://www.parks.sa.gov.au/parks/onkaparinga-river-national-park/booking/92322",
+      "source_record_id": "92322",
+      "parent_id": "sa:onkaparinga-river-national-park",
+      "allocated_sites_reported": 11,
+      "geometry": null,
+      "geometry_note": "OSM way is not an entrance or navigation coordinate. No official point is stored.",
+      "licence": {
+        "status": "CC BY 3.0 AU",
+        "url": "https://creativecommons.org/licenses/by/3.0/au/",
+        "photos": false,
+        "booking_prose": false,
+        "not_legacy_cc_by_4": true
+      },
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:wirra",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "pilot",
+      "name": "Wirra",
+      "source_url": "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park/booking/90928",
+      "source_record_id": "90928",
+      "parent_id": "sa:para-wirra-conservation-park",
+      "allocated_sites_reported": 19,
+      "licence": {
+        "status": "CC BY 3.0 AU",
+        "photos": false,
+        "booking_prose": false,
+        "not_legacy_cc_by_4": true
+      },
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:stringybark",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "pilot",
+      "name": "Stringybark",
+      "source_url": "https://www.parks.sa.gov.au/parks/deep-creek-national-park/booking/65694",
+      "source_record_id": "65694",
+      "parent_id": "sa:deep-creek-national-park",
+      "reopened_in_source_text": true,
+      "reopened_is_not_a_clearance": true,
+      "licence": {
+        "status": "CC BY 3.0 AU",
+        "photos": false,
+        "booking_prose": false,
+        "not_legacy_cc_by_4": true
+      },
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:helipad",
+      "state": "sa",
+      "entity_type": "product",
+      "inventory_role": "out_of_pilot",
+      "name": "Group Helipad camping",
+      "source_url": "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park",
+      "parent_id": "sa:para-wirra-conservation-park",
+      "alias_of": null,
+      "note": "Separate product. Not a Wirra duplicate.",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:chowilla-game-reserve",
+      "state": "sa",
+      "entity_type": "park",
+      "inventory_role": "context",
+      "name": "Chowilla Game Reserve",
+      "source_url": "https://www.parks.sa.gov.au/parks/chowilla-game-reserve",
+      "in_pilot": false,
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:chowilla-camps",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "fixture_only",
+      "aggregate": true,
+      "name": "Chowilla camps",
+      "parent_id": "sa:chowilla-game-reserve",
+      "source_record_id": "chowilla-camps",
+      "in_pilot": false,
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:chowilla-site-14",
+      "state": "sa",
+      "entity_type": "pitch",
+      "inventory_role": "fixture_only",
+      "name": "Chowilla site 14",
+      "parent_id": "sa:chowilla-game-reserve",
+      "site_number": 14,
+      "source_record_id": "chowilla-14",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:chowilla-site-1",
+      "state": "sa",
+      "entity_type": "pitch",
+      "inventory_role": "fixture_only",
+      "name": "Chowilla site 1",
+      "parent_id": "sa:chowilla-game-reserve",
+      "site_number": 1,
+      "source_record_id": "chowilla-1",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:foleys",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "fixture_only",
+      "name": "Foleys",
+      "parent_id": "sa:chowilla-game-reserve",
+      "source_record_id": "foleys",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:scab-inspectors-hut",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "fixture_only",
+      "name": "Scab Inspectors Hut",
+      "parent_id": "sa:chowilla-game-reserve",
+      "source_record_id": "scab-inspectors-hut",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:border-cliffs",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "fixture_only",
+      "name": "Border Cliffs",
+      "parent_id": "sa:chowilla-game-reserve",
+      "source_record_id": "border-cliffs",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:other-park",
+      "state": "sa",
+      "entity_type": "park",
+      "inventory_role": "context",
+      "name": "Other Park",
+      "source_record_id": "other-park",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:other-park-site-14",
+      "state": "sa",
+      "entity_type": "pitch",
+      "inventory_role": "fixture_only",
+      "name": "Other Park site 14",
+      "parent_id": "sa:other-park",
+      "site_number": 14,
+      "source_record_id": "other-park-14",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:mount-remarkable-national-park",
+      "state": "sa",
+      "entity_type": "park",
+      "inventory_role": "context",
+      "name": "Mount Remarkable National Park",
+      "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mount-remarkable-national-park-15",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:mambray-creek",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "fixture_only",
+      "name": "Mambray Creek Campground",
+      "parent_id": "sa:mount-remarkable-national-park",
+      "source_record_id": "67320",
+      "source_url": "https://www.parks.sa.gov.au/parks/mount-remarkable-national-park/booking/67320",
+      "generic_camping_text": true,
+      "ready_to_publish": false,
+      "in_pilot": false
+    },
+    {
+      "id": "sa:baroota-ruins",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "fixture_only",
+      "name": "Baroota Ruins Campground",
+      "parent_id": "sa:mount-remarkable-national-park",
+      "source_record_id": "69837",
+      "source_url": "https://www.parks.sa.gov.au/parks/mount-remarkable-national-park/booking/69837",
+      "generic_camping_text": true,
+      "ready_to_publish": false,
+      "in_pilot": false
+    },
+    {
+      "id": "sa:mambray-creek-cabin",
+      "state": "sa",
+      "entity_type": "accommodation",
+      "inventory_role": "excluded",
+      "name": "Mambray Creek Cabin",
+      "parent_id": "sa:mount-remarkable-national-park",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:alligator-lodge",
+      "state": "sa",
+      "entity_type": "accommodation",
+      "inventory_role": "excluded",
+      "name": "Alligator Lodge",
+      "parent_id": "sa:mount-remarkable-national-park",
+      "ready_to_publish": false
+    },
+    {
+      "id": "sa:mount-remarkable-unnamed-example",
+      "state": "sa",
+      "entity_type": "campground",
+      "inventory_role": "fixture_only",
+      "name": "Unnamed Mount Remarkable example",
+      "parent_id": "sa:mount-remarkable-national-park",
+      "synthetic": true,
+      "note": "Synthetic stand-in for a camp the notice does not name. Not an inventoried site.",
+      "ready_to_publish": false
+    }
+  ],
+  "research_cohort": {
+    "sa_distinct_facilities_reported": 28,
+    "ready_to_publish": false,
+    "statewide": false,
+    "test_cohort_ids": [
+      "sa:pink-gum",
+      "sa:wirra",
+      "sa:stringybark"
+    ],
+    "test_cohort_is_not_a_launch": true,
+    "note": "The 28 facilities are a research handoff in evidence/reconciliation-slim.json. They are not selectable camps. Hideaway and Helipad geometry stays unresolved."
+  }
+}

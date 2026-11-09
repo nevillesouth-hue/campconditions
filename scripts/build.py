@@ -635,6 +635,8 @@ def load_osm(seen):
 camps, seen, closures = [], set(), []
 loaded = []
 for state in statecfg.enabled():
+    if not statecfg.public_build_allowed(state):
+        raise SystemExit("Refusing public build for %s: activation gates are not met" % (state.get("slug") or ""))
     bind(state)
     CAT_LABEL["park_campground"] = PV_LABEL
     visitor = (STATE.get("sources") or {}).get("npws_visitor_areas") or {}

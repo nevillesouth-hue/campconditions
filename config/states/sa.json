@@ -10,7 +10,7 @@
   },
   "coverage_label": "Disabled inventory only. 80 Parks SA campgrounds are included (73 with confident coordinates and 7 approximate Street View points) plus council, tourism and operator camps from the checked eligible records. Pondalowie and Ippinitchie stay held. Partial and held records are not published. This is not a state launch.",
   "credit": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). The 2017 parks JSON is CC BY 4.0 and is not this inventory.",
-  "safety_html": "<div class=\"warn\">South Australia is not published. This preview is not a launch. A page with no current notice is not a confirmation the camp is open.</div>",
+  "safety_html": "<div class=\"warn\">No current notice does not mean the camp is open, so check before you travel.</div>",
   "licence": {
     "current_site": "CC BY 3.0 AU",
     "current_site_url": "https://creativecommons.org/licenses/by/3.0/au/",
@@ -47,7 +47,7 @@
   "regions": {
     "south-australia": {
       "name": "South Australia",
-      "blurb": "Parks SA campgrounds with a confident location, plus non-park camps an operator or official page has supported. Held and excluded places are not listed."
+      "blurb": "Parks SA campgrounds and council and community camps. We check Parks SA closures and notices."
     }
   },
   "region_rules": [
@@ -119,16 +119,16 @@
     "digest_footer": "Do not send. Not an official warning service. Fire danger: SA Country Fire Service (cfs.sa.gov.au). Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). In an emergency call 000.<br>",
     "newsletter_h2": "",
     "home_title": "South Australia camp conditions — {count} sites | CampConditions.au",
-    "home_description": "Disabled South Australian inventory. {count} sites. Not a public launch.",
+    "home_description": "{count} camps across South Australia, including Parks SA campgrounds and council and community camps. No current notice does not mean the camp is open, so check before you travel.",
     "home_h1": "South Australia camp conditions",
-    "home_intro": "A disabled preview of <strong>{count}</strong> South Australian camps. <strong>{official}</strong> are Parks SA campgrounds with a confident location. <strong>{osm}</strong> are other eligible camps. Nothing here is a confirmation a camp is open.",
-    "home_map": "Map of the disabled South Australian inventory",
-    "home_weather": "Fire danger is not verified here. Check the <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\">SA Country Fire Service</a>.",
-    "website_description": "Disabled preview of {count} South Australian camps. Not a public launch.",
+    "home_intro": "<strong>{count}</strong> camps across South Australia, including Parks SA campgrounds and council and community camps. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
+    "home_map": "Map of South Australian campgrounds",
+    "home_weather": "Check the <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\">SA Country Fire Service</a> before you travel.",
+    "website_description": "{count} camps across South Australia. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
     "state_title": "South Australia campground conditions — {count} sites | CampConditions.au",
-    "state_description": "Disabled inventory of {count} South Australian camps. A missing notice is not a confirmation the camp is open.",
+    "state_description": "{count} camps across South Australia, including Parks SA campgrounds and council and community camps. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
     "state_h1": "South Australia",
-    "state_intro": "<strong>{count}</strong> camps in a disabled preview. Parks SA campgrounds are included only where a coordinate was attached. Other camps are the eligible non-park rows. Held and excluded places are left out. No current notice does not mean the camp is open.",
+    "state_intro": "<strong>{count}</strong> camps across South Australia, including Parks SA campgrounds and council and community camps. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
     "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
     "region_description": "{count} camps in {name}. {blurb}",
     "region_list_name": "Campgrounds in {name}",
@@ -137,7 +137,7 @@
     "osm_source_line": "Coordinates: OpenStreetMap contributors (ODbL).",
     "place_admin": "{region}, South Australia",
     "feed_region": "South Australia, Australia",
-    "feed_disclaimer": "Not an official warning service. South Australia is not published. A camp is closed, partial, upcoming or unknown only where a saved Parks SA notice says so. No current notice is not open. Fire danger is the CFS category for that district when the feed is fresh; otherwise it is unknown. A total fire ban does not close the camp.",
+    "feed_disclaimer": "Not an official warning service. A camp is closed, partial, upcoming or unknown only where a Parks SA notice says so. No current notice does not mean the camp is open. Check the SA Country Fire Service before you travel. A total fire ban does not close the camp.",
     "footer_short": "South Australia: Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL).",
     "directions_note": "Check the SA Country Fire Service and official road conditions before you travel.",
     "outdated_html": ""
@@ -158,7 +158,7 @@
       {
         "id": "inventory_audit",
         "ok": false,
-        "detail": "A disabled build lists 268 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, the eligible council, tourism and operator records, and three commercial parks inside reserves. Brownhill Creek Tourist Park's point is approximate. 69 official campgrounds remain held without coordinates. Pondalowie and Ippinitchie stay held. This is not a statewide launch."
+        "detail": "A disabled build lists 265 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, tourism and operator records. Discovery Parks - Adelaide Beachfront, Belair National Park Holiday Park and Brownhill Creek Tourist Park are excluded as commercial caravan parks. 69 official campgrounds remain without coordinates. Pondalowie and Ippinitchie stay out. This is not a statewide launch."
       },
       {
         "id": "official_source_parser",

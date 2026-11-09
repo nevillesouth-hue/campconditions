@@ -64,10 +64,14 @@ STAY_OUT = {
     "way/201352992",    # Adelaide Shores, likely West Beach Parks
     "node/4682386296",  # Burra Creek Gorge Mid point, not its own camp
 }
-# Commercial parks inside a reserve. Published as operator camps, not Parks SA.
+# Owner rule: no major commercial caravan parks, even inside a reserve.
 COMMERCIAL_CSV = "data/act-sa/inventory/sa-commercial-in-reserve.csv"
-BROWNSHILL = "way/177930647"
-MAP_CENTRE_SOURCE = "operator_embedded_map_centre"
+COMMERCIAL_REASON = "commercial caravan park"
+COMMERCIAL_EXCLUDED = {
+    "way/99841061",    # Discovery Parks - Adelaide Beachfront
+    "way/321216861",   # Belair National Park Holiday Park
+    "way/177930647",   # Brownhill Creek Tourist Park
+}
 BURRA_WEST = "node/1811163605"
 BURRA_NOTE = "Burra Creek Gorge is one camp, at the West point. The Mid point is the same reserve, not a separate camp."
 DEDUPE_METRES = 500
@@ -266,73 +270,27 @@ def _listing_camps(seen, used_osm, base):
     return camps, dropped
 
 
-def _phone_parts(value):
-    return [part.strip() for part in re.split(r"\s*[;/]\s*", value or "") if part.strip()]
-
-
 def _commercial_camps(seen, used_osm, existing):
-    """Operator parks inside a reserve. They are not Parks SA campgrounds."""
-    import facts
+    """Major commercial caravan parks stay out. The check file records the exclusion."""
+    del seen, used_osm, existing
     path = os.path.join(ROOT, COMMERCIAL_CSV)
     rows = _read_csv(path)
-    if len(rows) != 3:
-        raise SystemExit("expected 3 commercial parks inside reserves, found %s" % len(rows))
-    camps = []
-    dropped = []
+    found = {row.get("record_id") or "" for row in rows}
+    if found != COMMERCIAL_EXCLUDED:
+        raise SystemExit("expected the three commercial parks, found %s" % sorted(found))
+    excluded = []
     for row in rows:
-        if row.get("decision") != "eligible" or row.get("status") != "confirmed":
-            raise SystemExit("commercial park is not eligible: %s" % row.get("record_id"))
-        osm_id = row.get("record_id") or ""
-        if osm_id in used_osm:
-            continue
-        lat, lon = _number(row.get("op_lat")), _number(row.get("op_lon"))
-        if lat is None or lon is None:
-            lat, lon = _number(row.get("osm_lat")), _number(row.get("osm_lon"))
-        if lat is None or lon is None:
-            raise SystemExit("commercial park missing coordinates: %s" % osm_id)
-        name = row.get("name") or osm_id
-        source_url = _https(row.get("source_url"))
-        slug = _unique_slug(name, seen, osm_id.replace("/", "-"))
-        camp = _blank_camp(name, slug, lat, lon, "operator", source_url)
-        camp["website"] = source_url
-        camp["id"] = osm_id
-        camp["osm_id"] = osm_id
-        camp["category"] = "Caravan park"
-        camp["inventory_group"] = "commercial_in_reserve"
-        camp["listing_source"] = "operator"
-        camp["managed_by"] = _operator_name(row.get("operator"))
-        phones = _phone_parts(row.get("phone"))
-        camp["phone"] = facts.without_prices(phones[0]) if phones else ""
-        if len(phones) > 1:
-            camp["phone_alt"] = facts.without_prices(phones[1])
-        camp["lga"] = row.get("lga") or ""
-        camp["access"] = facts.without_prices(row.get("address") or "")
-        camp["data_date"] = str(row.get("checked_at_melbourne") or "")[:10]
-        approximate = osm_id == BROWNSHILL or "approximate" in (row.get("op_loc_method") or "").lower()
-        if approximate:
-            camp["coord_precision"] = STREETVIEW_PRECISION
-            camp["coord_source"] = MAP_CENTRE_SOURCE
-            camp["attribution"] = (
-                "Listing: operator page. Coordinates are approximate, from the centre of the "
-                "operator's embedded map. OpenStreetMap contributors (ODbL) mapped the same park."
-            )
-        else:
-            camp["coord_source"] = "operator_page"
-            camp["attribution"] = (
-                "Listing: operator page. The point is from the operator page. "
-                "OpenStreetMap contributors (ODbL) mapped the same park."
-            )
-        if any(_same_camp(camp, prior) for prior in existing):
-            dropped.append({"name": name, "osm_id": osm_id, "reason": "same name within 500 m of a published camp"})
-            seen.discard(slug)
-            continue
-        if camp["category"] == "Parks SA campground" or ATTRIBUTION in camp["attribution"]:
-            raise SystemExit("commercial park was labelled as Parks SA: %s" % name)
-        used_osm.add(osm_id)
-        camps.append(camp)
-    if len(camps) + len(dropped) != 3:
-        raise SystemExit("commercial parks were not all handled")
-    return camps, dropped
+        if row.get("decision") != "exclude":
+            raise SystemExit("commercial park is not marked exclude: %s" % row.get("record_id"))
+        excluded.append({
+            "name": row.get("name") or "",
+            "osm_id": row.get("record_id") or "",
+            "reason": COMMERCIAL_REASON,
+            "source": "operator",
+            "operator": _operator_name(row.get("operator")),
+        })
+    load_camps.commercial_excluded = excluded
+    return [], []
 
 
 def _streetview_camps(official, seen, used_osm, used_bookings):
@@ -640,6 +598,7 @@ def summary(camps):
         "operator": sum(1 for camp in camps if camp.get("source") == "operator"),
         "duplicates_dropped": len(dropped),
         "duplicates": list(dropped),
+        "commercial_excluded": list(getattr(load_camps, "commercial_excluded", [])),
         "needs_check": sum(1 for camp in camps if camp.get("needs_review")),
         "by_source": _count(camp.get("source") for camp in camps),
         "booking_ids": sorted(item for camp in camps for item in camp.get("booking_ids") or []),

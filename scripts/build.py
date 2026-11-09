@@ -2963,9 +2963,15 @@ def emit_state(state, camps, include_home):
         lst = by_reg[k]
         rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
         il = {"@context": "https://schema.org", "@type": "ItemList", "name": COPY["region_list_name"].format(name=n), "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}{camp_url(c)}", "name": c["name"]} for i, c in enumerate(lst)]}
+        if n.strip().casefold() == (STATE.get("name") or "").strip().casefold():
+            region_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a></p>'
+            region_ld = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])
+        else:
+            region_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › {e(n)}</p>'
+            region_ld = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")])
         page(f"/{SLUG}/{k}/", COPY["region_title"].format(name=n, count=len(lst)), COPY["region_description"].format(count=len(lst), name=n, blurb=d),
-             f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › {e(n)}</p><h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{inline_signup("region", n)}{map_block(lst, f"Map of {n} campgrounds", external=SLUG + "-" + k)}{SAFETY}<table id="camp-list"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or "<tr><td colspan=4>No campgrounds listed.</td></tr>"}</tbody></table>{news_section()}',
-             [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]), il], head=leaflet_head(True), foot=leaflet_foot(True))
+             f'{region_crumb}<h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{inline_signup("region", n)}{map_block(lst, f"Map of {n} campgrounds", external=SLUG + "-" + k)}{SAFETY}<table id="camp-list"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or "<tr><td colspan=4>No campgrounds listed.</td></tr>"}</tbody></table>{news_section()}',
+             [region_ld, il], head=leaflet_head(True), foot=leaflet_foot(True))
     for c in camps:
         rn = REGIONS[c["region"]][0]
         cl = c.get("closure"); parts = []
@@ -3097,12 +3103,21 @@ def emit_state(state, camps, include_home):
         camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
                    "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},
                    "containedInPlace": {"@type": "AdministrativeArea", "name": COPY["place_admin"].format(region=rn)}, "publicAccess": c["status"] != "closed", "identifier": str(c["id"])}
-        lds = [camp_ld, crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (rn, f"/{SLUG}/{c['region']}/"), (c["name"], camp_path)])]
+        if rn.strip().casefold() == (STATE.get("name") or "").strip().casefold():
+            camp_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a></p>'
+            camp_ld_crumbs = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (c["name"], camp_path)])
+            admin_name = STATE["name"]
+        else:
+            camp_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › <a href="/{SLUG}/{c["region"]}/">{e(rn)}</a></p>'
+            camp_ld_crumbs = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (rn, f"/{SLUG}/{c['region']}/"), (c["name"], camp_path)])
+            admin_name = COPY["place_admin"].format(region=rn)
+        camp_ld["containedInPlace"]["name"] = admin_name
+        lds = [camp_ld, camp_ld_crumbs]
         if cl:
             posted = feed_iso(cl.get("source_published")) or NOW.isoformat()
             lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": posted, "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
         page(camp_path, title, desc,
-         f"""<p class="muted"><a href="/{SLUG}/">{STATE["name"]}</a> › <a href="/{SLUG}/{c['region']}/">{e(rn)}</a></p><h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
+         f"""{camp_crumb}<h1>{e(page_name)}</h1>{f'<p class="muted">Near {e(c["near_place"])}</p>' if c.get("near_place") else ''}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
 {inline_signup("closed" if c["status"] == "closed" else "camp", rn, c)}
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}

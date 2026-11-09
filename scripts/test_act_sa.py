@@ -570,8 +570,8 @@ def main():
     sa_camps = sa_inventory.load_camps(set())
     counted = sa_inventory.summary(sa_camps)
     expect(counted["official_confident"] == 73 and counted["official_approximate"] == 7 and counted["eligible_osm"] == 34, "sa inventory base counts")
-    expect(counted["council"] == 43 and counted["tourism"] == 22 and counted["operator"] == 89, "new listing sources")
-    expect(counted["published"] == 268 and counted["duplicates_dropped"] == 1, "sa inventory counts")
+    expect(counted["council"] == 43 and counted["tourism"] == 22 and counted["operator"] == 86, "new listing sources")
+    expect(counted["published"] == 265 and counted["duplicates_dropped"] == 1, "sa inventory counts")
     expect(counted["duplicates"][0]["osm_id"] == "way/1485152213", "mount gambier east side dropped")
     expect(counted["open_inferred"] is False and counted["fire_rating_count"] == 0, "sa inventory not open and not rated")
     expect(all(row["status"] != "open" for row in sa_camps), "no confirmed open")
@@ -595,25 +595,20 @@ def main():
     expect(kingston["name"] == "BIG4 Kingston SE Foreshore Holiday Park" and kingston["slug"] == "kingston-caravan-park" and kingston["needs_review"] is False, "kingston rename keeps its slug")
     expect(renmark["name"] == "Echo Holiday Parks - Renmark" and renmark["slug"] != waikerie["slug"] and renmark["needs_review"] is False, "echo renmark stays separate")
     expect("way/852240175" not in by_osm, "pondalowie stays out of the preview")
-    for stayed in ("node/736398059", "way/201352992", "node/4682386296"):
+    for stayed in ("node/736398059", "way/201352992", "node/4682386296", "way/99841061", "way/321216861", "way/177930647"):
         expect(stayed not in by_osm, "open-question camp stays out")
-    beach = by_osm["way/99841061"]
-    belair = by_osm["way/321216861"]
-    brownhill = by_osm["way/177930647"]
-    for commercial in (beach, belair, brownhill):
-        expect(commercial["source"] == "operator" and commercial["category"] == "Caravan park" and commercial["inventory_group"] == "commercial_in_reserve", "commercial parks stay operator camps")
-        expect(sa_inventory.ATTRIBUTION not in commercial["attribution"], "commercial parks are not Parks SA records")
-    expect(beach["name"] == "Discovery Parks - Adelaide Beachfront" and beach["phone"] == "(08) 8449 7726" and beach.get("coord_precision") != "approximate", "adelaide beachfront operator details")
-    expect(belair["name"] == "Belair National Park Holiday Park" and belair["website"].startswith("https://www.belairnpholidaypark.com.au/"), "belair holiday park operator page")
-    expect(brownhill["name"] == "Brownhill Creek Tourist Park" and brownhill["coord_precision"] == "approximate" and brownhill["coord_source"] == "operator_embedded_map_centre", "brownhill coordinates are approximate")
-    expect(brownhill["phone_alt"] == "1800 626 493", "brownhill keeps the second phone")
+    excluded = {row["osm_id"]: row for row in counted["commercial_excluded"]}
+    expect(set(excluded) == {"way/99841061", "way/321216861", "way/177930647"}, "three commercial parks are recorded")
+    expect(all(row["reason"] == "commercial caravan park" and row["source"] == "operator" for row in excluded.values()), "commercial parks excluded with that reason")
+    expect(excluded["way/99841061"]["name"] == "Discovery Parks - Adelaide Beachfront", "adelaide beachfront excluded")
+    expect(excluded["way/321216861"]["name"] == "Belair National Park Holiday Park", "belair holiday park excluded")
+    expect(excluded["way/177930647"]["name"] == "Brownhill Creek Tourist Park", "brownhill creek excluded")
     expect("860167" not in booking, "ippinitchie stays held without a street view point")
     burra = [row for row in sa_camps if "burra creek" in row["name"].lower() or "world's end gorge" in row["name"].lower() or "worlds end" in row["name"].lower()]
     expect(len(burra) == 1 and burra[0]["osm_id"] == "node/1811163605" and "Mid point" in burra[0]["source_note"], "burra creek gorge is the west point")
     approximate = [row for row in sa_camps if row.get("coord_precision") == "approximate"]
     streetview = [row for row in approximate if row.get("inventory_group") == "official_approximate"]
-    expect(len(streetview) == 7 and all(row["coord_source"] == "parks_sa_streetview_link" and row["source"] == "parks_sa" for row in streetview), "seven approximate street view camps")
-    expect(len(approximate) == 8 and brownhill in approximate, "brownhill is the other approximate point")
+    expect(len(streetview) == 7 and len(approximate) == 7 and all(row["coord_source"] == "parks_sa_streetview_link" and row["source"] == "parks_sa" for row in streetview), "seven approximate street view camps")
     by_booking = {item: row for row in sa_camps for item in row.get("booking_ids") or []}
     expect(by_booking["72081"]["osm_id"] == "node/775893673" and by_booking["73170"]["osm_id"] == "way/265761467", "trezona and trig candidates settled")
     expect(all(not row.get("osm_id") for row in streetview if row["id"] not in {"72081", "73170"}), "other street view camps do not invent an osm id")

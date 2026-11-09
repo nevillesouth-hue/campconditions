@@ -771,7 +771,8 @@ if border_dupes & {c.get("slug") for c in osm}: bad.append(("osm", "border dupli
 if len(named) - len(osm) != len(border_dupes): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1096, "Camping area": 5, "Council park": 76, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
+# Free 1096 -> 1095: weekly OSM refresh 862df30 (10 Nov 2026) dropped one free VIC camp (data drift, not a code change).
+expect_counts = {"Free": 1095, "Camping area": 5, "Council park": 76, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))

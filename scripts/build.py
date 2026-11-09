@@ -3065,6 +3065,8 @@ def emit_state(state, camps, include_home):
             contact = contact_html(c)
             if contact:
                 bits.append(contact)
+            if c.get("phone_alt") and tel_href(c["phone_alt"]):
+                bits.append(f'<p><a class="btn" href="{e(tel_href(c["phone_alt"]))}">Call {e(c["phone_alt"])}</a></p>')
             if c.get("source_note"):
                 bits.append(f'<p>{e(c["source_note"])}</p>')
             source_url = str(c.get("source_url") or "")

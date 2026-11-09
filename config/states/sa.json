@@ -158,7 +158,7 @@
       {
         "id": "inventory_audit",
         "ok": false,
-        "detail": "A disabled build lists 265 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the eligible council, tourism and operator records. 69 official campgrounds remain held without coordinates. Pondalowie and Ippinitchie stay held. This is not a statewide launch."
+        "detail": "A disabled build lists 268 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, the eligible council, tourism and operator records, and three commercial parks inside reserves. Brownhill Creek Tourist Park's point is approximate. 69 official campgrounds remain held without coordinates. Pondalowie and Ippinitchie stay held. This is not a statewide launch."
       },
       {
         "id": "official_source_parser",

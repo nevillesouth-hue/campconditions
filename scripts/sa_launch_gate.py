@@ -36,24 +36,25 @@ def _inventory():
     counted = sa_inventory.summary(camps)
     needs = [camp["name"] for camp in camps if camp.get("needs_review")]
     ok = (
-        counted["published"] == 265
+        counted["published"] == 268
         and counted["official_confident"] == 73
         and counted["official_approximate"] == 7
         and counted["eligible_osm"] == 34
         and counted["council"] == 43
         and counted["tourism"] == 22
-        and counted["operator"] == 86
+        and counted["operator"] == 89
         and counted["duplicates_dropped"] == 1
         and len(needs) == 0
     )
     reason = (
-        "265 camps: 73 Parks SA with confident coordinates, 7 Parks SA approximate "
+        "268 camps: 73 Parks SA with confident coordinates, 7 Parks SA approximate "
         "(parks_sa_streetview_link), 34 from the earlier operator pass, 43 council, "
-        "22 tourism, 86 operator. 1 duplicate dropped (Mount Gambier Central, east side). "
-        "Pondalowie and Ippinitchie stay held. Needs a check: 0."
+        "22 tourism, 89 operator. The three commercial parks inside reserves are operator "
+        "camps, and Brownhill Creek's point is approximate. 1 duplicate dropped "
+        "(Mount Gambier Central, east side). Pondalowie and Ippinitchie stay held. Needs a check: 0."
     )
     if not ok:
-        reason = "expected 265 camps and no needs-check rows, found %s and %s (%s)" % (counted["published"], len(needs), "; ".join(needs))
+        reason = "expected 268 camps and no needs-check rows, found %s and %s (%s)" % (counted["published"], len(needs), "; ".join(needs))
     return _check("inventory", ok, reason), camps
 
 

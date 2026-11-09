@@ -2456,7 +2456,7 @@ def news_section(heading=None, preselect=None):
         return html_form
     if preselect is None:
         preselect = SLUG
-    offered = statecfg.enabled()
+    offered = statecfg.signup_states()
     if preselect and preselect not in {state["slug"] for state in offered}:
         return ""
     boxes = []

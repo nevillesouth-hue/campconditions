@@ -4,7 +4,7 @@
 //   POST /contacts                         { email, unsubscribed: false }
 //   POST /contacts/{email}/segments/{id}   no body
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
-import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase } from "../_lib/token.js";
+import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase, saDigestSend } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
@@ -56,9 +56,12 @@ export function existingStates(result) {
 // Segment ids this confirmation would touch. ACT and SA env vars are ignored.
 // A request that names only held states does not fall back to the Victoria segment.
 export function segmentPlan(env, states, recordStates) {
+  // Reads RESEND_SEGMENT_SA_ID. While the SA region flag is off, sa.send is false
+  // and chosenStates has already dropped "sa", so no SA segment is contacted.
+  const sa = saDigestSend(env);
   const picked = chosenStates(states);
   const held = heldSignupStates(states);
-  if (!picked.length && held.length) return { enrol: [], refuse: "not_open", segmentIds: [] };
+  if (!picked.length && held.length) return { enrol: [], refuse: "not_open", segmentIds: [], sa };
   const want = picked.length ? picked : ["vic"];
   const segmentIds = [];
   if (!recordStates || want.includes("vic")) segmentIds.push(env.RESEND_SEGMENT_ID);
@@ -66,7 +69,8 @@ export function segmentPlan(env, states, recordStates) {
   if (recordStates && want.includes("nsw") && nswId) segmentIds.push(nswId);
   const qldId = qldSegmentId(env);
   if (recordStates && want.includes("qld") && qldId) segmentIds.push(qldId);
-  return { enrol: want, refuse: "", segmentIds };
+  if (sa.send && want.includes("sa")) segmentIds.push(sa.segmentId);
+  return { enrol: want, refuse: "", segmentIds, sa };
 }
 
 // Create the contact, then add them to the segment for each chosen state.
@@ -74,7 +78,8 @@ export function segmentPlan(env, states, recordStates) {
 // link named the states. A missing contact property must not undo the signup.
 // NSW joins RESEND_SEGMENT_NSW_ID when that variable is set, and is not added to the Victoria segment.
 // QLD joins the Queensland digest segment (qldSegmentId), and is not added to the Victoria segment.
-// RESEND_SEGMENT_ACT_ID and RESEND_SEGMENT_SA_ID are not read. Setting them enrols nobody.
+// RESEND_SEGMENT_ACT_ID is not read. RESEND_SEGMENT_SA_ID is read by saDigestSend and
+// is not used while the SA region flag is off or the variable is empty. Setting it enrols nobody.
 export async function confirmSubscription(env, email, doFetch = fetch, states = ["vic"], recordStates = false) {
   const plan = segmentPlan(env, states, recordStates);
   if (plan.refuse === "not_open") {

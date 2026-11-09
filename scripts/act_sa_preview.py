@@ -12,6 +12,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import act_sa_html
 import act_sa_status as status
+import sa_digest
+import sa_inventory
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -76,6 +78,11 @@ def main():
         with open(os.path.join(folder, "meta.json"), "w", encoding="utf-8") as handle:
             json.dump(draft["meta"], handle, indent=2)
             handle.write("\n")
+    sa_digest.write_preview(
+        os.path.join(digest_dir, "sa"),
+        sa_inventory.load_camps(set()),
+        dt.datetime.now(dt.timezone.utc),
+    )
     with open(os.path.join(dest, "ingest.json"), "w", encoding="utf-8") as handle:
         json.dump({
             "live": bool(args.live),

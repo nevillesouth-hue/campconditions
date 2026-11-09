@@ -86,6 +86,25 @@ def signup_allowed(state):
     return release.get("signup") is True
 
 
+SIGNUP_SLUGS = ("vic", "nsw", "qld", "sa")
+
+
+def signup_states():
+    """States offered on the public form and reopen alert.
+
+    South Australia is in the list and is omitted while signup is not allowed.
+    """
+    offered = []
+    for slug in SIGNUP_SLUGS:
+        try:
+            state = by_slug(slug)
+        except KeyError:
+            continue
+        if signup_allowed(state):
+            offered.append(state)
+    return offered
+
+
 def enabled():
     """States the public build should emit.
 

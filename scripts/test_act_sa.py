@@ -21,8 +21,10 @@ import act_sa_fixtures
 import act_sa_html
 import act_sa_notices
 import act_sa_status as status
+import sa_digest
 import sa_fire
 import sa_inventory
+import sa_launch_gate
 import states
 
 ADELAIDE = ZoneInfo("Australia/Adelaide")
@@ -384,9 +386,9 @@ def main():
     written = open(os.path.join(preview_dir, "preview.txt"), encoding="utf-8").read()
     expect("Do not send" in written and "Do not enrol" in written, "preview banner")
     expect("No Rating" not in written and "{{{EMAIL}}}" not in written, "preview is not a send file")
-    sa_digest = open(os.path.join(preview_dir, "digest", "sa", "digest.txt"), encoding="utf-8").read()
+    sa_preview_text = open(os.path.join(preview_dir, "digest", "sa", "digest.txt"), encoding="utf-8").read()
     sa_meta = json.load(open(os.path.join(preview_dir, "digest", "sa", "meta.json"), encoding="utf-8"))
-    expect("Do not send" in sa_digest and "{{{EMAIL}}}" not in sa_digest, "sa preview digest")
+    expect("Do not send" in sa_preview_text and "{{{EMAIL}}}" not in sa_preview_text, "sa preview digest")
     expect(sa_meta.get("send") is False and sa_meta.get("reads_segment_env") is False and sa_meta.get("working_digest_coverage") is False, "preview digest is not coverage")
     ingest = json.load(open(os.path.join(preview_dir, "ingest.json"), encoding="utf-8"))
     by_camp = {row["camp_id"]: row for row in ingest["statuses"]}
@@ -406,7 +408,7 @@ def main():
     confirm_js = open(os.path.join(ROOT, "functions", "api", "confirm.js"), encoding="utf-8").read()
     unsub_js = open(os.path.join(ROOT, "functions", "api", "unsubscribe.js"), encoding="utf-8").read()
     expect('export const HELD_SIGNUP_STATES = ["act", "sa"];' in token_js, "signup hold")
-    expect("env.RESEND_SEGMENT_ACT_ID" not in confirm_js and "env.RESEND_SEGMENT_SA_ID" not in confirm_js, "confirm ignores held env")
+    expect("env.RESEND_SEGMENT_ACT_ID" not in confirm_js and "env.RESEND_SEGMENT_SA_ID" not in confirm_js, "confirm does not read the segment id itself")
     expect("env.RESEND_SEGMENT_ACT_ID" not in unsub_js and "env.RESEND_SEGMENT_SA_ID" not in unsub_js, "unsubscribe ignores held env")
 
     node = subprocess.run(["node", "--input-type=module", "-e", NODE], cwd=ROOT, capture_output=True, text=True)
@@ -415,8 +417,10 @@ def main():
     home = os.path.join(ROOT, "dist", "index.html")
     if os.path.isfile(home):
         page = open(home, encoding="utf-8").read()
+        expect('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page, "homepage offers the three states")
         expect('value="act"' not in page and 'value="sa"' not in page, "homepage checkboxes")
         expect("Australian Capital Territory" not in page and "South Australia" not in page, "homepage names")
+        expect(not os.path.isdir(os.path.join(ROOT, "dist", "sa")), "public build has no sa pages")
     status_path = os.path.join(ROOT, "dist", "status.json")
     if os.path.isfile(status_path):
         out = tempfile.mkdtemp(prefix="act-sa-digest-")
@@ -695,6 +699,45 @@ def main():
     expect(missing.get("fire_link", {}).get("url") == sa_fire.CFS_PAGE and not missing.get("fire"), "missing feed is the link-out")
     expect(sa_fire.fresh(now - dt.timedelta(hours=36), now) is True, "36 hours is still fresh")
 
+    expect([state["slug"] for state in states.signup_states()] == ["vic", "nsw", "qld"], "signup offers the three public states")
+    refused = sa_digest.send_decision({"RESEND_SEGMENT_SA_ID": "abc"}, False)
+    expect(refused["send"] is False and refused["reason"] == "region_disabled" and refused["called_resend"] is False, "disabled region refuses send")
+    unset = sa_digest.send_decision({}, True)
+    expect(unset["send"] is False and unset["reason"] == "segment_unset" and unset["called_resend"] is False, "unset segment refuses send")
+    blocked = sa_digest.perform_send({"RESEND_SEGMENT_SA_ID": "abc"}, True)
+    expect(blocked["send"] is False and blocked["reason"] == "resend_not_called" and blocked["called_resend"] is False, "send path does not call resend")
+    digest_dir = tempfile.mkdtemp(prefix="sa-digest-")
+    digest_meta = sa_digest.write_preview(digest_dir, sa_inventory.load_camps(set()), dt.datetime(2026, 11, 9, 12, tzinfo=ADELAIDE))
+    digest_html = open(os.path.join(digest_dir, "digest.html"), encoding="utf-8").read()
+    digest_text = open(os.path.join(digest_dir, "digest.txt"), encoding="utf-8").read()
+    for heading in ("Closed", "Partial", "Upcoming", "Reopened", "Fire danger and Total Fire Ban", "Chip in"):
+        expect(heading in digest_html and heading in digest_text, "digest heading " + heading)
+    expect("Do not send" in digest_text and "{{{EMAIL}}}" not in digest_html and digest_meta.get("send") is False, "digest preview is local")
+    expect(sa_digest.CFS_CREDIT in digest_html, "digest cfs credit")
+    try:
+        sa_digest.write_preview(os.path.join(ROOT, "dist", "sa-digest"), [])
+        expect(False, "digest refuses dist")
+    except SystemExit:
+        expect(True, "digest refuses dist")
+    gate_root = tempfile.mkdtemp(prefix="sa-gate-")
+    gate_dist = os.path.join(gate_root, "dist")
+    gate_preview = os.path.join(gate_root, "preview")
+    os.makedirs(gate_dist)
+    with open(os.path.join(gate_dist, "index.html"), "w", encoding="utf-8") as handle:
+        handle.write('<input type="checkbox" name="states" value="vic"><input type="checkbox" name="states" value="nsw"><input type="checkbox" name="states" value="qld">')
+    os.makedirs(os.path.join(gate_preview, "sa", "camp", "one"))
+    with open(os.path.join(gate_preview, "sa", "index.html"), "w", encoding="utf-8") as handle:
+        handle.write(sa_inventory.ATTRIBUTION + ' <a href="/sa/camp/one/">One</a>')
+    with open(os.path.join(gate_preview, "sa", "camp", "one", "index.html"), "w", encoding="utf-8") as handle:
+        handle.write(sa_inventory.ATTRIBUTION + ' <a href="/sa/">Back</a>')
+    gate = sa_launch_gate.evaluate(gate_dist, gate_preview, dt.datetime(2026, 11, 9, 21, 0, tzinfo=ADELAIDE))
+    gate_by = {item["check"]: item for item in gate["checks"]}
+    expect(gate["pass"] is False and gate["fire_licence_resolved"] is False, "gate fails on the licence flag")
+    expect(gate_by["fire_licence_resolved"]["pass"] is False, "licence check is false")
+    expect(gate_by["inventory"]["pass"] and gate_by["notice_parser_freshness"]["pass"] and gate_by["fire_feed_freshness"]["pass"], "inventory and freshness pass")
+    expect(gate_by["digest_preview"]["pass"] and gate_by["public_build_without_sa"]["pass"], "digest and public build checks")
+    expect(gate_by["sa_preview_links"]["pass"] and gate_by["sa_attribution"]["pass"], "preview links and attribution")
+
     if FAILURES:
         print("ACT/SA foundation failures: %s" % len(FAILURES))
         for label in FAILURES:
@@ -705,7 +748,7 @@ def main():
 
 
 NODE = r"""
-import { chosenStates, heldSignupStates, heldSignupPreview, makeToken, readToken } from "./functions/_lib/token.js";
+import { chosenStates, heldSignupStates, heldSignupPreview, makeToken, readToken, saDigestSend } from "./functions/_lib/token.js";
 import { signupChoice } from "./functions/api/subscribe.js";
 import { confirmSubscription, segmentPlan } from "./functions/api/confirm.js";
 
@@ -742,7 +785,13 @@ await confirmSubscription(env, email, async (url) => { urls.push(String(url)); r
 if (urls.some((url) => url.includes("act-segment") || url.includes("sa-segment"))) process.exit(10);
 if (!urls.some((url) => url.endsWith("/segments/vic-segment"))) process.exit(11);
 const plan = segmentPlan(env, ["sa"], true);
-if (plan.refuse !== "not_open" || plan.segmentIds.length) process.exit(12);
+if (plan.refuse !== "not_open" || plan.segmentIds.length || plan.sa.send) process.exit(12);
+const disabledSend = saDigestSend(env);
+if (disabledSend.send || disabledSend.reason !== "region_disabled" || disabledSend.calledResend) process.exit(15);
+const unsetSend = saDigestSend({ ...env, RESEND_SEGMENT_SA_ID: "" }, true);
+if (unsetSend.send || unsetSend.reason !== "segment_unset") process.exit(16);
+const readySend = saDigestSend(env, true);
+if (!readySend.send || readySend.segmentId !== "sa-segment" || readySend.calledResend) process.exit(17);
 """
 
 

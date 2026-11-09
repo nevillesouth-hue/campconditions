@@ -113,8 +113,10 @@
     "outback_roads": "https://dit.sa.gov.au/OutbackRoads"
   },
   "copy": {
-    "digest_subject": "PREVIEW ONLY SA pilot camps — do not send",
-    "digest_intro": "Preview of three selected South Australian campgrounds. This draft is not a digest and must not be sent.",
+    "digest_subject": "South Australia camps this week: {closed} closed",
+    "digest_intro": "G'day! Here's the South Australian notice summary for {date}. Do not send. This file is a local preview.",
+    "digest_warnings": "Warnings change quickly, so we don't list them here. <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\" style=\"color:#2f5d3a;\">Check the SA Country Fire Service ratings</a> before you go.",
+    "digest_footer": "Do not send. Not an official warning service. Fire danger: SA Country Fire Service (cfs.sa.gov.au). Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). In an emergency call 000.<br>",
     "newsletter_h2": "",
     "home_title": "South Australia camp conditions — {count} sites | CampConditions.au",
     "home_description": "Disabled South Australian inventory. {count} sites. Not a public launch.",

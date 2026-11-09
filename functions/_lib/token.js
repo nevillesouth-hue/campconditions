@@ -38,6 +38,15 @@ const STATE_LABELS = { vic: "Victoria", nsw: "New South Wales", qld: "Queensland
 // Creating RESEND_SEGMENT_ACT_ID or RESEND_SEGMENT_SA_ID must not change that.
 // Activation has to remove the slug here in the same change that opens the gate.
 export const HELD_SIGNUP_STATES = ["act", "sa"];
+// Region flags for signup and the digest send. SA stays false until the launch gate passes.
+export const REGION_ENABLED = { act: false, sa: false };
+
+export function saDigestSend(env, regionEnabled = REGION_ENABLED.sa) {
+  const segmentId = String((env && env.RESEND_SEGMENT_SA_ID) || "").trim();
+  if (!regionEnabled) return { send: false, reason: "region_disabled", segmentId: "", calledResend: false };
+  if (!segmentId) return { send: false, reason: "segment_unset", segmentId: "", calledResend: false };
+  return { send: true, reason: "", segmentId, calledResend: false };
+}
 export const HELD_SEGMENT_ENV = {
   act: "RESEND_SEGMENT_ACT_ID",
   sa: "RESEND_SEGMENT_SA_ID",

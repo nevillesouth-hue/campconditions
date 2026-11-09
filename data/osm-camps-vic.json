@@ -1,7 +1,7 @@
 {
  "attribution": "© OpenStreetMap contributors, ODbL 1.0 (openstreetmap.org/copyright)",
- "count": 1326,
- "generated": "2026-11-02T19:22:04Z",
+ "count": 1325,
+ "generated": "2026-11-09T19:23:29Z",
  "sites": [
   {
    "name": "1 Wild Cherry Camp",
@@ -518,8 +518,8 @@
    "operator": "",
    "label": "check with operator",
    "needs_review": false,
-   "lat": -37.530323,
-   "lon": 146.614558,
+   "lat": -37.530072,
+   "lon": 146.613605,
    "osm_id": "n1808392015"
   },
   {
@@ -663,8 +663,8 @@
    "operator": "Parks Victoria",
    "label": "check with operator",
    "needs_review": false,
-   "lat": -37.522922,
-   "lon": 146.614086,
+   "lat": -37.522165,
+   "lon": 146.613592,
    "osm_id": "n3918195755",
    "fee_type": "free",
    "booking": "no",
@@ -4653,8 +4653,8 @@
    "operator": "Parks Victoria",
    "label": "check with operator",
    "needs_review": true,
-   "lat": -37.937452,
-   "lon": 145.747316,
+   "lat": -37.937499,
+   "lon": 145.7473,
    "osm_id": "w243116210",
    "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/bunyip-state-park/where-to-stay/camping-in-bunyip-state-park",
    "access_notes": "walk-in only (6 km from car park)",
@@ -8242,7 +8242,7 @@
    "checked_date": "2026-10-17"
   },
   {
-   "name": "Dogmans Hut camping area",
+   "name": "Dogmans Hut Camping Area",
    "category": "free",
    "suits": "unknown",
    "self_contained_only": "unknown",
@@ -8257,8 +8257,8 @@
    "operator": "",
    "label": "check with operator",
    "needs_review": true,
-   "lat": -36.53781,
-   "lon": 148.132965,
+   "lat": -36.538381,
+   "lon": 148.132973,
    "osm_id": "n2100532181"
   },
   {
@@ -15701,7 +15701,7 @@
    "self_contained_only": "no",
    "max_nights": "72 hours",
    "dogs": "unknown",
-   "dump_point": "unknown",
+   "dump_point": "yes",
    "showers": "yes",
    "toilets": "yes",
    "phone": "",
@@ -20788,26 +20788,6 @@
    "description": "Raspberry Hill Campground: bush camping area in the Alpine National Park. Free, no bookings. Facilities are basic or absent, so come fully self-sufficient, including drinking water. No dogs in the national park.",
    "source_note": "Location inside Alpine National Park per DataVic Public Land Management (PLM25) layer. Parks Victoria \"Dispersed camping in Alpine National Park\": bookings and fees apply only to the Falls to Hotham Alpine Crossing; campers must be fully self-sufficient with food and water. PV Howqua Hills camping page: dogs are not allowed in Alpine National Park.",
    "checked_date": "2026-10-19"
-  },
-  {
-   "name": "Rawson Caravan Park",
-   "category": "free",
-   "suits": "tent|caravan",
-   "self_contained_only": "unknown",
-   "max_nights": "",
-   "dogs": "unknown",
-   "dump_point": "unknown",
-   "showers": "unknown",
-   "toilets": "unknown",
-   "phone": "",
-   "email": "",
-   "website": "",
-   "operator": "",
-   "label": "check with operator",
-   "needs_review": true,
-   "lat": -37.956086,
-   "lon": 146.402918,
-   "osm_id": "w270497189"
   },
   {
    "name": "Raymond Creek Falls Camping Area (Snowy River National Park)",
@@ -25947,7 +25927,7 @@
   {
    "name": "Underbool Rest Area",
    "category": "donation",
-   "suits": "unknown",
+   "suits": "tent|caravan",
    "self_contained_only": "no",
    "max_nights": "",
    "dogs": "unknown",
@@ -26051,7 +26031,7 @@
    "osm_id": "new:upper-woolshed-valley-camping-area-chiltern-mt-pilot-national-park"
   },
   {
-   "name": "Upper Yarra Reservoir",
+   "name": "Upper Yarra Reservoir Park",
    "category": "park_campground",
    "suits": "unknown",
    "self_contained_only": "unknown",
@@ -26066,8 +26046,8 @@
    "operator": "Parks Victoria",
    "label": "check with operator",
    "needs_review": false,
-   "lat": -37.668874,
-   "lon": 145.889819,
+   "lat": -37.669157,
+   "lon": 145.89005,
    "osm_id": "n803825222",
    "fee_type": "paid",
    "booking": "required",

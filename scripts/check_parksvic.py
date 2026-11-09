@@ -396,13 +396,21 @@ def classify_html(page, camp_name="", named_only=False):
     return {"closed": closed, "seasonal": seasonal}
 
 
+def _trim_url(raw):
+    """Drop sentence punctuation. Keep a parenthesis that belongs to the path."""
+    text = (raw or "").rstrip(".,")
+    while text.endswith(")") and text.count("(") < text.count(")"):
+        text = text[:-1].rstrip(".,")
+    return text
+
+
 def campground_url(value):
     if not isinstance(value, str) or "parks.vic.gov.au" not in value.lower():
         return ""
     match = URL_RE.search(value)
     if not match:
         return ""
-    raw = match.group(0).rstrip(".,)")
+    raw = _trim_url(match.group(0))
     parts = urllib.parse.urlsplit(raw)
     if "parks.vic.gov.au" not in parts.netloc.lower():
         return ""
@@ -420,7 +428,7 @@ def park_url(value):
     match = URL_RE.search(value)
     if not match:
         return ""
-    parts = urllib.parse.urlsplit(match.group(0).rstrip(".,)"))
+    parts = urllib.parse.urlsplit(_trim_url(match.group(0)))
     if "parks.vic.gov.au" not in parts.netloc.lower():
         return ""
     if not re.fullmatch(r"/places-to-see/parks/[a-z0-9-]+/?", parts.path.lower()):

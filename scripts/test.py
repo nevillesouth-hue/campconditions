@@ -1383,6 +1383,11 @@ if not check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see
   bad.append(("check_parksvic", "camp url"))
 if check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park"):
   bad.append(("check_parksvic", "park url"))
+murray = "https://www.parks.vic.gov.au/places-to-see/sites/centre-track-camping-area-(nurrung)"
+if check_parksvic.campground_url(murray) != murray:
+  bad.append(("check_parksvic", "parenthesis slug"))
+if check_parksvic.campground_url("See https://www.parks.vic.gov.au/places-to-see/sites/mallee-camp).") != "https://www.parks.vic.gov.au/places-to-see/sites/mallee-camp":
+  bad.append(("check_parksvic", "sentence parenthesis"))
 if check_parksvic.park_url("https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park") != "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park":
   bad.append(("check_parksvic", "whole park url"))
 paddys_html = """

@@ -19,6 +19,7 @@ os.chdir(ROOT)
 import act_sa_eligibility
 import act_sa_fixtures
 import act_sa_html
+import act_sa_notices
 import act_sa_status as status
 import states
 
@@ -531,6 +532,33 @@ def main():
     report_complete = act_sa_html.completeness(discovered, [{"source_url": discovered[0], "handled": True}])
     expect(report_complete["all_discovered_supported"] is False and report_complete["camp_count"] is None, "parsed notices are not full coverage")
     expect(report_complete["discovered_detail_notices"] > report_complete["parsed_handled"], "discovery stays ahead of handled parses")
+
+    notices = act_sa_notices.load_notices(os.path.join(ROOT, "data", "act-sa", "fixtures", "sa-notices.json"))
+    as_of = dt.datetime.fromisoformat("2026-11-09T11:46:51+10:30")
+    scored = act_sa_notices.evaluate_all(notices, as_of)
+    expect(len(notices) == 49 and scored["handled"] + scored["held_unknown"] == 49, "every notice is handled or held")
+    expect(scored["open_inferred"] is False and all(row["camp_status"] != "open" for row in scored["notices"]), "no notice is open")
+    expect(scored["geometry_exported"] is False, "notice 48 geometry is not exported")
+    by_notice = scored["by_index"]
+    expect(by_notice[3]["booking_ids"] == [] and "67710" not in by_notice[41]["booking_ids"], "aroona is not the ikara camp")
+    expect("72075" not in by_notice[44]["booking_ids"] and by_notice[44]["booking_ids"] == ["87314"], "acraman creek keeps its own id")
+    expect(by_notice[35]["booking_ids"] == [] and "Anstey" not in " ".join(notices[18]["parks"]), "tapanappa and anstey are not attached")
+    expect(by_notice[27]["camp_status"] == "unknown" and by_notice[28]["camp_status"] == "unknown" and scored["bookings"]["73201"] == "unknown", "morgan conflict is unknown")
+    expect(by_notice[30]["camp_status"] == "unknown" and scored["bookings"]["73194"] == "unknown", "chowilla site conflict is unknown")
+    expect(by_notice[30]["child_sites_emitted"] is False, "numbered sites stay on the parent")
+    night = dt.datetime(2026, 11, 11, 21, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    pink_night = act_sa_notices.evaluate(by_notice and notices[5], night)
+    expect(act_sa_notices._night_blocks(notices[5]["recurrence"]["night_blocks"], night) is True, "last listed night counts as closure")
+    expect(pink_night["camp_status"] == "unknown" and pink_night["open_inferred"] is False, "pink gum stays unknown on a closure night")
+    during = dt.datetime(2026, 11, 16, 12, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    during_score = act_sa_notices.evaluate_all(notices, during)
+    expect(during_score["bookings"]["67320"] == "closed" and during_score["by_index"][45]["camp_status"] != "open", "notice 45 does not clear notice 38")
+    after = dt.datetime(2026, 11, 21, 12, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    after_score = act_sa_notices.evaluate_all(notices, after)
+    expect(after_score["bookings"]["67320"] != "open" and after_score["by_index"][20]["camp_status"] == "expired_not_open", "expired notice is not open")
+    expect(len(by_notice[8]["unmapped_names"]) + len(by_notice[45]["unmapped_names"]) >= 1, "camps without ids stay unmapped")
+    null_names = [name for row in scored["notices"] for name in row["unmapped_names"]]
+    expect(len(null_names) == 9 and all(name for name in null_names), "nine named camps have no booking id")
 
     if FAILURES:
         print("ACT/SA foundation failures: %s" % len(FAILURES))

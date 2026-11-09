@@ -23,6 +23,7 @@ import act_sa_notices
 import act_sa_status as status
 import sa_digest
 import sa_fire
+import sa_signup
 import sa_inventory
 import sa_launch_gate
 import states
@@ -735,6 +736,42 @@ def main():
     sa_fire.assign([missing], {"ok": False, "updated": None, "districts": {}}, zones, now)
     expect(missing.get("fire_link", {}).get("url") == sa_fire.CFS_PAGE and not missing.get("fire"), "missing feed is the link-out")
     expect(sa_fire.fresh(now - dt.timedelta(hours=36), now) is True, "36 hours is still fresh")
+    link_camp = placed(138.5, -34.5, status="closed")
+    os.environ["SA_FIRE_MODE"] = "linkout"
+    try:
+        def refuse_fetch(*_args):
+            raise AssertionError("linkout fetched a CFS source")
+        sa_fire.apply([link_camp], {"sources": {"cfs_fdr": {"url": "https://example.invalid/feed"}, "cfs_districts": {"url": "https://example.invalid/zip"}}}, refuse_fetch)
+    finally:
+        os.environ.pop("SA_FIRE_MODE", None)
+    link_html = sa_fire.html_line(link_camp)
+    expect(link_camp.get("sa_fire_mode") == "linkout" and not link_camp.get("fire") and not link_camp.get("fire_link"), "linkout stores no rating")
+    expect(sa_fire.LINKOUT_LINE in link_html and sa_fire.CFS_PAGE in link_html and sa_fire.CATASTROPHIC_LINE in link_html, "linkout line and parks sentence")
+    expect("No Rating" not in link_html and "No rating" not in link_html and "Mount Lofty" not in link_html, "linkout names no rating and no district")
+    expect(link_camp["status"] == "closed", "linkout leaves a closure alone")
+    os.environ["SA_FIRE_MODE"] = "nope"
+    try:
+        sa_fire.mode()
+        expect(False, "bad fire mode is rejected")
+    except SystemExit:
+        expect(True, "bad fire mode is rejected")
+    finally:
+        os.environ.pop("SA_FIRE_MODE", None)
+    expect(sa_signup.mode() == "coming_soon" and sa_signup.forms_allowed() is False, "signup stays closed without a segment")
+    os.environ["SA_SIGNUP_MODE"] = "open"
+    try:
+        expect(sa_signup.mode() == "coming_soon" and sa_signup.forms_allowed() is False, "open mode without a segment stays closed")
+    finally:
+        os.environ.pop("SA_SIGNUP_MODE", None)
+    os.environ["SA_SIGNUP_MODE"] = "open"
+    os.environ["RESEND_SEGMENT_SA_ID"] = "sa-segment"
+    try:
+        expect(sa_signup.mode() == "open" and sa_signup.forms_allowed() is False, "a segment does not open signup while the flag is off")
+    finally:
+        os.environ.pop("SA_SIGNUP_MODE", None)
+        os.environ.pop("RESEND_SEGMENT_SA_ID", None)
+    soon = sa_signup.coming_soon_html()
+    expect(sa_signup.COMING_SOON in soon and "<form" not in soon and "/api/subscribe" not in soon, "coming soon has no form")
 
     expect([state["slug"] for state in states.signup_states()] == ["vic", "nsw", "qld"], "signup offers the three public states")
     refused = sa_digest.send_decision({"RESEND_SEGMENT_SA_ID": "abc"}, False)
@@ -763,17 +800,29 @@ def main():
     with open(os.path.join(gate_dist, "index.html"), "w", encoding="utf-8") as handle:
         handle.write('<input type="checkbox" name="states" value="vic"><input type="checkbox" name="states" value="nsw"><input type="checkbox" name="states" value="qld">')
     os.makedirs(os.path.join(gate_preview, "sa", "camp", "one"))
+    coming = sa_signup.COMING_SOON
+    fire_line = sa_fire.LINKOUT_LINE + " " + sa_fire.CFS_PAGE + " " + sa_fire.CATASTROPHIC_LINE
     with open(os.path.join(gate_preview, "sa", "index.html"), "w", encoding="utf-8") as handle:
-        handle.write(sa_inventory.ATTRIBUTION + ' <a href="/sa/camp/one/">One</a>')
+        handle.write(sa_inventory.ATTRIBUTION + ' <a href="/sa/camp/one/">One</a> ' + coming)
     with open(os.path.join(gate_preview, "sa", "camp", "one", "index.html"), "w", encoding="utf-8") as handle:
-        handle.write(sa_inventory.ATTRIBUTION + ' <a href="/sa/">Back</a>')
+        handle.write(sa_inventory.ATTRIBUTION + ' <a href="/sa/">Back</a> ' + coming + " " + fire_line)
     gate = sa_launch_gate.evaluate(gate_dist, gate_preview, dt.datetime(2026, 11, 9, 21, 0, tzinfo=ADELAIDE))
     gate_by = {item["check"]: item for item in gate["checks"]}
-    expect(gate["pass"] is False and gate["fire_licence_resolved"] is False, "gate fails on the licence flag")
+    expect(gate["pass"] is False and gate["fire_licence_resolved"] is False and gate["sa_fire_mode"] == "full", "gate fails on the licence flag")
     expect(gate_by["fire_licence_resolved"]["pass"] is False, "licence check is false")
     expect(gate_by["inventory"]["pass"] and gate_by["notice_parser_freshness"]["pass"] and gate_by["fire_feed_freshness"]["pass"], "inventory and freshness pass")
+    expect(gate_by["sa_signup"]["pass"] and gate["sa_signup_mode"] == "coming_soon", "signup mode is coming soon")
     expect(gate_by["digest_preview"]["pass"] and gate_by["public_build_without_sa"]["pass"], "digest and public build checks")
     expect(gate_by["sa_preview_links"]["pass"] and gate_by["sa_attribution"]["pass"], "preview links and attribution")
+    os.environ["SA_FIRE_MODE"] = "linkout"
+    try:
+        opened = sa_launch_gate.evaluate(gate_dist, gate_preview, dt.datetime(2026, 11, 9, 21, 0, tzinfo=ADELAIDE))
+    finally:
+        os.environ.pop("SA_FIRE_MODE", None)
+    opened_by = {item["check"]: item for item in opened["checks"]}
+    expect(opened["sa_fire_mode"] == "linkout" and opened["sa_signup_mode"] == "coming_soon", "gate records linkout and coming soon")
+    expect(opened_by["fire_licence_resolved"]["pass"] and opened_by["fire_feed_freshness"]["pass"] and opened_by["sa_signup"]["pass"], "linkout passes the fire check")
+    expect(opened["pass"] is True and opened["fire_licence_resolved"] is False, "linkout can pass while the licence conflict remains")
 
     if FAILURES:
         print("ACT/SA foundation failures: %s" % len(FAILURES))

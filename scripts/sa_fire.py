@@ -9,6 +9,7 @@ state's rating.
 import datetime as dt
 import io
 import json
+import os
 import zipfile
 from xml.etree import ElementTree
 from zoneinfo import ZoneInfo
@@ -23,8 +24,18 @@ PARKS_FIRE_URL = "https://www.parks.sa.gov.au/park-management/fire"
 CATASTROPHIC_LINE = "Parks SA parks are usually closed on Catastrophic fire danger days, so check before you travel"
 BAN_LINE = "Total Fire Ban: fires banned"
 UNKNOWN_LABEL = "Fire danger: unknown."
+LINKOUT_LINE = "Fire danger and Total Fire Bans: check the SA Country Fire Service"
 FEED_URL = "https://data.eso.sa.gov.au/prod/cfs/criimson/fireDangerRating.xml"
 POLYGON_ZIP = "https://www.dptiapps.com.au/dataportal/FireBanDistricts_geojson.zip"
+MODES = ("linkout", "full")
+
+
+def mode():
+    """`linkout` skips the district dataset and the rating feed. `full` is the licensed join."""
+    raw = (os.environ.get("SA_FIRE_MODE") or "full").strip().lower()
+    if raw not in MODES:
+        raise SystemExit("SA_FIRE_MODE must be linkout or full")
+    return raw
 
 
 def unknown_link():
@@ -236,9 +247,33 @@ def _restore_closure(camp, before):
     camp["status_label"] = label
 
 
+def mark_linkout(camp):
+    """No rating, no district, and no feed. The catastrophic sentence is general advice."""
+    camp.pop("fire", None)
+    camp.pop("fire_unmapped", None)
+    camp.pop("fire_link", None)
+    camp["sa_fire_mode"] = "linkout"
+
+
+def linkout_html():
+    """Neutral CFS link plus the Parks SA catastrophic-day sentence. Never says No Rating."""
+    import html
+    sentence = f'{LINKOUT_LINE}.'
+    bits = [
+        '<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>',
+        f'<p class="muted fire-line fire-sa-linkout" style="margin:.05rem 0 .55rem">{html.escape(sentence)} '
+        f'<a href="{CFS_PAGE}" target="_blank" rel="noopener noreferrer">CFS fire danger ratings</a></p>',
+        f'<p class="fire-catastrophic">{html.escape(CATASTROPHIC_LINE)}. '
+        f'<a href="{PARKS_FIRE_URL}" target="_blank" rel="noopener noreferrer">Parks SA fire</a></p>',
+    ]
+    return "".join(bits)
+
+
 def html_line(camp):
     """Rating sentence for one camp. No extra words about what the category means."""
     import html
+    if camp.get("sa_fire_mode") == "linkout":
+        return linkout_html()
     fire = camp.get("fire") or {}
     if fire.get("authority") != "sa_cfs":
         return ""
@@ -271,7 +306,20 @@ def _spoken(day):
 
 
 def apply(camps, state, fetch_text, src_log=None, now=None):
-    """Fetch the CFS feed and district zip for an SA preview. Failures stay unknown."""
+    """Fetch the CFS feed and district zip for an SA preview. Failures stay unknown.
+
+    SA_FIRE_MODE=linkout does not call fetch_text and does not name a district.
+    """
+    if mode() == "linkout":
+        for camp in camps:
+            before = (camp.get("status"), camp.get("closure"), camp.get("status_label"))
+            mark_linkout(camp)
+            _restore_closure(camp, before)
+        if src_log is not None:
+            src_log.pop("cfs_fdr", None)
+            src_log.pop("cfs_districts", None)
+        print("SA fire: linkout. The CFS rating feed and the fire ban districts were not downloaded.")
+        return {"mode": "linkout", "inside": 0, "fallback": 0, "unmapped": 0, "unknown": 0, "by_district": {}}
     sources = (state or {}).get("sources") or {}
     feed = sources.get("cfs_fdr") or {}
     zones = sources.get("cfs_districts") or {}

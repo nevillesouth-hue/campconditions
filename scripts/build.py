@@ -2423,7 +2423,12 @@ def inline_signup(kind, region_name, camp=None):
     """Growth item 1: short sign-up box under the status line. Uses the existing /api/subscribe double opt-in.
     kind: "camp", "closed" or "region". The hidden reopen_alert/source fields are ignored by the current backend;
     they are there so per-camp reopen alerts can be captured once the backend stores them.
-    Foundation states stay off the form until signup is allowed."""
+    Foundation states stay off the form until signup is allowed.
+    South Australia with no Resend segment shows a line and no form."""
+    if SLUG == "sa":
+        import sa_signup
+        if not sa_signup.forms_allowed():
+            return sa_signup.coming_soon_html()
     if not statecfg.signup_allowed(STATE):
         return ""
     state = STATE.get("abbrev") or STATE["name"]
@@ -2689,7 +2694,7 @@ def fire_line(c):
     """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon
     or the nearest-district fallback applied (nsw_conditions.FIRE_FALLBACK_KM).
     A state with no district map keeps the link and does not invent a rating."""
-    if (c.get("fire") or {}).get("authority") == "sa_cfs":
+    if c.get("sa_fire_mode") == "linkout" or (c.get("fire") or {}).get("authority") == "sa_cfs":
         import sa_fire
         return sa_fire.html_line(c)
     if c.get("fire_unmapped") and not c.get("fire"):
@@ -2944,8 +2949,13 @@ def emit_state(state, camps, include_home):
     if state_is_home:
         full_home(f"/{SLUG}/", True)
     else:
-        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p><p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>"
-        if multi:
+        sa_note = ""
+        if state.get("slug") == "sa":
+            import sa_signup
+            if not sa_signup.forms_allowed():
+                sa_note = sa_signup.coming_soon_html()
+        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>"
+        if not sa_note and multi:
             state_body += news_section()
         page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
              state_body, [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))

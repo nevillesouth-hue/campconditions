@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """One pass/fail gate for a South Australia launch. It does not enable the state.
 
-fire_licence_resolved stays false, so the gate fails until that conflict is
-resolved. The script does not send mail or create a Resend segment.
+SA_FIRE_MODE=full still fails the fire check because the district licence
+conflicts. SA_FIRE_MODE=linkout passes that check without downloading the
+dataset or the rating feed. The script does not send mail or create a segment.
 """
 import argparse
 import datetime as dt
@@ -17,6 +18,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import sa_digest
 import sa_fire
 import sa_inventory
+import sa_signup
 import states
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,12 +73,50 @@ def _notices(now):
     return _check("notice_parser_freshness", ok, reason)
 
 
-def _fire(now):
+def _fire_pages(preview):
+    root = os.path.join(os.path.abspath(preview), "sa")
+    if not os.path.isdir(root):
+        return False, "SA preview is not at %s" % root
+    missing = []
+    rated = []
+    pages = 0
+    for dirpath, _dirs, files in os.walk(root):
+        for name in files:
+            if not name.endswith(".html"):
+                continue
+            pages += 1
+            path = os.path.join(dirpath, name)
+            text = open(path, encoding="utf-8").read()
+            rel = os.path.relpath(path, root)
+            if 'class="muted fire-line fire-sa"' in text or "No Rating" in text or "No rating" in text:
+                rated.append(rel)
+            if "data.eso.sa.gov.au" in text or "FireBanDistricts" in text:
+                rated.append(rel)
+            camp_page = f"{os.sep}camp{os.sep}" in path
+            if camp_page and (sa_fire.LINKOUT_LINE not in text or sa_fire.CATASTROPHIC_LINE not in text or sa_fire.CFS_PAGE not in text):
+                missing.append(rel)
+    if not pages:
+        return False, "SA preview has no pages"
+    if rated or missing:
+        return False, "linkout pages still show a rating or omit the CFS line: " + ", ".join((rated + missing)[:8])
+    return True, "linkout shows the CFS ratings link and the Parks SA catastrophic line, with no district and no rating"
+
+
+def _fire(now, preview):
+    if sa_fire.mode() == "linkout":
+        ok, reason = _fire_pages(preview)
+        fresh = _check("fire_feed_freshness", ok, "SA_FIRE_MODE=linkout does not download the CFS rating feed. " + reason)
+        licence = _check(
+            "fire_licence_resolved",
+            ok,
+            "SA_FIRE_MODE=linkout does not download or use the SA Fire Ban Districts dataset. The licence conflict remains for SA_FIRE_MODE=full. " + reason,
+        )
+        return fresh, licence
     sample = os.path.join(ROOT, "data", "act-sa", "fixtures", "fire", "cfs-sample.xml")
     with open(sample, "rb") as handle:
         parsed = sa_fire.parse_feed(handle.read())
     fresh = sa_fire.fresh(parsed.get("updated"), now)
-    fresh_reason = "sample CFS feed updated %s" % (parsed.get("updated").isoformat() if parsed.get("updated") else "missing")
+    fresh_reason = "SA_FIRE_MODE=full. Sample CFS feed updated %s" % (parsed.get("updated").isoformat() if parsed.get("updated") else "missing")
     if not parsed.get("ok"):
         fresh = False
         fresh_reason = "CFS sample did not parse"
@@ -88,6 +128,38 @@ def _fire(now):
         "false. The data.sa.gov.au page and the zip licence file disagree, so the district geometry stays unpublished.",
     )
     return _check("fire_feed_freshness", fresh, fresh_reason), licence
+
+
+def _signup(preview):
+    chosen = sa_signup.mode()
+    root = os.path.join(os.path.abspath(preview), "sa")
+    forms = []
+    quiet = []
+    pages = 0
+    if os.path.isdir(root):
+        for dirpath, _dirs, files in os.walk(root):
+            for name in files:
+                if not name.endswith(".html"):
+                    continue
+                pages += 1
+                path = os.path.join(dirpath, name)
+                text = open(path, encoding="utf-8").read()
+                rel = os.path.relpath(path, root)
+                if 'action="/api/subscribe"' in text or 'name="reopen_alert"' in text or 'class="signup inline-signup"' in text:
+                    forms.append(rel)
+                if sa_signup.COMING_SOON not in text:
+                    quiet.append(rel)
+    if chosen != "coming_soon":
+        return _check("sa_signup", False, "SA_SIGNUP_MODE=%s but no Resend SA segment is set, so signup stays closed" % chosen)
+    ok = pages > 0 and not forms and not quiet
+    reason = "SA_SIGNUP_MODE=coming_soon. No Resend SA segment, no SA subscribe form and no reopen box. Pages say the weekly email is coming soon."
+    if forms:
+        reason = "SA pages still contain a signup or reopen form: " + ", ".join(forms[:8])
+    elif quiet:
+        reason = "SA pages omit the coming soon line: " + ", ".join(quiet[:8])
+    elif not pages:
+        reason = "SA preview has no pages to check for signup"
+    return _check("sa_signup", ok, reason)
 
 
 def _digest():
@@ -180,12 +252,13 @@ def _attribution(preview):
 def evaluate(dist, preview, now=None):
     now = now or dt.datetime.now(ADELAIDE)
     inventory, _camps = _inventory()
-    fresh, licence = _fire(now)
+    fresh, licence = _fire(now, preview)
     checks = [
         inventory,
         _notices(now),
         fresh,
         licence,
+        _signup(preview),
         _digest(),
         _public(dist),
         _links(preview),
@@ -193,6 +266,8 @@ def evaluate(dist, preview, now=None):
     ]
     return {
         "pass": all(item["pass"] for item in checks),
+        "sa_fire_mode": sa_fire.mode(),
+        "sa_signup_mode": sa_signup.mode(),
         "fire_licence_resolved": FIRE_LICENCE_RESOLVED,
         "checks": checks,
     }

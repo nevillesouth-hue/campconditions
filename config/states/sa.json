@@ -88,7 +88,7 @@
       "credit": "Fire danger: SA Country Fire Service (cfs.sa.gov.au)",
       "live_fetch": false,
       "preview_build_fetches": true,
-      "note": "Fetched only while rendering an SA preview. The feed host states no reuse terms. Show the category name, ban and Adelaide date, or unknown. Never another state's rating."
+      "note": "SA_FIRE_MODE=full fetches this while rendering an SA preview. SA_FIRE_MODE=linkout does not fetch it and does not show a rating. The feed host states no reuse terms. Never another state's rating."
     },
     "cfs_districts": {
       "url": "https://www.dptiapps.com.au/dataportal/FireBanDistricts_geojson.zip",
@@ -97,7 +97,7 @@
       "crs": "EPSG:4283",
       "live_fetch": false,
       "preview_build_fetches": true,
-      "note": "GDA94 polygons are read in memory to name a camp's district and are not published, rendered or committed. The dataset page says CC BY-NC-ND 4.0 and the zip License.txt says CC BY 3.0 AU. That conflict is unresolved."
+      "note": "SA_FIRE_MODE=full reads these GDA94 polygons in memory to name a camp's district. They are not published, rendered or committed. SA_FIRE_MODE=linkout does not download the zip. The dataset page says CC BY-NC-ND 4.0 and the zip License.txt says CC BY 3.0 AU. That conflict is unresolved."
     }
   },
   "links": {

@@ -8,8 +8,9 @@
     "covering": "",
     "coming": ""
   },
-  "coverage_label": "Research records only. Neither the three-camp test set nor the 28-facility cohort is a state launch or a statewide inventory.",
-  "credit": "Pilot facts are attributed separately from OpenStreetMap. Current parks.sa.gov.au pages are CC BY 3.0 Australia. The 2017 parks JSON is CC BY 4.0 and is not the website licence. OSM data is ODbL.",
+  "coverage_label": "Disabled inventory only. 73 Parks SA campgrounds have confident coordinates and 35 eligible non-park camps are included. Held and excluded places are not published. This is not a state launch.",
+  "credit": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). The 2017 parks JSON is CC BY 4.0 and is not this inventory.",
+  "safety_html": "<div class=\"warn\">South Australia is not published. This preview is not a launch. A page with no current notice is not a confirmation the camp is open.</div>",
   "licence": {
     "current_site": "CC BY 3.0 AU",
     "current_site_url": "https://creativecommons.org/licenses/by/3.0/au/",
@@ -17,11 +18,12 @@
     "legacy_dataset_url": "http://creativecommons.org/licenses/by/4.0",
     "osm": "ODbL",
     "osm_url": "https://www.openstreetmap.org/copyright",
-    "agency_name_unconfirmed": true,
-    "attribution_form": "Department of Environment, Water and Natural Resources, the Government of South Australia, [title], Sourced on 9 November 2026, [URL]",
+    "agency_name_unconfirmed": false,
+    "attribution_form": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU",
+    "legacy_attribution_form": "Department of Environment, Water and Natural Resources, the Government of South Australia, [title], Sourced on 9 November 2026, [URL]",
     "photos": false,
     "booking_prose": false,
-    "note": "The attribution form keeps the agency name printed with the licence. Do not silently rewrite it. Do not apply CC BY 4.0 to current website or booking pages. HTML CC BY 3.0 AU and the legacy JSON CC BY 4.0 stay distinct.",
+    "note": "Current parks.sa.gov.au pages use the Department for Environment and Water credit under CC BY 3.0 AU. The 2017 JSON keeps its own agency line and CC BY 4.0. OSM coordinates stay ODbL. Do not copy Parks SA maps or images. Do not apply CC BY 4.0 to current pages.",
     "geopdf_explicit_map_or_derived_geometry_grant": false,
     "image_republication": false,
     "coordinate_derived_publication": false
@@ -36,7 +38,31 @@
     "unmapped_label": "Fire danger / total fire ban status not verified here"
   },
   "files": {
-    "candidates": "data/act-sa/candidates.json"
+    "candidates": "data/act-sa/candidates.json",
+    "official_inventory": "data/act-sa/inventory/official-campgrounds.json",
+    "osm_eligibility": "data/act-sa/inventory/osm-eligibility.csv",
+    "spot_check": "data/act-sa/inventory/spot-check.csv",
+    "notices": "data/act-sa/fixtures/sa-notices.json"
+  },
+  "regions": {
+    "south-australia": {
+      "name": "South Australia",
+      "blurb": "Parks SA campgrounds with a confident location, plus non-park camps an operator or official page has supported. Held and excluded places are not listed."
+    }
+  },
+  "region_rules": [
+    {"id": "south-australia"}
+  ],
+  "labels": {
+    "paid_book": "",
+    "book_ahead_note": "",
+    "book_ahead_with": "",
+    "type_filter": "Parks SA",
+    "agency": "Department for Environment and Water",
+    "phone": "",
+    "official_short": "Parks SA",
+    "park_category": "Parks SA campground",
+    "closure_status": "Closed"
   },
   "sources": {
     "legacy_parks_json": {
@@ -53,7 +79,12 @@
     "cfs_tfb": {
       "url": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
       "live_fetch": false,
-      "machine_parser": false
+      "machine_parser": false,
+      "needed": [
+        "SA CFS fire weather district polygons that contain each camp",
+        "A dated district rating feed for today and tomorrow, with reuse terms that allow showing it",
+        "A separate rule for whether a total fire ban closes that camp. A ban alone is not a park closure"
+      ]
     }
   },
   "links": {
@@ -61,13 +92,39 @@
     "conditions_name": "National Parks and Wildlife Service South Australia closures and alerts",
     "emergency": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
     "emergency_name": "SA Country Fire Service",
+    "roads": "https://dit.sa.gov.au/OutbackRoads",
+    "roads_name": "Outback road conditions",
+    "bom_forecast": "https://www.bom.gov.au/sa/",
     "desert_bulletin": "https://www.parks.sa.gov.au/know-before-you-go/desert-parks-bulletin-2",
     "outback_roads": "https://dit.sa.gov.au/OutbackRoads"
   },
   "copy": {
     "digest_subject": "PREVIEW ONLY SA pilot camps — do not send",
     "digest_intro": "Preview of three selected South Australian campgrounds. This draft is not a digest and must not be sent.",
-    "newsletter_h2": ""
+    "newsletter_h2": "",
+    "home_title": "South Australia camp conditions — {count} sites | CampConditions.au",
+    "home_description": "Disabled South Australian inventory. {count} sites. Not a public launch.",
+    "home_h1": "South Australia camp conditions",
+    "home_intro": "A disabled preview of <strong>{count}</strong> South Australian camps. <strong>{official}</strong> are Parks SA campgrounds with a confident location. <strong>{osm}</strong> are other eligible camps. Nothing here is a confirmation a camp is open.",
+    "home_map": "Map of the disabled South Australian inventory",
+    "home_weather": "Fire danger is not verified here. Check the <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\">SA Country Fire Service</a>.",
+    "website_description": "Disabled preview of {count} South Australian camps. Not a public launch.",
+    "state_title": "South Australia campground conditions — {count} sites | CampConditions.au",
+    "state_description": "Disabled inventory of {count} South Australian camps. A missing notice is not a confirmation the camp is open.",
+    "state_h1": "South Australia",
+    "state_intro": "<strong>{count}</strong> camps in a disabled preview. Parks SA campgrounds are included only where a coordinate was attached. Other camps are the eligible non-park rows. Held and excluded places are left out. No current notice does not mean the camp is open.",
+    "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
+    "region_description": "{count} camps in {name}. {blurb}",
+    "region_list_name": "Campgrounds in {name}",
+    "osm_place": "{name} in {region}, South Australia. No current notice is not a confirmation the camp is open. Type: {category}.",
+    "official_place": "{name} in {region}, South Australia. Parks SA campground. Status comes from saved notice windows. No current notice is not a confirmation the camp is open.",
+    "osm_source_line": "Coordinates: OpenStreetMap contributors (ODbL).",
+    "place_admin": "{region}, South Australia",
+    "feed_region": "South Australia, Australia",
+    "feed_disclaimer": "Not an official warning service. South Australia is not published. A camp is closed, partial, upcoming or unknown only where a saved Parks SA notice says so. No current notice is not open. Fire danger is not rated here.",
+    "footer_short": "South Australia: Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL).",
+    "directions_note": "Check the SA Country Fire Service and official road conditions before you travel.",
+    "outdated_html": ""
   },
   "release": {
     "public": false,
@@ -85,7 +142,7 @@
       {
         "id": "inventory_audit",
         "ok": false,
-        "detail": "Pink Gum, Wirra and Stringybark are a test subset. Sitemap URL counts and the 2017 JSON are not campground counts."
+        "detail": "A disabled build can list 73 confident Parks SA campgrounds and 35 eligible non-park camps. 76 official campgrounds remain held without coordinates. This is not a statewide launch."
       },
       {
         "id": "official_source_parser",

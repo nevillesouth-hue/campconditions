@@ -11,7 +11,8 @@ import facts
 import states as statecfg
 SITE = "https://campconditions.au"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "dist")
+_OUT_ENV = (os.environ.get("CAMPCONDITIONS_OUT") or "").strip()
+OUT = os.path.abspath(_OUT_ENV if os.path.isabs(_OUT_ENV) else os.path.join(ROOT, _OUT_ENV)) if _OUT_ENV else os.path.join(ROOT, "dist")
 TZ = facts.MELBOURNE
 NOW = dt.datetime.now(TZ)
 STAMP = NOW.strftime("%-d %B %Y, %-I:%M %p %Z")
@@ -634,10 +635,18 @@ def load_osm(seen):
     return extra
 camps, seen, closures = [], set(), []
 loaded = []
-for state in statecfg.enabled():
+_page_states = statecfg.page_states()
+for state in _page_states:
     if not statecfg.public_build_allowed(state):
-        raise SystemExit("Refusing public build for %s: activation gates are not met" % (state.get("slug") or ""))
+        preview = {item.get("slug") for item in _page_states} - {item.get("slug") for item in statecfg.enabled()}
+        if state.get("slug") not in preview:
+            raise SystemExit("Refusing public build for %s: activation gates are not met" % (state.get("slug") or ""))
     bind(state)
+    if state.get("slug") == "sa" and (state.get("files") or {}).get("official_inventory"):
+        import sa_inventory
+        official = sa_inventory.load_camps(seen)
+        loaded.append((state, official, [], []))
+        continue
     CAT_LABEL["park_campground"] = PV_LABEL
     visitor = (STATE.get("sources") or {}).get("npws_visitor_areas") or {}
     if visitor.get("url") and visitor.get("camping_subtype") not in (None, ""):
@@ -1063,7 +1072,7 @@ html.filters-locked .share-btn{visibility:hidden}
 </style>"""
 def state_nav(national=False):
     """One state keeps the plain link. Several states share a compact menu."""
-    states = statecfg.enabled()
+    states = statecfg.page_states()
     if len(states) < 2:
         return "".join(f'<a href="/{state["slug"]}/">{state["name"]}</a>' for state in states)
     caret = ('<svg class="state-caret" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">'
@@ -1170,6 +1179,7 @@ FRESH_JS = r"""<script>
     }
   }
   function badgeText(c) {
+    if (c.status_label) return c.status_label;
     if (c.status === "closed") return "Closed";
     if (c.source === "osm" && c.category === "Showground") return "Call first";
     if (c.source === "osm" && c.category === PV) return "Book ahead";
@@ -1626,7 +1636,7 @@ def region_label(c):
     return names.get(c.get("region") or "", "")
 region_label.cache = {}
 _STATUS_CODE = {"open": "o", "check": "k", "closed": "x"}
-_STATE_CODE = {"vic": "v", "nsw": "n", "qld": "q"}
+_STATE_CODE = {"vic": "v", "nsw": "n", "qld": "q", "sa": "s"}
 def _flag_cell(c, field):
     value = c.get(field)
     if value is True: return 1
@@ -1755,8 +1765,8 @@ MAP_JS = r"""(function () {
   function expandPoint(p) {
     if (!p || p.name) return p;
     var status = {o: "open", k: "check", x: "closed"};
-    var stateSlug = {v: "vic", n: "nsw"};
-    var stateName = {v: "Victoria", n: "New South Wales"};
+    var stateSlug = {v: "vic", n: "nsw", s: "sa"};
+    var stateName = {v: "Victoria", n: "New South Wales", s: "South Australia"};
     var st = p[5] || "";
     var slug = p[4] || "";
     var out = {
@@ -2300,7 +2310,8 @@ def badge(c):
         status, text = c, {"open": "No known issues", "closed": "Closed", "check": "Check conditions"}[c]
     else:
         status = c["status"]
-        if status == "closed": text = "Closed"
+        if c.get("status_label"): text = c["status_label"]
+        elif status == "closed": text = "Closed"
         elif c.get("source") == "osm" and c.get("category") == "Showground": text = "Call first"
         elif c.get("source") == "osm" and c.get("category") == PV_LABEL: text = "Book ahead"
         elif c.get("source") == "osm": text = "Check with operator"
@@ -2405,7 +2416,10 @@ INLINE_SIGNUP_JS = """<script>
 def inline_signup(kind, region_name, camp=None):
     """Growth item 1: short sign-up box under the status line. Uses the existing /api/subscribe double opt-in.
     kind: "camp", "closed" or "region". The hidden reopen_alert/source fields are ignored by the current backend;
-    they are there so per-camp reopen alerts can be captured once the backend stores them."""
+    they are there so per-camp reopen alerts can be captured once the backend stores them.
+    Foundation states stay off the form until signup is allowed."""
+    if not statecfg.signup_allowed(STATE):
+        return ""
     state = STATE.get("abbrev") or STATE["name"]
     fid = "inline-signup-email"
     hidden = f'<input type="hidden" name="states" value="{e(SLUG)}"><input type="hidden" name="choose_states" value="1"><input type="hidden" name="source" value="{e(kind)}">'
@@ -2560,8 +2574,8 @@ _QPWS_JS = (
      'if (c.source === "npws" || c.source === "qpws") {\n      var ag = c.source === "qpws" ? "QPWS" : "NPWS";'),
     ("'\">NPWS alert</a>' : \"\";", "'\">' + ag + ' alert</a>' : \"\";"),
     ("' <span class=\"muted\">Official NPWS wording.</span>' + npwsLink", "' <span class=\"muted\">Official ' + ag + ' wording.</span>' + npwsLink"),
-    ('var stateSlug = {v: "vic", n: "nsw"};', 'var stateSlug = {v: "vic", n: "nsw", q: "qld"};'),
-    ('var stateName = {v: "Victoria", n: "New South Wales"};', 'var stateName = {v: "Victoria", n: "New South Wales", q: "Queensland"};'),
+    ('var stateSlug = {v: "vic", n: "nsw", s: "sa"};', 'var stateSlug = {v: "vic", n: "nsw", q: "qld", s: "sa"};'),
+    ('var stateName = {v: "Victoria", n: "New South Wales", s: "South Australia"};', 'var stateName = {v: "Victoria", n: "New South Wales", q: "Queensland", s: "South Australia"};'),
 )
 def _qpws_js(js):
     """Closure popups name QPWS for Queensland camps. Only used when Queensland is built, so the Victorian and NSW scripts are unchanged."""
@@ -2620,7 +2634,7 @@ def write_home_map_js():
     )
     open(os.path.join(OUT, "map-home.js"), "w", encoding="utf-8").write(script)
 write_map_js(primary)
-for state in statecfg.enabled():
+for state in statecfg.page_states():
     if state["slug"] != primary["slug"]:
         write_map_js(state)
 bind(primary)
@@ -2667,7 +2681,13 @@ def unmapped_fire_line(c):
     return "".join(bits)
 def fire_line(c):
     """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon
-    or the nearest-district fallback applied (nsw_conditions.FIRE_FALLBACK_KM)."""
+    or the nearest-district fallback applied (nsw_conditions.FIRE_FALLBACK_KM).
+    A state with no district map keeps the link and does not invent a rating."""
+    link = c.get("fire_link") or {}
+    if link.get("label") and not link.get("rating") and str(link.get("url") or "").startswith("https://"):
+        bits = [FIRE_HEAD, f'<p class="muted fire-line fire-unknown" style="margin:.05rem 0 .55rem">{e(link["label"])}</p>']
+        bits.append(f'<p><a class="btn-alert" href="{e(link["url"])}">{e(link.get("button") or "Official fire danger")}</a></p>')
+        return "".join(bits)
     if not c.get("fire") and c.get("fire_unmapped"):
         return unmapped_fire_line(c)
     fire = c.get("fire") or {}
@@ -3022,6 +3042,23 @@ def emit_state(state, camps, include_home):
                 dated = "Source: NPWS Visitor Area layer (camping areas)"
             if c.get("alerts_checked") and feed.startswith("https://"):
                 dated += f'. <a href="{e(feed)}">{agency} alerts</a>'
+        elif c.get("source") in ("parks_sa", "sa_operator"):
+            label = c.get("status_label") or "No current notice"
+            summary = c.get("notice_summary") or "No current Parks SA campground notice is matched to this camp."
+            notice_url = str(c.get("notice_url") or "")
+            link = f' <a href="{e(notice_url)}">Parks SA notice</a>' if notice_url.startswith("https://www.parks.sa.gov.au/") else ""
+            box = "warn" if c.get("status") == "closed" else "box"
+            bits = [f'<div class="{box}" id="camp-closure"><strong>{e(label)}.</strong> {e(summary)}{link}</div>']
+            if c.get("needs_review"):
+                bits.append('<p class="warn"><strong>Needs a check.</strong> This camp was not confirmed by the spot-check.</p>')
+            source_url = str(c.get("source_url") or "")
+            if source_url.startswith("https://"):
+                bits.append(f'<p>Camp record: <a href="{e(source_url)}">{e(source_url)}</a></p>')
+            bits.append(f'<p class="muted">{e(c.get("attribution") or "")}</p>')
+            condition = "".join(bits)
+            title = f"{page_name} — {label} | CampConditions.au"
+            desc = f"{c['name']} in South Australia. {summary} This is not a confirmation the camp is open."
+            dated = c.get("attribution") or ""
         else:
             closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
             condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
@@ -3046,7 +3083,7 @@ def emit_state(state, camps, include_home):
 {camper_reports(c)}{visitor_report_box(c)}{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 multi_state = len(statecfg.enabled()) > 1
 emit_state(primary, by_state[primary["slug"]], not multi_state)
-for state in statecfg.enabled():
+for state in statecfg.page_states():
     if state["slug"] == primary["slug"]:
         continue
     emit_state(state, by_state[state["slug"]], False)
@@ -3266,6 +3303,10 @@ else:
     feed_disclaimer = COPY["feed_disclaimer"]
 def status_camp(c):
     row = {k: c[k] for k in ("slug", "name", "region", "lat", "lon", "status", "closure", "nearby_closures", "source", "category", "needs_review")}
+    if c.get("status_label"):
+        row["status_label"] = c["status_label"]
+    if c.get("notice_status"):
+        row["notice_status"] = c["notice_status"]
     row["url"] = f"{SITE}{camp_url(c)}"
     upcoming = c.get("upcoming_closure")
     if upcoming:
@@ -3480,7 +3521,7 @@ weekend_page()
 def headers_text():
     """Cache rules. State paths are filled from the enabled configs and keep this order."""
     parts = ["/", "  Cache-Control: no-cache", "", "/index.html", "  Cache-Control: no-cache", "", "/404.html", "  Cache-Control: no-cache", ""]
-    for state in statecfg.enabled():
+    for state in statecfg.page_states():
         parts += [f"/{state['slug']}/*", "  Cache-Control: no-cache", ""]
     parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():

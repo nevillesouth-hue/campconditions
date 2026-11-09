@@ -112,6 +112,34 @@ def enabled():
     return chosen
 
 
+def page_states():
+    """States whose pages this process may write.
+
+    The public build is enabled() only. CAMPCONDITIONS_PREVIEW adds named
+    foundation states when CAMPCONDITIONS_OUT is a directory outside dist/.
+    That does not change enabled(), signup or the digest.
+    """
+    chosen = enabled()
+    slugs = [slug.strip() for slug in (os.environ.get("CAMPCONDITIONS_PREVIEW") or "").split(",") if slug.strip()]
+    out = (os.environ.get("CAMPCONDITIONS_OUT") or "").strip()
+    if not slugs:
+        return chosen
+    if not out:
+        raise SystemExit("CAMPCONDITIONS_PREVIEW needs CAMPCONDITIONS_OUT outside dist")
+    dist = os.path.abspath(os.path.join(ROOT, "dist"))
+    target = os.path.abspath(out if os.path.isabs(out) else os.path.join(ROOT, out))
+    if target == dist or target.startswith(dist + os.sep):
+        raise SystemExit("Refusing to write a preview state into dist")
+    have = {state.get("slug") for state in chosen}
+    for slug in slugs:
+        if slug in have:
+            continue
+        chosen.append(by_slug(slug))
+        have.add(slug)
+    chosen.sort(key=lambda state: (state.get("slug") != "vic", state.get("slug") or ""))
+    return chosen
+
+
 def by_slug(slug):
     for state in all_states():
         if state.get("slug") == slug:

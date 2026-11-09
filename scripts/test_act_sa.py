@@ -21,6 +21,7 @@ import act_sa_fixtures
 import act_sa_html
 import act_sa_notices
 import act_sa_status as status
+import sa_inventory
 import states
 
 ADELAIDE = ZoneInfo("Australia/Adelaide")
@@ -559,6 +560,60 @@ def main():
     expect(len(by_notice[8]["unmapped_names"]) + len(by_notice[45]["unmapped_names"]) >= 1, "camps without ids stay unmapped")
     null_names = [name for row in scored["notices"] for name in row["unmapped_names"]]
     expect(len(null_names) == 9 and all(name for name in null_names), "nine named camps have no booking id")
+
+    sa_camps = sa_inventory.load_camps(set())
+    counted = sa_inventory.summary(sa_camps)
+    expect(counted["official_confident"] == 73 and counted["eligible_osm"] == 35 and counted["published"] == 108, "sa inventory counts")
+    expect(counted["open_inferred"] is False and counted["fire_rating_count"] == 0, "sa inventory not open and not rated")
+    expect(all(row["status"] != "open" for row in sa_camps), "no confirmed open")
+    booking = {}
+    for row in sa_camps:
+        expect(row["lat"] is not None and row["lon"] is not None, "coordinates present")
+        expect("img" not in row and "image" not in row, "no copied image")
+        for item in row["booking_ids"]:
+            expect(item not in booking, "booking id is one camp")
+            booking[item] = row
+    expect("85012" not in booking and "73196" not in booking and "67592" not in booking, "held camps stay out")
+    springs = booking["73101"]
+    expect(springs["name"].startswith("Black Springs Campground") and springs["notice_status"] == "no_current_notice", "black springs separate")
+    pond = booking["67453"]
+    expect(pond is booking["69782"] and pond["needs_review"] is True and pond["inventory_group"] == "eligible_osm", "pondalowie is one eligible camp")
+    expect(booking["73157"]["notice_status"] == "closed" and booking["73157"]["status"] == "closed", "grindells closed")
+    expect(booking["73157"]["notice_url"].startswith("https://www.parks.sa.gov.au/"), "closed camps link the notice")
+    expect(all(not row["notice_url"] for row in sa_camps if row["notice_status"] == "no_current_notice"), "no-notice camps do not link a notice")
+    expect(booking["72075"]["status_label"] == "Partial closure" and booking["67320"]["status_label"] == "Upcoming closure", "partial and upcoming")
+    quiet = next(row for row in sa_camps if row["notice_status"] == "no_current_notice")
+    expect(quiet["status_label"] == "No current notice" and quiet["status"] != "open", "no notice is not open")
+    expect(all(sa_inventory.ATTRIBUTION in row["attribution"] for row in sa_camps if row["source"] == "parks_sa"), "parks attribution")
+    expect(all(row["fire_link"]["rating"] is None and row["fire_link"]["url"].startswith("https://www.cfs.sa.gov.au/") for row in sa_camps), "cfs link without a rating")
+    expect(sum(1 for row in sa_camps if row["needs_review"]) == 16, "unchecked camps stay flagged")
+    expect("district polygons" in " ".join(sa_inventory.FIRE_NEEDED), "fire gap named")
+    saved_preview = os.environ.get("CAMPCONDITIONS_PREVIEW")
+    saved_out = os.environ.get("CAMPCONDITIONS_OUT")
+    try:
+        os.environ.pop("CAMPCONDITIONS_PREVIEW", None)
+        os.environ.pop("CAMPCONDITIONS_OUT", None)
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld"], "public pages stay the three states")
+        os.environ["CAMPCONDITIONS_PREVIEW"] = "sa"
+        os.environ["CAMPCONDITIONS_OUT"] = os.path.join(ROOT, "dist")
+        try:
+            states.page_states()
+            expect(False, "preview refuses dist")
+        except SystemExit:
+            expect(True, "preview refuses dist")
+        preview_out = tempfile.mkdtemp(prefix="sa-inventory-preview-")
+        os.environ["CAMPCONDITIONS_OUT"] = preview_out
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "preview can render sa")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld"], "preview does not enable sa")
+    finally:
+        if saved_preview is None:
+            os.environ.pop("CAMPCONDITIONS_PREVIEW", None)
+        else:
+            os.environ["CAMPCONDITIONS_PREVIEW"] = saved_preview
+        if saved_out is None:
+            os.environ.pop("CAMPCONDITIONS_OUT", None)
+        else:
+            os.environ["CAMPCONDITIONS_OUT"] = saved_out
 
     if FAILURES:
         print("ACT/SA foundation failures: %s" % len(FAILURES))

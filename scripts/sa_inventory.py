@@ -9,6 +9,7 @@ A camp with no current notice is not marked open.
 import csv
 import datetime as dt
 import json
+import math
 import os
 import re
 
@@ -56,6 +57,23 @@ DISPLAY_NAME = {
 HELD_FROM_PREVIEW = {
     "way/852240175": "OSM point is outside the official campground area",
 }
+# Chuck's decisions on the council pass, 9 Nov 2026. These stay unpublished
+# even if a later file marks them eligible.
+STAY_OUT = {
+    "node/736398059",   # Rocky Creek, Heysen Trail hikers only
+    "way/201352992",    # Adelaide Shores, likely West Beach Parks
+    "way/99841061",     # Adelaide Beachfront
+    "way/321216861",    # Belair National Park Caravan Park
+    "way/177930647",    # Brownhill Creek Caravan Park
+    "node/4682386296",  # Burra Creek Gorge Mid point, not its own camp
+}
+BURRA_WEST = "node/1811163605"
+BURRA_NOTE = "Burra Creek Gorge is one camp, at the West point. The Mid point is the same reserve, not a separate camp."
+DEDUPE_METRES = 500
+STREETVIEW_SOURCE = "parks_sa_streetview_link"
+STREETVIEW_PRECISION = "approximate"
+# The seven held Parks SA campgrounds whose Street View link yielded a point.
+STREETVIEW_BOOKINGS = ("71636", "71641", "71645", "71649", "71650", "72081", "73170")
 
 
 def _slug(name):
@@ -123,6 +141,169 @@ def _number(value):
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def _name_key(value):
+    text = (value or "").lower().replace("&", " and ")
+    text = re.sub(r"\bmt\b", "mount", text)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _metres(lat1, lon1, lat2, lon2):
+    radius = 6371000
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dp = math.radians(lat2 - lat1)
+    dl = math.radians(lon2 - lon1)
+    chord = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
+    return 2 * radius * math.asin(math.sqrt(chord))
+
+
+def _same_camp(candidate, existing):
+    """Same published camp when the names match and the points are within 500 m."""
+    if not _name_key(candidate.get("name")) or _name_key(candidate.get("name")) != _name_key(existing.get("name")):
+        return False
+    return _metres(candidate["lat"], candidate["lon"], existing["lat"], existing["lon"]) <= DEDUPE_METRES
+
+
+def _listing_source(quote):
+    """Council page, tourism listing, or the operator's own page. Nothing else."""
+    text = (quote or "").strip()
+    if text.startswith(("Council tourism", "Council visitor", "Copper Coast", "City of Port Lincoln")):
+        return "tourism"
+    if text.startswith(("Council", "KI Council", "Barunga West Council", "Booking page")):
+        return "council"
+    return "operator"
+
+
+def _operator_name(value):
+    text = (value or "").strip()
+    if not text or text.lower().startswith("check"):
+        return ""
+    return text
+
+
+def _council_dir():
+    return os.path.join(ROOT, "data", "act-sa", "inventory", "council")
+
+
+def _load_listing_details():
+    details = {}
+    folder = _council_dir()
+    for name in sorted(os.listdir(folder)):
+        if not name.endswith(".json"):
+            continue
+        for row in _load_json(os.path.join(folder, name)).values():
+            record_id = row.get("record_id") or ""
+            if record_id:
+                details[record_id] = row
+    return details
+
+
+def _load_listing_decisions():
+    rows = []
+    folder = _council_dir()
+    for name in sorted(os.listdir(folder)):
+        if name.endswith(".csv"):
+            rows.extend(_read_csv(os.path.join(folder, name)))
+    return rows
+
+
+def _https(value):
+    text = (value or "").strip()
+    return text if text.startswith("https://") else ""
+
+
+def _listing_camps(seen, used_osm, base):
+    """Eligible council-check rows only. Partial and held decisions stay out."""
+    import facts
+    details = _load_listing_details()
+    osm = {row["record_id"]: row for row in _read_csv(_paths()[1])}
+    camps = []
+    dropped = []
+    for row in _load_listing_decisions():
+        if row.get("decision") != "eligible" or row.get("status") != "confirmed":
+            continue
+        osm_id = row.get("record_id") or ""
+        if osm_id in STAY_OUT or osm_id in used_osm:
+            continue
+        detail = details.get(osm_id) or {}
+        if detail.get("decision") not in (None, "", "eligible"):
+            continue
+        point = osm.get(osm_id) or {}
+        lat, lon = _number(point.get("osm_lat")), _number(point.get("osm_lon"))
+        if lat is None or lon is None:
+            raise SystemExit("eligible council record missing coordinates: %s" % osm_id)
+        name = detail.get("name") or row.get("osm_name") or osm_id
+        source_url = _https(detail.get("source_url")) or _https(row.get("source_url"))
+        website = _https(detail.get("website")) or source_url
+        source = _listing_source(detail.get("evidence_quote") or row.get("note") or "")
+        slug = _unique_slug(name, seen, osm_id.replace("/", "-"))
+        camp = _blank_camp(name, slug, lat, lon, source, source_url)
+        camp["website"] = website
+        camp["id"] = osm_id
+        camp["osm_id"] = osm_id
+        camp["category"] = "Caravan park" if detail.get("category") == "caravan_park" else "Campground"
+        camp["inventory_group"] = "council_check"
+        camp["listing_source"] = source
+        camp["managed_by"] = _operator_name(detail.get("operator"))
+        camp["phone"] = facts.without_prices(detail.get("phone") or "")
+        camp["email"] = (detail.get("email") or "").strip()
+        camp["lga"] = detail.get("lga") or row.get("lga") or ""
+        camp["data_date"] = str(detail.get("checked_date") or row.get("checked_date") or "")[:10]
+        camp["attribution"] = "Listing: %s page. %s" % (source, OSM_ATTRIBUTION)
+        if osm_id == BURRA_WEST:
+            camp["source_note"] = BURRA_NOTE
+        if any(_same_camp(camp, existing) for existing in base):
+            dropped.append({"name": name, "osm_id": osm_id, "reason": "same name within 500 m of a published camp"})
+            seen.discard(slug)
+            continue
+        if "$" in " ".join(str(camp.get(key) or "") for key in ("phone", "email", "attribution", "source_note", "managed_by")):
+            raise SystemExit("fee text on %s" % name)
+        used_osm.add(osm_id)
+        camps.append(camp)
+    return camps, dropped
+
+
+def _streetview_camps(official, seen, used_osm, used_bookings):
+    path = os.path.join(ROOT, "data", "act-sa", "inventory", "parks-held-76-coords.csv")
+    found = {row["campground_record_id"]: row for row in _read_csv(path) if row.get("status") == "found"}
+    if set(found) != {"SA-%s" % item for item in STREETVIEW_BOOKINGS}:
+        raise SystemExit("expected the seven Street View campgrounds, found %s" % sorted(found))
+    by_booking = {str(row.get("booking_id")): row for row in official}
+    camps = []
+    for booking_id in STREETVIEW_BOOKINGS:
+        row = by_booking.get(booking_id)
+        point = found["SA-%s" % booking_id]
+        if not row or row.get("coordinate_status") == "coordinates_attached":
+            raise SystemExit("Street View camp is not a held official record: %s" % booking_id)
+        lat, lon = _number(point.get("lat")), _number(point.get("lon"))
+        if lat is None or lon is None:
+            raise SystemExit("Street View camp missing coordinates: %s" % booking_id)
+        slug = _unique_slug(row.get("official_name"), seen, booking_id)
+        camp = _blank_camp(row["official_name"], slug, lat, lon, "parks_sa", row.get("official_url") or "")
+        camp["id"] = booking_id
+        camp["booking_ids"] = [str(item) for item in (row.get("booking_ids") or [booking_id])]
+        camp["category"] = "Parks SA campground"
+        camp["managed_by"] = row.get("park_name") or ""
+        camp["inventory_group"] = "official_approximate"
+        camp["coord_source"] = STREETVIEW_SOURCE
+        camp["coord_precision"] = STREETVIEW_PRECISION
+        camp["data_date"] = str(row.get("booking_page_checked_at_melbourne") or "")[:10]
+        camp["attribution"] = (
+            ATTRIBUTION + ". Coordinates are approximate, from a Parks SA Street View link, not a surveyed pin."
+        )
+        settled = (point.get("settled_osm_id") or "").strip()
+        if booking_id in {"72081", "73170"}:
+            if not settled:
+                raise SystemExit("Street View point did not settle an OSM candidate for %s" % booking_id)
+            camp["osm_id"] = settled
+            used_osm.add(settled)
+        if any(item in used_bookings for item in camp["booking_ids"]):
+            raise SystemExit("Street View camp repeats a booking id: %s" % booking_id)
+        used_bookings.update(camp["booking_ids"])
+        camps.append(camp)
+    return camps
 
 
 def _blank_camp(name, slug, lat, lon, source, source_url):
@@ -352,6 +533,15 @@ def load_camps(seen=None, moment=None):
     published_eligible = [camp for camp in camps if camp.get("inventory_group") == "eligible_osm"]
     if len(published_eligible) != 34:
         raise SystemExit("expected to publish 34 eligible camps, found %s" % len(published_eligible))
+    base = list(camps)
+    approximate = _streetview_camps(official, seen, used_osm, used_bookings)
+    for camp in approximate:
+        if any(_same_camp(camp, existing) for existing in base):
+            raise SystemExit("Street View camp matches a published camp: %s" % camp["name"])
+        camps.append(camp)
+    added, dropped = _listing_camps(seen, used_osm, base)
+    camps.extend(added)
+    load_camps.duplicates_dropped = dropped
     notice_doc = _load_json(notice_path)
     moment = moment or dt.datetime.fromisoformat(notice_doc["as_of_adelaide"])
     scored = act_sa_notices.evaluate_all(notice_doc["notices"], moment)
@@ -365,12 +555,21 @@ def load_camps(seen=None, moment=None):
 
 def summary(camps):
     official = [camp for camp in camps if camp.get("inventory_group") == "official_confident"]
+    approximate = [camp for camp in camps if camp.get("inventory_group") == "official_approximate"]
     eligible = [camp for camp in camps if camp.get("inventory_group") == "eligible_osm"]
+    dropped = getattr(load_camps, "duplicates_dropped", [])
     return {
         "published": len(camps),
         "official_confident": len(official),
+        "official_approximate": len(approximate),
         "eligible_osm": len(eligible),
+        "council": sum(1 for camp in camps if camp.get("source") == "council"),
+        "tourism": sum(1 for camp in camps if camp.get("source") == "tourism"),
+        "operator": sum(1 for camp in camps if camp.get("source") == "operator"),
+        "duplicates_dropped": len(dropped),
+        "duplicates": list(dropped),
         "needs_check": sum(1 for camp in camps if camp.get("needs_review")),
+        "by_source": _count(camp.get("source") for camp in camps),
         "booking_ids": sorted(item for camp in camps for item in camp.get("booking_ids") or []),
         "notice_status": _count(camp.get("notice_status") for camp in camps),
         "open_inferred": any(camp.get("open_inferred") or camp.get("status") == "open" for camp in camps),

@@ -3051,7 +3051,7 @@ def emit_state(state, camps, include_home):
                 dated = "Source: NPWS Visitor Area layer (camping areas)"
             if c.get("alerts_checked") and feed.startswith("https://"):
                 dated += f'. <a href="{e(feed)}">{agency} alerts</a>'
-        elif c.get("source") in ("parks_sa", "sa_operator"):
+        elif c.get("source") in ("parks_sa", "sa_operator", "council", "tourism", "operator"):
             label = c.get("status_label") or "No current notice"
             summary = c.get("notice_summary") or "No current Parks SA campground notice is matched to this camp."
             notice_url = str(c.get("notice_url") or "")
@@ -3060,6 +3060,13 @@ def emit_state(state, camps, include_home):
             bits = [f'<div class="{box}" id="camp-closure"><strong>{e(label)}.</strong> {e(summary)}{link}</div>']
             if c.get("needs_review"):
                 bits.append('<p class="warn"><strong>Needs a check.</strong> This camp was not confirmed by the spot-check.</p>')
+            if c.get("managed_by"):
+                bits.append(f'<p>Operator: {e(c["managed_by"])}</p>')
+            contact = contact_html(c)
+            if contact:
+                bits.append(contact)
+            if c.get("source_note"):
+                bits.append(f'<p>{e(c["source_note"])}</p>')
             source_url = str(c.get("source_url") or "")
             if source_url.startswith("https://"):
                 bits.append(f'<p>Camp record: <a href="{e(source_url)}">{e(source_url)}</a></p>')

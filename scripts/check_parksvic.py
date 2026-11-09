@@ -404,6 +404,17 @@ def _trim_url(raw):
     return text
 
 
+def cache_is_older_than_a_day(fetched, now):
+    """True only when the cached copy is older than 24 hours."""
+    if not fetched:
+        return False
+    if isinstance(fetched, str):
+        fetched = datetime.fromisoformat(fetched)
+    if fetched.tzinfo is None:
+        fetched = fetched.replace(tzinfo=MELBOURNE)
+    return now - fetched > CACHE_TTL
+
+
 def campground_url(value):
     if not isinstance(value, str) or "parks.vic.gov.au" not in value.lower():
         return ""
@@ -580,7 +591,8 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
                 continue
             cached["cached"] = True
             pages[url] = cached
-            stale += 1
+            if cache_is_older_than_a_day(cached.get("fetched"), now):
+                stale += 1
             continue
         before = time.monotonic()
         try:

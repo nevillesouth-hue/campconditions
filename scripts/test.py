@@ -773,7 +773,8 @@ if border_dupes & {c.get("slug") for c in osm}: bad.append(("osm", "border dupli
 if len(named) - len(osm) != len(border_dupes): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-expect_counts = {"Free": 1096, "Camping area": 5, "Council park": 76, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
+# Free 1096 -> 1095: weekly OSM refresh 862df30 (10 Nov 2026) dropped one free VIC camp (data drift, not a code change).
+expect_counts = {"Free": 1095, "Camping area": 5, "Council park": 76, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))
@@ -1388,6 +1389,31 @@ if check_parksvic.campground_url(murray) != murray:
   bad.append(("check_parksvic", "parenthesis slug"))
 if check_parksvic.campground_url("See https://www.parks.vic.gov.au/places-to-see/sites/mallee-camp).") != "https://www.parks.vic.gov.au/places-to-see/sites/mallee-camp":
   bad.append(("check_parksvic", "sentence parenthesis"))
+from datetime import datetime, timedelta
+_pv_now = datetime(2026, 11, 9, 12, 0, tzinfo=check_parksvic.MELBOURNE)
+if not check_parksvic.cache_is_older_than_a_day(_pv_now - timedelta(hours=25), _pv_now):
+  bad.append(("check_parksvic", "25h cache not stale"))
+if check_parksvic.cache_is_older_than_a_day(_pv_now - timedelta(hours=2), _pv_now):
+  bad.append(("check_parksvic", "2h cache counted stale"))
+_pv_cache = check_parksvic.CACHE_DIR
+_pv_dir = tempfile.mkdtemp(prefix="parksvic-stale-")
+check_parksvic.CACHE_DIR = _pv_dir
+try:
+  _fresh_url = "https://www.parks.vic.gov.au/places-to-see/sites/centre-track-camping-area-(nurrung)"
+  _old_url = "https://www.parks.vic.gov.au/places-to-see/sites/dry-creek-camping-area-west-(nurrung)"
+  check_parksvic._cache_put(_fresh_url, {"html": "<p>open</p>", "status": 200}, _pv_now - timedelta(hours=2))
+  check_parksvic._cache_put(_old_url, {"html": "<p>open</p>", "status": 200}, _pv_now - timedelta(hours=30))
+  _pv_dest = os.path.join(_pv_dir, "flags.json")
+  _pv_camps = [
+    {"id": "new:centre-track-camping-area-murray-river", "slug": "centre-track", "name": "Centre Track Camping Area", "status": "check"},
+    {"id": "new:dry-creek-camping-area-west-murray-river", "slug": "dry-creek", "name": "Dry Creek Camping Area West", "status": "check"},
+  ]
+  check_parksvic.write_flags(_pv_camps, _pv_dest, now=_pv_now, overall_seconds=-1, sleeper=lambda _n: None)
+  _pv_doc = json.load(open(_pv_dest, encoding="utf-8"))
+  if _pv_doc.get("pages_older_than_a_day") != 1:
+    bad.append(("check_parksvic", "stale count", _pv_doc.get("pages_older_than_a_day")))
+finally:
+  check_parksvic.CACHE_DIR = _pv_cache
 if check_parksvic.park_url("https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park") != "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park":
   bad.append(("check_parksvic", "whole park url"))
 paddys_html = """

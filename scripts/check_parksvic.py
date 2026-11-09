@@ -396,13 +396,32 @@ def classify_html(page, camp_name="", named_only=False):
     return {"closed": closed, "seasonal": seasonal}
 
 
+def _trim_url(raw):
+    """Drop sentence punctuation. Keep a parenthesis that belongs to the path."""
+    text = (raw or "").rstrip(".,")
+    while text.endswith(")") and text.count("(") < text.count(")"):
+        text = text[:-1].rstrip(".,")
+    return text
+
+
+def cache_is_older_than_a_day(fetched, now):
+    """True only when the cached copy is older than 24 hours."""
+    if not fetched:
+        return False
+    if isinstance(fetched, str):
+        fetched = datetime.fromisoformat(fetched)
+    if fetched.tzinfo is None:
+        fetched = fetched.replace(tzinfo=MELBOURNE)
+    return now - fetched > CACHE_TTL
+
+
 def campground_url(value):
     if not isinstance(value, str) or "parks.vic.gov.au" not in value.lower():
         return ""
     match = URL_RE.search(value)
     if not match:
         return ""
-    raw = match.group(0).rstrip(".,)")
+    raw = _trim_url(match.group(0))
     parts = urllib.parse.urlsplit(raw)
     if "parks.vic.gov.au" not in parts.netloc.lower():
         return ""
@@ -420,7 +439,7 @@ def park_url(value):
     match = URL_RE.search(value)
     if not match:
         return ""
-    parts = urllib.parse.urlsplit(match.group(0).rstrip(".,)"))
+    parts = urllib.parse.urlsplit(_trim_url(match.group(0)))
     if "parks.vic.gov.au" not in parts.netloc.lower():
         return ""
     if not re.fullmatch(r"/places-to-see/parks/[a-z0-9-]+/?", parts.path.lower()):
@@ -572,7 +591,8 @@ def write_flags(camps, dest, fetcher=None, sleeper=None, now=None, overall_secon
                 continue
             cached["cached"] = True
             pages[url] = cached
-            stale += 1
+            if cache_is_older_than_a_day(cached.get("fetched"), now):
+                stale += 1
             continue
         before = time.monotonic()
         try:

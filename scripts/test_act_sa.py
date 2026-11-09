@@ -21,6 +21,7 @@ import act_sa_fixtures
 import act_sa_html
 import act_sa_notices
 import act_sa_status as status
+import sa_fire
 import sa_inventory
 import states
 
@@ -614,6 +615,85 @@ def main():
             os.environ.pop("CAMPCONDITIONS_OUT", None)
         else:
             os.environ["CAMPCONDITIONS_OUT"] = saved_out
+
+    sample = open(os.path.join(ROOT, "data", "act-sa", "fixtures", "fire", "cfs-sample.xml"), "rb").read()
+    parsed_sample = sa_fire.parse_feed(sample)
+    expect(parsed_sample["ok"] is True, "cfs sample parses")
+    expect(parsed_sample["updated"].utcoffset() == dt.timedelta(hours=9, minutes=30), "updated keeps +09:30")
+    lofty = parsed_sample["districts"].get("MOUNT LOFTY RANGES")
+    expect(lofty and lofty["periods"][0]["date"] == "2026-11-09" and lofty["periods"][0]["rating"] == "Moderate" and lofty["periods"][0]["ban"] is False, "period date is Adelaide")
+    expect("SOUTH AUSTRALIA" not in parsed_sample["districts"], "region row is not a district")
+    expect(sa_fire.parse_feed(b"not xml")["ok"] is False, "bad xml is not a rating")
+    cross = open(os.path.join(ROOT, "data", "act-sa", "fixtures", "fire", "district-crosswalk.csv"), encoding="utf-8").read().strip().splitlines()[1:]
+    expect(len(cross) == 15, "15 fire districts")
+    expect(all(line.split(",")[0].upper() == line.split(",")[1].upper() for line in cross), "district names join in upper case")
+
+    def placed(lon, lat, status="check"):
+        return {
+            "lon": lon, "lat": lat, "status": status,
+            "closure": {"desc": "notice"} if status == "closed" else None,
+            "status_label": "Closed" if status == "closed" else "No current notice",
+        }
+
+    def box(name, west, south, east, north):
+        return {
+            "type": "Feature",
+            "properties": {"firebandistrict": name},
+            "geometry": {"type": "Polygon", "coordinates": [[[west, south], [east, south], [east, north], [west, north], [west, south]]]},
+        }
+
+    zones = sa_fire.polygons_from_geojson({"features": [
+        box("MOUNT LOFTY RANGES", 138, -35, 139, -34),
+        box("WEST COAST", 133, -33, 134, -32),
+        box("FLINDERS", 138, -32, 139, -31),
+    ]})
+    now = dt.datetime(2026, 11, 9, 20, 0, tzinfo=ADELAIDE)
+    fresh_feed = {
+        "ok": True,
+        "updated": dt.datetime(2026, 11, 9, 16, 41, 24, tzinfo=dt.timezone(dt.timedelta(hours=9, minutes=30))),
+        "districts": {
+            "MOUNT LOFTY RANGES": {"name": "Mount Lofty Ranges", "periods": [
+                {"date": "2026-11-09", "rating": "Moderate", "ban": False},
+                {"date": "2026-11-09", "rating": "No Rating", "ban": False},
+            ]},
+            "WEST COAST": {"name": "West Coast", "periods": [{"date": "2026-11-09", "rating": "Extreme", "ban": True}]},
+            "FLINDERS": {"name": "Flinders", "periods": [{"date": "2026-11-09", "rating": "Catastrophic", "ban": True}]},
+        },
+    }
+    fresh_feed["districts"]["MOUNT LOFTY RANGES"]["periods"] = [{"date": "2026-11-09", "rating": "Moderate", "ban": False}]
+    inside = placed(138.5, -34.5)
+    banned = placed(133.5, -32.5, status="closed")
+    catastrophic = placed(138.5, -31.5)
+    outside = placed(139.03, -34.5)
+    near = placed(139.004, -34.5)
+    unrated = placed(133.5, -32.5)
+    only_lofty = dict(fresh_feed, districts={"MOUNT LOFTY RANGES": fresh_feed["districts"]["MOUNT LOFTY RANGES"]})
+    sa_fire.assign([inside, banned, catastrophic, outside, near], fresh_feed, zones, now)
+    expect(inside["fire"]["district"] == "Mount Lofty Ranges" and inside["fire"]["rating"] == "Moderate" and inside["status"] == "check", "district join")
+    expect(banned["fire"]["rating"] == "Extreme" and banned["status"] == "closed" and banned["closure"]["desc"] == "notice", "ban does not close")
+    expect("rings" not in banned["fire"] and "prep" not in banned["fire"], "polygon geometry stays off the camp")
+    banned_html = sa_fire.html_line(banned)
+    expect("Total Fire Ban: fires banned" in banned_html and sa_fire.CATASTROPHIC_LINE not in banned_html, "extreme ban has no closure claim")
+    cat_html = sa_fire.html_line(catastrophic)
+    expect(sa_fire.CATASTROPHIC_LINE in cat_html and sa_fire.PARKS_FIRE_URL in cat_html and catastrophic["status"] == "check", "catastrophic wording")
+    expect(sa_fire.CFS_CREDIT in cat_html, "cfs credit")
+    expect(outside.get("fire_unmapped", {}).get("label") == "No fire district mapped" and not outside.get("fire"), "outside 1 km is unmapped")
+    expect(near.get("fire", {}).get("rating") == "Moderate" and "fallback_km" in near.get("fire", {}), "within 1 km uses that district")
+    sa_fire.assign([unrated], only_lofty, zones, now)
+    expect(unrated.get("fire_link", {}).get("label") == "Fire danger: unknown." and not unrated.get("fire"), "missing district is not a neighbour rating")
+    no_rating = placed(138.5, -34.5)
+    rating_feed = dict(fresh_feed, districts={"MOUNT LOFTY RANGES": {"name": "Mount Lofty Ranges", "periods": [{"date": "2026-11-09", "rating": "No Rating", "ban": False}]}})
+    sa_fire.assign([no_rating], rating_feed, zones, now)
+    no_rating_html = sa_fire.html_line(no_rating)
+    expect("No Rating" in no_rating_html and "No fire district mapped" not in no_rating_html, "official No Rating stays the category")
+    stale_feed = dict(fresh_feed, updated=now - dt.timedelta(hours=36, minutes=1))
+    stale_camp = placed(138.5, -34.5, status="closed")
+    sa_fire.assign([stale_camp], stale_feed, zones, now)
+    expect(stale_camp.get("fire_link", {}).get("label") == "Fire danger: unknown." and not stale_camp.get("fire") and stale_camp["status"] == "closed", "stale feed is unknown")
+    missing = placed(138.5, -34.5)
+    sa_fire.assign([missing], {"ok": False, "updated": None, "districts": {}}, zones, now)
+    expect(missing.get("fire_link", {}).get("url") == sa_fire.CFS_PAGE and not missing.get("fire"), "missing feed is the link-out")
+    expect(sa_fire.fresh(now - dt.timedelta(hours=36), now) is True, "36 hours is still fresh")
 
     if FAILURES:
         print("ACT/SA foundation failures: %s" % len(FAILURES))

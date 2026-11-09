@@ -804,6 +804,9 @@ for state, official, osm_rows, state_closures in loaded:
     if sources.get("cfa_fdr") and sources.get("cfa_tfb_districts"):
         import cfa_conditions
         cfa_conditions.apply(state_camps, sources, fetch, fetch_text, SRC)
+    if state.get("slug") == "sa" and (sources.get("cfs_fdr") or sources.get("cfs_districts")):
+        import sa_fire
+        sa_fire.apply(state_camps, state, fetch_text, SRC, now=NOW)
     for camp in state_camps:
         assign_filters(camp)
     town_path = statecfg.path(state, "towns")
@@ -1522,7 +1525,10 @@ def vicemergency_url(lat, lon, name="", slug=""):
     west, south, east, north = lon - pad, lat - pad, lon + pad, lat + pad
     return f"{base}?bbox={west:.5f},{south:.5f},{east:.5f},{north:.5f}"
 def vicemergency_button(c):
-    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"], c.get("page_name") or c.get("name") or "", c.get("slug") or ""))}">{LINKS.get("emergency_button") or ""}</a></p>'
+    label = LINKS.get("emergency_button") or ""
+    if not label:
+        return ""
+    return f'<p><a class="btn-alert" href="{e(vicemergency_url(c["lat"], c["lon"], c.get("page_name") or c.get("name") or "", c.get("slug") or ""))}">{e(label)}</a></p>'
 def cdn(kind, href, integrity):
     if kind == "css":
         return f'<link rel="stylesheet" href="{href}" integrity="{integrity}" crossorigin="anonymous">'
@@ -2663,7 +2669,7 @@ def list_note(c):
     if c["nearby_closures"]: return f"{len(c['nearby_closures'])} road closures nearby"
     return ""
 FIRE_HEAD = '<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>'
-_UNMAPPED_LAYER = {"CFA": "CFA fire district", "NSW RFS": "NSW fire weather area", "QFD": "Queensland fire weather district"}
+_UNMAPPED_LAYER = {"CFA": "CFA fire district", "NSW RFS": "NSW fire weather area", "QFD": "Queensland fire weather district", "CFS": "CFS fire ban district"}
 def unmapped_fire_line(c):
     """Feed and boundaries loaded, but no official district within the fallback distance
     (offshore islands). Says "No fire district mapped", never "No Rating": that is the
@@ -2683,13 +2689,16 @@ def fire_line(c):
     """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon
     or the nearest-district fallback applied (nsw_conditions.FIRE_FALLBACK_KM).
     A state with no district map keeps the link and does not invent a rating."""
+    if (c.get("fire") or {}).get("authority") == "sa_cfs":
+        import sa_fire
+        return sa_fire.html_line(c)
+    if c.get("fire_unmapped") and not c.get("fire"):
+        return unmapped_fire_line(c)
     link = c.get("fire_link") or {}
     if link.get("label") and not link.get("rating") and str(link.get("url") or "").startswith("https://"):
         bits = [FIRE_HEAD, f'<p class="muted fire-line fire-unknown" style="margin:.05rem 0 .55rem">{e(link["label"])}</p>']
         bits.append(f'<p><a class="btn-alert" href="{e(link["url"])}">{e(link.get("button") or "Official fire danger")}</a></p>')
         return "".join(bits)
-    if not c.get("fire") and c.get("fire_unmapped"):
-        return unmapped_fire_line(c)
     fire = c.get("fire") or {}
     district, today, ban = fire.get("district") or "", fire.get("today") or "", fire.get("ban_today") or ""
     url = fire.get("source_url") or ""

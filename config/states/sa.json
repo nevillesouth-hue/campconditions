@@ -80,11 +80,24 @@
       "url": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
       "live_fetch": false,
       "machine_parser": false,
-      "needed": [
-        "SA CFS fire weather district polygons that contain each camp",
-        "A dated district rating feed for today and tomorrow, with reuse terms that allow showing it",
-        "A separate rule for whether a total fire ban closes that camp. A ban alone is not a park closure"
-      ]
+      "note": "Public page linked from camp ratings. The public build does not fetch it because SA is not built."
+    },
+    "cfs_fdr": {
+      "url": "https://data.eso.sa.gov.au/prod/cfs/criimson/fireDangerRating.xml",
+      "page": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+      "credit": "Fire danger: SA Country Fire Service (cfs.sa.gov.au)",
+      "live_fetch": false,
+      "preview_build_fetches": true,
+      "note": "Fetched only while rendering an SA preview. The feed host states no reuse terms. Show the category name, ban and Adelaide date, or unknown. Never another state's rating."
+    },
+    "cfs_districts": {
+      "url": "https://www.dptiapps.com.au/dataportal/FireBanDistricts_geojson.zip",
+      "dataset": "https://data.sa.gov.au/data/dataset/south-australian-fire-ban-districts",
+      "field": "firebandistrict",
+      "crs": "EPSG:4283",
+      "live_fetch": false,
+      "preview_build_fetches": true,
+      "note": "GDA94 polygons are read in memory to name a camp's district and are not published, rendered or committed. The dataset page says CC BY-NC-ND 4.0 and the zip License.txt says CC BY 3.0 AU. That conflict is unresolved."
     }
   },
   "links": {
@@ -92,6 +105,7 @@
     "conditions_name": "National Parks and Wildlife Service South Australia closures and alerts",
     "emergency": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
     "emergency_name": "SA Country Fire Service",
+    "emergency_bbox": false,
     "roads": "https://dit.sa.gov.au/OutbackRoads",
     "roads_name": "Outback road conditions",
     "bom_forecast": "https://www.bom.gov.au/sa/",
@@ -121,7 +135,7 @@
     "osm_source_line": "Coordinates: OpenStreetMap contributors (ODbL).",
     "place_admin": "{region}, South Australia",
     "feed_region": "South Australia, Australia",
-    "feed_disclaimer": "Not an official warning service. South Australia is not published. A camp is closed, partial, upcoming or unknown only where a saved Parks SA notice says so. No current notice is not open. Fire danger is not rated here.",
+    "feed_disclaimer": "Not an official warning service. South Australia is not published. A camp is closed, partial, upcoming or unknown only where a saved Parks SA notice says so. No current notice is not open. Fire danger is the CFS category for that district when the feed is fresh; otherwise it is unknown. A total fire ban does not close the camp.",
     "footer_short": "South Australia: Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL).",
     "directions_note": "Check the SA Country Fire Service and official road conditions before you travel.",
     "outdated_html": ""
@@ -162,7 +176,7 @@
       {
         "id": "fire_machine",
         "ok": false,
-        "detail": "No dated CFS district values. Link-out only. A total fire ban is not a universal park closure."
+        "detail": "An SA preview can show a fresh CFS district rating. The polygon licence conflicts, so the geometry is not published and this gate stays shut. A total fire ban does not close a camp."
       },
       {
         "id": "closure_review",

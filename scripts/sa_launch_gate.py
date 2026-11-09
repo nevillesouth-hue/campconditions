@@ -37,28 +37,61 @@ def _inventory():
     camps = sa_inventory.load_camps(set())
     counted = sa_inventory.summary(camps)
     needs = [camp["name"] for camp in camps if camp.get("needs_review")]
+    before = counted.get("before_park_decisions") or {}
+    excluded = counted.get("park_excluded") or []
+    held = counted.get("park_held") or []
+    kept = counted.get("park_kept") or []
+    kept_ids = {row.get("osm_id") for row in kept}
+    unpublished = sa_inventory.published_parks_without_keep(camps, kept_ids)
     ok = (
-        counted["published"] == 265
+        before.get("published") == 265
+        and counted["published"] == 160
         and counted["official_confident"] == 73
         and counted["official_approximate"] == 7
-        and counted["eligible_osm"] == 34
-        and counted["council"] == 43
-        and counted["tourism"] == 22
-        and counted["operator"] == 86
+        and counted["eligible_osm"] == 13
+        and counted["council"] == 40
+        and counted["tourism"] == 5
+        and counted["operator"] == 22
         and counted["duplicates_dropped"] == 1
         and len(counted.get("commercial_excluded") or []) == 3
+        and len(excluded) == 86
+        and len(held) == 19
+        and len(kept) == 21
+        and all(row.get("decision") == "exclude" and row.get("reason") for row in excluded)
+        and all(row.get("decision") == "hold" and row.get("reason") for row in held)
+        and not unpublished
         and len(needs) == 0
     )
     reason = (
-        "265 camps: 73 Parks SA with confident coordinates, 7 Parks SA approximate "
-        "(parks_sa_streetview_link), 34 from the earlier operator pass, 43 council, "
-        "22 tourism, 86 operator. Discovery Parks - Adelaide Beachfront, Belair National Park "
-        "Holiday Park and Brownhill Creek Tourist Park are excluded as commercial caravan parks. "
+        "160 camps, down from 265. 73 Parks SA with confident coordinates, 7 Parks SA approximate "
+        "(parks_sa_streetview_link), 13 from the earlier operator pass, 40 council, "
+        "5 tourism, 22 operator. 86 commercial caravan, holiday and tourist parks are excluded "
+        "and 19 are held. 21 council, community and showground parks stay. "
         "1 duplicate dropped (Mount Gambier Central, east side). Pondalowie and Ippinitchie stay out. Needs a check: 0."
     )
     if not ok:
-        reason = "expected 265 camps and no needs-check camps, found %s and %s (%s)" % (counted["published"], len(needs), "; ".join(needs))
+        reason = "expected 160 camps and no needs-check camps, found %s and %s (%s)" % (counted["published"], len(needs), "; ".join(needs + unpublished))
     return _check("inventory", ok, reason), camps
+
+
+def _caravan_parks():
+    camps = sa_inventory.load_camps(set())
+    counted = sa_inventory.summary(camps)
+    kept_ids = {row.get("osm_id") for row in counted.get("park_kept") or []}
+    missing = sa_inventory.published_parks_without_keep(camps, kept_ids)
+    sample = {"name": "Sample Holiday Park", "category": "Campground", "osm_id": "way/sample"}
+    catches_sample = sa_inventory.published_parks_without_keep([sample], set()) == ["Sample Holiday Park"]
+    adare = next((row for row in counted.get("park_excluded") or [] if row.get("name") == "Adare Caravan Park"), None)
+    showground = next((row for row in counted.get("park_kept") or [] if "Showground" in (row.get("name") or "")), None)
+    ok = catches_sample and not missing and adare and adare.get("decision") == "exclude" and showground and showground.get("decision") == "keep"
+    reason = "every published caravan, holiday or tourist park has a keep decision"
+    if missing:
+        reason = "published without a keep decision: " + "; ".join(missing)
+    elif not catches_sample:
+        reason = "the park check did not catch a holiday park with no keep decision"
+    elif not adare or not showground:
+        reason = "Adare must be excluded and Adelaide Showground must stay"
+    return _check("caravan_park_keep", ok, reason)
 
 
 def _notices(now):
@@ -259,6 +292,7 @@ def evaluate(dist, preview, now=None):
         _notices(now),
         fresh,
         licence,
+        _caravan_parks(),
         _signup(preview),
         _digest(),
         _public(dist),

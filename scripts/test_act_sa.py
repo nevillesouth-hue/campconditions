@@ -569,9 +569,12 @@ def main():
 
     sa_camps = sa_inventory.load_camps(set())
     counted = sa_inventory.summary(sa_camps)
-    expect(counted["official_confident"] == 73 and counted["official_approximate"] == 7 and counted["eligible_osm"] == 34, "sa inventory base counts")
-    expect(counted["council"] == 43 and counted["tourism"] == 22 and counted["operator"] == 86, "new listing sources")
-    expect(counted["published"] == 265 and counted["duplicates_dropped"] == 1, "sa inventory counts")
+    before = counted["before_park_decisions"]
+    expect(before["official_confident"] == 73 and before["official_approximate"] == 7 and before["eligible_osm"] == 34, "sa inventory base counts")
+    expect(before["council"] == 43 and before["tourism"] == 22 and before["operator"] == 86 and before["published"] == 265, "counts before caravan park decisions")
+    expect(counted["official_confident"] == 73 and counted["official_approximate"] == 7 and counted["eligible_osm"] == 13, "sa inventory base counts")
+    expect(counted["council"] == 40 and counted["tourism"] == 5 and counted["operator"] == 22, "listing sources after caravan park decisions")
+    expect(counted["published"] == 160 and counted["duplicates_dropped"] == 1, "sa inventory counts")
     expect(counted["duplicates"][0]["osm_id"] == "way/1485152213", "mount gambier east side dropped")
     expect(counted["open_inferred"] is False and counted["fire_rating_count"] == 0, "sa inventory not open and not rated")
     expect(all(row["status"] != "open" for row in sa_camps), "no confirmed open")
@@ -586,14 +589,15 @@ def main():
     springs = booking["73101"]
     expect(springs["name"].startswith("Black Springs Campground") and springs["notice_status"] == "no_current_notice", "black springs separate")
     by_osm = {row["osm_id"]: row for row in sa_camps if row.get("osm_id")}
-    west = by_osm["way/75460499"]
-    waikerie = by_osm["way/671003129"]
-    kingston = by_osm["way/943231647"]
-    renmark = by_osm["way/663118408"]
-    expect(west["name"] == "Discovery Parks – West Beach Parks" and west["slug"] == "big4-west-beach-parks" and west["needs_review"] is False, "west beach rename keeps its slug")
-    expect(waikerie["name"] == "Echo Holiday Parks – Waikerie" and waikerie["slug"] == "echo-holiday-park" and waikerie["needs_review"] is False, "waikerie rename keeps its slug")
-    expect(kingston["name"] == "BIG4 Kingston SE Foreshore Holiday Park" and kingston["slug"] == "kingston-caravan-park" and kingston["needs_review"] is False, "kingston rename keeps its slug")
-    expect(renmark["name"] == "Echo Holiday Parks - Renmark" and renmark["slug"] != waikerie["slug"] and renmark["needs_review"] is False, "echo renmark stays separate")
+    park_excluded = {row["osm_id"]: row for row in counted["park_excluded"]}
+    west = park_excluded["way/75460499"]
+    waikerie = park_excluded["way/671003129"]
+    kingston = park_excluded["way/943231647"]
+    renmark = park_excluded["way/663118408"]
+    expect(west["name"] == "Discovery Parks – West Beach Parks" and west["decision"] == "exclude" and "way/75460499" not in by_osm, "west beach chain park is excluded")
+    expect(waikerie["name"] == "Echo Holiday Parks – Waikerie" and waikerie["decision"] == "exclude" and "way/671003129" not in by_osm, "waikerie chain park is excluded")
+    expect(kingston["name"] == "BIG4 Kingston SE Foreshore Holiday Park" and kingston["decision"] == "exclude" and "way/943231647" not in by_osm, "kingston chain park is excluded")
+    expect(renmark["name"] == "Echo Holiday Parks - Renmark" and renmark["slug"] != waikerie["slug"] and "way/663118408" not in by_osm, "echo renmark stays separate and excluded")
     expect("way/852240175" not in by_osm, "pondalowie stays out of the preview")
     for stayed in ("node/736398059", "way/201352992", "node/4682386296", "way/99841061", "way/321216861", "way/177930647"):
         expect(stayed not in by_osm, "open-question camp stays out")
@@ -603,6 +607,26 @@ def main():
     expect(excluded["way/99841061"]["name"] == "Discovery Parks - Adelaide Beachfront", "adelaide beachfront excluded")
     expect(excluded["way/321216861"]["name"] == "Belair National Park Holiday Park", "belair holiday park excluded")
     expect(excluded["way/177930647"]["name"] == "Brownhill Creek Tourist Park", "brownhill creek excluded")
+    kept_ids = {row["osm_id"] for row in counted["park_kept"]}
+    expect(len(counted["park_excluded"]) == 86 and all(row["decision"] == "exclude" and row["reason"] for row in counted["park_excluded"]), "excluded parks stay unpublished with a reason")
+    expect(len(counted["park_held"]) == 19 and all(row["decision"] == "hold" and row["reason"] and row["osm_id"] not in park_excluded for row in counted["park_held"]), "held parks are not excluded")
+    expect(sa_inventory.published_parks_without_keep(sa_camps, kept_ids) == [], "published caravan holiday or tourist park needs a keep")
+    expect(sa_inventory.published_parks_without_keep([{"name": "Sample Holiday Park", "category": "Campground", "osm_id": "way/sample"}], set()) == ["Sample Holiday Park"], "a holiday park with no keep decision fails")
+    expect(sa_inventory.published_parks_without_keep([{"name": "Sample Tourist Park", "category": "Campground", "osm_id": "way/sample-2"}], kept_ids) == ["Sample Tourist Park"], "a tourist park with no keep decision fails")
+    expect(sa_inventory.is_caravan_holiday_or_tourist_park({"name": "Burra Caravan & Camping Park", "category": "Caravan park"}), "caravan and camping park is in the check")
+    expect(not sa_inventory.is_caravan_holiday_or_tourist_park({"name": "Balgowan Caravan & Camping Area", "category": "Campground"}), "a camping area is not a caravan park")
+    adare = next(row for row in counted["park_excluded"] if row["name"] == "Adare Caravan Park")
+    expect("conference" in adare["reason"] and adare["osm_id"] not in by_osm, "adare is excluded")
+    showground = next(row for row in sa_camps if row["name"] == "Adelaide Showground Caravan Park")
+    expect(showground["osm_id"] in kept_ids, "adelaide showground stays")
+    expect(any(row["name"] == "Marion Bay Caravan Park" and row["osm_id"] in kept_ids for row in sa_camps), "council marion bay stays")
+    expect(any(row["name"] == "Christies Beach Tourist Park" and row["osm_id"] in kept_ids for row in sa_camps), "onkaparinga christies beach stays")
+    minlaton = next(row for row in counted["park_excluded"] if row["name"] == "Minlaton Caravan Park")
+    expect("family-owned" in minlaton["reason"] and minlaton["osm_id"] not in by_osm, "minlaton is excluded")
+    held_names = {row["name"] for row in counted["park_held"]}
+    expect("Corny Point Caravan Park" in held_names and "Pine Point Caravan Park" in held_names, "corny point and pine point are held")
+    unreviewed = sorted(row["name"] for row in counted["park_held"] if row.get("reviewed") != "yes")
+    expect(unreviewed == ["Burra Caravan & Camping Park", "Eudunda Caravan & Camping Park", "William Creek Hotel camping ground"], "parks outside the review are held")
     expect("860167" not in booking, "ippinitchie stays held without a street view point")
     burra = [row for row in sa_camps if "burra creek" in row["name"].lower() or "world's end gorge" in row["name"].lower() or "worlds end" in row["name"].lower()]
     expect(len(burra) == 1 and burra[0]["osm_id"] == "node/1811163605" and "Mid point" in burra[0]["source_note"], "burra creek gorge is the west point")

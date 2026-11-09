@@ -158,7 +158,7 @@
       {
         "id": "inventory_audit",
         "ok": false,
-        "detail": "A disabled build lists 265 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, tourism and operator records. Discovery Parks - Adelaide Beachfront, Belair National Park Holiday Park and Brownhill Creek Tourist Park are excluded as commercial caravan parks. 69 official campgrounds remain without coordinates. Pondalowie and Ippinitchie stay out. This is not a statewide launch."
+        "detail": "A disabled build lists 160 camps, down from 265: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, community and showground records that stay. 86 commercial caravan, holiday and tourist parks are excluded, including Adare. 19 parks are not listed while ownership is unconfirmed. 69 official campgrounds remain without coordinates. Pondalowie and Ippinitchie stay out. This is not a statewide launch."
       },
       {
         "id": "official_source_parser",

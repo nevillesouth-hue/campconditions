@@ -72,6 +72,13 @@ COMMERCIAL_EXCLUDED = {
     "way/321216861",   # Belair National Park Holiday Park
     "way/177930647",   # Brownhill Creek Tourist Park
 }
+# Nev's rule: free and donation camps, council showgrounds, and council-run or
+# community caravan parks stay. Commercial caravan, holiday and tourist parks
+# do not. Adare is a camp and conference venue, so it is excluded here even
+# though an earlier note called the operator a community venue.
+PARK_DECISIONS = "data/act-sa/inventory/sa-caravan-park-decisions.csv"
+PARK_RE = re.compile(r"\b(?:caravan|holiday|tourist)(?:\s+and\s+[a-z]+){0,4}\s+parks?\b")
+UNLISTED_HOLD_REASON = "not in the reviewed caravan park decisions; held until ownership is confirmed"
 BURRA_WEST = "node/1811163605"
 BURRA_NOTE = "Burra Creek Gorge is one camp, at the West point. The Mid point is the same reserve, not a separate camp."
 DEDUPE_METRES = 500
@@ -456,6 +463,193 @@ def _set_notice(camp, status, url):
         camp["upcoming_closure"] = None
 
 
+def _park_text(value):
+    text = (value or "").lower().replace("&", " and ").replace("’", "'").replace("'", "")
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def is_caravan_holiday_or_tourist_park(camp):
+    """True when the type or the name is a caravan, holiday or tourist park."""
+    for key in ("name", "category"):
+        if PARK_RE.search(_park_text(camp.get(key))):
+            return True
+    return False
+
+
+def _decision_norm(value):
+    text = (value or "").lower().replace("’", "'").replace("‘", "'").replace("–", "-").replace("—", "-")
+    text = text.replace("&", " and ").replace("'", "")
+    text = re.sub(r"\([^)]*\)", " ", text)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    text = re.sub(r"\bcp\b", "caravan park", text)
+    text = re.sub(r"\bmt\b", "mount", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _decision_variants(name):
+    parts = [name or ""]
+    if "~" in (name or ""):
+        parts.extend(part.strip() for part in name.split("~"))
+    found = []
+    for part in parts:
+        text = _decision_norm(part)
+        if text and text not in found:
+            found.append(text)
+    return found
+
+
+def _camp_id(camp):
+    return camp.get("osm_id") or camp.get("id") or ""
+
+
+def _match_decision_camp(name, by_norm):
+    """One published camp for a decision name. Exact, then a unique prefix, then tokens."""
+    variants = _decision_variants(name)
+    for text in variants:
+        hits = by_norm.get(text) or []
+        if len(hits) == 1:
+            return hits[0]
+        if len(hits) > 1:
+            raise SystemExit("caravan park decision matches more than one camp: %s" % name)
+    prefix = []
+    for text in variants:
+        for key, hits in by_norm.items():
+            if key.startswith(text + " ") or text.startswith(key + " "):
+                prefix.extend(hits)
+    chosen = {_camp_id(camp): camp for camp in prefix}
+    if len(chosen) == 1:
+        return next(iter(chosen.values()))
+    if len(chosen) > 1:
+        prefix = []
+    tokens = []
+    for text in variants:
+        words = text.split()
+        if len(words) < 2:
+            continue
+        for key, hits in by_norm.items():
+            if all(word in key.split() for word in words):
+                tokens.extend(hits)
+    chosen = {_camp_id(camp): camp for camp in tokens}
+    if len(chosen) == 1:
+        return next(iter(chosen.values()))
+    raise SystemExit("caravan park decision did not match one camp: %s" % name)
+
+
+def _park_record(camp, row, reason):
+    return {
+        "name": camp.get("name") or "",
+        "osm_id": _camp_id(camp),
+        "slug": camp.get("slug") or "",
+        "decision": row.get("decision") or "hold",
+        "reason": reason,
+        "decision_name": row.get("name") or camp.get("name") or "",
+        "reviewed": row.get("reviewed") or "no",
+        "source_url": row.get("source_url") or "",
+    }
+
+
+def _load_park_decisions():
+    path = os.path.join(ROOT, PARK_DECISIONS)
+    rows = _read_csv(path)
+    if len(rows) < 123:
+        raise SystemExit("caravan park decisions are missing rows")
+    reviewed = [row for row in rows if (row.get("reviewed") or "") == "yes"]
+    if len(reviewed) != 123:
+        raise SystemExit("expected 123 reviewed caravan park decisions, found %s" % len(reviewed))
+    counts = {}
+    for row in reviewed:
+        decision = (row.get("decision") or "").strip()
+        if decision not in {"keep", "exclude", "hold"}:
+            raise SystemExit("unexpected caravan park decision for %s" % row.get("name"))
+        if decision != "keep" and not (row.get("reason") or "").strip():
+            raise SystemExit("caravan park decision has no reason: %s" % row.get("name"))
+        counts[decision] = counts.get(decision, 0) + 1
+    if counts != {"exclude": 86, "keep": 21, "hold": 16}:
+        raise SystemExit("reviewed caravan park decisions were %s" % counts)
+    adare = next((row for row in reviewed if (row.get("name") or "").startswith("Adare")), None)
+    showground = next((row for row in reviewed if (row.get("name") or "").startswith("Adelaide Showground")), None)
+    if not adare or adare.get("decision") != "exclude":
+        raise SystemExit("Adare must be excluded")
+    if not showground or showground.get("decision") != "keep":
+        raise SystemExit("Adelaide Showground must stay")
+    for row in rows:
+        if (row.get("reviewed") or "") == "yes":
+            continue
+        if (row.get("decision") or "").strip() != "hold" or not (row.get("reason") or "").strip():
+            raise SystemExit("a park outside the review must be held with a reason: %s" % row.get("name"))
+    return rows
+
+
+def published_parks_without_keep(camps, kept_ids):
+    """Published caravan, holiday or tourist parks that have no keep decision."""
+    missing = []
+    for camp in camps:
+        if not is_caravan_holiday_or_tourist_park(camp):
+            continue
+        if _camp_id(camp) not in kept_ids:
+            missing.append(camp.get("name") or _camp_id(camp))
+    return missing
+
+
+def _apply_park_decisions(camps):
+    """Drop excluded and held parks. A park type with no keep decision is held."""
+    rows = _load_park_decisions()
+    by_norm = {}
+    for camp in camps:
+        by_norm.setdefault(_decision_norm(camp.get("name")), []).append(camp)
+    decided = {}
+    for row in rows:
+        camp = _match_decision_camp(row.get("name") or "", by_norm)
+        ident = _camp_id(camp)
+        if ident in decided:
+            raise SystemExit("two caravan park decisions match %s" % camp.get("name"))
+        decided[ident] = row
+    excluded, held, kept, published = [], [], [], []
+    for camp in camps:
+        ident = _camp_id(camp)
+        row = decided.get(ident)
+        if row:
+            decision = (row.get("decision") or "").strip()
+            reason = (row.get("reason") or "").strip()
+            if decision == "keep":
+                kept.append(_park_record(camp, row, reason))
+                published.append(camp)
+            elif decision == "exclude":
+                excluded.append(_park_record(camp, row, reason))
+            elif decision == "hold":
+                held.append(_park_record(camp, row, reason))
+            else:
+                raise SystemExit("unexpected caravan park decision for %s" % camp.get("name"))
+            continue
+        if is_caravan_holiday_or_tourist_park(camp):
+            held.append(_park_record(camp, {"decision": "hold", "reviewed": "no", "name": camp.get("name") or ""}, UNLISTED_HOLD_REASON))
+            continue
+        published.append(camp)
+    kept_ids = {row["osm_id"] for row in kept}
+    missing = published_parks_without_keep(published, kept_ids)
+    if missing:
+        raise SystemExit("published caravan, holiday or tourist park has no keep decision: %s" % "; ".join(missing))
+    if len(kept) != 21 or len(excluded) != 86:
+        raise SystemExit("expected 21 kept and 86 excluded caravan parks, found %s and %s" % (len(kept), len(excluded)))
+    load_camps.park_excluded = excluded
+    load_camps.park_held = held
+    load_camps.park_kept = kept
+    return published
+
+
+def _tally(camps):
+    return {
+        "published": len(camps),
+        "official_confident": sum(1 for camp in camps if camp.get("inventory_group") == "official_confident"),
+        "official_approximate": sum(1 for camp in camps if camp.get("inventory_group") == "official_approximate"),
+        "eligible_osm": sum(1 for camp in camps if camp.get("inventory_group") == "eligible_osm"),
+        "council": sum(1 for camp in camps if camp.get("source") == "council"),
+        "tourism": sum(1 for camp in camps if camp.get("source") == "tourism"),
+        "operator": sum(1 for camp in camps if camp.get("source") == "operator"),
+    }
+
+
 def load_camps(seen=None, moment=None):
     """Camp records in the same shape the site builder already renders.
 
@@ -580,7 +774,8 @@ def load_camps(seen=None, moment=None):
         _apply_notice(camp, scored["bookings"], scored["notices"], originals)
         if camp["status"] == "open" or camp["open_inferred"]:
             raise SystemExit("SA inventory inferred open for %s" % camp["name"])
-    return camps
+    load_camps.before_park_decisions = _tally(camps)
+    return _apply_park_decisions(camps)
 
 
 def summary(camps):
@@ -599,6 +794,10 @@ def summary(camps):
         "duplicates_dropped": len(dropped),
         "duplicates": list(dropped),
         "commercial_excluded": list(getattr(load_camps, "commercial_excluded", [])),
+        "before_park_decisions": dict(getattr(load_camps, "before_park_decisions", {})),
+        "park_excluded": list(getattr(load_camps, "park_excluded", [])),
+        "park_held": list(getattr(load_camps, "park_held", [])),
+        "park_kept": list(getattr(load_camps, "park_kept", [])),
         "needs_check": sum(1 for camp in camps if camp.get("needs_review")),
         "by_source": _count(camp.get("source") for camp in camps),
         "booking_ids": sorted(item for camp in camps for item in camp.get("booking_ids") or []),

@@ -1654,7 +1654,11 @@ if os.path.isfile(nsw_index):
   for marker in ("DataVic", "Explore Outdoors", "Parks Victoria", "DEECA", "Vicmap", "cfa.vic.gov.au", "NPWS", "QSpatial", "Rural Fire Service", 'href="/about/#vic-sources"', 'href="/about/#nsw-sources"', 'href="/about/#qld-sources"'):
     if marker in support_footer or marker in support_main: bad.append(("support", "data attribution " + marker))
   if 'class="banner-row"' not in support or 'class="tip-btn"' not in support_main: bad.append(("support", "header or tips"))
-  for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301"):
+  for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301",
+               "/tas/camp/new-pelion-hut-tas-list-cs-62194 /tas/camp/new-pelion-hut/ 301",
+               "/tas/camp/waterfall-valley-hut-tas-list-cs-62192/ /tas/camp/waterfall-valley-hut/ 301",
+               "/tas/camp/windermere-hut-tas-list-cs-62186 /tas/camp/windermere-hut/ 301",
+               "/tas/camp/wild-dog-creek-campsite-tas-list-cs-62066/ /tas/camp/wild-dog-creek-campsite/ 301"):
     if line not in redirects: bad.append(("_redirects", line))
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
   if "Terms of use" not in terms or "as is, without warranty" not in terms or "Victoria." not in terms or "New South Wales." not in terms or "governing law" in terms.lower(): bad.append(("terms", "wording"))

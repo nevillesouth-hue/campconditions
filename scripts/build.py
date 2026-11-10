@@ -3719,7 +3719,7 @@ def headers_text():
     return "\n".join(parts)
 open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
 def slug_redirect_lines():
-    """301s for NSW and QLD camp slugs that changed in correction batches."""
+    """301s for camp slugs that changed in correction batches."""
     lines = []
     doc = {}
     for st in ("nsw", "qld"):
@@ -3744,6 +3744,18 @@ def slug_redirect_lines():
             print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
             continue
         lines += [f"/{old} /{new}/ 301", f"/{old}/ /{new}/ 301"]
+    # Tasmania theLIST points that collapsed onto one camp. The mapping is
+    # computed when the Tasmania list is loaded for this build.
+    import tas_inventory
+    mapping = getattr(tas_inventory.load_camps, "slug_redirects", None) or {}
+    if mapping and os.path.isdir(os.path.join(OUT, "tas")):
+        for old, new in sorted(mapping.items()):
+            old_dir = os.path.join(OUT, "tas", "camp", old)
+            new_dir = os.path.join(OUT, "tas", "camp", new)
+            if old == new or os.path.isdir(old_dir) or not os.path.isfile(os.path.join(new_dir, "index.html")):
+                print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
+                continue
+            lines += [f"/tas/camp/{old} /tas/camp/{new}/ 301", f"/tas/camp/{old}/ /tas/camp/{new}/ 301"]
     return lines
 open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /about/ 301
 /contact/ /about/ 301

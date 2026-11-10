@@ -412,7 +412,7 @@ def main():
     token_js = open(os.path.join(ROOT, "functions", "_lib", "token.js"), encoding="utf-8").read()
     confirm_js = open(os.path.join(ROOT, "functions", "api", "confirm.js"), encoding="utf-8").read()
     unsub_js = open(os.path.join(ROOT, "functions", "api", "unsubscribe.js"), encoding="utf-8").read()
-    expect('export const HELD_SIGNUP_STATES = ["act", "sa"];' in token_js, "signup hold")
+    expect('export const HELD_SIGNUP_STATES = ["act", "sa", "tas"];' in token_js, "signup hold")
     expect("env.RESEND_SEGMENT_ACT_ID" not in confirm_js and "env.RESEND_SEGMENT_SA_ID" not in confirm_js, "confirm does not read the segment id itself")
     expect("env.RESEND_SEGMENT_ACT_ID" not in unsub_js and "env.RESEND_SEGMENT_SA_ID" not in unsub_js, "unsubscribe ignores held env")
 

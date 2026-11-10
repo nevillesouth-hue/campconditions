@@ -48,6 +48,10 @@ def alerts_line(slug):
     stamp = dt.datetime.fromisoformat(when).astimezone(TZ)
     shown = stamp.strftime("%-d %B %Y, %-I:%M %p %Z")
     stale = (NOW - stamp) > dt.timedelta(days=ALERTS_STALE_DAYS)
+    if info.get("stale") is True:
+        stale = True
+        if info.get("stale_message"):
+            stale_msg = str(info["stale_message"])
     hidden = "" if stale else " hidden"
     return (f'<p class="muted alerts-updated" data-updated="{html.escape(stamp.isoformat())}">{label} updated {html.escape(shown)}.{link}</p>'
             f'<div class="warn alerts-stale"{hidden}>{html.escape(stale_msg)}</div>'
@@ -647,6 +651,11 @@ for state in _page_states:
         official = sa_inventory.load_camps(seen)
         loaded.append((state, official, [], []))
         continue
+    if state.get("slug") == "tas" and (state.get("files") or {}).get("inventory"):
+        import tas_inventory
+        official = tas_inventory.load_camps(seen)
+        loaded.append((state, official, [], []))
+        continue
     CAT_LABEL["park_campground"] = PV_LABEL
     visitor = (STATE.get("sources") or {}).get("npws_visitor_areas") or {}
     if visitor.get("url") and visitor.get("camping_subtype") not in (None, ""):
@@ -807,6 +816,16 @@ for state, official, osm_rows, state_closures in loaded:
     if state.get("slug") == "sa" and (sources.get("cfs_fdr") or sources.get("cfs_districts")):
         import sa_fire
         sa_fire.apply(state_camps, state, fetch_text, SRC, now=NOW)
+    if state.get("slug") == "tas" and (sources.get("pws_alerts") or {}).get("url"):
+        import tas_alerts
+        fetched = tas_alerts.fetch_alerts(fetch_text, LAST_GOOD_DIR, now=NOW)
+        tas_alerts.apply_alerts(state_camps, fetched["alerts"])
+        ALERTS_UPDATED[state["slug"]] = tas_alerts.stamp(fetched)
+        counted = tas_alerts.counts(state_camps)
+        print(
+            "TAS alerts: %s amber, %s closed, %s campfire note%s"
+            % (counted["amber"], counted["closed"], counted["campfire"], " (last good)" if fetched.get("stale") else "")
+        )
     for camp in state_camps:
         assign_filters(camp)
     town_path = statecfg.path(state, "towns")
@@ -1642,7 +1661,7 @@ def region_label(c):
     return names.get(c.get("region") or "", "")
 region_label.cache = {}
 _STATUS_CODE = {"open": "o", "check": "k", "closed": "x"}
-_STATE_CODE = {"vic": "v", "nsw": "n", "qld": "q", "sa": "s"}
+_STATE_CODE = {"vic": "v", "nsw": "n", "qld": "q", "sa": "s", "tas": "t"}
 def _flag_cell(c, field):
     value = c.get(field)
     if value is True: return 1
@@ -1687,7 +1706,7 @@ def map_points_object(c):
     if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
     if len(statecfg.enabled()) > 1:
         slug = c.get("state_slug") or SLUG
-        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales", "qld": "Queensland", "sa": "South Australia"}.get(slug, slug)
+        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales", "qld": "Queensland", "sa": "South Australia", "tas": "Tasmania"}.get(slug, slug)
     if (c.get("state_slug") or SLUG) in ("nsw", "qld"):
         label = region_label(c)
         if label:
@@ -2429,6 +2448,9 @@ def inline_signup(kind, region_name, camp=None):
         import sa_signup
         if not sa_signup.forms_allowed():
             return sa_signup.coming_soon_html()
+    if SLUG == "tas":
+        import tas_signup
+        return tas_signup.coming_soon_html()
     if not statecfg.signup_allowed(STATE):
         return ""
     state = STATE.get("abbrev") or STATE["name"]
@@ -2572,7 +2594,22 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
         .replace("__NEAREST_FN__", nearest)
         .replace("__CLUSTER__", cluster)
         .replace("__REGION_BIT__", region_bit))
-    return _qpws_js(js) if _qld_enabled() else js
+    js = _qpws_js(js) if _qld_enabled() else js
+    if STATE.get("slug") == "tas":
+        js = js.replace(
+            'var stateSlug = {v: "vic", n: "nsw", q: "qld", s: "sa"};',
+            'var stateSlug = {v: "vic", n: "nsw", q: "qld", s: "sa", t: "tas"};',
+        ).replace(
+            'var stateSlug = {v: "vic", n: "nsw", s: "sa"};',
+            'var stateSlug = {v: "vic", n: "nsw", s: "sa", t: "tas"};',
+        ).replace(
+            'var stateName = {v: "Victoria", n: "New South Wales", q: "Queensland", s: "South Australia"};',
+            'var stateName = {v: "Victoria", n: "New South Wales", q: "Queensland", s: "South Australia", t: "Tasmania"};',
+        ).replace(
+            'var stateName = {v: "Victoria", n: "New South Wales", s: "South Australia"};',
+            'var stateName = {v: "Victoria", n: "New South Wales", s: "South Australia", t: "Tasmania"};',
+        )
+    return js
 def _qld_enabled():
     return any(state["slug"] == "qld" for state in statecfg.enabled())
 def _sa_enabled():
@@ -2676,6 +2713,8 @@ by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
 n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"] == "check" for c in camps)
 
 def list_note(c):
+    if c.get("source") == "tas":
+        return c.get("tas_list_note") or ""
     if c.get("source") == "osm":
         if c.get("status") == "closed" and (c.get("closure") or {}).get("desc"):
             return c["closure"]["desc"]
@@ -2715,6 +2754,9 @@ def fire_line(c):
     """One sentence for the camp's fire weather district. Absent unless the feed matched a polygon
     or the nearest-district fallback applied (nsw_conditions.FIRE_FALLBACK_KM).
     A state with no district map keeps the link and does not invent a rating."""
+    if (c.get("state_slug") or SLUG) == "tas":
+        import tas_fire
+        return tas_fire.html_line(c)
     if c.get("sa_fire_mode") == "linkout" or (c.get("fire") or {}).get("authority") == "sa_cfs":
         import sa_fire
         return sa_fire.html_line(c)
@@ -2975,6 +3017,9 @@ def emit_state(state, camps, include_home):
             import sa_signup
             if not sa_signup.forms_allowed():
                 sa_note = sa_signup.coming_soon_html()
+        elif state.get("slug") == "tas":
+            import tas_signup
+            sa_note = tas_signup.coming_soon_html()
         state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>"
         if not sa_note and multi:
             state_body += news_section()
@@ -3088,6 +3133,14 @@ def emit_state(state, camps, include_home):
                 dated = "Source: NPWS Visitor Area layer (camping areas)"
             if c.get("alerts_checked") and feed.startswith("https://"):
                 dated += f'. <a href="{e(feed)}">{agency} alerts</a>'
+        elif c.get("source") == "tas":
+            import tas_alerts
+            condition = tas_alerts.html_block(c)
+            label = c.get("status_label") or "No current alert"
+            title = f"{page_name} — {label} | CampConditions.au"
+            summary = c.get("tas_list_note") or label
+            desc = f"{c['name']} in Tasmania. {summary} This is not a confirmation the camp is open."
+            dated = c.get("attribution") or ""
         elif c.get("source") in ("parks_sa", "sa_operator", "council", "tourism", "operator"):
             label = c.get("status_label") or "No current notice"
             summary = c.get("notice_summary") or "No current Parks SA campground notice is matched to this camp."
@@ -3143,7 +3196,7 @@ def emit_state(state, camps, include_home):
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
-<p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a> · <a href="{LINKS.get('bom_forecast') or ''}">BOM forecast</a> · {dated}</p>
+<p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a>{(' · <a href="%s">BOM forecast</a>' % LINKS['bom_forecast']) if str(LINKS.get('bom_forecast') or '').startswith('https://') else ''} · {dated}</p>
 {camper_reports(c)}{visitor_report_box(c)}{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
 multi_state = len(statecfg.enabled()) > 1
 emit_state(primary, by_state[primary["slug"]], not multi_state)

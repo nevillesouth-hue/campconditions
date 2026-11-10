@@ -161,8 +161,13 @@ def _bookings(notices, rows, moment):
     by_index = {row["source_index"]: row for row in rows}
     effects = {}
     for notice, row in zip(notices, rows):
+        facilities = {
+            str(facility.get("booking_id") or ""): facility
+            for facility in notice.get("affected_camp_facilities") or []
+        }
         for booking_id in row["booking_ids"]:
-            effects.setdefault(booking_id, []).append(row["camp_status"])
+            status = _facility_status(notice, facilities.get(booking_id) or {}, row["camp_status"])
+            effects.setdefault(booking_id, []).append(status)
     if 38 in by_index and 45 in by_index:
         for booking_id in by_index[38]["booking_ids"]:
             effects[booking_id] = [status for status in effects.get(booking_id, []) if status != "not_a_camp_closure"]
@@ -190,9 +195,28 @@ def _combine(statuses):
         return "expired_not_open"
     if "not_in_window" in statuses:
         return "not_in_window"
+    if "park_alert" in statuses:
+        return "park_alert"
     if statuses and set(statuses) == {"not_a_camp_closure"}:
         return "not_a_camp_closure"
     return "unknown"
+
+
+def _facility_status(notice, facility, notice_status):
+    """Notice 42 closes Malkumba-Coongie Lakes National Park.
+
+    It says significant parts of Innamincka Regional Reserve are closed and
+    does not name those campgrounds. Those camps are a park alert, not closed
+    and not a partial closure. Every other notice keeps one status.
+    """
+    if notice.get("source_index") != 42:
+        return notice_status
+    effect = str((facility or {}).get("effect") or "")
+    if effect == "closed":
+        return "closed"
+    if effect.startswith("unknown"):
+        return "park_alert"
+    return notice_status
 
 
 def _effect_closes(notice):

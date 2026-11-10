@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Tasmania is public. Signup and the digest stay off, and ACT stays off."""
+import datetime as dt
 import json
 import os
 import subprocess
@@ -103,7 +104,7 @@ def main():
     sample_html = open(os.path.join(ROOT, "data", "tas", "fixtures", "alerts-sample.html"), encoding="utf-8").read()
     parsed = tas_alerts.parse_html(sample_html)
     expect("SECRET" not in json.dumps(parsed), "alert body is not stored")
-    expect(all(set(row) <= {"headline", "parks", "link"} for row in parsed), "stored fields are headline, parks and link")
+    expect(all(set(row) <= tas_alerts.STORED_FIELDS for row in parsed), "stored fields are headline, parks, link and dates")
     bay = {
         "name": "Sample Bay Campground No 1",
         "aliases": ["Sample Bay 1", "Sample Bay No 1"],
@@ -152,16 +153,32 @@ def main():
     fixture = json.load(open(os.path.join(ROOT, "data", "tas", "fixtures", "alerts-2026-11-10.json"), encoding="utf-8"))
     live = fixture["alerts"]
     expect(len(live) == 29, "29 alerts")
-    expect(all("SECRET" not in json.dumps(row) and set(row) <= {"headline", "parks", "link"} for row in live), "fixture has no body")
-    tas_alerts.apply_alerts(camps, live)
+    expect(all("SECRET" not in json.dumps(row) and set(row) <= tas_alerts.STORED_FIELDS for row in live), "fixture has no body")
+    review = dt.datetime(2026, 11, 10, 15, 0, tzinfo=tas_alerts.HOBART)
+    tas_alerts.apply_alerts(camps, live, now=review)
     tally = tas_alerts.counts(camps)
-    expect(tally["amber"] == 84 and tally["closed"] == 3 and tally["campfire"] == 102, "today's alerts: 84 amber, 3 closed, 102 campfire notes")
+    expect(tally["amber"] == 84 and tally["closed"] == 1 and tally["upcoming"] == 2 and tally["campfire"] == 102, "10 Nov: 84 amber, 1 closed, 2 upcoming, 102 campfire notes")
     by_name = {camp["name"]: camp for camp in camps}
     stumpys = by_name["Stumpys Bay Campground No 1"]
     ben = by_name["Ben Lomond Campground"]
     falls = by_name["Falls Park Rest Area"]
-    expect(stumpys["tas_display"] == "closed" and stumpys["status"] == "closed", "Stumpys Bay No 1 is closed")
-    expect(by_name["Stumpys Bay Campground No 2"]["tas_display"] == "closed", "Stumpys Bay No 2 is closed")
+    expect(stumpys["tas_display"] == "upcoming" and stumpys["status"] != "closed", "Stumpys Bay No 1 is upcoming on 10 Nov")
+    expect(by_name["Stumpys Bay Campground No 2"]["tas_display"] == "upcoming", "Stumpys Bay No 2 is upcoming on 10 Nov")
+    expect((stumpys.get("upcoming_closure") or {}).get("start") == "2026-12-10" and stumpys["upcoming_closure"].get("start_time") == "10:00", "Stumpys starts 10am 10 Dec")
+    expect(stumpys["upcoming_closure"].get("reopen") == "2026-12-15" and stumpys["upcoming_closure"].get("reopen_time") == "14:00", "Stumpys reopens 2pm 15 Dec")
+    during = dt.datetime(2026, 12, 10, 10, 0, tzinfo=tas_alerts.HOBART)
+    after = dt.datetime(2026, 12, 15, 14, 0, tzinfo=tas_alerts.HOBART)
+    expect(tas_alerts.classify(stumpys, live, during)["display"] == "closed", "Stumpys is closed once the closure has started")
+    expect(tas_alerts.classify(stumpys, live, after)["display"] != "closed", "Stumpys is not closed after it reopens")
+    dated = (
+        "<h2>Site Alerts</h2><div class=\"section\"><h3>Planned event: Sample Bay 1 and 2 campgrounds closed</h3>"
+        "<p>Applies from 10/12/2026</p><div class=\"alert-listing\"><p>Sample Bay campgrounds 1 and 2 are closed "
+        "from 10am Thursday 10 December. They will reopen at 2pm Tuesday 15 December.</p>"
+        "<p><b>Locations affected:</b> <a href=\"/Pages/Example.aspx\">Example National Park</a></p></div></div>"
+    )
+    dated_alerts = tas_alerts.parse_html(dated)
+    expect(dated_alerts[0]["start"] == "2026-12-10" and dated_alerts[0]["start_time"] == "10:00" and dated_alerts[0]["end"] == "2026-12-15" and dated_alerts[0]["end_time"] == "14:00", "parser reads start and end")
+    expect("Thursday" not in json.dumps(dated_alerts), "the sentence is not stored")
     expect(by_name["Stumpys Bay Campground No 3"]["tas_display"] == "amber", "Stumpys Bay No 3 is a park alert")
     expect(by_name["Edgar Dam Camping Ground"]["tas_display"] == "closed", "Edgar Dam is closed")
     expect(ben["tas_display"] == "amber" and ben["status"] != "closed" and ben["tas_campfire"] is True, "Ben Lomond is amber, with a campfire note")
@@ -169,7 +186,8 @@ def main():
     stumpys_html = tas_alerts.html_block(stumpys)
     ben_html = tas_alerts.html_block(ben)
     falls_html = tas_alerts.html_block(falls)
-    expect("Closed." in stumpys_html and "Stumpys Bay 1 and 2" in stumpys_html and tas_alerts.ALERTS_URL in stumpys_html, "closed camp shows the headline and the PWS link")
+    expect("Upcoming closure." in stumpys_html and "10am Thursday 10 December 2026" in stumpys_html and "2pm Tuesday 15 December 2026" in stumpys_html and "Stumpys Bay 1 and 2" in stumpys_html and tas_alerts.ALERTS_URL in stumpys_html, "upcoming camp shows the dates, the headline and the PWS link")
+    expect("Closed." not in stumpys_html.split("Upcoming closure.", 1)[-1][:80], "the planned closure is not labelled Closed")
     expect("Alert in this park." in ben_html and "Jacobs Ladder" in ben_html and 'id="camp-closure"' not in ben_html, "Ben Lomond is not closed")
     expect("Seasonal campfire ban." in ben_html and "Seasonal campfire ban." in stumpys_html, "campfire note")
     expect("Check with the council before you travel." in falls_html and falls["council_url"] in falls_html, "council sentence and link")
@@ -206,7 +224,7 @@ def main():
     expect(by_check["fire_linkout"]["pass"] and by_check["roads_linkout"]["pass"] and by_check["tas_signup"]["pass"], "fire, roads and signup checks")
     expect(by_check["public_tas"]["pass"], "public build lists Tasmania and leaves ACT off")
     expect(by_check["caravan_park_keep"]["pass"] is True, "caravan park check passes")
-    expect(gate["pass"] is True and gate["published"] == 187 and gate["alerts"]["amber"] == 84 and gate["alerts"]["closed"] == 3 and gate["alerts"]["campfire"] == 102, "launch checks pass")
+    expect(gate["pass"] is True and gate["published"] == 187 and gate["alerts"]["amber"] == 84 and gate["alerts"]["campfire"] == 102, "launch checks pass")
 
     home = os.path.join(ROOT, "dist", "index.html")
     if os.path.isfile(home):
@@ -225,7 +243,8 @@ def main():
             print(" FAIL", label)
         return 1
     print("TAS checks passed: %s" % CHECKS)
-    print("Published camps: 187. Alerts: 84 amber, 3 closed, 102 campfire notes.")
+    alerts = gate["alerts"]
+    print("Published camps: 187. Alerts: %s amber, %s closed, %s upcoming, %s campfire notes." % (alerts["amber"], alerts["closed"], alerts["upcoming"], alerts["campfire"]))
     return 0
 
 

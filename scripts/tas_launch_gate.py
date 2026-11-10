@@ -90,7 +90,9 @@ def _alerts():
         fixture = json.load(handle)
     alerts = fixture.get("alerts") or []
     camps = tas_inventory.load_camps(set())
-    tas_alerts.apply_alerts(camps, alerts)
+    import datetime as dt
+    now = dt.datetime.now(tas_alerts.HOBART)
+    tas_alerts.apply_alerts(camps, alerts, now=now)
     by_name = {camp["name"]: camp for camp in camps}
     stumpys = by_name.get("Stumpys Bay Campground No 1")
     second = by_name.get("Stumpys Bay Campground No 2")
@@ -98,10 +100,14 @@ def _alerts():
     ben = by_name.get("Ben Lomond Campground")
     falls = by_name.get("Falls Park Rest Area")
     edgar = by_name.get("Edgar Dam Camping Ground")
+    planned = next((alert for alert in alerts if "Stumpys Bay 1 and 2" in (alert.get("headline") or "")), None)
+    kind = tas_alerts.phase(planned, now) if planned else ""
+    wanted = {"upcoming": "upcoming", "current": "closed", "ended": "none"}.get(kind)
     named = all(camp is not None for camp in (stumpys, second, third, ben, falls, edgar))
-    rules = named and (
-        stumpys["tas_display"] == "closed"
-        and second["tas_display"] == "closed"
+    rules = named and planned and (
+        stumpys["tas_display"] == wanted
+        and second["tas_display"] == wanted
+        and (kind == "current" or stumpys["status"] != "closed")
         and third["tas_display"] == "amber"
         and ben["tas_display"] == "amber"
         and ben["status"] != "closed"
@@ -110,10 +116,19 @@ def _alerts():
         and not falls.get("tas_closures")
         and edgar["tas_display"] == "closed"
         and all("SECRET" not in json.dumps(alert) for alert in alerts)
-        and all(set(alert) <= {"headline", "parks", "link"} for alert in alerts)
+        and all(set(alert) <= tas_alerts.STORED_FIELDS for alert in alerts)
     )
     tally = tas_alerts.counts(camps)
-    ok = rules and tally == {"amber": 84, "closed": 3, "campfire": 102, "council": 11, "published": 187}
+    expected_closed = 3 if kind == "current" else 1
+    expected_upcoming = 2 if kind == "upcoming" else 0
+    ok = rules and tally == {
+        "amber": 84,
+        "closed": expected_closed,
+        "upcoming": expected_upcoming,
+        "campfire": 102,
+        "council": 11,
+        "published": 187,
+    }
     reason = "amber %s, closed %s, campfire note %s" % (tally["amber"], tally["closed"], tally["campfire"])
     if not ok:
         reason = "alert rules failed (" + reason + ")"

@@ -127,13 +127,24 @@ def _fire_pages(preview):
             if "data.eso.sa.gov.au" in text or "FireBanDistricts" in text:
                 rated.append(rel)
             camp_page = f"{os.sep}camp{os.sep}" in path
-            if camp_page and (sa_fire.LINKOUT_LINE not in text or sa_fire.CATASTROPHIC_LINE not in text or sa_fire.CFS_PAGE not in text):
+            if not camp_page:
+                continue
+            if sa_fire.LINKOUT_LINE not in text or sa_fire.CFS_PAGE not in text:
+                missing.append(rel)
+                continue
+            other = "fire-sa-other" in text
+            parks = "fire-sa-parks" in text
+            if other and sa_fire.CATASTROPHIC_LINE in text:
+                missing.append(rel)
+            elif not other and sa_fire.CATASTROPHIC_LINE not in text:
+                missing.append(rel)
+            elif parks and sa_fire.CATASTROPHIC_LINE not in text:
                 missing.append(rel)
     if not pages:
         return False, "SA preview has no pages"
     if rated or missing:
         return False, "linkout pages still show a rating or omit the CFS line: " + ", ".join((rated + missing)[:8])
-    return True, "linkout shows the CFS ratings link and the Parks SA catastrophic line, with no district and no rating"
+    return True, "linkout shows the CFS ratings link. Parks SA camps keep the catastrophic-day line. Other camps do not. No district and no rating."
 
 
 def _fire(now, preview):

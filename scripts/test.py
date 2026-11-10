@@ -1587,6 +1587,14 @@ if os.path.isfile(nsw_index):
   if 'fetch("/vic-towns.json")' not in home_map or 'fetch("/nsw-towns.json")' not in home_map: bad.append(("map-home.js", "towns"))
   if "nsw-place-points.json" in home_map or "bestTownD" in home_map: bad.append(("map-home.js", "nsw places"))
   if "chunkedLoading: true" not in home_map or "camp.stateName || regionName" not in home_map or "addLayers" not in home_map: bad.append(("map-home.js", "cluster"))
+  if "zoomSnap: 0.25" not in home_map or "[[-44, 112.5], [-10, 154]]" not in home_map: bad.append(("map-home.js", "australia fit"))
+  if "zoomSnap" in mj or "[[-44, 112.5], [-10, 154]]" in mj: bad.append(("map.js", "national fit"))
+  for name in os.listdir(D):
+    if not (name.startswith("map-") and name.endswith(".js")) or name == "map-home.js":
+      continue
+    state_map = open(os.path.join(D, name), encoding="utf-8").read()
+    if "zoomSnap" in state_map or "[[-44, 112.5], [-10, 154]]" in state_map:
+      bad.append((name, "national fit"))
   home_map_pts = map_data("/", home, vic_only=False)
   if 'id="camp-map-data" data-url="/map-points/home.json?v=' not in home or "camp-map-data\">[" in home:
     bad.append(("/", "inline map json"))

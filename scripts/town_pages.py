@@ -45,14 +45,34 @@ PREFERRED = {
         "Hervey Bay", "K'gari", "Rainbow Beach", "Maleny", "Springbrook", "Canungra",
         "Stanthorpe",
     ),
+    # South Australia and Tasmania use the same rule. Names earlier in the
+    # list win the 12 km gap. ACT has no list and stays unpublished.
+    "sa": (
+        "Port Lincoln", "Normanville", "Cape Jervis", "Yorketown", "Edithburgh",
+        "Stansbury", "Minlaton", "Point Turton", "Maitland", "Port Victoria",
+        "Penneshaw", "American River", "Wilpena Chalet", "Blinman", "Marion Bay",
+    ),
+    "tas": (
+        "Coles Bay", "Swansea", "Bicheno", "St Helens", "Scamander", "Bridport",
+        "Dover", "Derwent Bridge", "Miena", "Bronte Park", "Adventure Bay",
+    ),
 }
 # Localities the place class would otherwise skip. Still dropped when they
 # have fewer than MIN_CAMPS camps inside the radius. Coordinates come from
-# the place file; only the name is listed here.
+# the place file; only the name is listed here. The South Australian and
+# Tasmanian names are hamlets in the place file, and they are the recorded
+# point for that camping base.
 EXTRA_LOCALITIES = frozenset({
     "airlie beach",
     "cape tribulation",
     "k'gari",
+    "wilpena chalet",
+    "blinman",
+    "marion bay",
+    "derwent bridge",
+    "miena",
+    "bronte park",
+    "adventure bay",
 })
 _CELL = 0.35
 

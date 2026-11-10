@@ -1,0 +1,259 @@
+{
+ "url": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+ "fetched": "2026-11-10T00:28:08+00:00",
+ "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+ "alert_count": 29,
+ "alerts": [
+  {
+   "headline": "Fire ban: Seasonal campfire bans are in place",
+   "parks": [
+    "Recherche Bay camping",
+    "Southport Lagoon Conservation Area",
+    "South Bruny National Park",
+    "Hartz Mountains National Park",
+    "Adamsfield Conservation Area",
+    "Mount Field National Park",
+    "Southwest National Park",
+    "Lime Bay State Reserve",
+    "Tasman National Park",
+    "Maria Island National Park",
+    "Freycinet National Park",
+    "Humbug Point camping",
+    "Bay of Fires Conservation Area",
+    "Mount William National Park",
+    "Waterhouse Conservation Area",
+    "Narawntapu National Park",
+    "Ben Lomond National Park",
+    "Strzelecki National Park",
+    "Franklin-Gordon Wild Rivers National Park",
+    "Central Plateau Conservation Area",
+    "Mayfield Bay Conservation Area",
+    "Douglas-Apsley National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-10-26"
+  },
+  {
+   "headline": "Planned event: Stumpys Bay 1 and 2 campgrounds closed - Mt William National Park",
+   "parks": [
+    "Mount William National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-12-10",
+   "start_time": "10:00",
+   "end": "2026-12-15",
+   "end_time": "14:00"
+  },
+  {
+   "headline": "Planned event: Targa Tasmania - Statewide",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-11-18"
+  },
+  {
+   "headline": "Planned event: Hartz Mountain Road - Roadworks",
+   "parks": [
+    "Hartz Mountains National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-11-16"
+  },
+  {
+   "headline": "Closed area: Jacobs Ladder Summit",
+   "parks": [
+    "Ben Lomond National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-11-12",
+   "start_time": "07:00",
+   "end": "2026-11-12",
+   "end_time": "14:00"
+  },
+  {
+   "headline": "Track closure: Upgrade of radio infrastructure on Mt Wedge",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-11-09",
+   "end": "2026-12-18"
+  },
+  {
+   "headline": "Closed area: Wayatinah Conservation Area - Partial Closure",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-11-01"
+  },
+  {
+   "headline": "Planned event: Walking track improvement works - Walls of Jerusalem Track",
+   "parks": [
+    "Walls of Jerusalem National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-10-31"
+  },
+  {
+   "headline": "Planned event: Narawntapu Visitor Centre",
+   "parks": [
+    "Narawntapu National Park",
+    "Narawntapu camping"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-10-30"
+  },
+  {
+   "headline": "Incident: BBQs Unavailable - Julius River and Milkshake Hills Regional Reserves",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-10-21"
+  },
+  {
+   "headline": "Incident: BBQs Unavailable - Mary Ann Cove - Rocky Cape National Park",
+   "parks": [
+    "Rocky Cape National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-10-21"
+  },
+  {
+   "headline": "Closed area: Pillans Lake track - Central Plateau Conservation Area",
+   "parks": [
+    "Central Plateau Conservation Area",
+    "Tasmanian Wilderness World Heritage Area (TWWHA)"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-09-30",
+   "end": "2026-11-30"
+  },
+  {
+   "headline": "Track closure: Dempster Lookout - Tarkine",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-09-21",
+   "end": "2026-11-30"
+  },
+  {
+   "headline": "Closed area: Changes to Access West Picton Road and Huon Track - Eastern Arthur Range Traverse - Southwest National Park",
+   "parks": [
+    "Southwest National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-09-01"
+  },
+  {
+   "headline": "Closed area: Viewing platform - Montezuma Falls",
+   "parks": [
+    "Montezuma Falls"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-08-26"
+  },
+  {
+   "headline": "Closed area: Lake King William campground",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-08-04"
+  },
+  {
+   "headline": "Closed area: Section of Creekton road to Duckhole Lake Track",
+   "parks": [
+    "Duckhole Lake"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-07-28"
+  },
+  {
+   "headline": "Closed area: Low Head Pilot Station",
+   "parks": [
+    "Low Head Historic Site"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-07-20"
+  },
+  {
+   "headline": "Track closure: Partial Closure - Walkway Replacement - Tamar Islands Wetlands",
+   "parks": [
+    "Tamar Island Wetlands Centre"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-07-06",
+   "end": "2026-12-17"
+  },
+  {
+   "headline": "Closed area: Toilet construction - Lake St Clair National Park",
+   "parks": [
+    "Lake St Clair (Cradle Mountain - Lake St Clair National Park)"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-06-17"
+  },
+  {
+   "headline": "Track closure: Winter closure - Sawback Range Track",
+   "parks": [
+    "Saw Back Range Track"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-06-09"
+  },
+  {
+   "headline": "Closed area: Low Head Pilot Station",
+   "parks": [
+    "Low Head Historic Site"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-04-22"
+  },
+  {
+   "headline": "Closed area: Watchtower Lookout - Ben Lomond National Park",
+   "parks": [
+    "Ben Lomond National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-04-13",
+   "end": "2026-11-27"
+  },
+  {
+   "headline": "Closed area: East West 4WD Trail",
+   "parks": [
+    "East West Trail - Wellington Park (4WD)"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2026-01-15"
+  },
+  {
+   "headline": "Closed area: Bellettes Creek Bridge Closure - Forestier Peninsula",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2025-12-05"
+  },
+  {
+   "headline": "Planned event: Construction Works - Maria Island National Park",
+   "parks": [
+    "Maria Island National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2025-11-28"
+  },
+  {
+   "headline": "Closed area: Edgar Dam boat ramp and campground - Southwest National Park",
+   "parks": [
+    "Southwest National Park",
+    "Mount Field National Park"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2025-01-28"
+  },
+  {
+   "headline": "Track closure: Evercreech Regional Reserve",
+   "parks": [
+    "Evercreech"
+   ],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2024-09-06"
+  },
+  {
+   "headline": "Track closure: Reuben Falls Track – Weld River Regional Reserve",
+   "parks": [],
+   "link": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+   "start": "2023-12-05"
+  }
+ ]
+}

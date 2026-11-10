@@ -1,0 +1,319 @@
+[
+  {
+    "id": "act-woods-closed",
+    "state": "act",
+    "source_url": "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/woods-reserve",
+    "action": "closure",
+    "asset_class": "campground",
+    "targets": [
+      {
+        "id": "act:woods-reserve",
+        "scope": "full",
+        "name": "Woods Reserve"
+      }
+    ],
+    "start": "2025-11-01",
+    "until_further_notice": true,
+    "expected": "early 2027",
+    "timezone": "Australia/Canberra",
+    "published": "2025-11-01"
+  },
+  {
+    "id": "act-gibraltar-platform",
+    "state": "act",
+    "source_url": "https://www.parks.act.gov.au/before-you-go/alerts",
+    "action": "closure",
+    "asset_class": "platform",
+    "targets": [
+      {
+        "name": "Gibraltar Falls viewing platform",
+        "entity_type": "platform",
+        "scope": "named"
+      }
+    ],
+    "until_further_notice": true,
+    "timezone": "Australia/Canberra"
+  },
+  {
+    "id": "act-red-rocks-a",
+    "state": "act",
+    "source_url": "https://www.parks.act.gov.au/before-you-go/alerts",
+    "action": "closure",
+    "asset_class": "climbing",
+    "content_hash": "act-red-rocks",
+    "listing_contexts": [
+      "Kambah Pool",
+      "Murrumbidgee River Corridor"
+    ],
+    "targets": [
+      {
+        "name": "Red Rocks",
+        "entity_type": "climbing",
+        "scope": "named"
+      }
+    ],
+    "until_further_notice": true,
+    "timezone": "Australia/Canberra"
+  },
+  {
+    "id": "act-red-rocks-b",
+    "state": "act",
+    "source_url": "https://www.parks.act.gov.au/before-you-go/alerts",
+    "action": "closure",
+    "asset_class": "climbing",
+    "content_hash": "act-red-rocks",
+    "listing_contexts": [
+      "Canberra Nature Park",
+      "The Pinnacle"
+    ],
+    "targets": [
+      {
+        "name": "Red Rocks",
+        "entity_type": "climbing",
+        "scope": "named"
+      }
+    ],
+    "until_further_notice": true,
+    "timezone": "Australia/Canberra"
+  },
+  {
+    "id": "sa-wirra-wednesday",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23",
+    "action": "closure",
+    "asset_class": "park",
+    "targets": [
+      {
+        "id": "sa:para-wirra-conservation-park",
+        "scope": "full",
+        "name": "Para Wirra Conservation Park"
+      }
+    ],
+    "published": "2026-10-01",
+    "timezone": "Australia/Adelaide",
+    "recurrence": {
+      "start_date": "2026-09-01",
+      "end_date": "2027-08-31",
+      "weekdays": [
+        2
+      ],
+      "start_time": "18:00",
+      "end_time": "24:00",
+      "timezone": "Australia/Adelaide",
+      "exclude_dates": [
+        [
+          "2026-09-26",
+          "2026-10-11"
+        ],
+        [
+          "2026-12-12",
+          "2027-01-27"
+        ],
+        [
+          "2027-04-10",
+          "2027-04-26"
+        ],
+        [
+          "2027-07-03",
+          "2027-07-19"
+        ]
+      ]
+    }
+  },
+  {
+    "id": "sa-pink-gum-overnight",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/onkaparinga-river-national-park-6",
+    "action": "closure",
+    "asset_class": "park",
+    "ambiguous": true,
+    "ambiguity": "booking_availability_exception",
+    "targets": [
+      {
+        "id": "sa:onkaparinga-river-national-park",
+        "scope": "full"
+      }
+    ],
+    "published": "2026-11-02",
+    "timezone": "Australia/Adelaide",
+    "intervals": [
+      {
+        "start": "2026-11-09T20:30",
+        "end": "2026-11-10T05:00"
+      },
+      {
+        "start": "2026-11-10T20:30",
+        "end": "2026-11-11T05:00"
+      }
+    ]
+  },
+  {
+    "id": "sa-deep-creek-hikes",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/deep-creek-national-park-14",
+    "action": "closure",
+    "asset_class": "trail",
+    "targets": [
+      {
+        "name": "hike 1",
+        "entity_type": "trail",
+        "scope": "named"
+      },
+      {
+        "name": "hike 2",
+        "entity_type": "trail",
+        "scope": "named"
+      },
+      {
+        "name": "hike 3",
+        "entity_type": "trail",
+        "scope": "named"
+      },
+      {
+        "name": "hike 4",
+        "entity_type": "trail",
+        "scope": "named"
+      }
+    ],
+    "published": "2026-08-27",
+    "timezone": "Australia/Adelaide",
+    "until_further_notice": true
+  },
+  {
+    "id": "sa-deep-creek-parts",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/parks/deep-creek-national-park",
+    "action": "closure",
+    "asset_class": "park",
+    "ambiguous": true,
+    "ambiguity": "unnamed_parts",
+    "targets": [
+      {
+        "id": "sa:deep-creek-national-park",
+        "scope": "partial",
+        "named_camps": []
+      }
+    ],
+    "timezone": "Australia/Adelaide"
+  },
+  {
+    "id": "sa-talisker-on-deep-creek-page",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/talisker",
+    "action": "closure",
+    "asset_class": "park",
+    "targets": [
+      {
+        "id": "sa:talisker-conservation-park",
+        "scope": "full"
+      }
+    ],
+    "displayed_on": [
+      "sa:deep-creek-national-park"
+    ],
+    "until_further_notice": true,
+    "timezone": "Australia/Adelaide"
+  },
+  {
+    "id": "sa-chowilla-works",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-game-reserve-11",
+    "action": "closure",
+    "asset_class": "pitch",
+    "parent_id": "sa:chowilla-game-reserve",
+    "targets": [
+      {
+        "id": "sa:chowilla-game-reserve",
+        "scope": "partial",
+        "parent_id": "sa:chowilla-game-reserve",
+        "site_number_range": [
+          14,
+          32
+        ],
+        "names": [
+          "Foleys",
+          "Scab Inspectors Hut"
+        ]
+      }
+    ],
+    "start": "2026-05-18",
+    "end": "2026-11-30",
+    "published": "2026-05-07",
+    "timezone": "Australia/Adelaide"
+  },
+  {
+    "id": "sa-desert-bulletin-880",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/desert-parks-bulletin-2",
+    "action": "advisory",
+    "asset_class": "unknown",
+    "targets": [],
+    "ambiguous": true,
+    "ambiguity": "mixed_bulletin_rows",
+    "published": "2026-10-27",
+    "timezone": "Australia/Adelaide",
+    "rows": [
+      {
+        "name": "SA Munga-Thirri-Simpson",
+        "state": "sa",
+        "entity_type": "park",
+        "status_claim": "open_in_source"
+      },
+      {
+        "name": "QLD Munga-Thirri",
+        "state": "qld",
+        "entity_type": "park",
+        "status_claim": "closed_in_source"
+      },
+      {
+        "name": "Innamincka airstrip",
+        "entity_type": "airstrip"
+      },
+      {
+        "name": "example PAR",
+        "entity_type": "road"
+      },
+      {
+        "name": "example business",
+        "entity_type": "business"
+      }
+    ]
+  },
+  {
+    "id": "sa-mount-remarkable-15",
+    "state": "sa",
+    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mount-remarkable-national-park-15",
+    "action": "closure",
+    "asset_class": "park",
+    "published": "2025-12-31",
+    "timezone": "Australia/Adelaide",
+    "window_confirmed": true,
+    "non_exhaustive_park": true,
+    "park_id": "sa:mount-remarkable-national-park",
+    "named_camp_ids": [
+      "sa:mambray-creek",
+      "sa:baroota-ruins"
+    ],
+    "also_named_not_campgrounds": [
+      "Mambray Creek Cabin",
+      "Alligator Lodge"
+    ],
+    "targets": [
+      {
+        "id": "sa:mambray-creek",
+        "scope": "named"
+      },
+      {
+        "id": "sa:baroota-ruins",
+        "scope": "named"
+      }
+    ],
+    "intervals": [
+      {
+        "start": "2026-11-15T18:00",
+        "end": "2026-11-20T14:00"
+      }
+    ],
+    "source_local_wording": "6pm Sunday 15 November until 2pm Friday 20 November 2026"
+  }
+]

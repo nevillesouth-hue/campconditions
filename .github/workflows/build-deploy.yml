@@ -26,6 +26,9 @@ jobs:
       # Parks Victoria page check: at most 4 minutes of fetching per build. Pages
       # are cached for a day between builds, so each build only refreshes the oldest.
       PARKSVIC_FETCH_SECONDS: "240"
+      # South Australia pages link out to the CFS ratings page. They do not
+      # download the rating feed or the fire-ban district polygons.
+      SA_FIRE_MODE: linkout
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

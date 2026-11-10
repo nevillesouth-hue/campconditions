@@ -1,0 +1,46 @@
+{
+  "note": "Identity samples from the 9 Nov 2026 reads. Pitch node ids were not in the evidence table, only the count and refs 1-11, so those child ids are fixture labels.",
+  "elements": [
+    {
+      "type": "node",
+      "id": 6084060977,
+      "version": 2,
+      "lat": -35.3259339,
+      "lon": 148.9476391,
+      "coordinate_role": "osm_sample_not_official_entrance",
+      "tags": {
+        "tourism": "camp_site",
+        "name": "Cotter Campground",
+        "tents": "yes",
+        "caravans": "yes"
+      }
+    },
+    {
+      "type": "way",
+      "id": 1192258723,
+      "version": 9,
+      "coordinate_role": "not_an_entrance",
+      "tags": {
+        "tourism": "camp_site",
+        "name": "Pink Gum"
+      }
+    },
+    {"type": "node", "id": "pitch-ref-1", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "1"}},
+    {"type": "node", "id": "pitch-ref-2", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "2"}},
+    {"type": "node", "id": "pitch-ref-3", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "3"}},
+    {"type": "node", "id": "pitch-ref-4", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "4"}},
+    {"type": "node", "id": "pitch-ref-5", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "5"}},
+    {"type": "node", "id": "pitch-ref-6", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "6"}},
+    {"type": "node", "id": "pitch-ref-7", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "7"}},
+    {"type": "node", "id": "pitch-ref-8", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "8"}},
+    {"type": "node", "id": "pitch-ref-9", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "9"}},
+    {"type": "node", "id": "pitch-ref-10", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "10"}},
+    {"type": "node", "id": "pitch-ref-11", "synthetic": true, "parent": "way/1192258723", "tags": {"tourism": "camp_pitch", "ref": "11"}},
+    {
+      "type": "way",
+      "id": "pink-gum-track-not-osm",
+      "synthetic": true,
+      "tags": {"name": "Pink Gum Track", "highway": "track"}
+    }
+  ]
+}

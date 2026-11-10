@@ -9,7 +9,7 @@ def tip_presentation(label, html_blob, txt_blob, bad):
     if "\nChip in $5, $10 or $20\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
   for blob in (html_blob, txt_blob):
     if blob and not (0 <= blob.find("Been somewhere lately?") < blob.find("The digests stay free.") < blob.find("Chip in") < blob.find("No pressure either way.") < blob.find("Not an official warning service")): bad.append((label, "tip order"))
-D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
+D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0;spoken_dates=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
 for r,_,fs in os.walk(D):
@@ -22,7 +22,11 @@ for r,_,fs in os.walk(D):
       tgt=os.path.join(D,h.lstrip("/"));
       if not (os.path.isfile(tgt) or os.path.isfile(os.path.join(tgt,"index.html"))): bad.append((p[len(D):],h))
     if "<title>" not in t or not re.search(r"lang=[\"']en-AU", t): bad.append((p,"meta"))
+    if re.search(r"Campground data dated \d{4}-\d{2}-\d{2}\b", t) or re.search(r"point dated \d{4}-\d{2}-\d{2}\b", t):
+      bad.append((p[len(D):], "raw data date"))
+    if re.search(r"Campground data dated \d{1,2} [A-Z][a-z]+ \d{4}", t): spoken_dates += 1
     if "paid daily digest" in t or "about $5 a month" in t: bad.append((p[len(D):], "paid digest line"))
+if spoken_dates < 1: bad.append(("footer", "campground date not spoken"))
 for f in ["sitemap.xml","robots.txt","llms.txt","status.json"]: assert os.path.isfile(os.path.join(D,f)),f
 json.load(open(os.path.join(D,"status.json")))
 sm=re.findall(r"<loc>https://campconditions.au(.*?)</loc>",open(os.path.join(D,"sitemap.xml")).read())
@@ -31,7 +35,7 @@ for u in sm:
 feed=json.load(open(os.path.join(D,"status.json")))
 vic_feed=[c for c in feed["camps"] if "/vic/camp/" in c.get("url","")]
 _STATUS_FROM = {"o": "open", "k": "check", "x": "closed"}
-_STATE_FROM = {"v": ("vic", "Victoria"), "n": ("nsw", "New South Wales"), "q": ("qld", "Queensland")}
+_STATE_FROM = {"v": ("vic", "Victoria"), "n": ("nsw", "New South Wales"), "q": ("qld", "Queensland"), "s": ("sa", "South Australia"), "t": ("tas", "Tasmania")}
 def expand_map_point(pt):
   if isinstance(pt, dict):
     return pt
@@ -206,7 +210,10 @@ for r, _, fs in os.walk(D):
         shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}")))
         # CFA district ratings are an official feed. The old ban was the VicEmergency warning text.
         cfa_ok = needle == "fire danger" and ("cfa.vic.gov.au" in blob or "country fire authority" in blob)
-        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f"{os.sep}qld{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
+        if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f"{os.sep}qld{os.sep}" in rel or f"{os.sep}sa{os.sep}" in rel or f"{os.sep}tas{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
+          continue
+        # Parks SA and theLIST credits use CC BY 3.0 AU. That credit also appears on shared pages.
+        if needle == "CC BY 3.0" and "cc by 3.0 au" in blob and ("parks.sa.gov.au" in blob or "state of tasmania" in blob):
           continue
         bad.append((os.path.join(r, f)[len(D):], needle))
 for key in ("nearby_emergency", "fire_danger_ratings", "emergency_data_last_received"):
@@ -477,14 +484,19 @@ for _slug in ("lions-park-numurkah", "numurkah-showgrounds", "lions-rv-park-tung
   _row = next((c for c in feed["camps"] if c.get("slug") == _slug), None)
   if not _row or _row.get("region") != "murray-mallee": bad.append((_slug, "region", _row and _row.get("region")))
 if states.by_slug("vic").get("credit") != CREDIT: bad.append(("states", "credit"))
-if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld"]: bad.append(("states", "enabled"))
+if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld", "sa", "tas"]: bad.append(("states", "enabled"))
 if not all(states.by_slug(_s).get("enabled") for _s in ("vic", "nsw", "qld")): bad.append(("states", "flags"))
+if states.by_slug("act").get("enabled"): bad.append(("states", "act enabled"))
 os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
 try:
-  if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld"]: bad.append(("states", "preview enable"))
+  if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld", "sa", "tas"]: bad.append(("states", "preview enable"))
 finally:
   os.environ.pop("CAMPCONDITIONS_ENABLE", None)
-if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld"]: bad.append(("states", "enable reset"))
+if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld", "sa", "tas"]: bad.append(("states", "enable reset"))
+act_sa = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_act_sa.py")], cwd=root)
+if act_sa.returncode != 0: bad.append(("act-sa foundations", "test_act_sa.py failed"))
+tas_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_tas.py")], cwd=root)
+if tas_check.returncode != 0: bad.append(("tas foundations", "test_tas.py failed"))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in about: bad.append(("credit", "footer or about"))
@@ -558,7 +570,7 @@ def _sample_camp(state_slug):
     if f"/{state_slug}/camp/" in (camp.get("url") or ""):
       return camp
   return None
-for _state in ("vic", "nsw", "qld"):
+for _state in ("vic", "nsw", "qld", "sa", "tas"):
   _sample = _sample_camp(_state)
   if not _sample:
     if os.path.isdir(os.path.join(D, _state)): bad.append((_state, "no camp for visitor report"))
@@ -591,9 +603,9 @@ for _state, _camps in _reports.items():
 if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.png"' not in home or 'width="160" height="160"' not in home or ".logo{width:4.8rem;height:4.8rem" not in home or "15.9vw" not in home:
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
-_codes = "VIC, NSW and QLD" if os.path.isdir(os.path.join(D, "qld")) else "VIC and NSW"
-for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"', 'content="1200"', 'content="630"', 'content="summary_large_image"',
-             'property="og:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD"', 'name="twitter:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD"',
+_codes = "VIC, NSW, QLD, SA and TAS" if os.path.isdir(os.path.join(D, "tas")) else ("VIC, NSW, QLD and SA" if os.path.isdir(os.path.join(D, "sa")) else ("VIC, NSW and QLD" if os.path.isdir(os.path.join(D, "qld")) else "VIC and NSW"))
+for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"', 'content="1200"', 'content="630"', 'content="summary_large_image"',
+             'property="og:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS"', 'name="twitter:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS"',
              f'property="og:title" content="Camp conditions and closures for {_codes} | CampConditions.au"', f'name="twitter:title" content="Camp conditions and closures for {_codes} | CampConditions.au"'):
   if icon not in home: bad.append(("/", "icon " + icon))
 # Link-preview description: rounded count (row 56), never above the live total, same for Twitter.
@@ -605,7 +617,7 @@ elif not (len(feed["camps"]) - 100 < int(_og_n.group(1).replace(",", "")) <= len
 if "VIC and NSW" in home.split("</head>", 1)[0] and os.path.isdir(os.path.join(D, "qld")): bad.append(("/", "VIC and NSW share text"))
 if "Victorian camp conditions and closures" in home: bad.append(("/", "old share text"))
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
-if "/site.webmanifest" not in not_found or "og-image-vic-nsw-qld.png?v=20261105" not in not_found: bad.append(("404", "icons"))
+if "/site.webmanifest" not in not_found or "og-image-vic-nsw-qld-sa-tas.png?v=20261110" not in not_found: bad.append(("404", "icons"))
 if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404", "newsletter button"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
@@ -617,7 +629,7 @@ if not any("icon-192.png" in (i.get("src") or "") for i in icons) or not any("ic
   bad.append(("site.webmanifest", "icons"))
 if 'rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"' not in home:
   bad.append(("/", "apple touch icon"))
-for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image-vic-nsw-qld.png"):
+for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image-vic-nsw-qld-sa-tas.png"):
   if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
 if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):
   bad.append(("optimum-quest-logo.webp", "still present"))
@@ -771,6 +783,7 @@ if border_dupes & {c.get("slug") for c in osm}: bad.append(("osm", "border dupli
 if len(named) - len(osm) != len(border_dupes): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
 labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
+# Free 1096 -> 1095: weekly OSM refresh 862df30 (10 Nov 2026) dropped one free VIC camp (data drift, not a code change).
 expect_counts = {"Free": 1095, "Camping area": 5, "Council park": 76, "Showground": 40, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 11, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
@@ -1381,6 +1394,36 @@ if not check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see
   bad.append(("check_parksvic", "camp url"))
 if check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park"):
   bad.append(("check_parksvic", "park url"))
+murray = "https://www.parks.vic.gov.au/places-to-see/sites/centre-track-camping-area-(nurrung)"
+if check_parksvic.campground_url(murray) != murray:
+  bad.append(("check_parksvic", "parenthesis slug"))
+if check_parksvic.campground_url("See https://www.parks.vic.gov.au/places-to-see/sites/mallee-camp).") != "https://www.parks.vic.gov.au/places-to-see/sites/mallee-camp":
+  bad.append(("check_parksvic", "sentence parenthesis"))
+from datetime import datetime, timedelta
+_pv_now = datetime(2026, 11, 9, 12, 0, tzinfo=check_parksvic.MELBOURNE)
+if not check_parksvic.cache_is_older_than_a_day(_pv_now - timedelta(hours=25), _pv_now):
+  bad.append(("check_parksvic", "25h cache not stale"))
+if check_parksvic.cache_is_older_than_a_day(_pv_now - timedelta(hours=2), _pv_now):
+  bad.append(("check_parksvic", "2h cache counted stale"))
+_pv_cache = check_parksvic.CACHE_DIR
+_pv_dir = tempfile.mkdtemp(prefix="parksvic-stale-")
+check_parksvic.CACHE_DIR = _pv_dir
+try:
+  _fresh_url = "https://www.parks.vic.gov.au/places-to-see/sites/centre-track-camping-area-(nurrung)"
+  _old_url = "https://www.parks.vic.gov.au/places-to-see/sites/dry-creek-camping-area-west-(nurrung)"
+  check_parksvic._cache_put(_fresh_url, {"html": "<p>open</p>", "status": 200}, _pv_now - timedelta(hours=2))
+  check_parksvic._cache_put(_old_url, {"html": "<p>open</p>", "status": 200}, _pv_now - timedelta(hours=30))
+  _pv_dest = os.path.join(_pv_dir, "flags.json")
+  _pv_camps = [
+    {"id": "new:centre-track-camping-area-murray-river", "slug": "centre-track", "name": "Centre Track Camping Area", "status": "check"},
+    {"id": "new:dry-creek-camping-area-west-murray-river", "slug": "dry-creek", "name": "Dry Creek Camping Area West", "status": "check"},
+  ]
+  check_parksvic.write_flags(_pv_camps, _pv_dest, now=_pv_now, overall_seconds=-1, sleeper=lambda _n: None)
+  _pv_doc = json.load(open(_pv_dest, encoding="utf-8"))
+  if _pv_doc.get("pages_older_than_a_day") != 1:
+    bad.append(("check_parksvic", "stale count", _pv_doc.get("pages_older_than_a_day")))
+finally:
+  check_parksvic.CACHE_DIR = _pv_cache
 if check_parksvic.park_url("https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park") != "https://www.parks.vic.gov.au/places-to-see/parks/paddys-ranges-state-park":
   bad.append(("check_parksvic", "whole park url"))
 paddys_html = """
@@ -1530,8 +1573,11 @@ if os.path.isfile(nsw_index):
       tip_presentation(label, blob, open(os.path.join(split, sub, "digest.txt"), encoding="utf-8").read(), bad)
       if not (0 <= blob.find("Been somewhere lately?") < blob.find(tip_phrase) < blob.find("Not an official warning service")):
         bad.append((label, "tip placement"))
-    if camp_count(vic_draft) + camp_count(nsw_draft) + (camp_count(qld_draft) if qld_draft else 0) != len(feed["camps"]):
-      bad.append(("digest states", f"{camp_count(vic_draft)}+{camp_count(nsw_draft)}!={len(feed['camps'])}"))
+    digest_total = camp_count(vic_draft) + camp_count(nsw_draft) + (camp_count(qld_draft) if qld_draft else 0)
+    held_digest_camps = sum(1 for c in feed["camps"] if "/sa/" in (c.get("url") or "") or "/tas/" in (c.get("url") or ""))
+    # South Australia and Tasmania have no digest while signup stays off.
+    if digest_total != len(feed["camps"]) - held_digest_camps:
+      bad.append(("digest states", f"{digest_total}+held {held_digest_camps}!={len(feed['camps'])}"))
   if "Spatial Services" not in nsw_html or "Creative Commons Attribution 4.0" not in nsw_html: bad.append(("nsw", "town attribution"))
   nsw_map = open(os.path.join(D, "map-nsw.js"), encoding="utf-8").read()
   if 'fetch("/nsw-towns.json")' not in nsw_map or "vic-towns.json" in nsw_map: bad.append(("map-nsw.js", "town file"))
@@ -1547,8 +1593,10 @@ if os.path.isfile(nsw_index):
   vic_n = sum(str(p.get("url", "")).startswith("/vic/camp/") for p in home_map_pts)
   nsw_n = sum(str(p.get("url", "")).startswith("/nsw/camp/") for p in home_map_pts)
   qld_n = sum(str(p.get("url", "")).startswith("/qld/camp/") for p in home_map_pts)
-  if vic_n != len(vic_feed) or nsw_n < 1 or vic_n + nsw_n + qld_n != len(home_map_pts) or (qld_n > 0) != os.path.isdir(os.path.join(D, "qld")): bad.append(("/", f"national points {vic_n}+{nsw_n}+{qld_n}"))
-  if any(p.get("stateName") not in ("Victoria", "New South Wales", "Queensland") for p in home_map_pts): bad.append(("/", "stateName"))
+  sa_n = sum(str(p.get("url", "")).startswith("/sa/camp/") for p in home_map_pts)
+  tas_n = sum(str(p.get("url", "")).startswith("/tas/camp/") for p in home_map_pts)
+  if vic_n != len(vic_feed) or nsw_n < 1 or vic_n + nsw_n + qld_n + sa_n + tas_n != len(home_map_pts) or (qld_n > 0) != os.path.isdir(os.path.join(D, "qld")) or (sa_n > 0) != os.path.isdir(os.path.join(D, "sa")) or (tas_n > 0) != os.path.isdir(os.path.join(D, "tas")): bad.append(("/", f"national points {vic_n}+{nsw_n}+{qld_n}+{sa_n}+{tas_n}"))
+  if any(p.get("stateName") not in ("Victoria", "New South Wales", "Queensland", "South Australia", "Tasmania") for p in home_map_pts): bad.append(("/", "stateName"))
   if any(p.get("stateName") != "Victoria" for p in vic_pts): bad.append(("/vic/", "stateName on combined build"))
   nsw_towns = json.load(open(os.path.join(D, "nsw-towns.json"), encoding="utf-8"))
   town_names = {row.get("name", "").casefold() for row in nsw_towns}
@@ -1606,7 +1654,11 @@ if os.path.isfile(nsw_index):
   for marker in ("DataVic", "Explore Outdoors", "Parks Victoria", "DEECA", "Vicmap", "cfa.vic.gov.au", "NPWS", "QSpatial", "Rural Fire Service", 'href="/about/#vic-sources"', 'href="/about/#nsw-sources"', 'href="/about/#qld-sources"'):
     if marker in support_footer or marker in support_main: bad.append(("support", "data attribution " + marker))
   if 'class="banner-row"' not in support or 'class="tip-btn"' not in support_main: bad.append(("support", "header or tips"))
-  for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301"):
+  for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301",
+               "/tas/camp/new-pelion-hut-tas-list-cs-62194 /tas/camp/new-pelion-hut/ 301",
+               "/tas/camp/waterfall-valley-hut-tas-list-cs-62192/ /tas/camp/waterfall-valley-hut/ 301",
+               "/tas/camp/windermere-hut-tas-list-cs-62186 /tas/camp/windermere-hut/ 301",
+               "/tas/camp/wild-dog-creek-campsite-tas-list-cs-62066/ /tas/camp/wild-dog-creek-campsite/ 301"):
     if line not in redirects: bad.append(("_redirects", line))
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
   if "Terms of use" not in terms or "as is, without warranty" not in terms or "Victoria." not in terms or "New South Wales." not in terms or "governing law" in terms.lower(): bad.append(("terms", "wording"))
@@ -1616,7 +1668,8 @@ if os.path.isfile(nsw_index):
   home_footer = home.split("<footer>", 1)[-1].split("</footer>", 1)[0]
   vic_footer = vic.split("<footer>", 1)[-1].split("</footer>", 1)[0]
   nsw_footer = nsw_html.split("<footer>", 1)[-1].split("</footer>", 1)[0]
-  if home_footer.count("<p>") != (4 if os.path.isdir(os.path.join(D, "qld")) else 3) or 'href="/about/#vic-sources"' not in home_footer or 'href="/about/#nsw-sources"' not in home_footer:
+  _footer_p = 3 + (1 if os.path.isdir(os.path.join(D, "qld")) else 0) + (1 if os.path.isdir(os.path.join(D, "sa")) else 0) + (1 if os.path.isdir(os.path.join(D, "tas")) else 0)
+  if home_footer.count("<p>") != _footer_p or 'href="/about/#vic-sources"' not in home_footer or 'href="/about/#nsw-sources"' not in home_footer:
     bad.append(("/", "footer lines"))
   if vic_footer.count("<p>") != 2 or 'href="/about/#vic-sources"' not in vic_footer or "nsw-sources" in vic_footer or "Victoria: DataVic, Explore Outdoors and Parks Victoria" not in vic_footer:
     bad.append(("/vic/", "footer lines"))
@@ -1634,9 +1687,11 @@ if os.path.isfile(nsw_index):
     bad.append(("footer", "long attribution"))
   home_map_file = open(os.path.join(D, "map-points", "home.json"), "rb").read()
   # Budget per build: two states 110 kB gzip, three states 140 kB.
-  if not home_map_file.startswith(b"[[") or len(gzip.compress(home_map_file)) > (140000 if os.path.isdir(os.path.join(D, "qld")) else 110000):
+  _map_budget = 220000 if os.path.isdir(os.path.join(D, "tas")) else (180000 if os.path.isdir(os.path.join(D, "sa")) else (140000 if os.path.isdir(os.path.join(D, "qld")) else 110000))
+  if not home_map_file.startswith(b"[[") or len(gzip.compress(home_map_file)) > _map_budget:
     bad.append(("home.json", f"raw {len(home_map_file)} gzip {len(gzip.compress(home_map_file))}"))
-  if feed.get("region") != ("Victoria, New South Wales and Queensland, Australia" if os.path.isdir(os.path.join(D, "qld")) else "Victoria and New South Wales, Australia"): bad.append(("status.json", feed.get("region")))
+  _region = "Victoria, New South Wales, Queensland, South Australia and Tasmania, Australia" if os.path.isdir(os.path.join(D, "tas")) else ("Victoria, New South Wales, Queensland and South Australia, Australia" if os.path.isdir(os.path.join(D, "sa")) else ("Victoria, New South Wales and Queensland, Australia" if os.path.isdir(os.path.join(D, "qld")) else "Victoria and New South Wales, Australia"))
+  if feed.get("region") != _region: bad.append(("status.json", feed.get("region")))
   joined = " ".join(feed.get("attribution") or [])
   if "Victoria:" not in feed.get("disclaimer", "") or "New South Wales:" not in feed.get("disclaimer", ""): bad.append(("status.json", "disclaimer"))
   for credit in ("NPWS Visitor Area", "NSW Rural Fire Service", "Spatial Services", "livetraffic.com"):
@@ -1909,7 +1964,8 @@ for _path in _info:
 if national:
     for _name in ("## Victoria", "## New South Wales", "### Victoria regions", "### New South Wales regions"):
         if _name not in _llms: bad.append(("llms.txt", "section", _name))
-    if _llms.count("- Attribution: ") != (3 if os.path.isfile(os.path.join(D, "qld", "index.html")) else 2): bad.append(("llms.txt", "attribution per state"))
+    _attr_states = 2 + int(os.path.isfile(os.path.join(D, "qld", "index.html"))) + int(os.path.isfile(os.path.join(D, "sa", "index.html"))) + int(os.path.isfile(os.path.join(D, "tas", "index.html")))
+    if _llms.count("- Attribution: ") != _attr_states: bad.append(("llms.txt", "attribution per state"))
 _headers = open(os.path.join(D, "_headers"), encoding="utf-8").read()
 for _path in _info:
     if _path + "*\n  Cache-Control: no-cache" not in _headers: bad.append(("_headers", _path))
@@ -2102,8 +2158,10 @@ if len(_edge.within(_base_lat, _base_lon, _towns.RADIUS_KM)) != 2: bad.append(("
 _over = _towns.CampIndex([{"name": "here", "lat": _base_lat, "lon": _base_lon, "slug": "here", "status": "open"},
                           {"name": "out", "lat": _at(_base_lat, _base_lon, _towns.RADIUS_KM + 1), "lon": _base_lon, "slug": "out", "status": "open"}])
 if len(_over.within(_base_lat, _base_lon, _towns.RADIUS_KM)) != 1: bad.append(("towns", "radius over"))
+_town_states = ("vic", "nsw", "qld", "sa", "tas")
 _town_pages = []
-for _st in ("vic", "nsw", "qld"):
+_town_by_state = { _st: set() for _st in _town_states }
+for _st in _town_states:
   _dir = os.path.join(D, _st, "near")
   if not os.path.isdir(_dir):
     bad.append((_st, "town dir")); continue
@@ -2111,19 +2169,42 @@ for _st in ("vic", "nsw", "qld"):
     _fp = os.path.join(_dir, _slug, "index.html")
     if os.path.isfile(_fp):
       _town_pages.append((_st, _slug, _fp))
-if not (30 <= len(_town_pages) <= 50): bad.append(("towns", "count", len(_town_pages)))
+      _town_by_state[_st].add(_slug)
+# Fifty pages from Victoria, New South Wales and Queensland, plus the South
+# Australian and Tasmanian touring towns that clear the same threshold.
+if not (70 <= len(_town_pages) <= 85): bad.append(("towns", "count", len(_town_pages)))
+for _st, _need in (
+  ("sa", {"port-lincoln", "normanville", "cape-jervis", "yorketown", "wilpena-chalet", "marion-bay", "penneshaw"}),
+  ("tas", {"coles-bay", "swansea", "bicheno", "st-helens", "dover", "derwent-bridge", "adventure-bay"}),
+):
+  _missing = _need - _town_by_state[_st]
+  if _missing: bad.append((_st, "town pages", sorted(_missing)))
 _feed_by = {}
 for _c in feed["camps"]:
   _feed_by[_c["url"].replace("https://campconditions.au", "")] = _c
+# Place points for every town page, so a camp can be checked against the nearest town.
+# The closest camp on a page can sit nearer another chosen town when the 30 km circles overlap.
+_town_points = {}
+for _st, _slug, _fp in _town_pages:
+  _blocks = _ld_blocks(open(_fp, encoding="utf-8").read())
+  _place = next((b for b in _blocks if b.get("@type") == "Place"), {})
+  _geo = _place.get("geo") or {}
+  _town_points[f"/{_st}/near/{_slug}/"] = (_geo.get("latitude"), _geo.get("longitude"), _st)
 for _st, _slug, _fp in _town_pages:
   _html = open(_fp, encoding="utf-8").read()
   _path = f"/{_st}/near/{_slug}/"
   if _path not in sm: bad.append((_path, "sitemap")); break
   if f"<h1>Camping near " not in _html or "in a straight line" not in _html or "not by road" not in _html:
     bad.append((_path, "wording")); break
-  if f'name="states" value="{_st}" checked' not in _html:
+  if _st in ("sa", "tas"):
+    # Signup stays off until that state's digest exists. The page shows the
+    # coming-soon line and does not post to /api/subscribe.
+    _soon = "SA weekly email coming soon" if _st == "sa" else "Tas weekly email coming soon"
+    if _soon not in _html or 'action="/api/subscribe"' in _html or 'name="states"' in _html:
+      bad.append((_path, "signup held")); break
+  elif f'name="states" value="{_st}" checked' not in _html:
     bad.append((_path, "signup")); break
-  for _other in ("vic", "nsw", "qld"):
+  for _other in _town_states:
     if _other != _st and f'name="states" value="{_other}" checked' in _html:
       bad.append((_path, "other state ticked")); break
   _blocks = _ld_blocks(_html)
@@ -2146,7 +2227,21 @@ for _st, _slug, _fp in _town_pages:
     if _towns.km(_geo.get("latitude"), _geo.get("longitude"), _camp["lat"], _camp["lon"]) > _towns.RADIUS_KM + 0.05:
       bad.append((_path, "outside radius", _camp.get("name"))); _far = True; break
   if _far: break
-  _sample = _camp_hrefs[0]
+  _sample = None
+  for _href in _camp_hrefs:
+    _camp = _feed_by[_href]
+    _best, _best_d = None, None
+    for _tpath, (_tlat, _tlon, _tst) in _town_points.items():
+      if _tst != _st or _tlat is None or _tlon is None:
+        continue
+      _d = _towns.km(_camp["lat"], _camp["lon"], _tlat, _tlon)
+      if _d <= _towns.RADIUS_KM + 0.05 and (_best is None or _d < _best_d):
+        _best, _best_d = _tpath, _d
+    if _best == _path:
+      _sample = _href
+      break
+  if not _sample:
+    bad.append((_path, "no listed camp has this town as its nearest")); break
   _camp_html = open(os.path.join(D, _sample.strip("/"), "index.html"), encoding="utf-8").read()
   if _path not in _camp_html:
     bad.append((_sample, "camp does not link to its town")); break
@@ -2155,8 +2250,8 @@ for _st, _slug, _fp in _town_pages:
   _region = re.search(r'href="(/%s/[a-z0-9-]+/)"' % _st, _html.split("<h1>", 1)[0])
   if _region and _path not in open(os.path.join(D, _region.group(1).strip("/"), "index.html"), encoding="utf-8").read():
     bad.append((_path, "region does not link back")); break
-if os.path.isdir(os.path.join(D, "act")) or os.path.isdir(os.path.join(D, "sa")):
-  bad.append(("towns", "act or sa built"))
+if os.path.isdir(os.path.join(D, "act")) or os.path.isdir(os.path.join(D, "act", "near")):
+  bad.append(("towns", "act built"))
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

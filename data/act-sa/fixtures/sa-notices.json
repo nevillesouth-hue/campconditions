@@ -1,0 +1,2220 @@
+{
+ "as_of_adelaide": "2026-11-09T11:46:51+10:30",
+ "timezone": "Australia/Adelaide",
+ "note": "Derived from the 9 Nov classification. Saved status labels are omitted so tests compute status from windows.",
+ "notices": [
+  {
+   "source_index": 1,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/brownhill-creek-recreation-park-2",
+   "title": "Track closure at Brownhill Creek Recreation Park",
+   "parks": [
+    "Brownhill Creek Recreation Park"
+   ],
+   "scope_level": "road_and_carpark_subarea",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "End date not stated"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Any campground status; no camp mapping evidenced."
+  },
+  {
+   "source_index": 2,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/coffin-bay-national-park-12",
+   "title": "Coffin Bay National Park",
+   "parks": [
+    "Coffin Bay National Park"
+   ],
+   "scope_level": "route",
+   "primary_type": "advisory",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73093",
+     "title": "Yangie Bay Campground",
+     "effect": "route_endpoint_context_only"
+    },
+    {
+     "booking_id": "73102",
+     "title": "Morgan\u2019s Landing Campground (4WD)",
+     "effect": "route_endpoint_context_only"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "No closure stated; camp availability unaffected per source wording but not asserted open"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Mark any camp closed or open."
+  },
+  {
+   "source_index": 3,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/aroona-sanctuary-dam-3",
+   "title": "Full closure of Aroona Sanctuary / Dam",
+   "parks": [
+    "Aroona Sanctuary / Dam"
+   ],
+   "scope_level": "whole_site",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2027-03-18T06:00:00+10:30",
+     "end_local": "2027-03-23T06:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2027-06-03T06:00:00+09:30",
+     "end_local": "2027-06-08T06:00:00+09:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2027-08-26T06:00:00+09:30",
+     "end_local": "2027-08-31T06:00:00+09:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "No camp facility at this sanctuary evidenced in saved catalogue"
+   ],
+   "related_notices": [
+    41
+   ],
+   "implementation_cannot": "Apply to Aroona campground 67710 in Ikara-Flinders Ranges (different place)."
+  },
+  {
+   "source_index": 4,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/dhilba-guuranda-innes-national-park-19",
+   "title": "Dhilba Guuranda-Innes National Park",
+   "parks": [
+    "Dhilba Guuranda-Innes National Park"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "advisory",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "69782",
+     "title": "Pondalowie caravan and trailers campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "67985",
+     "title": "Stenhouse Bay Campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "69784",
+     "title": "Shell Beach campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "69839",
+     "title": "Casuarina campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "69783",
+     "title": "Cable Bay Beach campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "67592",
+     "title": "Gym Beach Campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "67453",
+     "title": "Pondalowie Bay campgrounds",
+     "effect": "advisory_only"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Seasonal advisory without end date"
+   ],
+   "related_notices": [
+    37
+   ],
+   "implementation_cannot": "Closure inference."
+  },
+  {
+   "source_index": 5,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/lincoln-national-park-7",
+   "title": "Lincoln National Park",
+   "parks": [
+    "Lincoln National Park"
+   ],
+   "scope_level": "route",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Which camps rely on this track end not evidenced"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Camp closure."
+  },
+  {
+   "source_index": 6,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/onkaparinga-river-national-park-6",
+   "title": "Full closure of Onkaparinga River National Park",
+   "parks": [
+    "Onkaparinga River National Park"
+   ],
+   "scope_level": "whole_park_overnight",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "night_blocks",
+    "night_blocks": [
+     {
+      "first_listed_date": "2026-11-02",
+      "last_listed_date": "2026-11-04",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-09",
+      "last_listed_date": "2026-11-11",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-30",
+      "last_listed_date": "2026-12-02",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-12-07",
+      "last_listed_date": "2026-12-09",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-02-01",
+      "last_listed_date": "2027-02-03",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-02-08",
+      "last_listed_date": "2027-02-10",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-03-01",
+      "last_listed_date": "2027-03-03",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-03-09",
+      "last_listed_date": "2027-03-10",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-04-05",
+      "last_listed_date": "2027-04-07",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-03",
+      "last_listed_date": "2027-05-05",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-10",
+      "last_listed_date": "2027-05-12",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-31",
+      "last_listed_date": "2027-06-02",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-06-07",
+      "last_listed_date": "2027-06-09",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-06-28",
+      "last_listed_date": "2027-06-30",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     }
+    ]
+   },
+   "affected_camp_facilities": [
+    {
+     "booking_id": "92322",
+     "title": "Pink Gum Campground",
+     "effect": "exception_unknown: source says a 500m exclusion zone applies on nights the campground is bookable"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Source lists date ranges with nightly hours but does not state whether the last listed date is the final night (closure ends 05:00 the following morning) or the final morning. Conservative union treats every listed date as a closure night; implementation must not assert open on the alternative final night.",
+    "Final range (28-30 June) omits year; 2027 inferred from sequence",
+    "Which nights the campground is bookable is not stated; Pink Gum status on closure nights unknown"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Mark Pink Gum closed or open on closure nights; continuous closure."
+  },
+  {
+   "source_index": 7,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/nullarbor-national-park-wilderness-protection-area-and-regional-reserve",
+   "title": "Part closure of Nullarbor National Park, Wilderness Protection Area and Regional Reserve",
+   "parks": [
+    "Nullarbor National Park, Wilderness Protection Area and Regional Reserve"
+   ],
+   "scope_level": "precinct",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "85981",
+     "title": "Koonalda",
+     "effect": "candidate_context_unknown: Koonalda campground shares name; whether it lies inside the restricted homestead precinct is not evidenced"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Precinct boundary vs Koonalda campground not stated"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Close Koonalda campground or whole park."
+  },
+  {
+   "source_index": 8,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/gawler-ranges-national-park-23",
+   "title": "Part closure of Gawler Ranges National Park",
+   "parks": [
+    "Gawler Ranges National Park"
+   ],
+   "scope_level": "park_east_of_road",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": "2027-01-27T12:00:00+10:30",
+     "end_local": "2027-02-05T12:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73106",
+     "title": "Waganny Campground Gawler Ranges National Park",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "73112",
+     "title": "Kolay Campground Gawler Ranges National Park",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "73107",
+     "title": "Chillunie Campground Gawler Ranges National Park",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "73109",
+     "title": "Mattera Campground Gawler Ranges National Park",
+     "effect": "closed_in_window"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Pondanna Outstation": "no booking ID found in saved catalogue; may be accommodation, not classified"
+   },
+   "unknowns": [
+    "Pondanna Outstation entity type/ID",
+    "Exact geometry of \"west of this road\" not exported"
+   ],
+   "related_notices": [
+    21
+   ],
+   "implementation_cannot": "Close Yandinga/Scrubby Peak (west side) or Pondanna by ID."
+  },
+  {
+   "source_index": 9,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/murray-river-national-park-katarapko-5",
+   "title": "Part closure of Murray River National Park - Katarapko",
+   "parks": [
+    "Murray River National Park - Katarapko"
+   ],
+   "scope_level": "numbered_sites",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "2026-10-02 to 2026-11-13 date-only; no times"
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "83204",
+     "title": "Katarapko Campground",
+     "effect": "parent_of_numbered_sites: sites 4-14 \"affected\""
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "\"Affected\" not explicitly \"closed\"; site 4 not named in notice 27 closure list",
+    "End-of-day time on 13 Nov not stated"
+   ],
+   "related_notices": [
+    16,
+    18,
+    27
+   ],
+   "implementation_cannot": "Per-site status; whole Katarapko closed."
+  },
+  {
+   "source_index": 10,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23",
+   "title": "Full closure of Para Wirra Conservation Park",
+   "parks": [
+    "Para Wirra Conservation Park"
+   ],
+   "scope_level": "whole_park_weekly",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "weekly",
+    "weekday": "Wednesday",
+    "start_local": "18:00",
+    "end_local": "24:00 (midnight, interpreted as 00:00 Thursday)",
+    "programme_start": "2026-09-01",
+    "programme_end": "2027-08-31",
+    "excluded_date_ranges_inclusive": [
+     [
+      "2026-09-26",
+      "2026-10-11"
+     ],
+     [
+      "2026-12-12",
+      "2027-01-27"
+     ],
+     [
+      "2027-04-10",
+      "2027-04-26"
+     ],
+     [
+      "2027-07-03",
+      "2027-07-19"
+     ]
+    ]
+   },
+   "affected_camp_facilities": [
+    {
+     "booking_id": "90928",
+     "title": "Wirra Campground",
+     "effect": "closed_in_recurring_window"
+    },
+    {
+     "booking_id": "143123",
+     "title": "Hideaway Campsite",
+     "effect": "closed_in_recurring_window"
+    },
+    {
+     "booking_id": "95350",
+     "title": "Helipad Large Group Campground",
+     "effect": "closed_in_recurring_window"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Whether exclusion ranges are inclusive of end dates assumed (inclusive)",
+    "Whether camp guests are exempt is not stated"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Continuous closure."
+  },
+  {
+   "source_index": 11,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/coffin-bay-national-park-and-thorny-passage-marine-park",
+   "title": "Coffin Bay National Park and Thorny Passage Marine Park",
+   "parks": [
+    "Coffin Bay National Park",
+    "Thorny Passage Marine Park"
+   ],
+   "scope_level": "beaches",
+   "primary_type": "advisory",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": "Camp status."
+  },
+  {
+   "source_index": 12,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mt-george-conservation-park",
+   "title": "Part closure of Mt George Conservation Park",
+   "parks": [
+    "Mt George Conservation Park"
+   ],
+   "scope_level": "trail_structure",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": "Camp status."
+  },
+  {
+   "source_index": 13,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/yumbarra-conservation-park-and-yellabinna-regional-reserve-and-wilderness-protection-area-including-googs-track-2",
+   "title": "Part closure of Yumbarra Conservation Park and Yellabinna Regional Reserve and Wilderness Protection Area (including Googs Track)",
+   "parks": [
+    "Yumbarra Conservation Park",
+    "Yellabinna Regional Reserve",
+    "Yellabinna Wilderness Protection Area"
+   ],
+   "scope_level": "all_campsites_and_track",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": "2026-12-01T06:00:00+10:30",
+     "end_local": "2027-03-01T00:00:00+10:30",
+     "precision": "exact_start; end \"midnight Sunday 28 February 2027\" interpreted as 00:00 1 Mar",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "85964",
+     "title": "Mt Finke Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "85966",
+     "title": "Googs Lake Campground",
+     "effect": "closed_in_window"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Yellabinna campsites": "no booking IDs in saved catalogue"
+   },
+   "unknowns": [
+    "\"Midnight Sunday 28 Feb\" could mean start or end of that day; conservative = end"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Yellabinna camps by ID."
+  },
+  {
+   "source_index": 14,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/vulkathunha-gammon-ranges-national-park-23",
+   "title": "Full closure of Vulkathunha-Gammon Ranges National Park",
+   "reason": "For public safety during a pest animal control and monitoring program.",
+   "parks": [
+    "Vulkathunha-Gammon Ranges National Park"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2026-10-31T21:00:00+10:30",
+     "end_local": "2026-11-12T21:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73157",
+     "title": "Grindells Hut Campground (4WD Only)",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "73180",
+     "title": "Mainwater Well Campground (4WD Only)",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "73181",
+     "title": "Arcoona Campground (4WD or high clearance 2WD)",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "73183",
+     "title": "Weetootla Gorge Campground, Wiriti Urdla",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "73184",
+     "title": "Italowie Gap Campground",
+     "effect": "closed_in_window"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": ""
+  },
+  {
+   "source_index": 15,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/ikara-flinders-ranges-national-park-35",
+   "title": "Part closure of Ikara-Flinders Ranges National Park",
+   "parks": [
+    "Ikara-Flinders Ranges National Park"
+   ],
+   "scope_level": "most_of_park",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": "2026-11-06T21:00:00+10:30",
+     "end_local": "2026-11-09T21:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "72075",
+     "title": "Acraman campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "72076",
+     "title": "Brachina East Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "72077",
+     "title": "Cambrian Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "72078",
+     "title": "Dingley Dell Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "72079",
+     "title": "Koolamon Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "72080",
+     "title": "Teamsters Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "72081",
+     "title": "Trezona Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "72082",
+     "title": "Youngoona Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "67710",
+     "title": "Aroona campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "131547",
+     "title": "Wilcolo Hikers only",
+     "effect": "closed_in_window"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Wilpena Pound Resort campground": "explicitly open exception; no Parks booking ID in saved catalogue"
+   },
+   "unknowns": [
+    "Completeness of 10 mapped camps vs all park campgrounds limited to saved catalogue",
+    "Wilcolo 131547 is hikers-only camp, included as camp"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Infer park open after window from this notice alone."
+  },
+  {
+   "source_index": 16,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/murray-river-national-park-katarapko-4",
+   "title": "Part closure of Murray River National Park - Katarapko",
+   "parks": [
+    "Murray River National Park - Katarapko"
+   ],
+   "scope_level": "road_section",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "83204",
+     "title": "Katarapko Campground",
+     "effect": "access_context_only"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Superseded in part by later notices 9 and 27 closing sites"
+   ],
+   "related_notices": [
+    9,
+    27
+   ],
+   "implementation_cannot": "Use \"all campsites accessible\" to override later closures."
+  },
+  {
+   "source_index": 17,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/the-dutchmans-stern-conservation-park-5",
+   "title": "The Dutchmans Stern Conservation Park",
+   "parks": [
+    "The Dutchmans Stern Conservation Park"
+   ],
+   "scope_level": "entrance_road",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": "Closure."
+  },
+  {
+   "source_index": 18,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/murray-river-national-park-katarapko-3",
+   "title": "Track closure at Murray River National Park - Katarapko",
+   "parks": [
+    "Murray River National Park - Katarapko"
+   ],
+   "scope_level": "track",
+   "primary_type": "access_restriction",
+   "windows": [
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "until 2026-11-20 date-only"
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "83204",
+     "title": "Katarapko Campground",
+     "effect": "access_context_only"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "End time on 20 Nov not stated",
+    "\"All campsites accessible\" (13 Aug) predates closures in 9/27"
+   ],
+   "related_notices": [
+    9,
+    27
+   ],
+   "implementation_cannot": "Open inference for sites."
+  },
+  {
+   "source_index": 19,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/anstey-hill-recreation-park-morialta-conservation-park-black-hill-conservation-park-and-horsnell-gully-conservation-park",
+   "title": "Morialta Conservation Park, Black Hill Conservation Park and Horsnell Gully Conservation Park",
+   "parks": [
+    "Morialta Conservation Park",
+    "Black Hill Conservation Park",
+    "Horsnell Gully Conservation Park"
+   ],
+   "scope_level": "multi_park",
+   "primary_type": "advisory",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "URL slug also names Anstey Hill but page body does not; do not attach to Anstey Hill"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Closure; Anstey Hill attachment."
+  },
+  {
+   "source_index": 20,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/wapma-thura-southern-flinders-ranges-national-park-and-mount-remarkable-national-park-2",
+   "title": "Full closure of Wapma Thura-Southern Flinders Ranges National Park and Mount Remarkable National Park",
+   "parks": [
+    "Wapma Thura-Southern Flinders Ranges National Park",
+    "Mount Remarkable National Park"
+   ],
+   "scope_level": "whole_parks",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2026-11-01T18:00:00+10:30",
+     "end_local": "2026-11-06T18:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "67320",
+     "title": "Mambray Creek Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "69837",
+     "title": "Baroota Campground",
+     "effect": "closed_in_window"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Wapma Thura camps": "no booking IDs in saved catalogue"
+   },
+   "unknowns": [
+    "Still listed after expiry"
+   ],
+   "related_notices": [
+    38,
+    39,
+    45
+   ],
+   "implementation_cannot": "Infer open from expiry."
+  },
+  {
+   "source_index": 21,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/gawler-ranges-national-park-21",
+   "title": "Part closure of Gawler Ranges National Park",
+   "parks": [
+    "Gawler Ranges National Park"
+   ],
+   "scope_level": "tracks_and_one_camp",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73107",
+     "title": "Chillunie Campground Gawler Ranges National Park",
+     "effect": "closed"
+    },
+    {
+     "booking_id": "73108",
+     "title": "Yandinga Campground Gawler Ranges National Park",
+     "effect": "conditional_if_DIT_Yardea_Road_closed"
+    },
+    {
+     "booking_id": "73105",
+     "title": "Scrubby Peak Campground Gawler Ranges National Park",
+     "effect": "conditional_if_DIT_Yardea_Road_closed"
+    },
+    {
+     "booking_id": "73109",
+     "title": "Mattera Campground Gawler Ranges National Park",
+     "effect": "not_closed_track_only"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "DIT road state not checked; conditional camps must be unknown",
+    "Mattera Track closure does not state Mattera campground closed"
+   ],
+   "related_notices": [
+    8
+   ],
+   "implementation_cannot": "Resolve DIT condition."
+  },
+  {
+   "source_index": 22,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/seal-bay-conservation-park-3",
+   "title": "Seal Bay Conservation Park",
+   "parks": [
+    "Seal Bay Conservation Park"
+   ],
+   "scope_level": "beach_and_tour_path",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": "Camp status."
+  },
+  {
+   "source_index": 23,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/totness-recreation-park",
+   "title": "Full closure of Totness Recreation Park",
+   "parks": [
+    "Totness Recreation Park"
+   ],
+   "scope_level": "whole_park_overnight",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "night_blocks",
+    "night_blocks": [
+     {
+      "first_listed_date": "2026-08-10",
+      "last_listed_date": "2026-08-14",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-08-17",
+      "last_listed_date": "2026-08-21",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-09-07",
+      "last_listed_date": "2026-09-11",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-09-14",
+      "last_listed_date": "2026-09-18",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-10-06",
+      "last_listed_date": "2026-10-09",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-10-12",
+      "last_listed_date": "2026-10-16",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-02",
+      "last_listed_date": "2026-11-06",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-09",
+      "last_listed_date": "2026-11-13",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-30",
+      "last_listed_date": "2026-12-04",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-12-07",
+      "last_listed_date": "2026-12-11",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-01-04",
+      "last_listed_date": "2027-01-08",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-01-11",
+      "last_listed_date": "2027-01-15",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-02-01",
+      "last_listed_date": "2027-02-05",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-02-08",
+      "last_listed_date": "2027-02-12",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-03-01",
+      "last_listed_date": "2027-03-05",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-03-09",
+      "last_listed_date": "2027-03-12",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-04-05",
+      "last_listed_date": "2027-04-09",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-04-12",
+      "last_listed_date": "2027-04-16",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-03",
+      "last_listed_date": "2027-05-07",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-10",
+      "last_listed_date": "2027-05-14",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-31",
+      "last_listed_date": "2027-06-04",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-06-07",
+      "last_listed_date": "2027-06-11",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-06-28",
+      "last_listed_date": "2027-07-02",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-07-05",
+      "last_listed_date": "2027-07-09",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     }
+    ]
+   },
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Source lists date ranges with nightly hours but does not state whether the last listed date is the final night (closure ends 05:00 the following morning) or the final morning. Conservative union treats every listed date as a closure night; implementation must not assert open on the alternative final night.",
+    "No camp facility evidenced"
+   ],
+   "related_notices": [
+    24
+   ],
+   "implementation_cannot": "Camp IDs (none)."
+  },
+  {
+   "source_index": 24,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/cleland-national-park-8",
+   "title": "Full closure of Cleland National Park",
+   "parks": [
+    "Cleland National Park",
+    "Mount Osmond Reserve"
+   ],
+   "scope_level": "two_zones_overnight",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "night_blocks_by_zone",
+    "night_blocks": [
+     {
+      "first_listed_date": "2026-08-10",
+      "last_listed_date": "2026-08-14",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-08-17",
+      "last_listed_date": "2026-08-21",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-09-07",
+      "last_listed_date": "2026-09-11",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-09-14",
+      "last_listed_date": "2026-09-18",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-10-06",
+      "last_listed_date": "2026-10-09",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-10-12",
+      "last_listed_date": "2026-10-16",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-02",
+      "last_listed_date": "2026-11-06",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-09",
+      "last_listed_date": "2026-11-13",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-30",
+      "last_listed_date": "2026-12-04",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-12-07",
+      "last_listed_date": "2026-12-11",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-01-04",
+      "last_listed_date": "2027-01-08",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-01-11",
+      "last_listed_date": "2027-01-15",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-02-01",
+      "last_listed_date": "2027-02-05",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-02-08",
+      "last_listed_date": "2027-02-12",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-03-01",
+      "last_listed_date": "2027-03-05",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-03-09",
+      "last_listed_date": "2027-03-12",
+      "nightly_start_local": "20:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-04-05",
+      "last_listed_date": "2027-04-09",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-04-12",
+      "last_listed_date": "2027-04-16",
+      "nightly_start_local": "19:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-03",
+      "last_listed_date": "2027-05-07",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-10",
+      "last_listed_date": "2027-05-14",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-05-31",
+      "last_listed_date": "2027-06-04",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-06-07",
+      "last_listed_date": "2027-06-11",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-06-28",
+      "last_listed_date": "2027-07-02",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2027-07-05",
+      "last_listed_date": "2027-07-09",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     }
+    ]
+   },
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Source lists date ranges with nightly hours but does not state whether the last listed date is the final night (closure ends 05:00 the following morning) or the final morning. Conservative union treats every listed date as a closure night; implementation must not assert open on the alternative final night.",
+    "No campground evidenced"
+   ],
+   "related_notices": [
+    23
+   ],
+   "implementation_cannot": "Single park-wide time."
+  },
+  {
+   "source_index": 25,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/kati-thanda-lake-eyre-national-park-4",
+   "title": "Kati-Thanda Lake Eyre National Park",
+   "parks": [
+    "Kati Thanda-Lake Eyre National Park"
+   ],
+   "scope_level": "route",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73145",
+     "title": "Halligan Bay Point Campground",
+     "effect": "route_context_candidate: same place name; route-to-camp link not stated in notice"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Reopening of track is not a campground open status"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Mark Halligan Bay camp open."
+  },
+  {
+   "source_index": 26,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/the-dutchmans-stern-conservation-park-4",
+   "title": "Part closure of The Dutchmans Stern Conservation Park",
+   "parks": [
+    "The Dutchmans Stern Conservation Park"
+   ],
+   "scope_level": "accommodation_buildings",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [
+    32
+   ],
+   "implementation_cannot": "Camp status."
+  },
+  {
+   "source_index": 27,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/various-parks-riverland-murraylands",
+   "title": "Part closure of Various Parks - Riverland & Murraylands",
+   "parks": [
+    "Loch Luna/Moorook (Kaiser Strip)",
+    "Chowilla",
+    "Murray River NP Lyrup Flats",
+    "Morgan Conservation Park",
+    "Murray River NP Katarapko"
+   ],
+   "scope_level": "numbered_sites_multi_park",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "Kaiser Strip 10-14 until 11 Oct (year not stated; 2026 inferred) - expired"
+    },
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "none",
+     "note": "Chowilla 8, 13-32 & Foleys closed, no end - active"
+    },
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "Lyrup 1,14,23,29,30 until 11 Oct - expired"
+    },
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "none",
+     "note": "Morgan 13-15 closed (construction), no end - conflicts with notice 28"
+    },
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "Katarapko 5-14,17-18 until 13 Nov - active"
+    },
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "Katarapko 31-32,35,45,53 until 23 Oct - expired"
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73199",
+     "title": "Kaiser Strip campground",
+     "effect": "sites 10-14 closed until 11 Oct: expired"
+    },
+    {
+     "booking_id": "73194",
+     "title": "Chowilla Creekside campsites",
+     "effect": "sites 8,13-32 closed: active (parent inferred, child numbering not verified)"
+    },
+    {
+     "booking_id": "73205",
+     "title": "Lyrup Flats Section",
+     "effect": "sites 1,14,23,29,30 closed until 11 Oct: expired"
+    },
+    {
+     "booking_id": "73201",
+     "title": "Morgan Campground",
+     "effect": "sites 13-15 closed no end: conflicting"
+    },
+    {
+     "booking_id": "83204",
+     "title": "Katarapko Campground",
+     "effect": "sites 5-14,17-18 active until 13 Nov; 31-32,35,45,53 expired"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Foleys": "no booking ID in saved catalogue"
+   },
+   "unknowns": [
+    "Years omitted on end dates",
+    "Morgan 13-15 has no end here but notice 28 ended 5 Nov",
+    "Chowilla here includes site 8; notice 30 says 14-32"
+   ],
+   "related_notices": [
+    9,
+    28,
+    30
+   ],
+   "implementation_cannot": "Infer reopened sites as open; resolve Morgan conflict."
+  },
+  {
+   "source_index": 28,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/morgan-conservation-park-3",
+   "title": "Part closure of Morgan Conservation Park",
+   "parks": [
+    "Morgan Conservation Park"
+   ],
+   "scope_level": "numbered_sites",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "2026-05-18 to 2026-11-05 date-only"
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73201",
+     "title": "Morgan Campground",
+     "effect": "sites 13-15 affected; window expired 5 Nov"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Conflicts with undated notice 27 still listing 13-15 closed"
+   ],
+   "related_notices": [
+    27
+   ],
+   "implementation_cannot": "Mark sites open."
+  },
+  {
+   "source_index": 29,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/partial-closure-of-adelaide-international-bird-sanctuary-national-park-winaityinaityi-pangkara",
+   "title": "Part closure of Adelaide International Bird Sanctuary National Park - Winaityinaityi Pangkara",
+   "parks": [
+    "Adelaide International Bird Sanctuary National Park - Winaityinaityi Pangkara"
+   ],
+   "scope_level": "subarea",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "weekly",
+    "weekday": null,
+    "start_local": null,
+    "end_local": null,
+    "programme_start": "2026-05-11",
+    "programme_end": "2027-05-10",
+    "excluded_date_ranges_inclusive": null
+   },
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "No camp in subarea evidenced"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Camp mapping."
+  },
+  {
+   "source_index": 30,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-game-reserve-11",
+   "title": "Part closure of Chowilla Game Reserve",
+   "parks": [
+    "Chowilla Game Reserve"
+   ],
+   "scope_level": "numbered_sites_and_campground",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "2026-05-18 to 2026-11-30 date-only"
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73194",
+     "title": "Chowilla Creekside campsites",
+     "effect": "sites 14-32 closed (parent inferred; child numbering not verified)"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Foleys Campground": "no booking ID in saved catalogue"
+   },
+   "unknowns": [
+    "Site 8 differs from notice 27",
+    "Border Cliffs 73206 not named"
+   ],
+   "related_notices": [
+    27,
+    31
+   ],
+   "implementation_cannot": "Close Border Cliffs or whole reserve."
+  },
+  {
+   "source_index": 31,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/danggali-chowilla-closure",
+   "title": "Full closure of Danggali Conservation Park / Wilderness Protection Area and Chowilla Regional Reserve",
+   "parks": [
+    "Danggali Conservation Park / Wilderness Protection Area",
+    "Chowilla Regional Reserve"
+   ],
+   "scope_level": "whole_parks",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73195",
+     "title": "Danggali Campground (4WD)",
+     "effect": "closed"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Chowilla Regional Reserve camps": "none mapped; do not transfer to Chowilla Game Reserve IDs"
+   },
+   "unknowns": [],
+   "related_notices": [
+    30
+   ],
+   "implementation_cannot": "Apply to Chowilla Game Reserve."
+  },
+  {
+   "source_index": 32,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/the-dutchmans-stern-conservation-park-3",
+   "title": "Part closure of The Dutchmans Stern Conservation Park",
+   "parks": [
+    "The Dutchmans Stern Conservation Park"
+   ],
+   "scope_level": "hiker_hut",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [
+    26
+   ],
+   "implementation_cannot": "Camp status."
+  },
+  {
+   "source_index": 33,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/wild-south-coast-way-2",
+   "title": "Part closure of Wild South Coast Way",
+   "parks": [
+    "Wild South Coast Way"
+   ],
+   "scope_level": "trail_section",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "140962",
+     "title": "Yapari Ngawanthi (Cliffs campground)",
+     "effect": "route_context_only"
+    },
+    {
+     "booking_id": "141386",
+     "title": "Wuldi Krikin Ngawanthi (Eagle Waterhole)",
+     "effect": "route_context_only"
+    },
+    {
+     "booking_id": "141387",
+     "title": "Natunyuru Ngawanthi (Sand Dunes campground)",
+     "effect": "route_context_only"
+    },
+    {
+     "booking_id": "140592",
+     "title": "Kurri Ngawanthi (Creek Campground)",
+     "effect": "route_context_only"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Which hike camps are affected by reroute not stated"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Close hike camps."
+  },
+  {
+   "source_index": 34,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/talisker-conservation-park",
+   "title": "Full closure of Talisker Conservation Park",
+   "parks": [
+    "Talisker Conservation Park"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "No camp facility evidenced"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Camp IDs."
+  },
+  {
+   "source_index": 35,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/deep-creek-national-park-14",
+   "title": "Part closure of Deep Creek National Park",
+   "parks": [
+    "Deep Creek National Park"
+   ],
+   "scope_level": "trails",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Tapanappa Lookout is not Tapanappa Campground 73174"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Close Tapanappa camp."
+  },
+  {
+   "source_index": 36,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/brookfield-conservation-park-4",
+   "title": "Full closure of Brookfield Conservation Park",
+   "parks": [
+    "Brookfield Conservation Park"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2026-02-06T18:00:00+10:30",
+     "end_local": "2026-02-12T06:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2026-05-15T18:00:00+09:30",
+     "end_local": "2026-05-21T06:00:00+09:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2026-09-18T18:00:00+09:30",
+     "end_local": "2026-09-24T06:00:00+09:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2026-12-04T18:00:00+10:30",
+     "end_local": "2026-12-10T06:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "No camp ID (group bookings page only)"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Open between windows."
+  },
+  {
+   "source_index": 37,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/dhilba-guuranda-innes-national-park-7",
+   "title": "Dhilba Guuranda-Innes National Park",
+   "parks": [
+    "Dhilba Guuranda-Innes National Park"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "advisory",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "69782",
+     "title": "Pondalowie caravan and trailers campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "67985",
+     "title": "Stenhouse Bay Campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "69784",
+     "title": "Shell Beach campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "69839",
+     "title": "Casuarina campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "69783",
+     "title": "Cable Bay Beach campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "67592",
+     "title": "Gym Beach Campground",
+     "effect": "advisory_only"
+    },
+    {
+     "booking_id": "67453",
+     "title": "Pondalowie Bay campgrounds",
+     "effect": "advisory_only"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Published Jan 2026; still listed, age not expiry"
+   ],
+   "related_notices": [
+    4
+   ],
+   "implementation_cannot": "Closure."
+  },
+  {
+   "source_index": 38,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mount-remarkable-national-park-15",
+   "title": "Full closure of Mount Remarkable National Park",
+   "reason": "For public safety during a pest control program.",
+   "parks": [
+    "Mount Remarkable National Park"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2026-11-15T18:00:00+10:30",
+     "end_local": "2026-11-20T14:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "67320",
+     "title": "Mambray Creek Campground",
+     "effect": "closed_in_window"
+    },
+    {
+     "booking_id": "69837",
+     "title": "Baroota Campground",
+     "effect": "closed_in_window"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [
+    45
+   ],
+   "implementation_cannot": ""
+  },
+  {
+   "source_index": 39,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/wapma-thura-southern-flinders-ranges-national-park-6-2",
+   "title": "Full closure of Wapma Thura-Southern Flinders Ranges National Park",
+   "parks": [
+    "Wapma Thura-Southern Flinders Ranges National Park"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2026-11-23T06:00:00+10:30",
+     "end_local": "2026-11-27T18:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "No Wapma Thura camp IDs in saved catalogue"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Camp IDs."
+  },
+  {
+   "source_index": 40,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/sandy-creek-conservation-park-4",
+   "title": "Full closure of Sandy Creek Conservation Park",
+   "parks": [
+    "Sandy Creek Conservation Park"
+   ],
+   "scope_level": "whole_park_overnight",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "night_blocks",
+    "night_blocks": [
+     {
+      "first_listed_date": "2025-12-15",
+      "last_listed_date": "2025-12-19",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2025-12-22",
+      "last_listed_date": "2025-12-24",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-01-12",
+      "last_listed_date": "2026-01-16",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-01-19",
+      "last_listed_date": "2026-01-23",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-02-09",
+      "last_listed_date": "2026-02-13",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-02-16",
+      "last_listed_date": "2026-02-20",
+      "nightly_start_local": "21:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-03-09",
+      "last_listed_date": "2026-03-13",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-03-16",
+      "last_listed_date": "2026-03-20",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-04-13",
+      "last_listed_date": "2026-04-17",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-04-20",
+      "last_listed_date": "2026-04-24",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-05-11",
+      "last_listed_date": "2026-05-15",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-05-18",
+      "last_listed_date": "2026-05-22",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-06-08",
+      "last_listed_date": "2026-06-12",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-06-15",
+      "last_listed_date": "2026-06-19",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-07-06",
+      "last_listed_date": "2026-07-10",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-07-13",
+      "last_listed_date": "2026-07-17",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-08-10",
+      "last_listed_date": "2026-08-14",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-08-17",
+      "last_listed_date": "2026-08-21",
+      "nightly_start_local": "18:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-09-07",
+      "last_listed_date": "2026-09-11",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-09-14",
+      "last_listed_date": "2026-09-18",
+      "nightly_start_local": "18:30",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-10-05",
+      "last_listed_date": "2026-10-09",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-10-12",
+      "last_listed_date": "2026-10-16",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-02",
+      "last_listed_date": "2026-11-06",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     },
+     {
+      "first_listed_date": "2026-11-09",
+      "last_listed_date": "2026-11-13",
+      "nightly_start_local": "20:00",
+      "nightly_end_local_next_day": "05:00"
+     }
+    ]
+   },
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Source lists date ranges with nightly hours but does not state whether the last listed date is the final night (closure ends 05:00 the following morning) or the final morning. Conservative union treats every listed date as a closure night; implementation must not assert open on the alternative final night.",
+    "Text says \"from sunset\" but lists fixed clock times; fixed times used",
+    "Programme \"ending Friday 13 November\" - whether night of 13th closed is ambiguous"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Camp IDs (none)."
+  },
+  {
+   "source_index": 41,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/aroona-sanctuary-dam-2",
+   "title": "Full closure of Aroona Sanctuary / Dam",
+   "parks": [
+    "Aroona Sanctuary / Dam"
+   ],
+   "scope_level": "whole_site",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2026-03-19T18:00:00+10:30",
+     "end_local": "2026-03-24T06:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2026-06-11T18:00:00+09:30",
+     "end_local": "2026-06-16T06:00:00+09:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2026-08-27T18:00:00+09:30",
+     "end_local": "2026-09-01T06:00:00+09:30",
+     "precision": "exact_local_time",
+     "note": null
+    },
+    {
+     "start_local": "2026-11-26T18:00:00+10:30",
+     "end_local": "2026-12-01T06:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": null
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [
+    3
+   ],
+   "implementation_cannot": "Apply to Ikara Aroona campground 67710."
+  },
+  {
+   "source_index": 42,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/malkumba-coongie-lakes-national-park-and-innamincka-regional-reserve-2",
+   "title": "Part closure of Malkumba Coongie Lakes National Park and Innamincka Regional Reserve",
+   "reason": "Closed until further notice because of a major flood.",
+   "closed_line": "Malkumba-Coongie Lakes National Park is closed until further notice because of a major flood. This campground is in that park.",
+   "park_alert_line": "Parks SA says Malkumba-Coongie Lakes National Park and significant parts of Innamincka Regional Reserve are closed until further notice because of a major flood. This camp isn't named, so check before travelling.",
+   "parks": [
+    "Malkumba-Coongie Lakes National Park",
+    "Innamincka Regional Reserve"
+   ],
+   "scope_level": "whole_park_plus_significant_parts",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73204",
+     "title": "Malkumba-Coongie Lakes Campground",
+     "effect": "closed"
+    },
+    {
+     "booking_id": "73142",
+     "title": "Ski Beach Campground",
+     "effect": "unknown: \"significant parts\" of reserve closed, camp-level extent not stated"
+    },
+    {
+     "booking_id": "92314",
+     "title": "Queerbidie Campground",
+     "effect": "unknown: \"significant parts\" of reserve closed, camp-level extent not stated"
+    },
+    {
+     "booking_id": "73141",
+     "title": "Policemans Campground",
+     "effect": "unknown: \"significant parts\" of reserve closed, camp-level extent not stated"
+    },
+    {
+     "booking_id": "73111",
+     "title": "Kudriemitchie Campground",
+     "effect": "unknown: \"significant parts\" of reserve closed, camp-level extent not stated"
+    },
+    {
+     "booking_id": "73139",
+     "title": "Kings Site Campground",
+     "effect": "unknown: \"significant parts\" of reserve closed, camp-level extent not stated"
+    },
+    {
+     "booking_id": "73138",
+     "title": "Cullyamurra Waterhole Campground",
+     "effect": "unknown: \"significant parts\" of reserve closed, camp-level extent not stated"
+    },
+    {
+     "booking_id": "73202",
+     "title": "Burke\u2019s Grave Campground",
+     "effect": "unknown: \"significant parts\" of reserve closed, camp-level extent not stated"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Which Innamincka campgrounds are closed is not stated",
+    "Open-site list is not proof any campground is open"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Infer Innamincka camps open or closed."
+  },
+  {
+   "source_index": 43,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/winninowie-conservation-park",
+   "title": "Part closure of Winninowie Conservation Park",
+   "parks": [
+    "Winninowie Conservation Park"
+   ],
+   "scope_level": "road_and_camping_area",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": {
+    "Chinaman Creek camping area": "no booking ID in saved catalogue"
+   },
+   "unknowns": [
+    "Closed to vehicle access, not necessarily walk-in"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Booking ID mapping (none)."
+  },
+  {
+   "source_index": 44,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/acraman-creek-conservation-park",
+   "title": "Track closure at Acraman Creek Conservation Park",
+   "parks": [
+    "Acraman Creek Conservation Park"
+   ],
+   "scope_level": "entrance",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "87314",
+     "title": "Acraman Creek",
+     "effect": "access_context_only: booking page title only, entity type not stated"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": "Apply to Acraman campground 72075 in Ikara (different place)."
+  },
+  {
+   "source_index": 45,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/part-closure-of-mount-remarkable-national-park",
+   "title": "Part closure of Mount Remarkable National Park",
+   "parks": [
+    "Mount Remarkable National Park"
+   ],
+   "scope_level": "park_recovery_status",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "67320",
+     "title": "Mambray Creek Campground",
+     "effect": "none: general \"camping open\" statement, not an override"
+    },
+    {
+     "booking_id": "69837",
+     "title": "Baroota Campground",
+     "effect": "none: general statement only"
+    }
+   ],
+   "unmapped_camp_scope": {
+    "Backpack campsites incl. Stony Creek": "closed during fire danger season; FDS dates not verified; no IDs"
+   },
+   "unknowns": [
+    "Fire danger season dates not in source",
+    "\"All camping open\" (Jul 2026) must not override notice 38 window"
+   ],
+   "related_notices": [
+    38,
+    20
+   ],
+   "implementation_cannot": "Assert camps open."
+  },
+  {
+   "source_index": 46,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/coorong-national-park-7",
+   "title": "Coorong National Park",
+   "parks": [
+    "Coorong National Park"
+   ],
+   "scope_level": "beach",
+   "primary_type": "advisory",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": "Camp closure."
+  },
+  {
+   "source_index": 47,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/piccanninie-ponds-conservation-park",
+   "title": "Part closure of Piccanninie Ponds Conservation Park",
+   "parks": [
+    "Piccaninnie Ponds Conservation Park"
+   ],
+   "scope_level": "water_activity",
+   "primary_type": "access_restriction",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [],
+   "related_notices": [],
+   "implementation_cannot": "Camp status."
+  },
+  {
+   "source_index": 48,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/171231-vivonne-bay-conservation-park",
+   "title": "Part closure of Vivonne Bay Conservation Park",
+   "parks": [
+    "Vivonne Bay Conservation Park"
+   ],
+   "scope_level": "subarea_polygon",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "annual",
+    "current_occurrence": {
+     "start_local": "2026-05-01T06:00:00+09:30",
+     "end_local": "2026-12-31T18:00:00+10:30",
+     "precision": "exact_local_time"
+    }
+   },
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Coordinates lack stated CRS/zone; do not export geometry",
+    "Same-name council campground not matched by name"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Geometry or camp matching."
+  },
+  {
+   "source_index": 49,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/full-closure-of-cape-torrens-wilderness-protection-area",
+   "title": "Full closure of Cape Torrens Wilderness Protection Area",
+   "parks": [
+    "Cape Torrens Wilderness Protection Area"
+   ],
+   "scope_level": "whole_park",
+   "primary_type": "full_closure",
+   "windows": [],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "No camp facility evidenced"
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Camp IDs."
+  },
+  {
+   "source_index": 50,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/ngarkat-conservation-park-15",
+   "title": "Part closure of Ngarkat Conservation Park",
+   "reason": "For a pest control program.",
+   "parks": [
+    "Ngarkat Conservation Park"
+   ],
+   "scope_level": "fire_management_blocks",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": "2026-11-11T06:00:00+10:30",
+     "end_local": "2026-11-18T06:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": "6am 11 November until 6am 18 November 2026. Published 9 November 2026."
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73218",
+     "title": "Box Flat Campground",
+     "effect": "closed",
+     "block": "Box Flat"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Notice closes the Day, Jimmys Well, Ashby and Box Flat fire management blocks. The 11 November 2026 closure map hatches those four blocks and leaves Mt Rescue, Ngarkat, McCallum, Pertendi, Scorpion Springs and Mt Shaugh outside the red boundary.",
+    "Box Flat Campground is the built asset of Box Flat Block in the Ngarkat District Fire Management Plan, and that block is hatched.",
+    "Bucks Camp is a built asset of Mt Rescue Block, which the closure map does not hatch.",
+    "Pertendi Hut and Comet Bore are built assets of Pertendi Block. Comet Bore is also named on the Mount Shaugh page. Neither block is hatched.",
+    "Pine Hut Soak is the built asset of Scorpion Springs Block. The same block's suppression note names Coxs Windmill with Pine Hut Soak. Scorpion Springs Block is not hatched.",
+    "Doggers Hut is named in the Mount Shaugh Block suppression note. Mount Shaugh Block is not hatched."
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Mark Bucks Camp, Comet Bore, Coxs Windmill, Doggers Hut, Pertendi Hut or Pine Hut Soak closed. The notice map does not put those camps in a closed block."
+  }
+ ]
+}

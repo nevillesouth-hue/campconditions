@@ -538,6 +538,7 @@
    "source_index": 14,
    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/vulkathunha-gammon-ranges-national-park-23",
    "title": "Full closure of Vulkathunha-Gammon Ranges National Park",
+   "reason": "For public safety during a pest animal control and monitoring program.",
    "parks": [
     "Vulkathunha-Gammon Ranges National Park"
    ],
@@ -1678,6 +1679,7 @@
    "source_index": 38,
    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mount-remarkable-national-park-15",
    "title": "Full closure of Mount Remarkable National Park",
+   "reason": "For public safety during a pest control program.",
    "parks": [
     "Mount Remarkable National Park"
    ],
@@ -1954,6 +1956,9 @@
    "source_index": 42,
    "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/malkumba-coongie-lakes-national-park-and-innamincka-regional-reserve-2",
    "title": "Part closure of Malkumba Coongie Lakes National Park and Innamincka Regional Reserve",
+   "reason": "Closed until further notice because of a major flood.",
+   "closed_line": "Malkumba-Coongie Lakes National Park is closed until further notice because of a major flood. This campground is in that park.",
+   "park_alert_line": "Parks SA says significant parts of Innamincka Regional Reserve are closed until further notice because of a major flood. This notice does not name this campground.",
    "parks": [
     "Malkumba-Coongie Lakes National Park",
     "Innamincka Regional Reserve"

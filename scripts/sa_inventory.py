@@ -19,6 +19,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ATTRIBUTION = "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU"
 OSM_ATTRIBUTION = "Coordinates: OpenStreetMap contributors (ODbL)."
 CFS_URL = "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/"
+ALERTS_INDEX_URL = "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"
 FIRE_LABEL = (
     "Fire danger / total fire ban status not verified here. "
     "No SA Country Fire Service district map is loaded, so no rating is shown."
@@ -392,75 +393,212 @@ def fire_link():
     }
 
 
-def _apply_notice(camp, bookings, notices, originals):
+def load_alerts_index(path=None):
+    """Saved copy of the public Parks SA closures index."""
+    if path is None:
+        import states
+        rel = (states.by_slug("sa").get("files") or {}).get("alerts_index") or ""
+        path = rel if os.path.isabs(rel) else os.path.join(ROOT, rel) if rel else ""
+    if not path or not os.path.isfile(path):
+        return {"urls": [], "http_status": {}, "fetched": "", "url": ALERTS_INDEX_URL}
+    with open(path, encoding="utf-8") as handle:
+        doc = json.load(handle)
+    return doc if isinstance(doc, dict) else {"urls": [], "http_status": {}}
+
+
+def notice_is_current(notice, index):
+    """False when the notice URL 404s or is absent from the current index."""
+    url = str((notice or {}).get("source_url") or "").rstrip("/")
+    if not url:
+        return False
+    index = index or {}
+    dead = {}
+    for key, value in (index.get("http_status") or {}).items():
+        dead[str(key).rstrip("/")] = value
+    if dead.get(url) in (404, 410, "404", "410"):
+        return False
+    urls = [str(item).rstrip("/") for item in index.get("urls") or [] if str(item).strip()]
+    if urls and url not in urls:
+        return False
+    return True
+
+
+def drop_stale_notices(notices, index):
+    return [notice for notice in notices or [] if notice_is_current(notice, index)]
+
+
+def _windows(notice):
+    found = []
+    for window in (notice or {}).get("windows") or []:
+        raw = window.get("start_local")
+        if not raw:
+            continue
+        try:
+            start = dt.datetime.fromisoformat(raw)
+        except ValueError:
+            continue
+        end = None
+        if window.get("end_local"):
+            try:
+                end = dt.datetime.fromisoformat(window["end_local"])
+            except ValueError:
+                end = None
+        found.append((start, end))
+    return found
+
+
+def _chosen_window(notice, moment, status):
+    rows = _windows(notice)
+    if not rows or moment is None:
+        return None
+    if status == "closed":
+        for start, end in rows:
+            if start <= moment and (end is None or moment < end):
+                return start, end
+        return None
+    if status == "upcoming":
+        future = [(start, end) for start, end in rows if moment < start]
+        if not future:
+            return None
+        return min(future, key=lambda item: item[0])
+    return None
+
+
+def _spoken(when):
+    hour, minute = when.hour, when.minute
+    clock = f"{(hour % 12) or 12}{':%02d' % minute if minute else ''}{'am' if hour < 12 else 'pm'}"
+    return f"{clock} {when:%A} {when.day} {when:%B %Y}"
+
+
+def _notice_for(status, ids, notices, originals):
+    chosen = None
+    for row in notices or []:
+        if not any(item in row["booking_ids"] for item in ids):
+            continue
+        original = originals.get(row["source_index"]) or {}
+        if row["camp_status"] == status:
+            return original
+        for facility in original.get("affected_camp_facilities") or []:
+            if str(facility.get("booking_id") or "") not in ids:
+                continue
+            if act_sa_notices._facility_status(original, facility, row["camp_status"]) == status:
+                chosen = original
+    return chosen
+
+
+def _notice_summary(camp, status, notice, start, end):
+    notice = notice or {}
+    parks = camp.get("source") == "parks_sa"
+    if status == "park_alert":
+        return notice.get("park_alert_line") or "Parks SA has a park alert. It does not say this campground is closed."
+    if status == "closed" and notice.get("closed_line") and start is None:
+        return notice["closed_line"]
+    if start is not None and end is not None and status in {"closed", "upcoming"}:
+        text = f"From {_spoken(start)} until {_spoken(end)}."
+        reason = str(notice.get("reason") or "").strip()
+        if reason:
+            text += " " + reason
+        return text
+    if status == "closed":
+        reason = str(notice.get("reason") or "").strip()
+        if reason:
+            return reason if reason.endswith(".") else reason + "."
+        return "Parks SA has a closure that covers this campground." if parks else "A closure notice covers this campground."
+    if status == "partial":
+        return "Parks SA has a partial closure that covers this campground." if parks else "A partial closure covers this campground."
+    if status == "upcoming":
+        return "Parks SA has listed a closure for this campground that has not started." if parks else "A closure is listed for this campground and it has not started."
+    if status == "expired_not_open":
+        return "A Parks SA notice for this campground has expired. That is not a confirmation it is open." if parks else "A closure notice for this campground has expired. That is not a confirmation it is open."
+    if status == "unknown":
+        return "A Parks SA notice mentions this campground, and the status is not resolved." if parks else "A notice mentions this campground, and the status is not resolved."
+    if parks:
+        return "No current Parks SA campground notice applies to this camp."
+    return "No current closure notice applies to this camp."
+
+
+def _apply_notice(camp, bookings, notices, originals, moment):
     ids = [str(item) for item in camp.get("booking_ids") or []]
     statuses = [bookings[item] for item in ids if item in bookings]
     if not ids or not statuses:
-        _set_notice(camp, "no_current_notice", "")
+        _set_notice(camp, "no_current_notice", None, moment)
         return
     status = act_sa_notices._combine(statuses) if len(statuses) > 1 else statuses[0]
-    url = ""
-    for row in notices:
-        if row["camp_status"] != status:
-            continue
-        if not any(item in row["booking_ids"] for item in ids):
-            continue
-        url = originals.get(row["source_index"], {}).get("source_url") or ""
-        if url:
-            break
-    _set_notice(camp, status, url)
+    notice = _notice_for(status, ids, notices, originals)
+    _set_notice(camp, status, notice, moment)
 
 
-def _set_notice(camp, status, url):
+def _date_fields(start, end):
+    fields = {}
+    if start is not None:
+        fields["start"] = start.date().isoformat()
+        fields["start_time"] = start.strftime("%H:%M")
+        fields["start_instant"] = start.isoformat()
+    if end is not None:
+        fields["reopen"] = end.date().isoformat()
+        fields["reopen_time"] = end.strftime("%H:%M")
+        fields["reopen_instant"] = end.isoformat()
+    return fields
+
+
+def _set_notice(camp, status, notice, moment):
     """Map an engine status onto a page. None of these is confirmed open."""
+    notice = notice or {}
+    url = str(notice.get("source_url") or "")
+    window = _chosen_window(notice, moment, status)
+    start, end = window if window else (None, None)
+    parks = camp.get("source") == "parks_sa"
     if status == "closed":
         label = "Closed"
-        summary = "Parks SA has a closure that covers this campground."
         page_status = "closed"
     elif status == "partial":
         label = "Partial closure"
-        summary = "Parks SA has a partial closure that covers this campground."
         page_status = "check"
     elif status == "upcoming":
         label = "Upcoming closure"
-        summary = "Parks SA has listed a closure for this campground that has not started."
+        page_status = "check"
+    elif status == "park_alert":
+        label = "Alert in this park"
         page_status = "check"
     elif status in {"unknown", "expired_not_open"}:
         label = "Unknown"
-        if status == "expired_not_open":
-            summary = "A Parks SA notice for this campground has expired. That is not a confirmation it is open."
-        else:
-            summary = "A Parks SA notice mentions this campground, and the status is not resolved."
         page_status = "check"
     else:
         label = "No current notice"
-        summary = "No current Parks SA campground notice applies to this camp."
         page_status = "check"
         status = "no_current_notice"
         url = ""
+        notice = {}
+        start = end = None
+    if not str(url).startswith("https://"):
+        url = ""
+    summary = _notice_summary(camp, status, notice, start, end)
     camp["status"] = page_status
     camp["status_label"] = label
     camp["notice_status"] = status
     camp["notice_summary"] = summary
-    camp["notice_url"] = url if str(url).startswith("https://") else ""
+    camp["notice_url"] = url
     camp["open_inferred"] = False
+    fields = _date_fields(start, end)
+    record = {
+        "desc": summary,
+        "reason": str((notice or {}).get("reason") or ""),
+        "source_url": url,
+        "outdated": False,
+    }
+    record.update(fields)
     if page_status == "closed":
-        camp["closure"] = {
-            "status": "Closed",
-            "desc": summary,
-            "reason": "",
-            "start": None,
-            "reopen": None,
-            "outdated": False,
-            "source_url": camp["notice_url"],
-        }
+        record["status"] = "Closed"
+        camp["closure"] = record
         camp["upcoming_closure"] = None
     elif status == "upcoming":
         camp["closure"] = None
-        camp["upcoming_closure"] = {"desc": summary, "source_url": camp["notice_url"]}
+        camp["upcoming_closure"] = record
     else:
         camp["closure"] = None
         camp["upcoming_closure"] = None
+    if not parks and status == "no_current_notice":
+        camp["notice_summary"] = "No current closure notice applies to this camp."
 
 
 def _park_text(value):
@@ -768,10 +906,17 @@ def load_camps(seen=None, moment=None):
     load_camps.duplicates_dropped = dropped + commercial_dropped
     notice_doc = _load_json(notice_path)
     moment = moment or dt.datetime.fromisoformat(notice_doc["as_of_adelaide"])
-    scored = act_sa_notices.evaluate_all(notice_doc["notices"], moment)
-    originals = {notice["source_index"]: notice for notice in notice_doc["notices"]}
+    index = load_alerts_index()
+    current = drop_stale_notices(notice_doc["notices"], index)
+    load_camps.dropped_notices = [
+        notice.get("source_url") or ""
+        for notice in notice_doc["notices"]
+        if notice not in current
+    ]
+    scored = act_sa_notices.evaluate_all(current, moment)
+    originals = {notice["source_index"]: notice for notice in current}
     for camp in camps:
-        _apply_notice(camp, scored["bookings"], scored["notices"], originals)
+        _apply_notice(camp, scored["bookings"], scored["notices"], originals, moment)
         if camp["status"] == "open" or camp["open_inferred"]:
             raise SystemExit("SA inventory inferred open for %s" % camp["name"])
     load_camps.before_park_decisions = _tally(camps)

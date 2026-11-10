@@ -648,7 +648,13 @@ for state in _page_states:
     bind(state)
     if state.get("slug") == "sa" and (state.get("files") or {}).get("official_inventory"):
         import sa_inventory
-        official = sa_inventory.load_camps(seen)
+        official = sa_inventory.load_camps(seen, moment=NOW)
+        index = sa_inventory.load_alerts_index()
+        SRC["parks_sa"] = {
+            "ok": True,
+            "url": index.get("url") or sa_inventory.ALERTS_INDEX_URL,
+            "fetched": index.get("fetched") or NOW.isoformat(),
+        }
         loaded.append((state, official, [], []))
         continue
     if state.get("slug") == "tas" and (state.get("files") or {}).get("inventory"):
@@ -1131,8 +1137,8 @@ ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link r
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CampConditions.au">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta name="twitter:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD">"""
+<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta name="twitter:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type="button" id="a2hs-dismiss" aria-label="Dismiss add to home screen tip">×</button></div>
@@ -1314,14 +1320,14 @@ FRESH_JS = r"""<script>
     var up = c.upcoming || null;
     if (cl) {
       var label = cl.desc || cl.reason || "Full closure";
-      var reopen = cl.reopen ? " · Reopens " + esc(melbourneDay(cl.reopen)) : " ";
+      var reopen = cl.reopen ? " · Reopens " + esc(spokenDay(cl.reopen, cl.reopen_time)) : " ";
       parts.push('<div class="warn"><strong>Closed:</strong> ' + esc(label) + reopen + "</div>");
-      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(melbourneDay(cl.reopen || "")) + ') has passed. Check <a href="__COC__">__CONDITIONS_NAME__</a> or call __PHONE__ before you go.</div>');
+      if (cl.outdated) parts.push('<div class="warn"><strong>This closure record may be outdated.</strong> The listed reopening date (' + esc(spokenDay(cl.reopen || "", cl.reopen_time)) + ') has passed. Check <a href="__COC__">__CONDITIONS_NAME__</a> or call __PHONE__ before you go.</div>');
     } else if (up) {
       var upLabel = up.desc || up.reason || "Closure";
       var when = "";
-      if (up.start) when += " · Starts " + esc(melbourneDay(up.start));
-      if (up.reopen) when += " · Reopens " + esc(melbourneDay(up.reopen));
+      if (up.start) when += " · Starts " + esc(spokenDay(up.start, up.start_time));
+      if (up.reopen) when += " · Reopens " + esc(spokenDay(up.reopen, up.reopen_time));
       parts.push('<div class="warn"><strong>Upcoming closure:</strong> ' + esc(upLabel) + when + "</div>");
     }
     var nearby = c.nearby || [];
@@ -2575,6 +2581,9 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
     if lat is None: lat = fallback.get("fallback_lat")
     if lon is None: lon = fallback.get("fallback_lon")
     if zoom is None: zoom = fallback.get("fallback_zoom")
+    lat = lat if isinstance(lat, (int, float)) else -32.0
+    lon = lon if isinstance(lon, (int, float)) else 135.5
+    zoom = zoom if isinstance(zoom, (int, float)) else 5
     if towns_url is None: towns_url = statecfg.public_file(STATE, "towns")
     if redraw_body is None: redraw_body = REDRAW_BODY
     if after is None or nearest is None:
@@ -3045,17 +3054,17 @@ def emit_state(state, camps, include_home):
         cl = c.get("closure"); parts = []
         osm = c.get("source") == "osm"
         if cl:
-            parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(str(cl["reopen"])[:10])) if cl.get("reopen") else ""}</div>')
-            if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(str(cl["reopen"])[:10])))
+            parts.append(f'<div class="warn"><strong>Closed:</strong> {e(cl["desc"] or cl["reason"] or "Full closure")} {("· Reopens "+e(spoken_day(cl["reopen"], cl.get("reopen_time")))) if cl.get("reopen") else ""}</div>')
+            if cl.get("outdated"): parts.append(COPY["outdated_html"].format(date=e(spoken_day(cl.get("reopen"), cl.get("reopen_time")))))
         else:
             upcoming = c.get("upcoming_closure") or None
             if upcoming:
                 label = upcoming.get("desc") or upcoming.get("reason") or "Closure"
                 when = ""
                 if upcoming.get("start"):
-                    when += " · Starts " + e(str(upcoming["start"])[:10])
+                    when += " · Starts " + e(spoken_day(upcoming["start"], upcoming.get("start_time")))
                 if upcoming.get("reopen"):
-                    when += " · Reopens " + e(str(upcoming["reopen"])[:10])
+                    when += " · Reopens " + e(spoken_day(upcoming["reopen"], upcoming.get("reopen_time")))
                 parts.append(f'<div class="warn"><strong>Upcoming closure:</strong> {e(label)}{when}</div>')
         if c["nearby_closures"]: parts.append("<h2>Road and track closures within 5 km</h2><ul>" + "".join(f'<li>{e(x["type"])}{": "+e(x["name"]) if x["name"] else ""}{" — "+e(x["reason"]) if x["reason"] else ""}{" · reopens "+e(x["reopens"]) if x.get("reopens") else ""}</li>' for x in c["nearby_closures"]) + "</ul>")
         info_bits = []
@@ -3462,11 +3471,17 @@ UPDATE_CADENCE = ("The site is rebuilt from the official sources about every thr
                   "Melbourne time during daylight saving (AEDT), when many NPWS closures start or end. OpenStreetMap campgrounds and towns are refreshed weekly. "
                   "Each page shows when it was built.")
 INFO_LINKS = '<p class="muted">See also: <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/about/">About</a></p>'
+def _enabled_names():
+    """'Victoria, New South Wales, Queensland, South Australia and Tasmania' from the enabled configs."""
+    names = [state["name"] for state in statecfg.enabled()]
+    if len(names) <= 1:
+        return names[0] if names else ""
+    return ", ".join(names[:-1]) + " and " + names[-1]
 def faq_items():
     """General questions first, then each state's approved FAQ copy."""
     items = [
         ("What is CampConditions.au?",
-         "CampConditions.au is a free site that shows campground conditions and closures for Victoria and New South Wales, built for motorhomers, caravanners and campers. "
+         "CampConditions.au is a free site that shows campground conditions and closures for " + _enabled_names() + ", built for motorhomers, caravanners and campers. "
          "It is not an official warning service."),
         ("Where does the information come from?",
          "Victoria: DataVic Recreation Sites and Explore Outdoors (DEECA), Parks Victoria / DEECA MapShare closures and CFA fire danger ratings. "
@@ -3534,7 +3549,7 @@ def data_page():
         f'<tr><td>{e(key)}</td><td>{"Yes" if info.get("ok") else "No"}</td><td>{e(feed_date(info.get("fetched")) or "")}</td></tr>'
         for key, info in sorted(SRC.items()) if isinstance(info, dict))
     body = f"""<h1>About the data</h1>
-<p>CampConditions.au uses official government data for campground details and closures in Victoria and New South Wales, with extra campgrounds from OpenStreetMap. It is not an official warning service. Values a source does not provide are left blank.</p>
+<p>CampConditions.au uses official government data for campground details and closures in {e(_enabled_names())}, with extra campgrounds from OpenStreetMap. It is not an official warning service. Values a source does not provide are left blank.</p>
 <h2>Coverage</h2>
 <div class="table-wrap"><table><thead><tr><th scope="col">State</th><th scope="col">Campgrounds</th><th scope="col">Official records</th><th scope="col">OpenStreetMap</th><th scope="col">Closed now</th><th scope="col">Check conditions</th><th scope="col">Regions</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>
 <p class="muted">Counts are from this build, {e(STAMP)}.</p>
@@ -3546,11 +3561,11 @@ def data_page():
 <h2>Warnings</h2><p>Incident warnings are linked, not republished. Check <a href="https://emergency.vic.gov.au/">VicEmergency</a>, the <a href="https://www.rfs.nsw.gov.au/">NSW Rural Fire Service</a>, <a href="https://www.ses.nsw.gov.au/">NSW SES</a> and the <a href="https://www.bom.gov.au/weather-and-climate/warnings-and-alerts">Bureau of Meteorology</a> before you travel. In an emergency call 000.</p>
 {INFO_LINKS}"""
     dataset = {"@context": "https://schema.org", "@type": "Dataset", "name": "CampConditions.au campground status", "url": SITE + "/about-the-data/",
-               "description": "Campground status and closures for Victoria and New South Wales, Australia, from official sources and OpenStreetMap.",
+               "description": "Campground status and closures for " + _enabled_names() + ", Australia, from official sources and OpenStreetMap.",
                "inLanguage": "en-AU", "dateModified": NOW.isoformat(), "spatialCoverage": [{"@type": "Place", "name": s["name"] + ", Australia"} for s in statecfg.enabled()],
                "creditText": " ".join(attribution) if isinstance(attribution, list) else str(attribution),
                "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": SITE + "/status.json"}]}
-    page("/about-the-data/", "About the data | CampConditions.au", "Sources, update times and coverage for Victoria and New South Wales campground conditions on CampConditions.au.",
+    page("/about-the-data/", "About the data | CampConditions.au", "Sources, update times and coverage for " + _enabled_names() + " campground conditions on CampConditions.au.",
          body, [dataset, crumbs([("Home", "/"), ("About the data", "/about-the-data/")])])
 data_page()
 def weekend_window(now):
@@ -3561,8 +3576,21 @@ def weekend_window(now):
     start = dt.datetime.combine(sat, dt.time(0, 0), tzinfo=now.tzinfo)
     end = start + dt.timedelta(days=2)
     return sat, max(start, now), end
-def record_at(day, clock):
-    """A record's day and optional HH:MM as a Melbourne datetime. None when there is no day."""
+def record_at(day, clock, instant=None):
+    """A record's day and optional HH:MM as a Melbourne datetime. None when there is no day.
+
+    An absolute instant (the time the notice printed, with its offset) wins, so a
+    9pm Adelaide end is not read as 9pm Melbourne.
+    """
+    if instant:
+        try:
+            when = dt.datetime.fromisoformat(str(instant))
+        except ValueError:
+            when = None
+        if when is not None:
+            if when.tzinfo is None:
+                when = when.replace(tzinfo=NOW.tzinfo)
+            return when
     try:
         when = dt.date.fromisoformat(str(day or "")[:10])
     except ValueError:
@@ -3585,13 +3613,13 @@ def weekend_rows(now=None):
                 continue
             if c.get("status") == "closed":
                 rec = c.get("closure") or {}
-                ends = record_at(rec.get("reopen"), rec.get("reopen_time"))
+                ends = record_at(rec.get("reopen"), rec.get("reopen_time"), rec.get("reopen_instant"))
                 if ends is None or ends > win_start or rec.get("outdated"):
                     out.append((state, c, rec, False))
             elif c.get("upcoming_closure"):
                 rec = c["upcoming_closure"]
-                starts = record_at(rec.get("start"), rec.get("start_time"))
-                ends = record_at(rec.get("reopen"), rec.get("reopen_time"))
+                starts = record_at(rec.get("start"), rec.get("start_time"), rec.get("start_instant"))
+                ends = record_at(rec.get("reopen"), rec.get("reopen_time"), rec.get("reopen_instant"))
                 if starts is not None and starts < win_end and (ends is None or ends > win_start):
                     out.append((state, c, rec, True))
     return sat, out
@@ -3651,7 +3679,7 @@ def weekend_page():
                  "numberOfItems": len(items),
                  "itemListElement": [{"@type": "ListItem", "position": i + 1, "url": SITE + camp_url(c), "name": c.get("page_name") or c["name"]} for i, c in enumerate(items)]}
     page("/closures-this-weekend/", "Campground closures this weekend | CampConditions.au",
-         f"Campgrounds closed in Victoria and New South Wales this weekend ({span}), from official closure records.",
+         f"Campgrounds closed in {_enabled_names()} this weekend ({span}), from official closure records.",
          body, [item_list, crumbs([("Home", "/"), ("Closures this weekend", "/closures-this-weekend/")])])
 weekend_page()
 # HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:

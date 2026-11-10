@@ -255,17 +255,27 @@ def mark_linkout(camp):
     camp["sa_fire_mode"] = "linkout"
 
 
-def linkout_html():
-    """Neutral CFS link plus the Parks SA catastrophic-day sentence. Never says No Rating."""
+def parks_fire_sentence(camp):
+    """The catastrophic-day line is a Parks SA rule. Council and operator camps do not get it."""
+    source = (camp or {}).get("source")
+    return source in (None, "", "parks_sa")
+
+
+def linkout_html(camp=None):
+    """CFS link. Parks SA camps also get the catastrophic-day sentence. Never says No Rating."""
     import html
     sentence = f'{LINKOUT_LINE}.'
+    kind = "fire-sa-parks" if parks_fire_sentence(camp) else "fire-sa-other"
     bits = [
         '<h2 class="fire-head" style="font-size:.95rem;line-height:1.25;margin:.45rem 0 0">Fire Ratings</h2>',
-        f'<p class="muted fire-line fire-sa-linkout" style="margin:.05rem 0 .55rem">{html.escape(sentence)} '
+        f'<p class="muted fire-line fire-sa-linkout {kind}" style="margin:.05rem 0 .55rem">{html.escape(sentence)} '
         f'<a href="{CFS_PAGE}" target="_blank" rel="noopener noreferrer">CFS fire danger ratings</a></p>',
-        f'<p class="fire-catastrophic">{html.escape(CATASTROPHIC_LINE)}. '
-        f'<a href="{PARKS_FIRE_URL}" target="_blank" rel="noopener noreferrer">Parks SA fire</a></p>',
     ]
+    if parks_fire_sentence(camp):
+        bits.append(
+            f'<p class="fire-catastrophic">{html.escape(CATASTROPHIC_LINE)}. '
+            f'<a href="{PARKS_FIRE_URL}" target="_blank" rel="noopener noreferrer">Parks SA fire</a></p>'
+        )
     return "".join(bits)
 
 
@@ -273,7 +283,7 @@ def html_line(camp):
     """Rating sentence for one camp. No extra words about what the category means."""
     import html
     if camp.get("sa_fire_mode") == "linkout":
-        return linkout_html()
+        return linkout_html(camp)
     fire = camp.get("fire") or {}
     if fire.get("authority") != "sa_cfs":
         return ""

@@ -39,7 +39,8 @@
     "inventory": "data/tas/tas-inventory.v6.csv",
     "park_map": "data/tas/tas-camp-park-map.v2.csv",
     "park_decisions": "data/tas/tas-caravan-park-decisions.csv",
-    "alerts_fixture": "data/tas/fixtures/alerts-2026-11-10.json"
+    "alerts_fixture": "data/tas/fixtures/alerts-2026-11-10.json",
+    "towns": "data/tas-towns.json"
   },
   "regions": {
     "tasmania": {

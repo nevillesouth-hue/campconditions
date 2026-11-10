@@ -42,7 +42,14 @@
     "official_inventory": "data/act-sa/inventory/official-campgrounds.json",
     "osm_eligibility": "data/act-sa/inventory/osm-eligibility.csv",
     "spot_check": "data/act-sa/inventory/spot-check.csv",
-    "notices": "data/act-sa/fixtures/sa-notices.json"
+    "notices": "data/act-sa/fixtures/sa-notices.json",
+    "alerts_index": "data/act-sa/fixtures/sa-alerts-index-2026-11-10.json",
+    "towns": "data/sa-towns.json"
+  },
+  "map": {
+    "fallback_lat": -32.0,
+    "fallback_lon": 135.5,
+    "fallback_zoom": 5
   },
   "regions": {
     "south-australia": {

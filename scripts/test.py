@@ -601,7 +601,7 @@ if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.pn
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
 _codes = "VIC, NSW, QLD, SA and TAS" if os.path.isdir(os.path.join(D, "tas")) else ("VIC, NSW, QLD and SA" if os.path.isdir(os.path.join(D, "sa")) else ("VIC, NSW and QLD" if os.path.isdir(os.path.join(D, "qld")) else "VIC and NSW"))
 for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"', 'content="1200"', 'content="630"', 'content="summary_large_image"',
-             'property="og:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD"', 'name="twitter:image:alt" content="CampConditions.au: 4,800+ campgrounds across VIC, NSW and QLD"',
+             'property="og:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS"', 'name="twitter:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS"',
              f'property="og:title" content="Camp conditions and closures for {_codes} | CampConditions.au"', f'name="twitter:title" content="Camp conditions and closures for {_codes} | CampConditions.au"'):
   if icon not in home: bad.append(("/", "icon " + icon))
 # Link-preview description: rounded count (row 56), never above the live total, same for Twitter.

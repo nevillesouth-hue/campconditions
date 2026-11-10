@@ -202,6 +202,12 @@ def feed_date(value):
     if not day:
         return ""
     return f"{day.day} {day.strftime('%B %Y')}"
+def long_date(value):
+    """Day month year, the same shape as other spoken dates. Keeps raw text that is not a date."""
+    shown = feed_date(value)
+    if shown:
+        return shown
+    return str(value or "").strip()[:10]
 def feed_iso(value):
     raw = str(value or "").strip()
     if not raw:
@@ -3139,7 +3145,7 @@ def emit_state(state, camps, include_home):
             if agency == "QPWS":
                 dated = "Source: " + (LABELS.get("official_layer") or "QSpatial tourist points layer (camping grounds)")
                 if c.get("data_date"):
-                    dated += f", point dated {e(c['data_date'][:10])}"
+                    dated += f", point dated {e(long_date(c['data_date']))}"
             else:
                 dated = "Source: NPWS Visitor Area layer (camping areas)"
             if c.get("alerts_checked") and feed.startswith("https://"):
@@ -3183,7 +3189,7 @@ def emit_state(state, camps, include_home):
             condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
             title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)
-            dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
+            dated = f"Campground data dated {e(long_date(c.get('data_date') or ''))}"
         camp_path = camp_url(c)
         camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
                    "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},

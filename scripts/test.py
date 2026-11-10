@@ -9,7 +9,7 @@ def tip_presentation(label, html_blob, txt_blob, bad):
     if "\nChip in $5, $10 or $20\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
   for blob in (html_blob, txt_blob):
     if blob and not (0 <= blob.find("Been somewhere lately?") < blob.find("The digests stay free.") < blob.find("Chip in") < blob.find("No pressure either way.") < blob.find("Not an official warning service")): bad.append((label, "tip order"))
-D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
+D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0;spoken_dates=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
 for r,_,fs in os.walk(D):
@@ -22,7 +22,11 @@ for r,_,fs in os.walk(D):
       tgt=os.path.join(D,h.lstrip("/"));
       if not (os.path.isfile(tgt) or os.path.isfile(os.path.join(tgt,"index.html"))): bad.append((p[len(D):],h))
     if "<title>" not in t or not re.search(r"lang=[\"']en-AU", t): bad.append((p,"meta"))
+    if re.search(r"Campground data dated \d{4}-\d{2}-\d{2}\b", t) or re.search(r"point dated \d{4}-\d{2}-\d{2}\b", t):
+      bad.append((p[len(D):], "raw data date"))
+    if re.search(r"Campground data dated \d{1,2} [A-Z][a-z]+ \d{4}", t): spoken_dates += 1
     if "paid daily digest" in t or "about $5 a month" in t: bad.append((p[len(D):], "paid digest line"))
+if spoken_dates < 1: bad.append(("footer", "campground date not spoken"))
 for f in ["sitemap.xml","robots.txt","llms.txt","status.json"]: assert os.path.isfile(os.path.join(D,f)),f
 json.load(open(os.path.join(D,"status.json")))
 sm=re.findall(r"<loc>https://campconditions.au(.*?)</loc>",open(os.path.join(D,"sitemap.xml")).read())

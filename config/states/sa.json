@@ -8,7 +8,7 @@
     "covering": "",
     "coming": ""
   },
-  "coverage_label": "160 camps: Parks SA campgrounds, council showgrounds, and council-run or community caravan parks. Commercial caravan parks are left out.",
+  "coverage_label": "163 camps: Parks SA campgrounds, council showgrounds, and council-run or community caravan parks. Commercial caravan parks are left out.",
   "credit": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). The 2017 parks JSON is CC BY 4.0 and is not this inventory.",
   "safety_html": "<div class=\"warn\">No current notice does not mean the camp is open, so check before you travel.</div>",
   "licence": {
@@ -169,7 +169,7 @@
       {
         "id": "inventory_audit",
         "ok": true,
-        "detail": "The public build lists 160 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, community and showground camps from the approved list. 86 commercial caravan, holiday and tourist parks are excluded. 19 parks whose ownership is unconfirmed are left out."
+        "detail": "The public build lists 163 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, community and showground camps from the approved list. 96 commercial caravan, holiday and tourist parks are excluded. 6 parks whose ownership is unconfirmed are left out."
       },
       {
         "id": "official_source_parser",

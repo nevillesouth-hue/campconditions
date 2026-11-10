@@ -1593,6 +1593,38 @@ def cdn(kind, href, integrity):
     if kind == "css":
         return f'<link rel="stylesheet" href="{href}" integrity="{integrity}" crossorigin="anonymous">'
     return f'<script src="{href}" defer integrity="{integrity}" crossorigin="anonymous"></script>'
+_ASSET_HASH = {}
+def asset_version(url_path):
+    """Eight hex characters of the file's SHA-256. Empty when that file is not written yet."""
+    rel = url_path.split("?", 1)[0].split("#", 1)[0]
+    if rel in _ASSET_HASH:
+        return _ASSET_HASH[rel]
+    full = os.path.join(OUT, rel.lstrip("/"))
+    if not rel.startswith("/") or rel.startswith("//") or not rel.lower().endswith((".js", ".css")) or not os.path.isfile(full):
+        return ""
+    digest = hashlib.sha256()
+    with open(full, "rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            digest.update(chunk)
+    _ASSET_HASH[rel] = digest.hexdigest()[:8]
+    return _ASSET_HASH[rel]
+def versioned_url(url):
+    """Append ?v=<content hash> to a site-local .js or .css URL. CDN links stay as they are."""
+    base = url.split("?", 1)[0].split("#", 1)[0]
+    version = asset_version(base)
+    if not version:
+        return url
+    return f"{base}?v={version}"
+_LOCAL_ASSET_ATTR = re.compile(
+    r'''(<(?:script|link)\b[^>]*?\b(?:src|href)\s*=\s*)(["'])(/(?!/)[^"'?#\s]+\.(?:js|css))(?:\?[^"']*)?\2''',
+    re.IGNORECASE,
+)
+def stamp_local_assets(html):
+    """Cache-bust every site-local script and stylesheet reference in one page."""
+    def repl(match):
+        prefix, quote, path = match.group(1), match.group(2), match.group(3)
+        return f"{prefix}{quote}{versioned_url(path)}{quote}"
+    return _LOCAL_ASSET_ATTR.sub(repl, html)
 LEAFLET_CSS = cdn("css", "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css", "sha384-c6Rcwz4e4CITMbu/NBmnNS8yN2sC3cUElMEMfP3vqqKFp7GOYaaBBCqmaWBjmkjb")
 LEAFLET_JS = cdn("js", "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js", "sha384-NElt3Op+9NBMCYaef5HxeJmU4Xeard/Lku8ek6hoPTvYkQPh3zLIrJP7KiRocsxO")
 CLUSTER_CSS = (
@@ -1606,8 +1638,8 @@ def map_script_src():
     """Victoria keeps /map.js. Each other built state has its own town search."""
     slug = STATE.get("slug") or ""
     if slug and slug != primary["slug"]:
-        return f"/map-{slug}.js"
-    return "/map.js"
+        return versioned_url(f"/map-{slug}.js")
+    return versioned_url("/map.js")
 def leaflet_foot(cluster=False):
     return LEAFLET_JS + (CLUSTER_JS if cluster else "") + f'<script src="{map_script_src()}" defer></script>'
 def camp_url(c):
@@ -2357,7 +2389,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
 {banner(on_home, national, own_form=path.startswith("/qld/") and 'id="newsletter"' in body)}
 {FRESH_BAR}
 <main>{body}</main>{footer(shared, show_credits)}{foot}</body></html>"""
-    h = external_blank(_multi_state(h))
+    h = stamp_local_assets(external_blank(_multi_state(h)))
     fp = os.path.join(OUT, path.lstrip("/"), "index.html") if path.endswith("/") else os.path.join(OUT, path.lstrip("/"))
     os.makedirs(os.path.dirname(fp), exist_ok=True); open(fp, "w", encoding="utf-8").write(h)
 _MULTI_STATE = (
@@ -3436,7 +3468,7 @@ if multi_state:
          f"Closures and camp conditions for {len(all_rows)} campgrounds in {names}.",
          f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>{notice_phase.windows_tag(all_rows)}
 {map_block(all_rows, f"Map of {names} campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
-         national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
+         national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + f'<script src="{versioned_url("/map-home.js")}" defer></script>', on_home=True)
 
 
 TIP_CHECKOUTS = (
@@ -3881,9 +3913,28 @@ def weekend_page():
          f"Campgrounds closed in {_enabled_names()} this weekend ({span}), from official closure records.",
          body, [item_list, crumbs([("Home", "/"), ("Closures this weekend", "/closures-this-weekend/")])])
 weekend_page()
-# HTML and JSON revalidate. Do not also set Cache-Control on /assets/*:
-# Pages joins every matching Cache-Control, and the strictest directive wins.
+# HTML and JSON revalidate. Local .js and .css are named with ?v=<content hash>,
+# so a changed file is a new URL and those files can be cached for a long time.
+# Do not also set Cache-Control on /assets/*: Pages joins every matching
+# Cache-Control, and the strictest directive wins.
 # iOS standalone still pins the saved HTML; pages refetch /status.json with cache: no-store.
+def versioned_asset_cache():
+    """Long cache for fingerprinted local scripts and stylesheets.
+
+    Cloudflare Pages matches the path, not the query string, so /map-home.js
+    covers /map-home.js?v=<hash>. /assets/* is left unset on purpose.
+    """
+    found = []
+    for dirpath, dirnames, filenames in os.walk(OUT):
+        dirnames[:] = [name for name in dirnames if name != "assets"]
+        for name in filenames:
+            if name.endswith((".js", ".css")):
+                rel = os.path.relpath(os.path.join(dirpath, name), OUT).replace(os.sep, "/")
+                found.append("/" + rel)
+    parts = []
+    for rel in sorted(found):
+        parts += [rel, "  Cache-Control: public, max-age=31536000, immutable", ""]
+    return parts
 def headers_text():
     """Cache rules. State paths are filled from the enabled configs and keep this order."""
     parts = ["/", "  Cache-Control: no-cache", "", "/index.html", "  Cache-Control: no-cache", "", "/404.html", "  Cache-Control: no-cache", ""]
@@ -3900,13 +3951,7 @@ def headers_text():
             town = statecfg.public_file(state, key)
             if town:
                 parts += [town, "  Cache-Control: no-cache", ""]
-    parts += ["/map.js", "  Cache-Control: no-cache", ""]
-    if len(statecfg.enabled()) > 1:
-        parts += ["/map-home.js", "  Cache-Control: no-cache", ""]
-    for state in statecfg.enabled():
-        if state["slug"] == primary["slug"]:
-            continue
-        parts += [f"/map-{state['slug']}.js", "  Cache-Control: no-cache", ""]
+    parts += versioned_asset_cache()
     parts += ["/site.webmanifest", "  Cache-Control: no-cache", ""]
     parts += ["/map-points/*", "  Cache-Control: public, max-age=86400", ""]
     return "\n".join(parts)
@@ -4022,9 +4067,9 @@ Built {STAMP}.
 - [Terms of use]({SITE}/terms/)
 - [Unsubscribe]({SITE}/unsubscribe/)
 """)
-open(os.path.join(OUT, "404.html"), "w").write(external_blank(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
+open(os.path.join(OUT, "404.html"), "w").write(stamp_local_assets(external_blank(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
 {banner()}
-<main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer>{footer_credits(len(statecfg.enabled()) > 1)}<p>© CampConditions.au · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer></body></html>"""))
+<main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer>{footer_credits(len(statecfg.enabled()) > 1)}<p>© CampConditions.au · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer></body></html>""")))
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter
 n_osm = sum(c.get("source") == "osm" for c in camps)

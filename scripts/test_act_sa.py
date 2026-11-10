@@ -681,7 +681,11 @@ def main():
     closed_box = sa_inventory.load_camps(set(), moment=during_ngarkat)
     closed_box = {item: row for row in closed_box for item in row.get("booking_ids") or []}["73218"]
     expect(closed_box["status"] == "closed" and closed_box["status_label"] == "Closed" and closed_box["closure"]["start"] == "2026-11-11", "box flat page is closed during the window")
-    expect("does not name this campground" in booking["73202"]["notice_summary"] and booking["73202"]["notice_url"].endswith("innamincka-regional-reserve-2"), "the flood notice is linked and not treated as a camp closure")
+    flood = "Parks SA says Malkumba-Coongie Lakes National Park and significant parts of Innamincka Regional Reserve are closed until further notice because of a major flood. This camp isn't named, so check before travelling."
+    for innamincka in ("73202", "73138", "73139", "73142"):
+        row = booking[innamincka]
+        expect(row["status_label"] == "Alert in this park" and row["status"] != "closed" and row["notice_status"] == "park_alert", "innamincka camp stays an alert: " + innamincka)
+        expect(row["notice_summary"] == flood and row["notice_url"].endswith("innamincka-regional-reserve-2"), "the flood notice is quoted and not treated as a camp closure: " + innamincka)
     council = next(row for row in sa_camps if row["source"] == "council" and row["notice_status"] == "no_current_notice")
     expect("Parks SA" not in council["notice_summary"], "council camps do not get Parks SA notice wording")
     expect(sa_inventory.notice_is_current({"source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example"}, {"urls": ["https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example"], "http_status": {}}) is True, "an indexed notice stays")

@@ -26,7 +26,7 @@ UPCOMING_LABEL = "Upcoming closure"
 NO_ALERT_LABEL = "No current alert"
 HOBART = ZoneInfo("Australia/Hobart")
 DATE_FIELDS = ("start", "start_time", "end", "end_time")
-STORED_FIELDS = {"headline", "parks", "link", *DATE_FIELDS}
+STORED_FIELDS = {"headline", "parks", "link", "reviewed", *DATE_FIELDS}
 _MONTHS = {
     "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
     "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
@@ -102,8 +102,90 @@ def parse_html(page):
         body_html = re.split(r"Last reviewed", body_html, maxsplit=1, flags=re.I)[0]
         row = {"headline": headline, "parks": parks, "link": ALERTS_URL}
         row.update(parse_alert_dates(_text(body_html), applies_date))
+        reviewed = _reviewed_at(part)
+        if reviewed:
+            row["reviewed"] = reviewed
         alerts.append(row)
     return alerts
+
+
+def _reviewed_at(part):
+    """PWS 'Last reviewed' clock as a Hobart instant. The sentence is not stored."""
+    match = re.search(
+        r"Last reviewed\s+(\d{1,2})/(\d{1,2})/(\d{4})\s+(\d{1,2}):(\d{2})\s*(am|pm)",
+        part or "", re.I,
+    )
+    if not match:
+        return ""
+    day, month, year = int(match.group(1)), int(match.group(2)), int(match.group(3))
+    hour, minute = int(match.group(4)), int(match.group(5))
+    if match.group(6).lower() == "pm" and hour < 12:
+        hour += 12
+    if match.group(6).lower() == "am" and hour == 12:
+        hour = 0
+    try:
+        return dt.datetime(year, month, day, hour, minute, tzinfo=HOBART).isoformat()
+    except ValueError:
+        return ""
+
+
+def newest_reviewed(alerts):
+    """Latest Last reviewed instant in the feed, or ''."""
+    newest = None
+    for alert in alerts or []:
+        raw = str((alert or {}).get("reviewed") or "")
+        if not raw:
+            continue
+        try:
+            when = dt.datetime.fromisoformat(raw)
+        except ValueError:
+            continue
+        if when.tzinfo is None:
+            when = when.replace(tzinfo=HOBART)
+        if newest is None or when > newest:
+            newest = when
+    return newest.isoformat() if newest is not None else ""
+
+
+def checked_copy(info, now):
+    """Feed-checked sentence, separate from the newest alert's Last reviewed date.
+
+    'updated <time>' was the check time and the warning talked about the newest
+    alert, which read as if those were the same fact.
+    """
+    checked = str((info or {}).get("checked") or "")
+    if not checked:
+        return None
+    try:
+        check_at = dt.datetime.fromisoformat(checked)
+    except ValueError:
+        return None
+    if check_at.tzinfo is None:
+        check_at = check_at.replace(tzinfo=HOBART)
+    zone = now.tzinfo or HOBART
+    shown = check_at.astimezone(zone).strftime("%-d %B %Y, %-I:%M %p %Z")
+    newest_at = None
+    newest = str((info or {}).get("updated") or "")
+    if newest:
+        try:
+            newest_at = dt.datetime.fromisoformat(newest)
+        except ValueError:
+            newest_at = None
+        if newest_at is not None and newest_at.tzinfo is None:
+            newest_at = newest_at.replace(tzinfo=HOBART)
+    label = str((info or {}).get("label") or "Park alerts")
+    agency = str((info or {}).get("agency") or "Parks and Wildlife Service")
+    stale = bool(newest_at and (now - newest_at) > dt.timedelta(days=2))
+    return {
+        "line": f"{label} checked {shown}.",
+        "warning": (
+            f"The feed was checked at {shown}. The newest alert in it was last reviewed more than 2 days ago. "
+            f"Check the {agency} alerts page before you travel."
+        ),
+        "stale": stale,
+        "checked_iso": check_at.isoformat(),
+        "newest_iso": newest_at.isoformat() if newest_at is not None else "",
+    }
 
 
 def _text(fragment):
@@ -534,13 +616,13 @@ def html_block(camp):
         when = date_sentence(camp.get("upcoming_closure") or {})
         lead = f"{html.escape(when)}. " if when else ""
         bits.append(
-            f'<div class="warn" id="camp-closure"><strong>Upcoming closure.</strong> {lead}<ul>{items}</ul><p>{link}</p></div>'
+            f'<div class="warn" id="camp-closure"{_notice_attr(camp)}><strong>Upcoming closure.</strong> {lead}<ul>{items}</ul><p>{link}</p></div>'
         )
     elif camp.get("tas_display") == "closed":
         items = "".join(f"<li>{html.escape(headline)}</li>" for headline in camp.get("tas_closures") or [])
         when = date_sentence(camp.get("closure") or {})
         lead = f"{html.escape(when)}. " if when else ""
-        bits.append(f'<div class="warn" id="camp-closure"><strong>Closed.</strong> {lead}<ul>{items}</ul><p>{link}</p></div>')
+        bits.append(f'<div class="warn" id="camp-closure"{_notice_attr(camp)}><strong>Closed.</strong> {lead}<ul>{items}</ul><p>{link}</p></div>')
         if camp.get("tas_ambers"):
             extra = "".join(f"<li>{html.escape(headline)}</li>" for headline in camp["tas_ambers"])
             bits.append(f'<div class="warn" id="camp-alert"><strong>Alert in this park.</strong><ul>{extra}</ul><p>{link}</p></div>')
@@ -565,6 +647,11 @@ def html_block(camp):
     if source.startswith("https://"):
         bits.append(f'<p>Campground record: <a href="{html.escape(source)}">theLIST</a></p>')
     return "".join(bits)
+
+
+def _notice_attr(camp):
+    import notice_phase
+    return notice_phase.notice_attr(camp)
 
 
 def last_good_path(directory):
@@ -593,6 +680,9 @@ def _stored_alert(row):
         return None
     parks = [str(name).strip() for name in (row or {}).get("parks") or [] if str(name).strip()]
     stored = {"headline": headline, "parks": parks, "link": ALERTS_URL}
+    reviewed = str((row or {}).get("reviewed") or "")
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}", reviewed):
+        stored["reviewed"] = reviewed
     for key in DATE_FIELDS:
         value = str((row or {}).get(key) or "").strip()
         if re.fullmatch(r"\d{4}-\d{2}-\d{2}", value) or re.fullmatch(r"\d{2}:\d{2}", value):
@@ -638,11 +728,18 @@ def fetch_alerts(fetch_text, directory, now=None):
 
 
 def stamp(result):
-    """Feed line for the state page. Stale is set when this build reused the last good fetch."""
+    """Feed line for the state page.
+
+    checked is when this build read the alerts page. updated is the newest
+    Last reviewed time in that page, which is the alert's own date, not the
+    check. Stale is set when this build reused the last good fetch.
+    """
     info = {
         "label": "Park alerts",
         "agency": "Parks and Wildlife Service",
-        "updated": result.get("fetched") or "",
+        "wording": "checked",
+        "checked": result.get("fetched") or "",
+        "updated": newest_reviewed(result.get("alerts") or []),
         "feed": ALERTS_URL,
     }
     if result.get("stale"):

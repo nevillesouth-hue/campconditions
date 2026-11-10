@@ -4,6 +4,9 @@ on:
     - cron: "17 */3 * * *"   # every 3 hours (UTC)
     # Extra runs so dated closures flip close to the time NPWS gives:
     # 23:02 UTC is 10:02am AEDT (10am reopenings), 03:02 UTC is 2:02pm AEDT (2pm closures).
+    # Other notice times are not listed one by one. They change with the notice
+    # file, and the camp page recomputes upcoming, closed or ended from the
+    # start and end on the page when it is opened.
     - cron: "2 23 * * *"
     - cron: "2 3 * * *"
   workflow_dispatch:

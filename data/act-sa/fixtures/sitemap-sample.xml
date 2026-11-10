@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.parks.sa.gov.au/parks/onkaparinga-river-national-park</loc>
+    <image:image>
+      <image:loc>https://www.parks.sa.gov.au/images/example.jpg</image:loc>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.parks.sa.gov.au/parks/onkaparinga-river-national-park/booking/92322</loc>
+  </url>
+</urlset>

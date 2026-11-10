@@ -1,0 +1,207 @@
+{
+  "slug": "sa",
+  "name": "South Australia",
+  "adjective": "South Australian",
+  "abbrev": "SA",
+  "enabled": true,
+  "banner": {
+    "covering": "",
+    "coming": ""
+  },
+  "coverage_label": "160 camps: Parks SA campgrounds, council showgrounds, and council-run or community caravan parks. Commercial caravan parks are left out.",
+  "credit": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). The 2017 parks JSON is CC BY 4.0 and is not this inventory.",
+  "safety_html": "<div class=\"warn\">No current notice does not mean the camp is open, so check before you travel.</div>",
+  "licence": {
+    "current_site": "CC BY 3.0 AU",
+    "current_site_url": "https://creativecommons.org/licenses/by/3.0/au/",
+    "legacy_dataset": "CC BY 4.0",
+    "legacy_dataset_url": "http://creativecommons.org/licenses/by/4.0",
+    "osm": "ODbL",
+    "osm_url": "https://www.openstreetmap.org/copyright",
+    "agency_name_unconfirmed": false,
+    "attribution_form": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU",
+    "legacy_attribution_form": "Department of Environment, Water and Natural Resources, the Government of South Australia, [title], Sourced on 9 November 2026, [URL]",
+    "photos": false,
+    "booking_prose": false,
+    "note": "Current parks.sa.gov.au pages use the Department for Environment and Water credit under CC BY 3.0 AU. The 2017 JSON keeps its own agency line and CC BY 4.0. OSM coordinates stay ODbL. Do not copy Parks SA maps or images. Do not apply CC BY 4.0 to current pages.",
+    "geopdf_explicit_map_or_derived_geometry_grant": false,
+    "image_republication": false,
+    "coordinate_derived_publication": false
+  },
+  "fire": {
+    "mode": "link_out_unknown",
+    "authority": "South Australian Country Fire Service",
+    "url": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+    "borrow_nsw_rfs": false,
+    "tfb_equals_park_closure": false,
+    "machine_values": "unverified",
+    "unmapped_label": "Fire danger / total fire ban status not verified here"
+  },
+  "files": {
+    "candidates": "data/act-sa/candidates.json",
+    "official_inventory": "data/act-sa/inventory/official-campgrounds.json",
+    "osm_eligibility": "data/act-sa/inventory/osm-eligibility.csv",
+    "spot_check": "data/act-sa/inventory/spot-check.csv",
+    "notices": "data/act-sa/fixtures/sa-notices.json"
+  },
+  "regions": {
+    "south-australia": {
+      "name": "South Australia",
+      "blurb": "Parks SA campgrounds and council and community camps. We check Parks SA closures and notices."
+    }
+  },
+  "region_rules": [
+    {"id": "south-australia"}
+  ],
+  "labels": {
+    "paid_book": "",
+    "book_ahead_note": "",
+    "book_ahead_with": "",
+    "type_filter": "Parks SA",
+    "agency": "Department for Environment and Water",
+    "phone": "",
+    "official_short": "Parks SA",
+    "park_category": "Parks SA campground",
+    "closure_status": "Closed"
+  },
+  "sources": {
+    "legacy_parks_json": {
+      "url": "https://data.sa.gov.au/data/dataset/parks-listings",
+      "live_fetch": false,
+      "use": "reviewed_alias_hints_only",
+      "note": "2017 park records. Not a campground inventory. Camping flags must not drop Pink Gum or Wirra."
+    },
+    "sitemap_index": {
+      "url": "https://www.parks.sa.gov.au/sitemaps-1-sitemap.xml",
+      "live_fetch": false,
+      "note": "Discovery URLs only. 146 park pages, 320 booking pages and 50 alert pages are not campground counts."
+    },
+    "cfs_tfb": {
+      "url": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+      "live_fetch": false,
+      "machine_parser": false,
+      "note": "Public page linked from camp ratings. The public build does not fetch it because SA is not built."
+    },
+    "cfs_fdr": {
+      "url": "https://data.eso.sa.gov.au/prod/cfs/criimson/fireDangerRating.xml",
+      "page": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+      "credit": "Fire danger: SA Country Fire Service (cfs.sa.gov.au)",
+      "live_fetch": false,
+      "preview_build_fetches": true,
+      "note": "SA_FIRE_MODE=full fetches this while rendering an SA preview. SA_FIRE_MODE=linkout does not fetch it and does not show a rating. The feed host states no reuse terms. Never another state's rating."
+    },
+    "cfs_districts": {
+      "url": "https://www.dptiapps.com.au/dataportal/FireBanDistricts_geojson.zip",
+      "dataset": "https://data.sa.gov.au/data/dataset/south-australian-fire-ban-districts",
+      "field": "firebandistrict",
+      "crs": "EPSG:4283",
+      "live_fetch": false,
+      "preview_build_fetches": true,
+      "note": "SA_FIRE_MODE=full reads these GDA94 polygons in memory to name a camp's district. They are not published, rendered or committed. SA_FIRE_MODE=linkout does not download the zip. The dataset page says CC BY-NC-ND 4.0 and the zip License.txt says CC BY 3.0 AU. That conflict is unresolved."
+    }
+  },
+  "links": {
+    "conditions": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts",
+    "conditions_name": "National Parks and Wildlife Service South Australia closures and alerts",
+    "emergency": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+    "emergency_name": "SA Country Fire Service",
+    "emergency_bbox": false,
+    "roads": "https://dit.sa.gov.au/OutbackRoads",
+    "roads_name": "Outback road conditions",
+    "bom_forecast": "https://www.bom.gov.au/sa/",
+    "desert_bulletin": "https://www.parks.sa.gov.au/know-before-you-go/desert-parks-bulletin-2",
+    "outback_roads": "https://dit.sa.gov.au/OutbackRoads"
+  },
+  "copy": {
+    "digest_subject": "South Australia camps this week: {closed} closed",
+    "digest_intro": "G'day! Here's the South Australian notice summary for {date}. Do not send. This file is a local preview.",
+    "digest_warnings": "Warnings change quickly, so we don't list them here. <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\" style=\"color:#2f5d3a;\">Check the SA Country Fire Service ratings</a> before you go.",
+    "digest_footer": "Do not send. Not an official warning service. Fire danger: SA Country Fire Service (cfs.sa.gov.au). Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). In an emergency call 000.<br>",
+    "newsletter_h2": "",
+    "home_title": "South Australia camp conditions — {count} sites | CampConditions.au",
+    "home_description": "{count} camps across South Australia, including Parks SA campgrounds and council and community camps. No current notice does not mean the camp is open, so check before you travel.",
+    "home_h1": "South Australia camp conditions",
+    "home_intro": "<strong>{count}</strong> camps across South Australia, including Parks SA campgrounds and council and community camps. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
+    "home_map": "Map of South Australian campgrounds",
+    "home_weather": "Check the <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\">SA Country Fire Service</a> before you travel.",
+    "website_description": "{count} camps across South Australia. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
+    "state_title": "South Australia campground conditions — {count} sites | CampConditions.au",
+    "state_description": "{count} camps across South Australia, including Parks SA campgrounds and council and community camps. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
+    "state_h1": "South Australia",
+    "state_intro": "<strong>{count}</strong> camps across South Australia, including Parks SA campgrounds and council and community camps. We check Parks SA closures and notices. No current notice does not mean the camp is open, so check before you travel.",
+    "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
+    "region_description": "{count} camps in {name}. {blurb}",
+    "region_list_name": "Campgrounds in {name}",
+    "osm_place": "{name} in {region}, South Australia. No current notice is not a confirmation the camp is open. Type: {category}.",
+    "official_place": "{name} in {region}, South Australia. Parks SA campground. Status comes from saved notice windows. No current notice is not a confirmation the camp is open.",
+    "osm_source_line": "Coordinates: OpenStreetMap contributors (ODbL).",
+    "place_admin": "{region}, South Australia",
+    "feed_region": "South Australia, Australia",
+    "feed_disclaimer": "Not an official warning service. A camp is closed, partial, upcoming or unknown only where a Parks SA notice says so. No current notice does not mean the camp is open. Check the SA Country Fire Service before you travel. A total fire ban does not close the camp.",
+    "footer_short": "South Australia: Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). <a href=\"/about/#sa-sources\">Sources</a>.",
+    "about_sources": "<li>Parks SA campgrounds and notices: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU.</li><li>Council and community camps are listed from the council, tourism or operator page named on each camp.</li><li>Coordinates: OpenStreetMap contributors (ODbL).</li><li>Fire danger: <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\">SA Country Fire Service</a>. A total fire ban does not close a camp.</li>",
+    "about_tail": "No current notice does not mean the camp is open, so check before you travel.",
+    "llms_intro": "Current conditions for {count} camps in South Australia: Parks SA campgrounds and council and community camps. A camp is closed, partial, upcoming or unknown only where a saved Parks SA notice says so. No current notice does not mean the camp is open. Fire danger is a link to the SA Country Fire Service. Not an official warning service.",
+    "llms_closures": "Closures come from the saved Parks SA notice windows. A camp is closed only where a notice covers that campground. Fire danger and total fire bans are linked to the SA Country Fire Service ratings page. A total fire ban does not close a camp. Do not treat a page with no current notice as open.",
+    "directions_note": "Check the SA Country Fire Service and official road conditions before you travel.",
+    "outdated_html": ""
+  },
+  "release": {
+    "public": true,
+    "signup": false,
+    "digest": false,
+    "live_html_parser": false,
+    "live_fetch": false,
+    "targets_provisional": ["2026-11-14"],
+    "targets_are_not_permission_to_ship": true,
+    "code_holds": [
+      "functions/_lib/token.js HELD_SIGNUP_STATES",
+      "scripts/states.py public_build_allowed"
+    ],
+    "gates": [
+      {
+        "id": "inventory_audit",
+        "ok": true,
+        "detail": "The public build lists 160 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, community and showground camps from the approved list. 86 commercial caravan, holiday and tourist parks are excluded. 19 parks whose ownership is unconfirmed are left out."
+      },
+      {
+        "id": "official_source_parser",
+        "ok": false,
+        "blocks_public": false,
+        "detail": "Live parks.sa.gov.au HTML is not parsed. This launch uses the saved notice file from the approved list."
+      },
+      {
+        "id": "osm_reconciliation",
+        "ok": true,
+        "detail": "Pink Gum way/1192258723 is one camp. Its camp_pitch children are not camps. Geometry is not an entrance."
+      },
+      {
+        "id": "licence_split",
+        "ok": true,
+        "detail": "Current site CC BY 3.0 AU, legacy JSON CC BY 4.0 and OSM ODbL stay separate. No booking prose or photos."
+      },
+      {
+        "id": "fire_machine",
+        "ok": true,
+        "detail": "The public build uses SA_FIRE_MODE=linkout. Pages link to the SA Country Fire Service and do not publish a district rating or the fire-ban polygons. A total fire ban does not close a camp."
+      },
+      {
+        "id": "closure_review",
+        "ok": true,
+        "detail": "Notices are the saved Adelaide windows from the approved list. A camp is closed, partial, upcoming or unknown only where a notice says so. No current notice is not a confirmation the camp is open."
+      },
+      {
+        "id": "digest_segment",
+        "ok": false,
+        "blocks_public": false,
+        "env": "RESEND_SEGMENT_SA_ID",
+        "detail": "No SA segment is created. Signup stays off. Pages say the weekly email is coming soon."
+      },
+      {
+        "id": "regression_activation",
+        "ok": true,
+        "detail": "The Victoria, New South Wales and Queensland build and tests run with this activation."
+      }
+    ]
+  }
+}

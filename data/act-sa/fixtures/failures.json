@@ -1,0 +1,9 @@
+[
+  {"name": "http_403", "result": {"status": 403, "body": "", "parsed_ok": false}},
+  {"name": "http_500", "result": {"status": 500, "body": "unavailable", "parsed_ok": false}},
+  {"name": "timeout", "result": {"status": "timeout", "body": null, "parsed_ok": false}},
+  {"name": "empty_html", "result": {"status": 200, "body": "   ", "parsed_ok": false}},
+  {"name": "changed_headings", "result": {"status": 200, "body": "<html><h1>Welcome</h1></html>", "parsed_ok": false, "malformed": true}},
+  {"name": "empty_alerts", "result": {"status": 200, "body": "{\"alerts\":[]}", "parsed_ok": true, "empty_alerts": true, "sentinel": false}},
+  {"name": "empty_sentinel", "result": {"status": 200, "body": "{\"alerts\":[],\"sentinel\":\"empty-confirmed\"}", "parsed_ok": true, "empty_alerts": true, "sentinel": true}}
+]

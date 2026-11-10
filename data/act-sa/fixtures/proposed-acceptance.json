@@ -1,0 +1,1259 @@
+{
+  "artifact_type": "proposed_acceptance_fixture_manifest",
+  "production_matcher_executed": false,
+  "reference_parser_executed": false,
+  "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+  "note": "Inputs are distilled source facts or explicitly synthetic failures. Expected outcomes are acceptance requirements for separate cloud coding, not production results. Dataset/schema checks only are executed here. All presentation timestamps Melbourne AEDT.",
+  "fixtures": [
+    {
+      "id": "ACT_WOODS_SPECIFIC_OVERRIDE",
+      "scope": "campground",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/woods-reserve",
+        "https://www.parks.act.gov.au/before-you-go/alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Specific official closure must override generic promotional camping wording.",
+      "input": {
+        "entity": "Woods Reserve",
+        "at_melbourne": "2026-11-09T12:00:00+11:00",
+        "generic_description": "camping available",
+        "specific_notice": "closed from 1 November 2025 until further notice; anticipated early 2027"
+      },
+      "expected": {
+        "operating_status": "closed",
+        "auto_reopen_at": null,
+        "keep_inventory_record": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_WOODS_NO_CALENDAR_REOPEN",
+      "scope": "campground",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/find-a-nature-park/namadgi-national-park/woods-reserve"
+      ],
+      "evidence_basis_not_verbatim_quote": "Early 2027 is an anticipation, not an exact expiry or reopening notice.",
+      "input": {
+        "entity": "Woods Reserve",
+        "at_melbourne": "2027-01-01T00:00:00+11:00",
+        "explicit_reopen_evidence": null
+      },
+      "expected": {
+        "operating_status": "last_known_closed_recheck",
+        "auto_reopen": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_NEVER_NSW_FDR",
+      "scope": "state",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://esa.act.gov.au/be-emergency-ready/total-fire-bans"
+      ],
+      "evidence_basis_not_verbatim_quote": "ACT ESA Commissioner declares all/part-territory TFB. NSW data is outside target jurisdiction.",
+      "input": {
+        "target_state": "ACT",
+        "only_machine_rating_source_state": "NSW"
+      },
+      "expected": {
+        "fdr": "unknown",
+        "total_fire_ban": "unknown",
+        "source_link": "https://esa.act.gov.au/be-emergency-ready/total-fire-bans",
+        "borrow_nsw_rating": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_NORTHERN_BORDER_UNKNOWN_TFB",
+      "scope": "campground",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/find-a-nature-park/canberra-centenary-trail/northern-border-campground",
+        "https://esa.act.gov.au/be-emergency-ready/total-fire-bans"
+      ],
+      "evidence_basis_not_verbatim_quote": "Walk/cycle access and closure on Total Fire Ban days; no verified dated ACT value extracted.",
+      "input": {
+        "entity": "Northern Border Campground",
+        "verified_current_act_tfb": null
+      },
+      "expected": {
+        "tfb_dependent_closure": "unknown",
+        "vehicle_access": false,
+        "fire_source_link": "https://esa.act.gov.au/be-emergency-ready/total-fire-bans"
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_NORTHERN_BORDER_VERIFIED_TFB",
+      "scope": "campground",
+      "fixture_kind": "source_rule_hypothetical_input",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/find-a-nature-park/canberra-centenary-trail/northern-border-campground",
+        "https://esa.act.gov.au/be-emergency-ready/total-fire-bans"
+      ],
+      "evidence_basis_not_verbatim_quote": "Hypothetical supported dated ACT TFB occurrence; this fixture is not evidence a ban exists.",
+      "input": {
+        "entity": "Northern Border Campground",
+        "verified_current_act_tfb": true,
+        "tfb_scope_includes_camp": true
+      },
+      "expected": {
+        "operating_status": "closed_for_tfb"
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_RED_ROCKS_NOT_ALL_MRC",
+      "scope": "subarea",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/before-you-go/alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Cliff climbing restriction is not blanket corridor campground closure.",
+      "input": {
+        "notice_target": "Red Rocks Gorge cliff climbing",
+        "candidate": "Cotter Campground",
+        "parent": "Murrumbidgee River Corridor"
+      },
+      "expected": {
+        "closed_by_this_notice": false,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_GIBRALTAR_PLATFORM_NOT_WOODS_CAUSE",
+      "scope": "subarea",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/before-you-go/alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Track/platform closure must not propagate by nearby park heading.",
+      "input": {
+        "notice_target": "Gibraltar Falls platform and track",
+        "candidate": "Honeysuckle Campground"
+      },
+      "expected": {
+        "closed_by_this_notice": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_WIRRA_MONDAY",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23"
+      ],
+      "evidence_basis_not_verbatim_quote": "Wednesday 18:00\u2013midnight Adelaide, 1 Sep 2026\u201331 Aug 2027; excludes listed school holidays including 12 Dec 2026\u201327 Jan 2027. Half-open endpoint is proposed product semantics.",
+      "input": {
+        "entity": "Wirra Campground",
+        "parent": "Para Wirra Conservation Park",
+        "at_melbourne": "2026-11-09T19:00:00+11:00",
+        "source_timezone": "Australia/Adelaide",
+        "interval_semantics": "[start,end) proposed"
+      },
+      "expected": {
+        "closed_by_this_recurring_notice": false,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_WIRRA_BEFORE_START",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23"
+      ],
+      "evidence_basis_not_verbatim_quote": "Wednesday 18:00\u2013midnight Adelaide, 1 Sep 2026\u201331 Aug 2027; excludes listed school holidays including 12 Dec 2026\u201327 Jan 2027. Half-open endpoint is proposed product semantics.",
+      "input": {
+        "entity": "Wirra Campground",
+        "parent": "Para Wirra Conservation Park",
+        "at_melbourne": "2026-11-11T18:29:59+11:00",
+        "source_timezone": "Australia/Adelaide",
+        "interval_semantics": "[start,end) proposed"
+      },
+      "expected": {
+        "closed_by_this_recurring_notice": false,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_WIRRA_START",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23"
+      ],
+      "evidence_basis_not_verbatim_quote": "Wednesday 18:00\u2013midnight Adelaide, 1 Sep 2026\u201331 Aug 2027; excludes listed school holidays including 12 Dec 2026\u201327 Jan 2027. Half-open endpoint is proposed product semantics.",
+      "input": {
+        "entity": "Wirra Campground",
+        "parent": "Para Wirra Conservation Park",
+        "at_melbourne": "2026-11-11T18:30:00+11:00",
+        "source_timezone": "Australia/Adelaide",
+        "interval_semantics": "[start,end) proposed"
+      },
+      "expected": {
+        "closed_by_this_recurring_notice": true,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_WIRRA_CROSS_MIDNIGHT",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23"
+      ],
+      "evidence_basis_not_verbatim_quote": "Wednesday 18:00\u2013midnight Adelaide, 1 Sep 2026\u201331 Aug 2027; excludes listed school holidays including 12 Dec 2026\u201327 Jan 2027. Half-open endpoint is proposed product semantics.",
+      "input": {
+        "entity": "Wirra Campground",
+        "parent": "Para Wirra Conservation Park",
+        "at_melbourne": "2026-11-12T00:29:59+11:00",
+        "source_timezone": "Australia/Adelaide",
+        "interval_semantics": "[start,end) proposed"
+      },
+      "expected": {
+        "closed_by_this_recurring_notice": true,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_WIRRA_END_HALF_OPEN",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23"
+      ],
+      "evidence_basis_not_verbatim_quote": "Wednesday 18:00\u2013midnight Adelaide, 1 Sep 2026\u201331 Aug 2027; excludes listed school holidays including 12 Dec 2026\u201327 Jan 2027. Half-open endpoint is proposed product semantics.",
+      "input": {
+        "entity": "Wirra Campground",
+        "parent": "Para Wirra Conservation Park",
+        "at_melbourne": "2026-11-12T00:30:00+11:00",
+        "source_timezone": "Australia/Adelaide",
+        "interval_semantics": "[start,end) proposed"
+      },
+      "expected": {
+        "closed_by_this_recurring_notice": false,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_WIRRA_HOLIDAY_EXCEPTION",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/para-wirra-conservation-park-23"
+      ],
+      "evidence_basis_not_verbatim_quote": "Wednesday 18:00\u2013midnight Adelaide, 1 Sep 2026\u201331 Aug 2027; excludes listed school holidays including 12 Dec 2026\u201327 Jan 2027. Half-open endpoint is proposed product semantics.",
+      "input": {
+        "entity": "Wirra Campground",
+        "parent": "Para Wirra Conservation Park",
+        "at_melbourne": "2026-12-30T20:00:00+11:00",
+        "source_timezone": "Australia/Adelaide",
+        "interval_semantics": "[start,end) proposed"
+      },
+      "expected": {
+        "closed_by_this_recurring_notice": false,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_PINK_GUM_BOOKING_EXCEPTION",
+      "scope": "campground",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/onkaparinga-river-national-park-6"
+      ],
+      "evidence_basis_not_verbatim_quote": "Overnight 20:30\u201305:00 local windows and 500m campground booking exception; no availability inferred.",
+      "input": {
+        "entity": "Pink Gum",
+        "at_melbourne": "2026-11-09T21:00:00+11:00",
+        "booking_availability_checked": false
+      },
+      "expected": {
+        "operating_status": "review_unknown",
+        "continuous_whole_range_closure": false,
+        "claim_booking_available": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_STRINGYBARK_HIKES_ONLY",
+      "scope": "campground",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/deep-creek-national-park-14",
+        "https://www.parks.sa.gov.au/parks/deep-creek-national-park"
+      ],
+      "evidence_basis_not_verbatim_quote": "Part-park heading must resolve to named hikes, not all camps. Parent reopening is separate evidence.",
+      "input": {
+        "entity": "Stringybark Campground",
+        "notice_targets": "four named hikes"
+      },
+      "expected": {
+        "closed_by_this_notice": false,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_TALISKER_CROSS_PARK_FALSE_MATCH",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/deep-creek-national-park"
+      ],
+      "evidence_basis_not_verbatim_quote": "Parent page includes Talisker alert; display association is not target identity.",
+      "input": {
+        "candidate_parent": "Deep Creek National Park",
+        "notice_parent": "Talisker Conservation Park",
+        "notice_displayed_on_candidate_page": true
+      },
+      "expected": {
+        "inherit_notice": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_CHOWILLA_PITCH_14",
+      "scope": "pitch",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-game-reserve-11"
+      ],
+      "evidence_basis_not_verbatim_quote": "Works 18 May\u201330 Nov 2026 target sites 14\u201332, Foleys and Scab Inspectors Hut, not all sites.",
+      "input": {
+        "parent": "Chowilla Game Reserve",
+        "pitch_ref": "14",
+        "at_melbourne": "2026-11-09T12:00:00+11:00"
+      },
+      "expected": {
+        "closed_by_this_works_notice": true,
+        "other_overlapping_alerts_still_required": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_CHOWILLA_PITCH_2",
+      "scope": "pitch",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-game-reserve-11"
+      ],
+      "evidence_basis_not_verbatim_quote": "Works 18 May\u201330 Nov 2026 target sites 14\u201332, Foleys and Scab Inspectors Hut, not all sites.",
+      "input": {
+        "parent": "Chowilla Game Reserve",
+        "pitch_ref": "2",
+        "at_melbourne": "2026-11-09T12:00:00+11:00"
+      },
+      "expected": {
+        "closed_by_this_works_notice": false,
+        "other_overlapping_alerts_still_required": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_CHOWILLA_PARTIAL_PARENT",
+      "scope": "campground",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-game-reserve-11"
+      ],
+      "evidence_basis_not_verbatim_quote": "Do not expand named sites into a full park closure; date-only end not exact reopening.",
+      "input": {
+        "notice_targets": [
+          "sites 14\u201332",
+          "Foleys",
+          "Scab Inspectors Hut"
+        ],
+        "candidate": "all Chowilla Game Reserve camping"
+      },
+      "expected": {
+        "scope_status": "partial_restrictions",
+        "whole_parent_closed_by_this_notice": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_SAME_PITCH_NUMBER_OTHER_PARK",
+      "scope": "pitch",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-game-reserve-11"
+      ],
+      "evidence_basis_not_verbatim_quote": "Pitch identifier is authority+parent qualified, never number-only.",
+      "input": {
+        "candidate_parent": "another verified park",
+        "pitch_ref": "14",
+        "notice_parent": "Chowilla Game Reserve"
+      },
+      "expected": {
+        "match": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_GAME_V_REGIONAL_AMBIGUITY",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-game-reserve-11",
+        "https://data.sa.gov.au/data/dataset/parks-listings"
+      ],
+      "evidence_basis_not_verbatim_quote": "Legacy combined park record cannot safely stand in for distinct jurisdictions.",
+      "input": {
+        "legacy_merged_entity": "Chowilla Game Reserve and Regional Reserve",
+        "notice_target": "Chowilla Game Reserve"
+      },
+      "expected": {
+        "automatic_merged_entity_match": false,
+        "review_required": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_DALHOUSIE_ACCESS_NOT_CLEAR",
+      "scope": "campground",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/desert-parks-bulletin-2",
+        "https://dit.sa.gov.au/OutbackRoads"
+      ],
+      "evidence_basis_not_verbatim_quote": "Bulletin campground and access-road status are separate dimensions; source is dated 27 Oct 2026.",
+      "input": {
+        "bulletin_camp_status": "Dalhousie campground open",
+        "access_notice": "Mt Dare Road closure"
+      },
+      "expected": {
+        "infer_all_routes_open": false,
+        "access_warning": true,
+        "live_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_NOT_QLD_MUNGA_THIRRI",
+      "scope": "state",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/desert-parks-bulletin-2"
+      ],
+      "evidence_basis_not_verbatim_quote": "Bulletin explicitly distinguishes SA Simpson park and QLD park status.",
+      "input": {
+        "notice_state": "SA",
+        "candidate_state": "QLD",
+        "shared_name": "Munga-Thirri"
+      },
+      "expected": {
+        "inherit_sa_status": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SOURCE_EMPTY_HTML",
+      "scope": "source_health",
+      "fixture_kind": "proposed_failure_policy",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/before-you-go/alerts",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Proposed failure/expiry safety contract, not agency API behaviour; no empty/stale response may silently produce open/no-ban.",
+      "input": {
+        "http": 200,
+        "main_alerts_heading_present": false,
+        "items": []
+      },
+      "expected": {
+        "source_health": "parse_failure",
+        "status": "unknown",
+        "clear_prior_closure": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SOURCE_EMPTY_UNVALIDATED",
+      "scope": "source_health",
+      "fixture_kind": "proposed_failure_policy",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/before-you-go/alerts",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Proposed failure/expiry safety contract, not agency API behaviour; no empty/stale response may silently produce open/no-ban.",
+      "input": {
+        "http": 200,
+        "main_alerts_heading_present": true,
+        "items": [],
+        "sudden_zero_anomaly": true
+      },
+      "expected": {
+        "source_health": "review_anomaly",
+        "status": "unknown",
+        "clear_prior_closure": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SOURCE_TIMEOUT_NO_CACHE",
+      "scope": "source_health",
+      "fixture_kind": "proposed_failure_policy",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/before-you-go/alerts",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Proposed failure/expiry safety contract, not agency API behaviour; no empty/stale response may silently produce open/no-ban.",
+      "input": {
+        "http": null,
+        "cache": null
+      },
+      "expected": {
+        "source_health": "unavailable",
+        "status": "unknown"
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SOURCE_STALE_CLOSED_CACHE",
+      "scope": "source_health",
+      "fixture_kind": "proposed_failure_policy",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/before-you-go/alerts",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Proposed failure/expiry safety contract, not agency API behaviour; no empty/stale response may silently produce open/no-ban.",
+      "input": {
+        "http": 500,
+        "last_good_age_hours": 25,
+        "last_good_status": "closed"
+      },
+      "expected": {
+        "source_health": "stale",
+        "status": "last_known_closed_unverified",
+        "claim_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "FDR_YESTERDAY_NO_BAN",
+      "scope": "source_health",
+      "fixture_kind": "proposed_failure_policy",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.act.gov.au/before-you-go/alerts",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"
+      ],
+      "evidence_basis_not_verbatim_quote": "Proposed failure/expiry safety contract, not agency API behaviour; no empty/stale response may silently produce open/no-ban.",
+      "input": {
+        "source_validity_date": "2026-11-08",
+        "target_local_date": "2026-11-09",
+        "last_value": "no ban"
+      },
+      "expected": {
+        "tfb": "unknown",
+        "carry_forward_no_ban": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "OSM_PINK_GUM_CHILDREN",
+      "scope": "inventory",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:13:11.819776+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/onkaparinga-river-national-park/booking/92322",
+        "https://www.openstreetmap.org/way/1192258723"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual official eleven pitches and OSM pitch refs agree; pitches are not additional camps.",
+      "input": {
+        "official_booking_id": "92322",
+        "osm_parent": "way/1192258723",
+        "osm_child_camp_pitch_refs": [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5",
+          "6",
+          "7",
+          "8",
+          "9",
+          "10",
+          "11"
+        ]
+      },
+      "expected": {
+        "distinct_campgrounds": 1,
+        "child_pitch_records": 11
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "OSM_ACT_CHILDREN_MISTAGGED_AS_CAMPS",
+      "scope": "inventory",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.openstreetmap.org/way/27879946"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual ACT extract containment check; tourism=camp_site alone does not guarantee a top-level campground.",
+      "input": {
+        "parent_osm": "way/27879946",
+        "site_labelled_child_camp_site_features": 35,
+        "representative_points_inside_parent": 35,
+        "entire_polygons_inside_parent": 32
+      },
+      "expected": {
+        "publish_35_new_campgrounds": false,
+        "treat_as_child_pitch_candidates": true,
+        "review_3_boundary_crossing_polygons": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_CASURINA_REVIEWED_ALIAS",
+      "scope": "inventory_geometry",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://cdn.environment.sa.gov.au/parks/docs/innes-national-park/Dhilba_Guuranda-Innes_NP_Casuarina_campground_optimised_2022_updates.pdf?v=1667365050",
+        "https://www.openstreetmap.org/way/1413207447"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual official spelling Casuarina versus OSM Casurina; geometry supports reviewed alias only.",
+      "input": {
+        "osm_name": "Casurina Campground",
+        "same_official_detail_map_vicinity": true
+      },
+      "expected": {
+        "reviewed_alias_candidate": true,
+        "auto_global_fuzzy_match": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_TAPANAPPA_UNNAMED_FEATURE",
+      "scope": "inventory_geometry",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://cdn.environment.sa.gov.au/parks/docs/deep-creek-conservation-park/Deep_Creek_NP_Tapanappa_campground_optimised_2022.pdf?v=1669958635",
+        "https://www.openstreetmap.org/way/1531658409"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual unnamed camping-tagged geometry exists inside official map; name-only matching would falsely report omission.",
+      "input": {
+        "osm_inside_detail_map": "way/1531658409",
+        "osm_name": null
+      },
+      "expected": {
+        "geometry_candidate_requires_review": true,
+        "declare_OSM_absent": false,
+        "auto_publish_duplicate": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_GYM_GEOMETRY_DISAGREEMENT",
+      "scope": "inventory_geometry",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://cdn.environment.sa.gov.au/parks/docs/innes-national-park/Dhilba_Guuranda-Innes_NP_Gym_Beach_campground_optimised_2022_updates.pdf?v=1667365056",
+        "https://www.openstreetmap.org/node/6589905285"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual OSM representative point is about 444m outside official detailed map, not a proven current relocation.",
+      "input": {
+        "osm_node": 6589905285,
+        "approx_distance_to_detail_viewport_edge_m": 444.3
+      },
+      "expected": {
+        "automatic_merge_or_relocation": false,
+        "geometry_review_required": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_PONDALOWIE_DISTINCT_PRODUCTS",
+      "scope": "inventory_geometry",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://cdn.environment.sa.gov.au/parks/docs/innes-national-park/Dhilba_Guuranda-Innes_NP_Pondalowie_campground_optimised.2024.pdf?v=1730433893",
+        "https://www.openstreetmap.org/way/852240175"
+      ],
+      "evidence_basis_not_verbatim_quote": "Official tents-only and caravan/trailer booking IDs and detailed maps are distinct despite shared Pondalowie name.",
+      "input": {
+        "tent_booking_id": "67453",
+        "caravan_booking_id": "69782",
+        "caravan_osm": "way/852240175",
+        "approx_distance_from_tent_map_edge_m": 181.9
+      },
+      "expected": {
+        "auto_merge_by_name_or_200m_radius": false,
+        "distinct_official_camp_facilities": 2
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_BLACK_SPRINGS_OVERFLOW_DISTINCT",
+      "scope": "inventory_geometry",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://cdn.environment.sa.gov.au/parks/docs/coffin-bay-national-park/Coffin_Bay_NP_Black_Springs_Overflow_Campground_optimised_2022.pdf?v=1667518471",
+        "https://www.openstreetmap.org/node/3439215546"
+      ],
+      "evidence_basis_not_verbatim_quote": "Overflow is a separate official facility; main point 83m beyond overflow detailed-map edge cannot satisfy identity by radius alone.",
+      "input": {
+        "main_booking_id": "73101",
+        "overflow_booking_id": "85012",
+        "main_osm": "node/3439215546",
+        "approx_distance_from_overflow_map_edge_m": 82.9
+      },
+      "expected": {
+        "auto_merge_with_main_camp": false,
+        "retain_official_overflow_facility": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_PARK_CENTRE_NOT_CAMP_GEOMETRY",
+      "scope": "geometry",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/onkaparinga-river-national-park"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual HTML map centre is park-level; GeoPDF detailed camp map provides separate vicinity evidence.",
+      "input": {
+        "park": "Onkaparinga River National Park",
+        "html_data_latlng": "-35.145477,138.5785801",
+        "candidate": "Pink Gum"
+      },
+      "expected": {
+        "use_as_campground_or_entrance_coordinate": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_SITEMAP_PDF_NOT_HTML_PRODUCT",
+      "scope": "source_health",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/sitemaps-1-section-bookings-1-sitemap.xml"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual direct-loc sitemap enumeration includes 111 PDF URLs. Initial HTML parser treatment was detected and excluded.",
+      "input": {
+        "sitemap_booking_url_count": 320,
+        "sitemap_pdf_asset_urls": 111,
+        "official_booking_route_urls": 209
+      },
+      "expected": {
+        "claim_320_campgrounds": false,
+        "count_pdf_assets_as_booking_products": false,
+        "require_content_type_and_entity_classification": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_MOUNT_REMARKABLE_FUTURE",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mount-remarkable-national-park-15",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/part-closure-of-mount-remarkable-national-park"
+      ],
+      "evidence_basis_not_verbatim_quote": "Current published full closure explicitly names both campgrounds. Date-only generic reopening does not suppress a later applicable interval; half-open endpoint proposed.",
+      "input": {
+        "entity": "Mambray Creek Campground or Baroota Ruins Campground",
+        "at_melbourne": "2026-11-14T12:00:00+11:00",
+        "source_interval_adelaide": "2026-11-15 18:00 to 2026-11-20 14:00",
+        "older_generic_source": "all camping sites now open"
+      },
+      "expected": {
+        "specific_closure_status": "upcoming",
+        "generic_description_override": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_MOUNT_REMARKABLE_ACTIVE",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mount-remarkable-national-park-15",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/part-closure-of-mount-remarkable-national-park"
+      ],
+      "evidence_basis_not_verbatim_quote": "Current published full closure explicitly names both campgrounds. Date-only generic reopening does not suppress a later applicable interval; half-open endpoint proposed.",
+      "input": {
+        "entity": "Mambray Creek Campground or Baroota Ruins Campground",
+        "at_melbourne": "2026-11-15T18:30:00+11:00",
+        "source_interval_adelaide": "2026-11-15 18:00 to 2026-11-20 14:00",
+        "older_generic_source": "all camping sites now open"
+      },
+      "expected": {
+        "specific_closure_status": "closed",
+        "generic_description_override": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_MOUNT_REMARKABLE_ENDED",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/mount-remarkable-national-park-15",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/part-closure-of-mount-remarkable-national-park"
+      ],
+      "evidence_basis_not_verbatim_quote": "Current published full closure explicitly names both campgrounds. Date-only generic reopening does not suppress a later applicable interval; half-open endpoint proposed.",
+      "input": {
+        "entity": "Mambray Creek Campground or Baroota Ruins Campground",
+        "at_melbourne": "2026-11-20T14:30:00+11:00",
+        "source_interval_adelaide": "2026-11-15 18:00 to 2026-11-20 14:00",
+        "older_generic_source": "all camping sites now open"
+      },
+      "expected": {
+        "specific_closure_status": "expired_recheck_not_verified_open",
+        "generic_description_override": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_MOUNT_REMARKABLE_OLD_EXPIRED",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/wapma-thura-southern-flinders-ranges-national-park-and-mount-remarkable-national-park-2"
+      ],
+      "evidence_basis_not_verbatim_quote": "Past full closure remains listed; do not match by heading without date evaluation.",
+      "input": {
+        "at_melbourne": "2026-11-09T12:00:00+11:00",
+        "source_end_adelaide": "2026-11-06 18:00"
+      },
+      "expected": {
+        "closed_by_Nov1_to_Nov6_notice": false,
+        "infer_verified_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_INNES_HEALTH_NOT_CLOSURE",
+      "scope": "park",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/dhilba-guuranda-innes-national-park-19",
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/dhilba-guuranda-innes-national-park-7"
+      ],
+      "evidence_basis_not_verbatim_quote": "Current 4Nov ticks and 19Jan bee advisories do not declare camping closure.",
+      "input": {
+        "notice_targets": [
+          "ticks throughout park",
+          "feral bee activity"
+        ],
+        "candidate": "Cable Bay or other Innes campground"
+      },
+      "expected": {
+        "health_advisory": true,
+        "closed_by_health_notice": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_COFFIN_ACCESS_WARNING_NOT_CLOSURE",
+      "scope": "access",
+      "fixture_kind": "source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:19:28.137169+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/coffin-bay-national-park-12"
+      ],
+      "evidence_basis_not_verbatim_quote": "5Nov current official track warning, not a blanket park closure; route/camp association must be explicit.",
+      "input": {
+        "notice": "Yangie to Morgans Landing 4WD track rutting, soft sand and tidal inundation",
+        "candidate": "Coffin Bay campground"
+      },
+      "expected": {
+        "access_advisory": true,
+        "infer_all_camps_closed": false,
+        "infer_route_safe": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_FEED_GRANT_NOT_PARKS_TEXT",
+      "scope": "licence",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://esa.act.gov.au/be-emergency-ready/warnings-alerts",
+        "https://www.parks.act.gov.au/copyright"
+      ],
+      "evidence_basis_not_verbatim_quote": "Exact feed grant does not clear another agency website.",
+      "input": {
+        "licence_names": [
+          "News Alerts",
+          "Current Incidents"
+        ],
+        "target": "Parks ACT closure page prose"
+      },
+      "expected": {
+        "extend_named_ESA_feed_grant": false,
+        "parks_terms_status": "unresolved"
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_EDXL_NOT_ZERO_RSS_NO_INCIDENTS",
+      "scope": "source_health",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://data.esa.act.gov.au/feeds/esa-cap-incidents.xml"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual source parse contains15CAPmessages despite noRSSitems; not production executed.",
+      "input": {
+        "root": "EDXLDistribution",
+        "RSS_item_count": 0,
+        "CAP_alert_count": 15
+      },
+      "expected": {
+        "treat_as_empty": false,
+        "schema": "EDXL plusCAP1.2",
+        "infer_no_ban_or_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_INCIDENT_FEED_NOT_FDR",
+      "scope": "fire",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://esa.act.gov.au/be-emergency-ready/warnings-alerts",
+        "https://esa.act.gov.au/be-emergency-ready/total-fire-bans"
+      ],
+      "evidence_basis_not_verbatim_quote": "Feed scope is incidents, not proof of today territory fire rating or ban.",
+      "input": {
+        "incident_feed_healthy": true,
+        "dated_ACT_FDR_TFB_source": null
+      },
+      "expected": {
+        "ACT_FDR": "unknown",
+        "ACT_TFB": "unknown",
+        "borrow_NSW": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_ASSET_NOT_CAMPGROUND_ENTRANCE",
+      "scope": "geometry",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.data.act.gov.au/resource/kt8b-i5us.csv"
+      ],
+      "evidence_basis_not_verbatim_quote": "Official table location is an independent asset point, not a surveyed campground centroid/entrance.",
+      "input": {
+        "official_asset_id": "TABL666",
+        "asset_location": "COTTER RESERVE - CAMPGROUND",
+        "asset_point_near_OSM": true
+      },
+      "expected": {
+        "locality_correlated": true,
+        "entrance_or_boundary_verified": false,
+        "infer_current_open": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_COTTER_BEND_WRONG_ENTITY",
+      "scope": "matching",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.data.act.gov.au/resource/kt8b-i5us.csv"
+      ],
+      "evidence_basis_not_verbatim_quote": "Search synthesis incorrectly labelled a Cotter Bend furniture point as camp coordinates; entity-level source row wins.",
+      "input": {
+        "search_coordinate_label": "COTTER BEND TABLE",
+        "target": "Cotter Campground"
+      },
+      "expected": {
+        "automatic_coordinate_substitution": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_ELM_GROVE_ALIAS_NOT_ASSUMED",
+      "scope": "matching",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.data.act.gov.au/resource/5jgc-jiit.csv"
+      ],
+      "evidence_basis_not_verbatim_quote": "Nearby historic/different location label is not independently verified current campground naming.",
+      "input": {
+        "official_asset_location": "ELM GROVE CAMP",
+        "target": "Northern Border Campground",
+        "proximity_m": 13.6
+      },
+      "expected": {
+        "assume_current_alias_or_entrance": false,
+        "manual_context_review": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "ACT_DATASET_LICENCE_NOT_BLANKET_PARKS",
+      "scope": "licence",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.arcgis.com/sharing/rest/content/items/9d8c9375a36d42a085f8d40ea4dd0f38?f=pjson",
+        "https://www.parks.act.gov.au/copyright"
+      ],
+      "evidence_basis_not_verbatim_quote": "Per-item grant is confirmed, Parks website grant remains unresolved.",
+      "input": {
+        "licensed_item": "ACTGOV Table Assets",
+        "target": "parks.act.gov.au page text"
+      },
+      "expected": {
+        "extend_CC_BY4": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_OVERFLOW_NEIGHBOUR_NUMBER7",
+      "scope": "geometry",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://cdn.environment.sa.gov.au/parks/docs/coffin-bay-national-park/Coffin_Bay_NP_Black_Springs_Overflow_Campground_optimised_2022.pdf?v=1667518471"
+      ],
+      "evidence_basis_not_verbatim_quote": "Focused visual inspection shows7belongsneighbouringmaincamp and4ispartof4WDlabel; overflow isunallocated.",
+      "input": {
+        "map_title": "Black Springs Overflow",
+        "visible_number": "7",
+        "number_target": "main Black Springs campground"
+      },
+      "expected": {
+        "count_as_overflow_pitch": false,
+        "collapse_main_and_overflow": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_MORGANS_SITE1_BEACH_ACCESS",
+      "scope": "access",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://cdn.environment.sa.gov.au/parks/docs/coffin-bay-national-park/Coffin_Bay_NP_Morgans_Landing_Campground_optimised.pdf?v=1662448135"
+      ],
+      "evidence_basis_not_verbatim_quote": "Source map distinguishes one site-access path from the facility road access.",
+      "input": {
+        "candidate_pitch": "Morgan\u2019s Landing1",
+        "access_caption": "Access to Campsite1isalongthebeach"
+      },
+      "expected": {
+        "infer_all_sites_road_accessible": false,
+        "preserve_site1_access_exception": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_SENSATION_BEACH_NOT_CAMP_POINT",
+      "scope": "geometry",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/73104"
+      ],
+      "evidence_basis_not_verbatim_quote": "Detailed greycampingsymbol is inland nearturn-around; beachlabelisnotcamp.",
+      "input": {
+        "camp": "Sensation",
+        "beach_label_point": true,
+        "official_description_distance": "approximately1kmfrombeach"
+      },
+      "expected": {
+        "substitute_beach_for_camp_geometry": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_NUMBER_LABEL_SCALE_DUPLICATES",
+      "scope": "inventory",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/dhilba-guuranda-innes-national-park/booking/67453"
+      ],
+      "evidence_basis_not_verbatim_quote": "Focused PDF inspection distinguishes repeated10/20scale labels from camping labels.",
+      "input": {
+        "camp": "Pondalowie tents",
+        "pitch_labels": "1\u201326",
+        "scale_bar_labels": [
+          "0",
+          "10",
+          "20"
+        ]
+      },
+      "expected": {
+        "distinct_campgrounds": 1,
+        "source_numbered_pitches": 26,
+        "count_scale_bar_as_pitch": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_HIDEAWAY_FAMILIES_NOT_CAMPS",
+      "scope": "inventory",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park/booking/143123"
+      ],
+      "evidence_basis_not_verbatim_quote": "Official description says converted picnic area away from main campground.",
+      "input": {
+        "booking_id": "143123",
+        "capacity_text": "1upto3families"
+      },
+      "expected": {
+        "distinct_facilities": 1,
+        "infer_three_campgrounds": false,
+        "merge_with_Wirra": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_HELIPAD_GUESTS_NOT_CAMPS",
+      "scope": "inventory",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/para-wirra-conservation-park/booking/95350"
+      ],
+      "evidence_basis_not_verbatim_quote": "Largegroupfacilitycapacity is guests, not allocated pitch or campground count.",
+      "input": {
+        "booking_id": "95350",
+        "unallocated_capacity_guests": 60
+      },
+      "expected": {
+        "distinct_facilities": 1,
+        "infer60campgrounds": false,
+        "individual_pitch_availability_known": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_ROUTE_PARKING_NOT_PHYSICAL_PARENT",
+      "scope": "matching",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/141387",
+        "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/140592"
+      ],
+      "evidence_basis_not_verbatim_quote": "Both routecamp descriptions specify physical parks; parking-fee mention does not override them.",
+      "input": {
+        "camp": "Natunyuru",
+        "official_physical_parent": "Newland Head Conservation Park",
+        "Deep_Creek_overnight_parking_fee_note": true
+      },
+      "expected": {
+        "assign_physical_parent_Deep_Creek": false,
+        "no_vehicle_access": true
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_NATUNURU_REVIEWED_SPELLING",
+      "scope": "matching",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/141387",
+        "https://cdn.environment.sa.gov.au/parks/docs/Sand_Dunes_campground_Natunyuru_Ngawanthi_for_sign_LowRes.pdf?v=1650595390"
+      ],
+      "evidence_basis_not_verbatim_quote": "Actual officialmapvicinity supports explicit alias, not broadname-onlyconflation.",
+      "input": {
+        "official": "Natunyuru Ngawanthi",
+        "OSM": "Natunuru Ngawanthi",
+        "OSM_id": "node/9870082545",
+        "inside_official_geopdf": true
+      },
+      "expected": {
+        "reviewed_alias_candidate": true,
+        "global_fuzzy_match_enabled": false
+      },
+      "production_test_executed": false
+    },
+    {
+      "id": "SA_28_COHORT_NOT_STATEWIDE",
+      "scope": "coverage",
+      "fixture_kind": "focused_source_grounded_expected_case",
+      "checked_at_melbourne": "2026-11-09T12:36:30.368091+11:00",
+      "source_urls": [
+        "https://www.parks.sa.gov.au/sitemaps-1-section-bookings-1-sitemap.xml"
+      ],
+      "evidence_basis_not_verbatim_quote": "Defined source cohort has one unresolved generic facilities product; do not claim complete overnight classification or statewide/production readiness.",
+      "input": {
+        "reviewed_parent_routes": 43,
+        "confirmed_distinct_facilities": 28,
+        "clearly_non_camp_products": 14,
+        "unclassified_facilities_product": 1
+      },
+      "expected": {
+        "claim_SA_complete": false,
+        "claim_all28_release_ready": false,
+        "scope_label_required": true
+      },
+      "production_test_executed": false
+    }
+  ],
+  "manifest_validation": {
+    "unique_ids": true,
+    "all_source_urls_present": true,
+    "production_execution_count": 0,
+    "fixture_count": 59
+  }
+}

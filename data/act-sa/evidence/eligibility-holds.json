@@ -1,0 +1,32 @@
+{
+  "artifact_type": "derived_eligibility_holds_not_the_ledger",
+  "ledger_rows_not_camps": 1358,
+  "osm_non_pitch_records": 1290,
+  "official_candidate_rows": 68,
+  "geometry_sources_not_a_camp_count": {"OSM point": 904, "OSM polygon point_on_surface": 386, "none": 68},
+  "known_closed_names": ["Woods Reserve Recreation Area"],
+  "excluded_counts_from_ledger": {"act_child_camp_site": 35, "sa_allocated_children": 57, "sa_outside_state": 4, "trig_sectors": 2},
+  "rows": [
+    {"state": "ACT", "record_id": "way/1567012314", "name": "Site 19", "disposition": "exclude_child_pitch_mistagged", "parent_or_duplicate_of": "way/27879946", "current_status": "unknown"},
+    {"state": "ACT", "record_id": "node/8441973436", "name": "Exhibition Park Camground", "disposition": "exclude_duplicate_identity", "parent_or_duplicate_of": "way/280952772", "current_status": "unknown"},
+    {"state": "ACT", "record_id": "way/280952772", "name": "Exhibition Park (epic) Camping Ground", "disposition": "represent_minimal_operator_correlated_unknown_status", "current_status": "unknown"},
+    {"state": "ACT", "record_id": "woods", "name": "Woods Reserve Recreation Area", "disposition": "represent_minimal_with_restrictions_unknown_status", "current_status": "closed_until_further_notice"},
+    {"state": "SA", "record_id": "node/3107057998", "name": "Katarapko Campsite 27", "disposition": "exclude_allocated_child_as_parent", "parent_or_duplicate_of": "official:SA:83204", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/1956246563", "name": "", "disposition": "exclude_outside_state", "inside_state": false, "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/9738925392", "name": "Burns/Cockburn Rest Area", "disposition": "exclude_outside_state", "inside_state": false, "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/11182471275", "name": "NT-SA Border", "disposition": "exclude_outside_state", "inside_state": false, "current_status": "unknown"},
+    {"state": "SA", "record_id": "way/265146867", "name": "State Border Rest Area", "disposition": "exclude_outside_state", "inside_state": false, "current_status": "unknown"},
+    {"state": "SA", "record_id": "way/265761463", "name": "Trig Campground Places 12 To 25", "disposition": "exclude_numbered_sector_as_parent", "current_status": "unknown"},
+    {"state": "SA", "record_id": "way/265761467", "name": "Trig Campground Places 1 To 11", "disposition": "exclude_numbered_sector_as_parent", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/1811199869", "name": "Trig Campground", "disposition": "represent_minimal_with_restrictions_unknown_status", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/775893673", "name": "Trezona Camp Ground", "disposition": "exclude_duplicate_identity", "parent_or_duplicate_of": "way/315306819", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/1811199713", "name": "Trezona Campground", "disposition": "exclude_duplicate_identity", "parent_or_duplicate_of": "way/315306819", "current_status": "unknown"},
+    {"state": "SA", "record_id": "way/315306819", "name": "Trezona Campground", "disposition": "represent_minimal_source_correlated_unknown_status", "current_status": "unknown"},
+    {"state": "SA", "record_id": "way/1015330682", "name": "Engine Point Campground (S)", "disposition": "exclude_same_facility_subarea", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/1811173346", "name": "Engine Point Campground", "disposition": "represent_minimal_source_correlated_unknown_status", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/1811160487", "name": "Baroota Rodeo Ground & Camping Area", "disposition": "review_osm_only_eligibility", "rejected_match_urls": "https://www.parks.sa.gov.au/parks/mount-remarkable-national-park/booking/69837", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/1811163200", "name": "Border Cliffs Campground", "disposition": "represent_minimal_source_correlated_unknown_status", "rejected_match_urls": "https://www.parks.sa.gov.au/parks/wild-south-coast-way/booking/140962", "current_status": "unknown"},
+    {"state": "SA", "record_id": "node/3439215546", "name": "Black Springs Camping Ground", "disposition": "represent_minimal_source_correlated_unknown_status", "rejected_match_urls": "https://www.parks.sa.gov.au/parks/coffin-bay-national-park/booking/85012", "current_status": "unknown"},
+    {"state": "SA", "record_id": "way/495027493", "name": "Mambray Creek Rest Area", "disposition": "review_osm_only_eligibility", "rejected_match_urls": "https://www.parks.sa.gov.au/parks/mount-remarkable-national-park/booking/67320", "current_status": "unknown"}
+  ]
+}

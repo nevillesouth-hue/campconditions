@@ -2122,6 +2122,136 @@ for _st in ("vic", "nsw", "qld"):
       if not _line or not re.search(r": [A-Z][A-Za-z ]+ (today|tomorrow)", _line.group(1)):
         bad.append((_slug, "fallback without official rating"))
 print(f"fire fallback: {_fallback_pages} camp pages use the nearest district, {_unmapped_pages} show No fire district mapped")
+# Town landing pages. Counts and distances come from the camp coordinates.
+import town_pages as _towns
+def _tcamps(*rows):
+  return [{"name": n, "lat": la, "lon": lo, "slug": n, "status": "open"} for n, la, lo in rows]
+def _north(lat, kilometres):
+  return lat + kilometres / 111.0
+_rows = [(f"a{i}", _north(0, 1 + i), 0.01) for i in range(6)]
+_rows += [(f"g{i}", _north(2.0, i * 0.01), 0.0) for i in range(6)]
+_rows += [("solo", 5.0, 5.0)]
+_idx = _towns.CampIndex(_tcamps(*_rows))
+_chosen, _skipped = _towns.choose_named(
+  [{"name": "Alpha", "lat": 0, "lon": 0, "place": "town"},
+   {"name": "Beta", "lat": 0, "lon": 5 / 111.0, "place": "town"},
+   {"name": "Gamma", "lat": 2, "lon": 0, "place": "town"},
+   {"name": "Thin", "lat": 5, "lon": 5, "place": "town"}],
+  _idx, lambda lon, lat: "west",
+  ["Alpha", "Beta", "Thin", "Gamma", "Missing"])
+if {c["name"] for c in _chosen} != {"Alpha", "Gamma"}: bad.append(("towns", "chosen", [c["name"] for c in _chosen]))
+if _chosen and any(c["count"] < _towns.MIN_CAMPS for c in _chosen): bad.append(("towns", "minimum"))
+_why = {row["name"]: row["why"] for row in _skipped}
+if "Beta" not in _why or "Thin" not in _why or "Missing" not in _why: bad.append(("towns", "skipped", _why))
+def _at(lat, lon, kilometres):
+  # Scale a northward step so the haversine distance matches kilometres.
+  guess = lat + kilometres / 100.0
+  dist = _towns.km(lat, lon, guess, lon) or 1
+  return lat + (guess - lat) * (kilometres / dist)
+_base_lat, _base_lon = -37.0, 145.0
+_rim = _at(_base_lat, _base_lon, _towns.RADIUS_KM)
+while _towns.km(_base_lat, _base_lon, _rim, _base_lon) > _towns.RADIUS_KM:
+  _rim -= 1e-7
+_edge = _towns.CampIndex([{"name": "here", "lat": _base_lat, "lon": _base_lon, "slug": "here", "status": "open"},
+                          {"name": "rim", "lat": _rim, "lon": _base_lon, "slug": "rim", "status": "open"}])
+if len(_edge.within(_base_lat, _base_lon, _towns.RADIUS_KM)) != 2: bad.append(("towns", "radius edge"))
+_over = _towns.CampIndex([{"name": "here", "lat": _base_lat, "lon": _base_lon, "slug": "here", "status": "open"},
+                          {"name": "out", "lat": _at(_base_lat, _base_lon, _towns.RADIUS_KM + 1), "lon": _base_lon, "slug": "out", "status": "open"}])
+if len(_over.within(_base_lat, _base_lon, _towns.RADIUS_KM)) != 1: bad.append(("towns", "radius over"))
+_town_states = ("vic", "nsw", "qld", "sa", "tas")
+_town_pages = []
+_town_by_state = { _st: set() for _st in _town_states }
+for _st in _town_states:
+  _dir = os.path.join(D, _st, "near")
+  if not os.path.isdir(_dir):
+    bad.append((_st, "town dir")); continue
+  for _slug in sorted(os.listdir(_dir)):
+    _fp = os.path.join(_dir, _slug, "index.html")
+    if os.path.isfile(_fp):
+      _town_pages.append((_st, _slug, _fp))
+      _town_by_state[_st].add(_slug)
+# Fifty pages from Victoria, New South Wales and Queensland, plus the South
+# Australian and Tasmanian touring towns that clear the same threshold.
+if not (70 <= len(_town_pages) <= 85): bad.append(("towns", "count", len(_town_pages)))
+for _st, _need in (
+  ("sa", {"port-lincoln", "normanville", "cape-jervis", "yorketown", "wilpena-chalet", "marion-bay", "penneshaw"}),
+  ("tas", {"coles-bay", "swansea", "bicheno", "st-helens", "dover", "derwent-bridge", "adventure-bay"}),
+):
+  _missing = _need - _town_by_state[_st]
+  if _missing: bad.append((_st, "town pages", sorted(_missing)))
+_feed_by = {}
+for _c in feed["camps"]:
+  _feed_by[_c["url"].replace("https://campconditions.au", "")] = _c
+# Place points for every town page, so a camp can be checked against the nearest town.
+# The closest camp on a page can sit nearer another chosen town when the 30 km circles overlap.
+_town_points = {}
+for _st, _slug, _fp in _town_pages:
+  _blocks = _ld_blocks(open(_fp, encoding="utf-8").read())
+  _place = next((b for b in _blocks if b.get("@type") == "Place"), {})
+  _geo = _place.get("geo") or {}
+  _town_points[f"/{_st}/near/{_slug}/"] = (_geo.get("latitude"), _geo.get("longitude"), _st)
+for _st, _slug, _fp in _town_pages:
+  _html = open(_fp, encoding="utf-8").read()
+  _path = f"/{_st}/near/{_slug}/"
+  if _path not in sm: bad.append((_path, "sitemap")); break
+  if f"<h1>Camping near " not in _html or "in a straight line" not in _html or "not by road" not in _html:
+    bad.append((_path, "wording")); break
+  if _st in ("sa", "tas"):
+    # Signup stays off until that state's digest exists. The page shows the
+    # coming-soon line and does not post to /api/subscribe.
+    _soon = "SA weekly email coming soon" if _st == "sa" else "Tas weekly email coming soon"
+    if _soon not in _html or 'action="/api/subscribe"' in _html or 'name="states"' in _html:
+      bad.append((_path, "signup held")); break
+  elif f'name="states" value="{_st}" checked' not in _html:
+    bad.append((_path, "signup")); break
+  for _other in _town_states:
+    if _other != _st and f'name="states" value="{_other}" checked' in _html:
+      bad.append((_path, "other state ticked")); break
+  _blocks = _ld_blocks(_html)
+  _types = [b.get("@type") for b in _blocks]
+  if "ItemList" not in _types or "BreadcrumbList" not in _types or "Place" not in _types:
+    bad.append((_path, "json-ld", _types)); break
+  _place = next(b for b in _blocks if b.get("@type") == "Place")
+  _geo = _place.get("geo") or {}
+  _item = next(b for b in _blocks if b.get("@type") == "ItemList")
+  _camp_hrefs = re.findall(r'href="(/%s/camp/[^"]+/)"' % _st, _html)
+  if len(_camp_hrefs) != len(set(_camp_hrefs)) or len(_camp_hrefs) != _item.get("numberOfItems") or len(_camp_hrefs) < _towns.MIN_CAMPS:
+    bad.append((_path, "camp count", len(_camp_hrefs), _item.get("numberOfItems"))); break
+  if str(len(_camp_hrefs)) not in _html.split("<h1>", 1)[-1][:400]:
+    bad.append((_path, "count not in intro")); break
+  _far = None
+  for _href in _camp_hrefs:
+    _camp = _feed_by.get(_href)
+    if not _camp:
+      bad.append((_path, "unknown camp", _href)); _far = True; break
+    if _towns.km(_geo.get("latitude"), _geo.get("longitude"), _camp["lat"], _camp["lon"]) > _towns.RADIUS_KM + 0.05:
+      bad.append((_path, "outside radius", _camp.get("name"))); _far = True; break
+  if _far: break
+  _sample = None
+  for _href in _camp_hrefs:
+    _camp = _feed_by[_href]
+    _best, _best_d = None, None
+    for _tpath, (_tlat, _tlon, _tst) in _town_points.items():
+      if _tst != _st or _tlat is None or _tlon is None:
+        continue
+      _d = _towns.km(_camp["lat"], _camp["lon"], _tlat, _tlon)
+      if _d <= _towns.RADIUS_KM + 0.05 and (_best is None or _d < _best_d):
+        _best, _best_d = _tpath, _d
+    if _best == _path:
+      _sample = _href
+      break
+  if not _sample:
+    bad.append((_path, "no listed camp has this town as its nearest")); break
+  _camp_html = open(os.path.join(D, _sample.strip("/"), "index.html"), encoding="utf-8").read()
+  if _path not in _camp_html:
+    bad.append((_sample, "camp does not link to its town")); break
+  if "Nearby camps" not in _camp_html or "in a straight line" not in _camp_html:
+    bad.append((_sample, "nearby camps")); break
+  _region = re.search(r'href="(/%s/[a-z0-9-]+/)"' % _st, _html.split("<h1>", 1)[0])
+  if _region and _path not in open(os.path.join(D, _region.group(1).strip("/"), "index.html"), encoding="utf-8").read():
+    bad.append((_path, "region does not link back")); break
+if os.path.isdir(os.path.join(D, "act")) or os.path.isdir(os.path.join(D, "act", "near")):
+  bad.append(("towns", "act built"))
 # A dated notice carries its start and end so the browser can move upcoming,
 # closed and ended without waiting for the next build. The build-time label stays.
 _box = os.path.join(D, "sa", "camp", "box-flat-campground", "index.html")

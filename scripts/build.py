@@ -1143,8 +1143,8 @@ ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link r
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CampConditions.au">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"><meta name="twitter:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS">"""
+<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"><meta name="twitter:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type="button" id="a2hs-dismiss" aria-label="Dismiss add to home screen tip">×</button></div>

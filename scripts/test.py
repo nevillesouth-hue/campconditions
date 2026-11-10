@@ -604,8 +604,8 @@ if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.pn
   bad.append(("/", "logo"))
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
 _codes = "VIC, NSW, QLD, SA and TAS" if os.path.isdir(os.path.join(D, "tas")) else ("VIC, NSW, QLD and SA" if os.path.isdir(os.path.join(D, "sa")) else ("VIC, NSW and QLD" if os.path.isdir(os.path.join(D, "qld")) else "VIC and NSW"))
-for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld.png?v=20261105"', 'content="1200"', 'content="630"', 'content="summary_large_image"',
-             'property="og:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS"', 'name="twitter:image:alt" content="CampConditions.au: 5,100+ campgrounds across VIC, NSW, QLD, SA and TAS"',
+for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"', 'content="1200"', 'content="630"', 'content="summary_large_image"',
+             'property="og:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS"', 'name="twitter:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS"',
              f'property="og:title" content="Camp conditions and closures for {_codes} | CampConditions.au"', f'name="twitter:title" content="Camp conditions and closures for {_codes} | CampConditions.au"'):
   if icon not in home: bad.append(("/", "icon " + icon))
 # Link-preview description: rounded count (row 56), never above the live total, same for Twitter.
@@ -617,7 +617,7 @@ elif not (len(feed["camps"]) - 100 < int(_og_n.group(1).replace(",", "")) <= len
 if "VIC and NSW" in home.split("</head>", 1)[0] and os.path.isdir(os.path.join(D, "qld")): bad.append(("/", "VIC and NSW share text"))
 if "Victorian camp conditions and closures" in home: bad.append(("/", "old share text"))
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
-if "/site.webmanifest" not in not_found or "og-image-vic-nsw-qld.png?v=20261105" not in not_found: bad.append(("404", "icons"))
+if "/site.webmanifest" not in not_found or "og-image-vic-nsw-qld-sa-tas.png?v=20261110" not in not_found: bad.append(("404", "icons"))
 if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404", "newsletter button"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
@@ -629,7 +629,7 @@ if not any("icon-192.png" in (i.get("src") or "") for i in icons) or not any("ic
   bad.append(("site.webmanifest", "icons"))
 if 'rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"' not in home:
   bad.append(("/", "apple touch icon"))
-for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image-vic-nsw-qld.png"):
+for icon_name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png", "icon-192.png", "icon-512.png", "og-image-vic-nsw-qld-sa-tas.png"):
   if not os.path.isfile(os.path.join(D, "assets", "brand", icon_name)): bad.append((icon_name, "missing"))
 if os.path.exists(os.path.join(D, "optimum-quest-logo.webp")) or os.path.exists(os.path.join(root, "assets", "optimum-quest-logo.webp")):
   bad.append(("optimum-quest-logo.webp", "still present"))

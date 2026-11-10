@@ -31,7 +31,12 @@ def _inventory():
     ok = (
         counted["source_rows"] == 691
         and counted["eligible"] == 189
-        and counted["published"] == 187
+        and counted["published"] == 178
+        and counted["collapsed"] == [
+            "TAS-LIST-CS-29405", "TAS-LIST-CS-62066", "TAS-LIST-CS-62067", "TAS-LIST-CS-62068",
+            "TAS-LIST-CS-62186", "TAS-LIST-CS-62187", "TAS-LIST-CS-62188", "TAS-LIST-CS-62190",
+            "TAS-LIST-CS-62192",
+        ]
         and counted["map_rows"] == 189
         and not counted["held_published"]
         and not counted["excluded_published"]
@@ -42,7 +47,7 @@ def _inventory():
         and not counted["commercial"]
         and counted["council"] == 11
     )
-    reason = "691 records, 189 eligible, 187 published. Two commercial parks are left out. 11 camps outside a reserve."
+    reason = "691 records, 189 eligible, 178 published. Nine theLIST points collapsed into four camps. Two commercial parks are left out. 11 camps outside a reserve."
     if not ok:
         reason = "inventory counts were %s" % json.dumps(counted, sort_keys=True)
     return _check("inventory", ok, reason)
@@ -122,12 +127,12 @@ def _alerts():
     expected_closed = 3 if kind == "current" else 1
     expected_upcoming = 2 if kind == "upcoming" else 0
     ok = rules and tally == {
-        "amber": 84,
+        "amber": 75,
         "closed": expected_closed,
         "upcoming": expected_upcoming,
         "campfire": 102,
         "council": 11,
-        "published": 187,
+        "published": 178,
     }
     reason = "amber %s, closed %s, campfire note %s" % (tally["amber"], tally["closed"], tally["campfire"])
     if not ok:
@@ -257,7 +262,7 @@ def evaluate(dist, preview=None):
         checks.append(_pages(preview))
     return {
         "pass": all(item["pass"] for item in checks),
-        "published": 187,
+        "published": 178,
         "alerts": tally,
         "checks": checks,
     }

@@ -202,6 +202,12 @@ def feed_date(value):
     if not day:
         return ""
     return f"{day.day} {day.strftime('%B %Y')}"
+def long_date(value):
+    """Day month year, the same shape as other spoken dates. Keeps raw text that is not a date."""
+    shown = feed_date(value)
+    if shown:
+        return shown
+    return str(value or "").strip()[:10]
 def feed_iso(value):
     raw = str(value or "").strip()
     if not raw:
@@ -3139,7 +3145,7 @@ def emit_state(state, camps, include_home):
             if agency == "QPWS":
                 dated = "Source: " + (LABELS.get("official_layer") or "QSpatial tourist points layer (camping grounds)")
                 if c.get("data_date"):
-                    dated += f", point dated {e(c['data_date'][:10])}"
+                    dated += f", point dated {e(long_date(c['data_date']))}"
             else:
                 dated = "Source: NPWS Visitor Area layer (camping areas)"
             if c.get("alerts_checked") and feed.startswith("https://"):
@@ -3183,7 +3189,7 @@ def emit_state(state, camps, include_home):
             condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
             title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)
-            dated = f"Campground data dated {e((c['data_date'] or '')[:10])}"
+            dated = f"Campground data dated {e(long_date(c.get('data_date') or ''))}"
         camp_path = camp_url(c)
         camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
                    "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},
@@ -3713,7 +3719,7 @@ def headers_text():
     return "\n".join(parts)
 open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
 def slug_redirect_lines():
-    """301s for NSW and QLD camp slugs that changed in correction batches."""
+    """301s for camp slugs that changed in correction batches."""
     lines = []
     doc = {}
     for st in ("nsw", "qld"):
@@ -3738,6 +3744,18 @@ def slug_redirect_lines():
             print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
             continue
         lines += [f"/{old} /{new}/ 301", f"/{old}/ /{new}/ 301"]
+    # Tasmania theLIST points that collapsed onto one camp. The mapping is
+    # computed when the Tasmania list is loaded for this build.
+    import tas_inventory
+    mapping = getattr(tas_inventory.load_camps, "slug_redirects", None) or {}
+    if mapping and os.path.isdir(os.path.join(OUT, "tas")):
+        for old, new in sorted(mapping.items()):
+            old_dir = os.path.join(OUT, "tas", "camp", old)
+            new_dir = os.path.join(OUT, "tas", "camp", new)
+            if old == new or os.path.isdir(old_dir) or not os.path.isfile(os.path.join(new_dir, "index.html")):
+                print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
+                continue
+            lines += [f"/tas/camp/{old} /tas/camp/{new}/ 301", f"/tas/camp/{old}/ /tas/camp/{new}/ 301"]
     return lines
 open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /about/ 301
 /contact/ /about/ 301

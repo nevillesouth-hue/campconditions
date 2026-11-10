@@ -9,7 +9,7 @@ def tip_presentation(label, html_blob, txt_blob, bad):
     if "\nChip in $5, $10 or $20\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
   for blob in (html_blob, txt_blob):
     if blob and not (0 <= blob.find("Been somewhere lately?") < blob.find("The digests stay free.") < blob.find("Chip in") < blob.find("No pressure either way.") < blob.find("Not an official warning service")): bad.append((label, "tip order"))
-D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0
+D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0;spoken_dates=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
 for r,_,fs in os.walk(D):
@@ -22,7 +22,11 @@ for r,_,fs in os.walk(D):
       tgt=os.path.join(D,h.lstrip("/"));
       if not (os.path.isfile(tgt) or os.path.isfile(os.path.join(tgt,"index.html"))): bad.append((p[len(D):],h))
     if "<title>" not in t or not re.search(r"lang=[\"']en-AU", t): bad.append((p,"meta"))
+    if re.search(r"Campground data dated \d{4}-\d{2}-\d{2}\b", t) or re.search(r"point dated \d{4}-\d{2}-\d{2}\b", t):
+      bad.append((p[len(D):], "raw data date"))
+    if re.search(r"Campground data dated \d{1,2} [A-Z][a-z]+ \d{4}", t): spoken_dates += 1
     if "paid daily digest" in t or "about $5 a month" in t: bad.append((p[len(D):], "paid digest line"))
+if spoken_dates < 1: bad.append(("footer", "campground date not spoken"))
 for f in ["sitemap.xml","robots.txt","llms.txt","status.json"]: assert os.path.isfile(os.path.join(D,f)),f
 json.load(open(os.path.join(D,"status.json")))
 sm=re.findall(r"<loc>https://campconditions.au(.*?)</loc>",open(os.path.join(D,"sitemap.xml")).read())
@@ -1650,7 +1654,11 @@ if os.path.isfile(nsw_index):
   for marker in ("DataVic", "Explore Outdoors", "Parks Victoria", "DEECA", "Vicmap", "cfa.vic.gov.au", "NPWS", "QSpatial", "Rural Fire Service", 'href="/about/#vic-sources"', 'href="/about/#nsw-sources"', 'href="/about/#qld-sources"'):
     if marker in support_footer or marker in support_main: bad.append(("support", "data attribution " + marker))
   if 'class="banner-row"' not in support or 'class="tip-btn"' not in support_main: bad.append(("support", "header or tips"))
-  for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301"):
+  for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301",
+               "/tas/camp/new-pelion-hut-tas-list-cs-62194 /tas/camp/new-pelion-hut/ 301",
+               "/tas/camp/waterfall-valley-hut-tas-list-cs-62192/ /tas/camp/waterfall-valley-hut/ 301",
+               "/tas/camp/windermere-hut-tas-list-cs-62186 /tas/camp/windermere-hut/ 301",
+               "/tas/camp/wild-dog-creek-campsite-tas-list-cs-62066/ /tas/camp/wild-dog-creek-campsite/ 301"):
     if line not in redirects: bad.append(("_redirects", line))
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
   if "Terms of use" not in terms or "as is, without warranty" not in terms or "Victoria." not in terms or "New South Wales." not in terms or "governing law" in terms.lower(): bad.append(("terms", "wording"))

@@ -17,7 +17,8 @@ CHAIN_RE = re.compile(r"\bbig\s*4\b")
 HOTEL_RE = re.compile(r"\b(?:hotel|pub|motel)\b")
 CAMP_RE = re.compile(r"\bcamp|\bcaravan")
 ELIGIBLE = "eligible"
-PUBLISHED = 187
+PUBLISHED = 178
+NEAR_DUPLICATES = os.path.join(ROOT, "data", "tas", "thelist-near-duplicates.csv")
 
 
 def _paths():
@@ -146,15 +147,91 @@ def load_park_decisions():
     return rows
 
 
+def _collapse_plan(inventory, parks):
+    """Which theLIST points are the same camp, and which record to keep.
+
+    The near-duplicate file says which names to collapse. Richardsons Beach
+    and Campe Elsewhere are not in that set. The kept record prefers a PWS
+    park match, then a public platform over a group pad, then a Parks page,
+    then an OpenStreetMap cross-check, then the cluster anchor.
+    """
+    groups = {}
+    anchors = set()
+    if not os.path.isfile(NEAR_DUPLICATES):
+        return {}, {}
+    for row in _read_csv(NEAR_DUPLICATES):
+        if not (row.get("recommendation") or "").startswith("Collapse to one camp"):
+            continue
+        name = (row.get("name") or "").strip()
+        ident = (row.get("record_id") or "").strip()
+        if not name or not ident:
+            continue
+        groups.setdefault(name, []).append(ident)
+        distance = (row.get("distance_km_to_first") or "").strip()
+        if distance in {"0", "0.0", "0.000"}:
+            anchors.add(ident)
+    by_id = {(row.get("campground_record_id") or "").strip(): row for row in inventory}
+    drop = {}
+    kept = {}
+    for name, idents in groups.items():
+        idents = [ident for ident in idents if ident in by_id]
+        if len(idents) < 2:
+            continue
+
+        def rank(ident):
+            row = by_id[ident]
+            park = parks.get(ident) or {}
+            osm_name = (row.get("osm_name") or "").lower()
+            public = "public" in osm_name and "group" not in osm_name
+            return (
+                1 if (park.get("pws_alert_name") or "").strip() else 0,
+                1 if public else 0,
+                0 if "group" in osm_name else 1,
+                1 if (row.get("official_url") or "").startswith("https://parks.tas.gov.au/") else 0,
+                1 if (row.get("osm_id") or "").strip() else 0,
+                1 if ident in anchors else 0,
+            )
+
+        chosen = max(idents, key=rank)
+        if not (parks.get(chosen) or {}).get("pws_alert_name", "").strip():
+            raise SystemExit("collapsed %s has no PWS park match" % chosen)
+        kept[name] = chosen
+        for ident in idents:
+            if ident != chosen:
+                drop[ident] = chosen
+    return drop, kept
+
+
+def _legacy_slugs(inventory, parks, seen):
+    """Slugs the published list used before the near-duplicate collapse."""
+    found = {}
+    legacy_seen = set(seen)
+    for row in inventory:
+        if (row.get("decision") or "").strip() != ELIGIBLE:
+            continue
+        ident = (row.get("campground_record_id") or "").strip()
+        mapped = parks.get(ident) or {}
+        name = (row.get("official_name") or mapped.get("camp_name") or "").strip()
+        lat, lon = _number(row.get("lat")), _number(row.get("lon"))
+        if not ident or not name or lat is None or lon is None:
+            continue
+        found[ident] = _unique_slug(name, legacy_seen, ident)
+    return found
+
+
 def load_camps(seen=None):
     """Camps with decision eligible. Held and excluded decisions are left out."""
     inventory, parks = load_rows()
     seen = seen if seen is not None else set()
+    drop, kept = _collapse_plan(inventory, parks)
+    legacy = _legacy_slugs(inventory, parks, seen)
     camps = []
     for row in inventory:
         if (row.get("decision") or "").strip() != ELIGIBLE:
             continue
         ident = (row.get("campground_record_id") or "").strip()
+        if ident in drop:
+            continue
         mapped = parks.get(ident) or {}
         name = (row.get("official_name") or mapped.get("camp_name") or "").strip()
         lat, lon = _number(row.get("lat")), _number(row.get("lon"))
@@ -205,7 +282,30 @@ def load_camps(seen=None):
             "tas_campfire": False,
         }
         camps.append(camp)
-    return _apply_park_decisions(camps)
+    by_camp = {camp["id"]: camp for camp in camps}
+    for dropped_id, keep_id in drop.items():
+        camp = by_camp.get(keep_id)
+        if not camp:
+            continue
+        for alias in _aliases((parks.get(dropped_id) or {}).get("camp_name_aliases")):
+            if alias not in camp["aliases"] and alias != camp["name"]:
+                camp["aliases"].append(alias)
+    published = _apply_park_decisions(camps)
+    published_ids = {camp["id"]: camp["slug"] for camp in published}
+    redirects = {}
+    for ident, old_slug in legacy.items():
+        if ident in drop:
+            target = published_ids.get(drop[ident])
+        elif ident in published_ids and old_slug != published_ids[ident]:
+            target = published_ids[ident]
+        else:
+            target = ""
+        if target and old_slug != target:
+            redirects[old_slug] = target
+    load_camps.slug_redirects = redirects
+    load_camps.collapsed = dict(drop)
+    load_camps.collapsed_kept = dict(kept)
+    return published
 
 
 def _park_record(camp, row):
@@ -260,6 +360,7 @@ def summary(camps=None):
     held = [row["campground_record_id"] for row in inventory if row.get("decision") == "hold" and row["campground_record_id"] in ids]
     excluded = [row["campground_record_id"] for row in inventory if row.get("decision") == "exclude" and row["campground_record_id"] in ids]
     eligible_ids = {row["campground_record_id"] for row in inventory if row.get("decision") == ELIGIBLE}
+    collapsed = set(getattr(load_camps, "collapsed", {}) or {})
     return {
         "source_rows": len(inventory),
         "map_rows": len(parks),
@@ -268,7 +369,10 @@ def summary(camps=None):
         "published": len(published),
         "held_published": held,
         "excluded_published": excluded,
-        "withheld_eligible": sorted(eligible_ids - ids),
+        "withheld_eligible": sorted(eligible_ids - ids - collapsed),
+        "collapsed": sorted(collapsed),
+        "collapsed_kept": dict(getattr(load_camps, "collapsed_kept", {}) or {}),
+        "slug_redirects": dict(getattr(load_camps, "slug_redirects", {}) or {}),
         "park_excluded": list(getattr(load_camps, "park_excluded", [])),
         "park_held": list(getattr(load_camps, "park_held", [])),
         "park_kept": list(getattr(load_camps, "park_kept", [])),

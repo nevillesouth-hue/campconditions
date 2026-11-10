@@ -147,7 +147,7 @@
       {
         "id": "inventory_audit",
         "ok": true,
-        "detail": "The public build lists 187 camps from the eligible records. Lake St Clair Tourist Park and BIG4 Buttons Creek Summer Campground are commercial and are left out. Free camps, council showgrounds, and council or community parks stay."
+        "detail": "The public build lists 178 camps from the eligible records. Nine theLIST points at Windermere Hut, Wild Dog Creek, New Pelion Hut and Waterfall Valley Hut are collapsed into one camp each. Lake St Clair Tourist Park and BIG4 Buttons Creek Summer Campground are commercial and are left out. Free camps, council showgrounds, and council or community parks stay."
       },
       {
         "id": "official_source_parser",

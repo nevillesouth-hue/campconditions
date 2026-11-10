@@ -17,7 +17,10 @@ CFS_CREDIT = "Fire danger: SA Country Fire Service (cfs.sa.gov.au)"
 
 
 def send_decision(env=None, region_enabled=None):
-    """Whether an SA digest could be sent. This does not call Resend."""
+    """Whether an SA digest could be sent. This does not call Resend.
+
+    One-list mode does not open SA. There is no SA topic until that sign-up is approved.
+    """
     if region_enabled is None:
         region_enabled = states.signup_allowed(states.by_slug("sa"))
     provided = env if env is not None else os.environ

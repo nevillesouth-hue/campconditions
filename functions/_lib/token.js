@@ -86,6 +86,105 @@ export function statePhrase(states) {
   return `${labels.slice(0, -1).join(", ")} and ${labels[labels.length - 1]}`;
 }
 
+// ONE_LIST_MODE is off unless it is exactly one of these. Anything else, including
+// an empty value, keeps today's per-state segments.
+export function flagOn(value) {
+  const raw = String(value == null ? "" : value).trim().toLowerCase();
+  return raw === "1" || raw === "true" || raw === "on" || raw === "yes";
+}
+
+export function oneListMode(env) {
+  return flagOn(env && env.ONE_LIST_MODE);
+}
+
+// While the all-subscribers segment is being proved, confirm also writes the old
+// per-state segments. Off unless set. Ignored while ONE_LIST_MODE is off.
+export function legacySegmentWrite(env) {
+  return flagOn(env && env.SIGNUP_WRITE_LEGACY_SEGMENTS);
+}
+
+// Live state topics only. There is no SA topic: SA sign-up stays closed until Nev says otherwise.
+export const TOPIC_ENV = {
+  vic: "RESEND_TOPIC_VIC_ID",
+  nsw: "RESEND_TOPIC_NSW_ID",
+  qld: "RESEND_TOPIC_QLD_ID",
+};
+
+// Same id confirm.js uses when RESEND_SEGMENT_QLD_ID is unset. A segment id is not a secret.
+const QLD_SEGMENT_FALLBACK = "2488900b-f026-44e8-9d74-098d38ef3468";
+const LEGACY_SEGMENT_ENV = {
+  vic: "RESEND_SEGMENT_ID",
+  nsw: "RESEND_SEGMENT_NSW_ID",
+  qld: "RESEND_SEGMENT_QLD_ID",
+};
+
+export function topicId(env, slug) {
+  const key = TOPIC_ENV[slug];
+  return key ? String((env && env[key]) || "").trim() : "";
+}
+
+export function allSegmentId(env) {
+  return String((env && env.RESEND_SEGMENT_ALL_ID) || "").trim();
+}
+
+// Opt-in topics for the states this confirmation is allowed to enrol.
+// Held states are already dropped by chosenStates, so they never get a topic.
+export function topicPlan(env, states) {
+  const topics = [];
+  const missing = [];
+  for (const slug of chosenStates(states)) {
+    const id = topicId(env, slug);
+    if (!id) missing.push(slug);
+    else topics.push({ id, subscription: "opt_in", slug });
+  }
+  return { topics, missing };
+}
+
+export function broadcastTarget(env, slug) {
+  const state = String(slug || "").trim().toLowerCase();
+  if (!STATE_ORDER.includes(state)) {
+    return { ok: false, reason: "state_not_open", segmentId: "", topicId: "" };
+  }
+  if (!oneListMode(env)) {
+    let segmentId = String((env && env[LEGACY_SEGMENT_ENV[state]]) || "").trim();
+    if (state === "qld" && !segmentId) segmentId = QLD_SEGMENT_FALLBACK;
+    if (!segmentId) return { ok: false, reason: "segment_unset", segmentId: "", topicId: "" };
+    return { ok: true, reason: "", segmentId, topicId: "", oneList: false };
+  }
+  const segmentId = allSegmentId(env);
+  const id = topicId(env, state);
+  if (!segmentId || !id) return { ok: false, reason: "missing_one_list_ids", segmentId, topicId: id };
+  return { ok: true, reason: "", segmentId, topicId: id, oneList: true };
+}
+
+// A broadcast to the all-subscribers segment with no topic would mail every state.
+export function guardBroadcast(body, allId) {
+  const segment = String((body && (body.segment_id || body.segmentId)) || "");
+  const topic = String((body && (body.topic_id || body.topicId)) || "").trim();
+  const allSegment = String(allId || "").trim();
+  if (allSegment && segment === allSegment && !topic) {
+    return { ok: false, reason: "all_segment_requires_topic" };
+  }
+  return { ok: true, reason: "" };
+}
+
+// Draft broadcast fields. This does not call Resend. topic_id is set only in one-list mode.
+export function broadcastBody(env, slug, fields) {
+  const found = broadcastTarget(env, slug);
+  if (!found.ok) return { ok: false, reason: found.reason, body: null };
+  const body = {
+    from: fields.from,
+    subject: fields.subject,
+    segment_id: found.segmentId,
+    html: fields.html,
+  };
+  if (fields.text != null) body.text = fields.text;
+  if (found.topicId) body.topic_id = found.topicId;
+  const guard = guardBroadcast(body, allSegmentId(env));
+  if (!guard.ok) return { ok: false, reason: guard.reason, body: null };
+  return { ok: true, reason: "", body };
+}
+
 export async function makeToken(email, secret, ttlSec = 60 * 60 * 48, states) {
   const exp = Math.floor(Date.now() / 1000) + ttlSec;
   const normal = email.toLowerCase();

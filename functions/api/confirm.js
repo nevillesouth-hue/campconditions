@@ -4,7 +4,7 @@
 //   POST /contacts                         { email, unsubscribed: false }
 //   POST /contacts/{email}/segments/{id}   no body
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
-import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase, saDigestSend } from "../_lib/token.js";
+import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase, saDigestSend, oneListMode, legacySegmentWrite, topicPlan, allSegmentId } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
@@ -80,7 +80,8 @@ export function segmentPlan(env, states, recordStates) {
 // QLD joins the Queensland digest segment (qldSegmentId), and is not added to the Victoria segment.
 // RESEND_SEGMENT_ACT_ID is not read. RESEND_SEGMENT_SA_ID is read by saDigestSend and
 // is not used while the SA region flag is off or the variable is empty. Setting it enrols nobody.
-export async function confirmSubscription(env, email, doFetch = fetch, states = ["vic"], recordStates = false) {
+// ONE_LIST_MODE off (the default) runs this path and does not read topic ids.
+async function confirmLegacy(env, email, doFetch, states, recordStates) {
   const plan = segmentPlan(env, states, recordStates);
   if (plan.refuse === "not_open") {
     return { ok: false, status: 400, data: { name: "signup_not_open", message: "Those digests are not open. No address was added." } };
@@ -113,6 +114,65 @@ export async function confirmSubscription(env, email, doFetch = fetch, states = 
     if (!added.ok && added.status !== 409) return added;
   }
   return { ok: true, status: added.status, data: added.data };
+}
+
+function optInTopics(topics) {
+  return topics.map((topic) => ({ id: topic.id, subscription: "opt_in" }));
+}
+
+// ONE_LIST_MODE on: the contact joins the all-subscribers segment and opts in to
+// the chosen state topics. A 409 updates those topics with opt_in only.
+// SIGNUP_WRITE_LEGACY_SEGMENTS=1 also writes the old per-state segments.
+async function confirmOneList(env, email, doFetch, states, recordStates) {
+  const plan = segmentPlan(env, states, recordStates);
+  if (plan.refuse === "not_open") {
+    return { ok: false, status: 400, data: { name: "signup_not_open", message: "Those digests are not open. No address was added." } };
+  }
+  const want = plan.enrol;
+  const planned = topicPlan(env, want);
+  const allId = allSegmentId(env);
+  if (!allId || planned.missing.length || !planned.topics.length) {
+    return { ok: false, status: 503, data: { name: "one_list_not_configured", message: "State topics are not configured." } };
+  }
+  const topicPayload = optInTopics(planned.topics);
+  const token = env.CONFIRM_SECRET ? await makeUnsubscribeToken(email, env.CONFIRM_SECRET) : "";
+  const contact = { email, unsubscribed: false, segments: [{ id: allId }], topics: topicPayload };
+  if (token) contact.properties = { unsubscribe_token: token };
+  let created = await resend(env, "/contacts", "POST", contact, doFetch);
+  if (!created.ok && created.status === 422 && token) {
+    created = await resend(env, "/contacts", "POST", { email, unsubscribed: false, segments: [{ id: allId }], topics: topicPayload }, doFetch);
+  }
+  if (!created.ok && created.status !== 409) return created;
+  if (created.status === 409 && token) {
+    await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { unsubscribe_token: token } }, doFetch);
+  }
+  if (recordStates) {
+    let stored = want;
+    if (created.status === 409) {
+      const existing = await resend(env, `/contacts/${encodeURIComponent(email)}`, "GET", undefined, doFetch);
+      stored = chosenStates([...existingStates(existing), ...want]);
+    }
+    await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { states: stored.join(",") } }, doFetch);
+  }
+  if (created.status === 409) {
+    const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", { topics: topicPayload }, doFetch);
+    if (!opted.ok && opted.status !== 409) return opted;
+    const added = await resend(env, segmentPath(email, allId), "POST", undefined, doFetch);
+    if (!added.ok && added.status !== 409) return added;
+  }
+  if (legacySegmentWrite(env)) {
+    for (const id of plan.segmentIds) {
+      if (!id) continue;
+      const added = await resend(env, segmentPath(email, id), "POST", undefined, doFetch);
+      if (!added.ok && added.status !== 409) return added;
+    }
+  }
+  return { ok: true, status: created.status === 409 ? 200 : created.status, data: created.data || {} };
+}
+
+export async function confirmSubscription(env, email, doFetch = fetch, states = ["vic"], recordStates = false) {
+  if (oneListMode(env)) return confirmOneList(env, email, doFetch, states, recordStates);
+  return confirmLegacy(env, email, doFetch, states, recordStates);
 }
 
 export async function onRequestGet({ request, env }) {

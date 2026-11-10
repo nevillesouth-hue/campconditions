@@ -1,0 +1,185 @@
+{
+  "slug": "tas",
+  "name": "Tasmania",
+  "adjective": "Tasmanian",
+  "abbrev": "TAS",
+  "enabled": true,
+  "banner": {
+    "covering": "",
+    "coming": ""
+  },
+  "coverage_label": "Parks and Wildlife Service campgrounds and camps outside reserves. Commercial caravan, holiday and tourist parks are not part of this list.",
+  "credit": "Campground/site from theLIST © State of Tasmania (CC BY 3.0 AU). OpenStreetMap contributors (ODbL) where coordinates come from OpenStreetMap. Alerts: Parks and Wildlife Service.",
+  "safety_html": "<div class=\"warn\">No current alert does not mean the camp is open, so check before you travel.</div>",
+  "licence": {
+    "camps": "CC BY 3.0 AU",
+    "camps_url": "https://creativecommons.org/licenses/by/3.0/au/",
+    "attribution_form": "Campground/site from theLIST © State of Tasmania",
+    "osm": "ODbL",
+    "osm_url": "https://www.openstreetmap.org/copyright",
+    "alerts_name": "Parks and Wildlife Service",
+    "alerts_url": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+    "note": "Campground records from theLIST use CC BY 3.0 AU. OpenStreetMap coordinates stay ODbL. Alert pages link back to Parks and Wildlife Service and do not copy the alert body."
+  },
+  "fire": {
+    "mode": "link_out",
+    "authority": "Tasmania Fire Service",
+    "url": "https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/",
+    "warnings": "https://alert.tas.gov.au/",
+    "borrow_bom": false,
+    "machine_values": "none",
+    "unmapped_label": "Fire danger is not shown here. Check the Tasmania Fire Service and TasALERT."
+  },
+  "roads": {
+    "mode": "link_out",
+    "url": "https://www.transport.tas.gov.au/roadworks/roadworks_and_traffic_management_in_tasmania",
+    "ingest": false
+  },
+  "files": {
+    "inventory": "data/tas/tas-inventory.v6.csv",
+    "park_map": "data/tas/tas-camp-park-map.v2.csv",
+    "park_decisions": "data/tas/tas-caravan-park-decisions.csv",
+    "alerts_fixture": "data/tas/fixtures/alerts-2026-11-10.json"
+  },
+  "regions": {
+    "tasmania": {
+      "name": "Tasmania",
+      "blurb": "Parks and Wildlife Service campgrounds and camps outside reserves. We check Parks and Wildlife Service alerts."
+    }
+  },
+  "region_rules": [
+    {"id": "tasmania"}
+  ],
+  "labels": {
+    "paid_book": "",
+    "book_ahead_note": "",
+    "book_ahead_with": "",
+    "type_filter": "Parks and Wildlife Service",
+    "agency": "Parks and Wildlife Service",
+    "phone": "",
+    "official_short": "Parks and Wildlife Service",
+    "park_category": "PWS campground",
+    "closure_status": "Closed"
+  },
+  "map": {
+    "fallback_lat": -42.1,
+    "fallback_lon": 146.6,
+    "fallback_zoom": 7
+  },
+  "sources": {
+    "pws_alerts": {
+      "url": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+      "live_fetch": true,
+      "one_request_per_build": true,
+      "store": ["headline", "parks", "link"],
+      "note": "Fetched when Tasmania pages are built. No query string. One request per build. The public build keeps the headline, the park names and the link."
+    },
+    "tfs_total_fire_ban": {
+      "url": "https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/",
+      "live_fetch": false,
+      "machine_parser": false
+    },
+    "tasalert": {
+      "url": "https://alert.tas.gov.au/",
+      "live_fetch": false,
+      "machine_parser": false
+    },
+    "roads": {
+      "url": "https://www.transport.tas.gov.au/roadworks/roadworks_and_traffic_management_in_tasmania",
+      "live_fetch": false,
+      "ingest": false
+    }
+  },
+  "links": {
+    "conditions": "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts",
+    "conditions_name": "Parks and Wildlife Service alerts",
+    "emergency": "https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/",
+    "emergency_name": "Tasmania Fire Service",
+    "warnings": "https://alert.tas.gov.au/",
+    "warnings_name": "TasALERT",
+    "roads": "https://www.transport.tas.gov.au/roadworks/roadworks_and_traffic_management_in_tasmania",
+    "roads_name": "Tasmanian roadworks"
+  },
+  "copy": {
+    "digest_subject": "",
+    "digest_intro": "",
+    "newsletter_h2": "",
+    "home_title": "Tasmania camp conditions — {count} sites | CampConditions.au",
+    "home_description": "{count} camps across Tasmania, including Parks and Wildlife Service campgrounds and camps outside reserves. No current alert does not mean the camp is open, so check before you travel.",
+    "home_h1": "Tasmania camp conditions",
+    "home_intro": "<strong>{count}</strong> camps across Tasmania, including Parks and Wildlife Service campgrounds and camps outside reserves. We check Parks and Wildlife Service alerts. No current alert does not mean the camp is open, so check before you travel.",
+    "home_map": "Map of Tasmanian campgrounds",
+    "home_weather": "Check the <a href=\"https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/\">Tasmania Fire Service</a> and <a href=\"https://alert.tas.gov.au/\">TasALERT</a> before you travel.",
+    "website_description": "{count} camps across Tasmania. We check Parks and Wildlife Service alerts. No current alert does not mean the camp is open, so check before you travel.",
+    "state_title": "Tasmania campground conditions — {count} sites | CampConditions.au",
+    "state_description": "{count} camps across Tasmania, including Parks and Wildlife Service campgrounds and camps outside reserves. We check Parks and Wildlife Service alerts. No current alert does not mean the camp is open, so check before you travel.",
+    "state_h1": "Tasmania",
+    "state_intro": "<strong>{count}</strong> camps across Tasmania, including Parks and Wildlife Service campgrounds and camps outside reserves. We check Parks and Wildlife Service alerts. No current alert does not mean the camp is open, so check before you travel.",
+    "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
+    "region_description": "{count} camps in {name}. {blurb}",
+    "region_list_name": "Campgrounds in {name}",
+    "osm_place": "{name} in Tasmania. No current alert is not a confirmation the camp is open.",
+    "official_place": "{name} in Tasmania. Status comes from Parks and Wildlife Service alert headlines. No current alert is not a confirmation the camp is open.",
+    "osm_source_line": "Campground/site from theLIST © State of Tasmania (CC BY 3.0 AU).",
+    "place_admin": "Tasmania",
+    "feed_region": "Tasmania, Australia",
+    "feed_disclaimer": "Not an official warning service. A camp is closed only where a Parks and Wildlife Service alert headline names that camp and says it is closed. No current alert does not mean the camp is open. Fire danger is a link to the Tasmania Fire Service and TasALERT.",
+    "footer_short": "Tasmania: Campground/site from theLIST © State of Tasmania (CC BY 3.0 AU). OpenStreetMap contributors (ODbL) where coordinates come from OpenStreetMap. Alerts: <a href=\"https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts\">Parks and Wildlife Service</a>.",
+    "about_sources": "<li>Campgrounds: Campground/site from theLIST © State of Tasmania (CC BY 3.0 AU).</li><li>Coordinates from OpenStreetMap: OpenStreetMap contributors (ODbL).</li><li>Alerts: <a href=\"https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts\">Parks and Wildlife Service</a>. Headlines and park names only.</li><li>Fire: <a href=\"https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/\">Tasmania Fire Service</a> and <a href=\"https://alert.tas.gov.au/\">TasALERT</a>.</li><li>Roads: <a href=\"https://www.transport.tas.gov.au/roadworks/roadworks_and_traffic_management_in_tasmania\">Tasmanian roadworks</a>.</li>",
+    "about_tail": "No current alert does not mean the camp is open, so check before you travel.",
+    "llms_intro": "Current conditions for {count} camps in Tasmania. A camp is closed only where a Parks and Wildlife Service alert headline names that camp and says it is closed. No current alert does not mean the camp is open. Fire danger is a link to the Tasmania Fire Service and TasALERT. Not an official warning service.",
+    "llms_closures": "Closures come from Parks and Wildlife Service alert headlines. A camp is closed only where the headline names that camp and says it is closed. A park alert is not a closure. Fire danger and warnings are links. Do not treat a page with no current alert as open.",
+    "directions_note": "Check the Tasmania Fire Service, TasALERT and Tasmanian roadworks before you travel."
+  },
+  "release": {
+    "public": true,
+    "signup": false,
+    "digest": false,
+    "live_html_parser": true,
+    "live_fetch": false,
+    "targets_are_not_permission_to_ship": true,
+    "code_holds": [
+      "functions/_lib/token.js HELD_SIGNUP_STATES",
+      "scripts/states.py public_build_allowed"
+    ],
+    "gates": [
+      {
+        "id": "inventory_audit",
+        "ok": true,
+        "detail": "The public build lists 187 camps from the eligible records. Lake St Clair Tourist Park and BIG4 Buttons Creek Summer Campground are commercial and are left out. Free camps, council showgrounds, and council or community parks stay."
+      },
+      {
+        "id": "official_source_parser",
+        "ok": true,
+        "detail": "The public build reads Parks and Wildlife Service alerts from the alerts page. Only the headline, the park names and the link are kept."
+      },
+      {
+        "id": "caravan_park_keep",
+        "ok": true,
+        "detail": "Free camps, council showgrounds, and council or community parks stay. Lake St Clair Tourist Park and BIG4 Buttons Creek Summer Campground are commercial and are left out. A commercial caravan, tourist or holiday park on the published list fails this check."
+      },
+      {
+        "id": "fire_linkout",
+        "ok": true,
+        "detail": "Pages link to the Tasmania Fire Service Total Fire Ban page and TasALERT. No fire rating is fetched."
+      },
+      {
+        "id": "roads_linkout",
+        "ok": true,
+        "detail": "Pages link to Tasmanian roadworks. The State Growth layer is not ingested."
+      },
+      {
+        "id": "digest_segment",
+        "ok": false,
+        "blocks_public": false,
+        "env": "RESEND_SEGMENT_TAS_ID",
+        "detail": "No Tasmania segment is created. Signup stays off. Pages say the weekly email is coming soon."
+      },
+      {
+        "id": "regression_activation",
+        "ok": true,
+        "detail": "The Victoria, New South Wales, Queensland and South Australia build and tests run with this activation."
+      }
+    ]
+  }
+}

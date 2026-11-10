@@ -1,10 +1,11 @@
 """Load per-state configuration. Only enabled states are built.
 
 Victoria stays first so the shared map script and the top-level digest draft
-remain Victorian. Australian Capital Territory and South Australia can exist
-as config files before their release gates pass. Those files are not a
-public build, digest or signup. CAMPCONDITIONS_ENABLE cannot bypass a failed
-gate.
+remain Victorian. Australian Capital Territory, South Australia and Tasmania
+can exist as config files before their release gates pass. Those files are not
+a public build, digest or signup. CAMPCONDITIONS_ENABLE cannot bypass a failed
+gate. CAMPCONDITIONS_PREVIEW=tas with CAMPCONDITIONS_OUT outside dist writes
+Tasmania pages for a local look, and does not enable the state.
 """
 import json
 import math

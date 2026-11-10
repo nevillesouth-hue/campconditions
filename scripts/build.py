@@ -2617,7 +2617,15 @@ HOME_REDRAW_BODY = """    group.clearLayers();
     }
     if (fit && !picked) {
       try {
-        map.fitBounds(L.latLngBounds(shown.map(function (marker) { return marker.getLatLng(); })).pad(0.08));
+        // All view. Snap to quarters of a zoom so Australia fills the frame
+        // instead of dropping a whole level and showing Indonesia, PNG and NZ.
+        // Use the camp markers when that box zooms in further than the country,
+        // and the country box when a far point would zoom the map back out.
+        var australia = L.latLngBounds([[-44, 112.5], [-10, 154]]);
+        var markerBox = L.latLngBounds(shown.map(function (marker) { return marker.getLatLng(); }));
+        var inset = L.point(4, 4);
+        var useMarkers = map.getBoundsZoom(markerBox, false, inset) > map.getBoundsZoom(australia, false, inset);
+        map.fitBounds(useMarkers ? markerBox : australia, {padding: [2, 2], animate: false});
       } catch (err) {}
     }
     group.addLayers(shown);"""
@@ -2756,6 +2764,13 @@ def write_home_map_js():
         lon=146.2,
         zoom=5,
         nearest=VIC_NEAREST_FN,
+    )
+    # State maps keep the default whole-number zoom. The national map uses
+    # quarter steps so fitBounds can sit on Australia instead of one level out.
+    script = script.replace(
+        "var map = L.map(el, {scrollWheelZoom: false});",
+        "var map = L.map(el, {scrollWheelZoom: false, zoomSnap: 0.25});",
+        1,
     )
     open(os.path.join(OUT, "map-home.js"), "w", encoding="utf-8").write(script)
 write_map_js(primary)

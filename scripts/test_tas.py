@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Tasmania stays off the public site. These checks do not enable it."""
+"""Tasmania is public. Signup and the digest stay off, and ACT stays off."""
 import json
 import os
 import subprocess
@@ -30,20 +30,27 @@ def expect(condition, label):
 
 def main():
     tas = states.by_slug("tas")
-    expect(tas.get("enabled") is False, "tas disabled")
-    expect(tas["release"]["public"] is False, "tas not public")
+    act = states.by_slug("act")
+    expect(tas.get("enabled") is True, "tas enabled")
+    expect(tas["release"]["public"] is True, "tas public")
     expect(tas["release"]["signup"] is False and tas["release"]["digest"] is False, "no signup and no digest")
-    expect(states.public_build_allowed(tas) is False, "public build refused")
+    expect(states.public_build_allowed(tas) is True, "public build allowed")
     expect(states.signup_allowed(tas) is False and states.digest_allowed(tas) is False, "signup and digest refused")
-    expect(all(gate.get("ok") is False for gate in tas["release"]["gates"]), "release gates stay closed")
-    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "enabled states unchanged")
+    blocking = [gate for gate in tas["release"]["gates"] if gate.get("blocks_public", True) is not False]
+    expect(blocking and all(gate.get("ok") is True for gate in blocking), "blocking tas gates are open")
+    segment = next(gate for gate in tas["release"]["gates"] if gate.get("id") == "digest_segment")
+    expect(segment.get("ok") is False and segment.get("blocks_public") is False, "tas signup segment stays off")
+    expect(act.get("enabled") is False and states.public_build_allowed(act) is False, "act stays off")
+    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "enabled states include tas")
 
     saved_enable = os.environ.get("CAMPCONDITIONS_ENABLE")
     saved_preview = os.environ.get("CAMPCONDITIONS_PREVIEW")
     saved_out = os.environ.get("CAMPCONDITIONS_OUT")
     try:
         os.environ["CAMPCONDITIONS_ENABLE"] = "tas"
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "enable flag cannot add tas")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "enable flag does not add another tas")
+        os.environ["CAMPCONDITIONS_ENABLE"] = "act"
+        expect("act" not in [state["slug"] for state in states.enabled()], "enable flag cannot add act")
         os.environ.pop("CAMPCONDITIONS_ENABLE", None)
         os.environ["CAMPCONDITIONS_PREVIEW"] = "tas"
         os.environ["CAMPCONDITIONS_OUT"] = "/tmp/tas-preview-unit"
@@ -191,20 +198,23 @@ def main():
 
     fake = tempfile.mkdtemp(prefix="tas-dist-")
     with open(os.path.join(fake, "index.html"), "w", encoding="utf-8") as handle:
-        handle.write('<input name="states" value="vic"><input name="states" value="nsw"><input name="states" value="qld">')
+        handle.write('<input name="states" value="vic"><input name="states" value="nsw"><input name="states" value="qld"><a href="/tas/">Tasmania</a>')
+    os.makedirs(os.path.join(fake, "tas"))
     gate = tas_launch_gate.evaluate(fake)
     by_check = {item["check"]: item for item in gate["checks"]}
     expect(by_check["inventory"]["pass"] and by_check["alerts"]["pass"], "inventory and alert checks")
     expect(by_check["fire_linkout"]["pass"] and by_check["roads_linkout"]["pass"] and by_check["tas_signup"]["pass"], "fire, roads and signup checks")
-    expect(by_check["public_tas"]["pass"], "fake public build has no Tasmania")
+    expect(by_check["public_tas"]["pass"], "public build lists Tasmania and leaves ACT off")
     expect(by_check["caravan_park_keep"]["pass"] is True, "caravan park check passes")
-    expect(gate["pass"] is True and gate["published"] == 187 and gate["alerts"]["amber"] == 84 and gate["alerts"]["closed"] == 3 and gate["alerts"]["campfire"] == 102, "launch checks pass while the state stays off")
+    expect(gate["pass"] is True and gate["published"] == 187 and gate["alerts"]["amber"] == 84 and gate["alerts"]["closed"] == 3 and gate["alerts"]["campfire"] == 102, "launch checks pass")
 
     home = os.path.join(ROOT, "dist", "index.html")
     if os.path.isfile(home):
         page = open(home, encoding="utf-8").read()
-        expect('href="/tas/"' not in page and 'value="tas"' not in page, "built homepage has no Tasmania")
-        expect(not os.path.isdir(os.path.join(ROOT, "dist", "tas")), "built site has no Tasmania pages")
+        expect('href="/tas/"' in page and "Tasmania" in page, "built homepage lists Tasmania")
+        expect('value="tas"' not in page and 'value="act"' not in page, "signup does not offer tas or act")
+        expect(os.path.isdir(os.path.join(ROOT, "dist", "tas")), "built site has Tasmania pages")
+        expect(not os.path.isdir(os.path.join(ROOT, "dist", "act")), "built site has no ACT pages")
 
     node = subprocess.run(["node", "--input-type=module", "-e", NODE], cwd=ROOT, capture_output=True, text=True)
     expect(node.returncode == 0, "signup hold node: " + (node.stderr or node.stdout)[-300:])

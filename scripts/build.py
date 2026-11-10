@@ -2595,7 +2595,7 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
         .replace("__CLUSTER__", cluster)
         .replace("__REGION_BIT__", region_bit))
     js = _qpws_js(js) if _qld_enabled() else js
-    if STATE.get("slug") == "tas":
+    if _tas_enabled() or (STATE or {}).get("slug") == "tas":
         js = js.replace(
             'var stateSlug = {v: "vic", n: "nsw", q: "qld", s: "sa"};',
             'var stateSlug = {v: "vic", n: "nsw", q: "qld", s: "sa", t: "tas"};',
@@ -2614,6 +2614,8 @@ def _qld_enabled():
     return any(state["slug"] == "qld" for state in statecfg.enabled())
 def _sa_enabled():
     return any(state["slug"] == "sa" for state in statecfg.enabled())
+def _tas_enabled():
+    return any(state["slug"] == "tas" for state in statecfg.enabled()) or (STATE or {}).get("slug") == "tas"
 def _state_codes():
     """VIC, NSW, QLD and SA from the states this build actually emits."""
     abbrevs = [state.get("abbrev") or state.get("name") or "" for state in statecfg.enabled()]
@@ -3367,6 +3369,15 @@ def about_body():
             roads += "<p>" + (sa_copy.get("directions_note") or "Check the SA Country Fire Service and official road conditions before you travel.") + "</p>"
             sources += ('<h3 id="sa-sources">South Australia</h3><ul>' + (sa_copy.get("about_sources") or "") + "</ul>"
                         + "<p>" + (sa_copy.get("about_tail") or "") + "</p>")
+        if _tas_enabled():
+            lead = lead.replace(
+                "in Victoria, New South Wales, Queensland and South Australia",
+                "in Victoria, New South Wales, Queensland, South Australia and Tasmania",
+            )
+            tas_copy = statecfg.by_slug("tas").get("copy") or {}
+            roads += "<p>" + (tas_copy.get("directions_note") or "Check the Tasmania Fire Service, TasALERT and Tasmanian roadworks before you travel.") + "</p>"
+            sources += ('<h3 id="tas-sources">Tasmania</h3><ul>' + (tas_copy.get("about_sources") or "") + "</ul>"
+                        + "<p>" + (tas_copy.get("about_tail") or "") + "</p>")
     return f"""<h1>About</h1><p>{lead}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>{roads}
@@ -3462,6 +3473,7 @@ def faq_items():
          "New South Wales: the NPWS Visitor Area layer, the NPWS alerts and closures data and NSW RFS fire danger ratings. "
          + ("Queensland: QPWS camping grounds from the QSpatial tourist points layer, the QPWS park alerts RSS and Bureau of Meteorology fire danger ratings. " if _qld_enabled() else "")
          + ("South Australia: Parks SA campgrounds and notices, council and community camps, and the SA Country Fire Service ratings page linked from each camp. " if _sa_enabled() else "")
+         + ("Tasmania: Parks and Wildlife Service campgrounds, camps outside reserves, and links to the Tasmania Fire Service and TasALERT. " if _tas_enabled() else "")
          + "Extra campgrounds come from OpenStreetMap. The About the data page lists every source."),
         ("How often is the site updated?", UPDATE_CADENCE),
         ("What do Closed, Check conditions and No known issues mean?",
@@ -3475,6 +3487,7 @@ def faq_items():
          "No. Incident warnings are linked, not republished. Check VicEmergency in Victoria, NSW Rural Fire Service and NSW SES in New South Wales, "
          + ("the Queensland Fire Department and QLDTraffic in Queensland, " if _qld_enabled() else "")
          + ("the SA Country Fire Service in South Australia, " if _sa_enabled() else "")
+         + ("the Tasmania Fire Service and TasALERT in Tasmania, " if _tas_enabled() else "")
          + "and the Bureau of Meteorology before you travel. In an emergency call 000."),
         ("Which camps are closed this weekend?",
          "The Closures this weekend page lists every camp with a recorded closure over the coming Saturday and Sunday, and closures that start during the weekend. It is rebuilt with the rest of the site."),

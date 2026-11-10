@@ -3,7 +3,7 @@
   "name": "Tasmania",
   "adjective": "Tasmanian",
   "abbrev": "TAS",
-  "enabled": false,
+  "enabled": true,
   "banner": {
     "covering": "",
     "coming": ""
@@ -72,7 +72,7 @@
       "live_fetch": true,
       "one_request_per_build": true,
       "store": ["headline", "parks", "link"],
-      "note": "Fetched only when Tasmania pages are built. No query string. The public build does not include Tasmania, so it does not fetch this page."
+      "note": "Fetched when Tasmania pages are built. No query string. One request per build. The public build keeps the headline, the park names and the link."
     },
     "tfs_total_fire_ban": {
       "url": "https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/",
@@ -132,7 +132,7 @@
     "directions_note": "Check the Tasmania Fire Service, TasALERT and Tasmanian roadworks before you travel."
   },
   "release": {
-    "public": false,
+    "public": true,
     "signup": false,
     "digest": false,
     "live_html_parser": true,
@@ -145,39 +145,40 @@
     "gates": [
       {
         "id": "inventory_audit",
-        "ok": false,
-        "detail": "The source file has 691 records. Pages list the eligible camps after the park rule. Two commercial parks are left out. This is not signed off for a public build."
+        "ok": true,
+        "detail": "The public build lists 187 camps from the eligible records. Lake St Clair Tourist Park and BIG4 Buttons Creek Summer Campground are commercial and are left out. Free camps, council showgrounds, and council or community parks stay."
       },
       {
         "id": "official_source_parser",
-        "ok": false,
-        "detail": "Parks and Wildlife Service alerts are read from the alerts page when Tasmania pages are built. Only the headline, the park names and the link are kept."
+        "ok": true,
+        "detail": "The public build reads Parks and Wildlife Service alerts from the alerts page. Only the headline, the park names and the link are kept."
       },
       {
         "id": "caravan_park_keep",
-        "ok": false,
+        "ok": true,
         "detail": "Free camps, council showgrounds, and council or community parks stay. Lake St Clair Tourist Park and BIG4 Buttons Creek Summer Campground are commercial and are left out. A commercial caravan, tourist or holiday park on the published list fails this check."
       },
       {
         "id": "fire_linkout",
-        "ok": false,
+        "ok": true,
         "detail": "Pages link to the Tasmania Fire Service Total Fire Ban page and TasALERT. No fire rating is fetched."
       },
       {
         "id": "roads_linkout",
-        "ok": false,
+        "ok": true,
         "detail": "Pages link to Tasmanian roadworks. The State Growth layer is not ingested."
       },
       {
         "id": "digest_segment",
         "ok": false,
+        "blocks_public": false,
         "env": "RESEND_SEGMENT_TAS_ID",
         "detail": "No Tasmania segment is created. Signup stays off. Pages say the weekly email is coming soon."
       },
       {
         "id": "regression_activation",
-        "ok": false,
-        "detail": "Foundation tests are not a substitute for a fresh Victoria, New South Wales, Queensland and South Australia check at activation."
+        "ok": true,
+        "detail": "The Victoria, New South Wales, Queensland and South Australia build and tests run with this activation."
       }
     ]
   }

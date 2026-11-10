@@ -171,13 +171,18 @@ def _public(dist):
     dist = os.path.abspath(dist)
     home = os.path.join(dist, "index.html")
     tas_dir = os.path.join(dist, "tas")
+    act_dir = os.path.join(dist, "act")
     if not os.path.isfile(home):
         return _check("public_tas", False, "public build is not in %s" % dist)
     page = open(home, encoding="utf-8").read()
-    ok = not os.path.isdir(tas_dir) and 'href="/tas/"' not in page and 'value="tas"' not in page
-    reason = "public pages do not include Tasmania"
+    offered = ('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page)
+    listed = 'href="/tas/"' in page and "Tasmania" in page and os.path.isdir(tas_dir)
+    signup_off = 'value="tas"' not in page and 'value="act"' not in page
+    act_off = not os.path.isdir(act_dir) and "Australian Capital Territory" not in page
+    ok = offered and listed and signup_off and act_off
+    reason = "homepage lists Tasmania, the signup form does not offer Tasmania, and ACT is absent"
     if not ok:
-        reason = "Tasmania is in the public build"
+        reason = "Tasmania is missing from the public build, the signup form offers Tasmania, or ACT is public"
     return _check("public_tas", ok, reason)
 
 

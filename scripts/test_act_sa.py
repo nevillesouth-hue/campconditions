@@ -65,7 +65,7 @@ def main():
         moment,
     )
 
-    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "enabled states")
+    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "enabled states")
     for slug in ("vic", "nsw", "qld"):
         state = states.by_slug(slug)
         expect(state.get("enabled") is True, slug + " enabled")
@@ -77,9 +77,9 @@ def main():
     saved = os.environ.get("CAMPCONDITIONS_ENABLE")
     try:
         os.environ["CAMPCONDITIONS_ENABLE"] = "act,sa"
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "env cannot enable act")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "env cannot enable act")
         os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "existing preview env")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "existing preview env")
     finally:
         if saved is None:
             os.environ.pop("CAMPCONDITIONS_ENABLE", None)
@@ -425,8 +425,11 @@ def main():
         expect('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page, "homepage signup offers the three states")
         expect('value="act"' not in page and 'value="sa"' not in page, "signup does not offer act or sa")
         expect("South Australia" in page and 'href="/sa/"' in page, "homepage lists sa")
+        expect("Tasmania" in page and 'href="/tas/"' in page, "homepage lists tas")
+        expect('value="tas"' not in page, "signup does not offer tas")
         expect("Australian Capital Territory" not in page, "homepage does not name act")
         expect(os.path.isdir(os.path.join(ROOT, "dist", "sa")), "public build has sa pages")
+        expect(os.path.isdir(os.path.join(ROOT, "dist", "tas")), "public build has tas pages")
         expect(not os.path.isdir(os.path.join(ROOT, "dist", "act")), "public build has no act pages")
     status_path = os.path.join(ROOT, "dist", "status.json")
     if os.path.isfile(status_path):
@@ -661,7 +664,7 @@ def main():
     try:
         os.environ.pop("CAMPCONDITIONS_PREVIEW", None)
         os.environ.pop("CAMPCONDITIONS_OUT", None)
-        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "public pages include sa")
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa", "tas"], "public pages include sa")
         os.environ["CAMPCONDITIONS_PREVIEW"] = "sa"
         os.environ["CAMPCONDITIONS_OUT"] = os.path.join(ROOT, "dist")
         try:
@@ -671,8 +674,8 @@ def main():
             expect(True, "preview refuses dist")
         preview_out = tempfile.mkdtemp(prefix="sa-inventory-preview-")
         os.environ["CAMPCONDITIONS_OUT"] = preview_out
-        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "preview does not duplicate sa")
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "sa stays enabled")
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa", "tas"], "preview does not duplicate sa")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "sa stays enabled")
         expect("act" not in [state["slug"] for state in states.enabled()], "preview does not enable act")
     finally:
         if saved_preview is None:

@@ -38,6 +38,7 @@
   "files": {
     "inventory": "data/tas/tas-inventory.v6.csv",
     "park_map": "data/tas/tas-camp-park-map.v2.csv",
+    "park_decisions": "data/tas/tas-caravan-park-decisions.csv",
     "alerts_fixture": "data/tas/fixtures/alerts-2026-11-10.json"
   },
   "regions": {
@@ -145,7 +146,7 @@
       {
         "id": "inventory_audit",
         "ok": false,
-        "detail": "The source file has 691 records. Pages list the 189 eligible records. Held and excluded records are left out. This is not signed off for a public build."
+        "detail": "The source file has 691 records. Pages list the eligible camps after the park rule. Two commercial parks are left out. This is not signed off for a public build."
       },
       {
         "id": "official_source_parser",
@@ -155,7 +156,7 @@
       {
         "id": "caravan_park_keep",
         "ok": false,
-        "detail": "Lake St Clair Tourist Park is eligible and is a tourist park. The check fails while a caravan, holiday or tourist park is published. There is no keep list."
+        "detail": "Free camps, council showgrounds, and council or community parks stay. Lake St Clair Tourist Park and BIG4 Buttons Creek Summer Campground are commercial and are left out. A commercial caravan, tourist or holiday park on the published list fails this check."
       },
       {
         "id": "fire_linkout",

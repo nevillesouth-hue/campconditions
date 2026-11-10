@@ -12,7 +12,12 @@ OSM_CREDIT = "OpenStreetMap contributors (ODbL)"
 LICENCE = "CC BY 3.0 AU"
 REGION = "tasmania"
 PARK_RE = re.compile(r"\b(?:caravan|holiday|tourist)(?:\s+and\s+[a-z]+){0,4}\s+parks?\b")
+CABIN_RE = re.compile(r"\bcabin park\b")
+CHAIN_RE = re.compile(r"\bbig\s*4\b")
+HOTEL_RE = re.compile(r"\b(?:hotel|pub|motel)\b")
+CAMP_RE = re.compile(r"\bcamp|\bcaravan")
 ELIGIBLE = "eligible"
+PUBLISHED = 187
 
 
 def _paths():
@@ -25,7 +30,7 @@ def _paths():
             raise SystemExit("TAS config is missing files.%s" % key)
         return rel if os.path.isabs(rel) else os.path.join(ROOT, rel)
 
-    return one("inventory"), one("park_map")
+    return one("inventory"), one("park_map"), one("park_decisions")
 
 
 def _read_csv(path):
@@ -63,15 +68,32 @@ def _park_text(value):
 
 
 def is_caravan_holiday_or_tourist_park(camp):
-    """True when the name or the type is a caravan, holiday or tourist park."""
-    for key in ("name", "category"):
-        if PARK_RE.search(_park_text(camp.get(key))):
+    """True for a caravan, holiday, tourist or cabin park, a BIG4 site, or hotel/pub camping."""
+    for key in ("name", "category", "osm_name"):
+        text = _park_text(camp.get(key))
+        if not text:
+            continue
+        if PARK_RE.search(text) or CABIN_RE.search(text) or CHAIN_RE.search(text):
+            return True
+        if HOTEL_RE.search(text) and CAMP_RE.search(text):
             return True
     return False
 
 
+def parks_without_keep(camps):
+    """Published park types that do not have a keep decision."""
+    missing = []
+    for camp in camps:
+        if not is_caravan_holiday_or_tourist_park(camp):
+            continue
+        if camp.get("park_decision") == "keep":
+            continue
+        missing.append(camp.get("name") or camp.get("id") or "")
+    return missing
+
+
 def commercial_published(camps):
-    return [camp.get("name") or camp.get("id") or "" for camp in camps if is_caravan_holiday_or_tourist_park(camp)]
+    return parks_without_keep(camps)
 
 
 def _aliases(value):
@@ -98,10 +120,30 @@ def _council_url(value):
 
 
 def load_rows():
-    inventory_path, map_path = _paths()
+    inventory_path, map_path, _decisions = _paths()
     inventory = _read_csv(inventory_path)
     parks = {row["camp_id"]: row for row in _read_csv(map_path)}
     return inventory, parks
+
+
+def load_park_decisions():
+    _inventory, _map, path = _paths()
+    rows = _read_csv(path)
+    allowed = {"keep", "exclude", "hold"}
+    seen = set()
+    for row in rows:
+        ident = (row.get("campground_record_id") or "").strip()
+        decision = (row.get("decision") or "").strip()
+        if not ident or ident in seen:
+            raise SystemExit("caravan park decision needs one id: %s" % (row.get("name") or ident))
+        seen.add(ident)
+        if decision not in allowed:
+            raise SystemExit("unexpected caravan park decision for %s" % row.get("name"))
+        if decision != "keep" and not (row.get("reason") or "").strip():
+            raise SystemExit("caravan park decision has no reason: %s" % row.get("name"))
+        if decision == "keep" and not (row.get("source_url") or "").strip():
+            raise SystemExit("a kept park needs its source: %s" % row.get("name"))
+    return rows
 
 
 def load_camps(seen=None):
@@ -163,7 +205,48 @@ def load_camps(seen=None):
             "tas_campfire": False,
         }
         camps.append(camp)
-    return camps
+    return _apply_park_decisions(camps)
+
+
+def _park_record(camp, row):
+    return {
+        "id": camp.get("id") or "",
+        "name": camp.get("name") or "",
+        "decision": (row.get("decision") or "").strip(),
+        "reason": (row.get("reason") or "").strip(),
+        "source_url": (row.get("source_url") or "").strip(),
+    }
+
+
+def _apply_park_decisions(camps):
+    """Free and council camps stay. Commercial parks are excluded. Unclear parks are held."""
+    rows = load_park_decisions()
+    by_id = {(row.get("campground_record_id") or "").strip(): row for row in rows}
+    published, excluded, held, kept = [], [], [], []
+    for camp in camps:
+        row = by_id.get(camp.get("id") or "")
+        if row:
+            decision = (row.get("decision") or "").strip()
+            if decision == "keep":
+                camp["park_decision"] = "keep"
+                kept.append(_park_record(camp, row))
+                published.append(camp)
+            elif decision == "exclude":
+                excluded.append(_park_record(camp, row))
+            elif decision == "hold":
+                held.append(_park_record(camp, row))
+            continue
+        if is_caravan_holiday_or_tourist_park(camp):
+            held.append(_park_record(camp, {
+                "decision": "hold",
+                "reason": "ownership is not confirmed",
+            }))
+            continue
+        published.append(camp)
+    load_camps.park_excluded = excluded
+    load_camps.park_held = held
+    load_camps.park_kept = kept
+    return published
 
 
 def summary(camps=None):
@@ -185,7 +268,10 @@ def summary(camps=None):
         "published": len(published),
         "held_published": held,
         "excluded_published": excluded,
-        "missing_eligible": sorted(eligible_ids - ids),
+        "withheld_eligible": sorted(eligible_ids - ids),
+        "park_excluded": list(getattr(load_camps, "park_excluded", [])),
+        "park_held": list(getattr(load_camps, "park_held", [])),
+        "park_kept": list(getattr(load_camps, "park_kept", [])),
         "commercial": commercial_published(published),
         "council": sum(1 for camp in published if camp.get("tas_council")),
         "osm_coordinates": sum(1 for camp in published if camp.get("coordinate_source") == "OSM"),

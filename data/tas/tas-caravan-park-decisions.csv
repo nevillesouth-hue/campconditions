@@ -1,0 +1,3 @@
+campground_record_id,name,decision,reason,source_url,reviewed
+TAS-LIST-CA-19087,Lake St Clair Tourist Park,exclude,commercial tourist park,https://www.openstreetmap.org/way/931963744,yes
+TAS-LIST-CA-15682,BIG4 Buttons Creek Summer Campground,exclude,commercial chain: BIG4,,yes

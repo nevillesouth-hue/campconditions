@@ -27,17 +27,22 @@ def _check(name, ok, reason):
 
 def _inventory():
     counted = tas_inventory.summary()
+    excluded_ids = {row["id"] for row in counted["park_excluded"]}
     ok = (
         counted["source_rows"] == 691
         and counted["eligible"] == 189
-        and counted["published"] == 189
+        and counted["published"] == 187
         and counted["map_rows"] == 189
         and not counted["held_published"]
         and not counted["excluded_published"]
-        and not counted["missing_eligible"]
+        and set(counted["withheld_eligible"]) == {"TAS-LIST-CA-19087", "TAS-LIST-CA-15682"}
+        and excluded_ids == {"TAS-LIST-CA-19087", "TAS-LIST-CA-15682"}
+        and not counted["park_held"]
+        and not counted["park_kept"]
+        and not counted["commercial"]
         and counted["council"] == 11
     )
-    reason = "691 records, 189 eligible published, 0 held, 0 excluded, 11 camps outside a reserve"
+    reason = "691 records, 189 eligible, 187 published. Two commercial parks are left out. 11 camps outside a reserve."
     if not ok:
         reason = "inventory counts were %s" % json.dumps(counted, sort_keys=True)
     return _check("inventory", ok, reason)
@@ -45,21 +50,35 @@ def _inventory():
 
 def _caravan():
     camps = tas_inventory.load_camps(set())
-    published = tas_inventory.commercial_published(camps)
+    published = tas_inventory.parks_without_keep(camps)
     sample = {"name": "Sample Holiday Park", "category": "Campground"}
     tourist = {"name": "Sample Tourist Park", "category": "Campground"}
+    chain = {"name": "BIG4 Example Holiday Park", "category": "Campground"}
+    cabin = {"name": "Sample Cabin Park", "category": "Campground"}
+    hotel = {"name": "Sample Hotel Campground", "category": "Campground"}
     plain = {"name": "Sample Campground", "category": "PWS campground"}
+    kept = {"name": "Council Caravan Park", "category": "Campground", "park_decision": "keep"}
     catches = (
-        tas_inventory.is_caravan_holiday_or_tourist_park(sample)
-        and tas_inventory.is_caravan_holiday_or_tourist_park(tourist)
+        tas_inventory.parks_without_keep([sample, tourist, chain, cabin, hotel])
+        == ["Sample Holiday Park", "Sample Tourist Park", "BIG4 Example Holiday Park", "Sample Cabin Park", "Sample Hotel Campground"]
         and not tas_inventory.is_caravan_holiday_or_tourist_park(plain)
+        and tas_inventory.parks_without_keep([kept]) == []
     )
-    ok = catches and not published
-    reason = "no published caravan, holiday or tourist park"
+    names = {row["name"]: row["reason"] for row in tas_inventory.load_camps.park_excluded}
+    ruled = (
+        names.get("Lake St Clair Tourist Park") == "commercial tourist park"
+        and names.get("BIG4 Buttons Creek Summer Campground") == "commercial chain: BIG4"
+        and "Lake St Clair Tourist Park" not in {camp["name"] for camp in camps}
+        and "BIG4 Buttons Creek Summer Campground" not in {camp["name"] for camp in camps}
+    )
+    ok = catches and ruled and not published
+    reason = "free and council camps stay. Commercial caravan, tourist and holiday parks are left out."
     if published:
-        reason = "published caravan, holiday or tourist park: " + "; ".join(published)
+        reason = "published without a keep decision: " + "; ".join(published)
     elif not catches:
-        reason = "the park check did not catch a holiday park or a tourist park"
+        reason = "the park check did not catch a holiday, tourist, chain, cabin or hotel camp"
+    elif not ruled:
+        reason = "Lake St Clair Tourist Park or BIG4 Buttons Creek is still published"
     return _check("caravan_park_keep", ok, reason)
 
 
@@ -94,7 +113,7 @@ def _alerts():
         and all(set(alert) <= {"headline", "parks", "link"} for alert in alerts)
     )
     tally = tas_alerts.counts(camps)
-    ok = rules and tally == {"amber": 84, "closed": 3, "campfire": 103, "council": 11, "published": 189}
+    ok = rules and tally == {"amber": 84, "closed": 3, "campfire": 102, "council": 11, "published": 187}
     reason = "amber %s, closed %s, campfire note %s" % (tally["amber"], tally["closed"], tally["campfire"])
     if not ok:
         reason = "alert rules failed (" + reason + ")"
@@ -218,7 +237,7 @@ def evaluate(dist, preview=None):
         checks.append(_pages(preview))
     return {
         "pass": all(item["pass"] for item in checks),
-        "published": 189,
+        "published": 187,
         "alerts": tally,
         "checks": checks,
     }

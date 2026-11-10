@@ -77,18 +77,21 @@ def main():
 
     counted = tas_inventory.summary()
     expect(counted["source_rows"] == 691, "691 source records")
-    expect(counted["eligible"] == 189 and counted["published"] == 189, "189 eligible published")
+    expect(counted["eligible"] == 189 and counted["published"] == 187, "189 eligible, 187 published")
     expect(counted["decisions"].get("hold") == 199 and counted["decisions"].get("exclude") == 303, "held and excluded stay in the source file")
-    expect(not counted["held_published"] and not counted["excluded_published"] and not counted["missing_eligible"], "held and excluded are not published")
+    expect(not counted["held_published"] and not counted["excluded_published"], "source held and excluded records are not published")
+    expect({row["name"]: row["reason"] for row in counted["park_excluded"]} == {
+        "Lake St Clair Tourist Park": "commercial tourist park",
+        "BIG4 Buttons Creek Summer Campground": "commercial chain: BIG4",
+    }, "two commercial parks are excluded")
+    expect(not counted["park_held"] and not counted["park_kept"], "no park is held or kept")
     expect(counted["council"] == 11, "11 camps outside a reserve")
     camps = tas_inventory.load_camps(set())
-    commercial = tas_inventory.commercial_published(camps)
-    expect(commercial == ["Lake St Clair Tourist Park"], "tourist park is the published commercial name")
-    expect(not tas_inventory.is_caravan_holiday_or_tourist_park({"name": "BIG4 Buttons Creek Summer Campground", "category": "PWS campground"}), "campground name is not a tourist park")
-    sample = {"name": "Sample Holiday Park", "category": "Campground"}
-    expect(tas_inventory.commercial_published([sample]) == ["Sample Holiday Park"], "a holiday park with no keep decision fails")
+    expect(tas_inventory.parks_without_keep(camps) == [], "published list has no park without a keep decision")
+    expect(tas_inventory.parks_without_keep([{"name": "Sample Holiday Park", "category": "Campground"}]) == ["Sample Holiday Park"], "a holiday park with no keep decision fails")
     expect(tas_inventory.is_caravan_holiday_or_tourist_park({"name": "Sample Tourist Park", "category": "Campground"}), "a tourist park fails")
-    expect(not tas_inventory.commercial_published([camp for camp in camps if camp["name"] != "Lake St Clair Tourist Park"]), "the check passes once that park is absent")
+    expect(tas_inventory.is_caravan_holiday_or_tourist_park({"name": "BIG4 Buttons Creek Summer Campground", "category": "Campground"}), "a BIG4 site fails")
+    expect(tas_inventory.parks_without_keep([{"name": "Council Caravan Park", "category": "Campground", "park_decision": "keep"}]) == [], "a council caravan park with a keep decision stays")
 
     sample_html = open(os.path.join(ROOT, "data", "tas", "fixtures", "alerts-sample.html"), encoding="utf-8").read()
     parsed = tas_alerts.parse_html(sample_html)
@@ -145,7 +148,7 @@ def main():
     expect(all("SECRET" not in json.dumps(row) and set(row) <= {"headline", "parks", "link"} for row in live), "fixture has no body")
     tas_alerts.apply_alerts(camps, live)
     tally = tas_alerts.counts(camps)
-    expect(tally["amber"] == 84 and tally["closed"] == 3 and tally["campfire"] == 103, "today's alerts: 84 amber, 3 closed, 103 campfire notes")
+    expect(tally["amber"] == 84 and tally["closed"] == 3 and tally["campfire"] == 102, "today's alerts: 84 amber, 3 closed, 102 campfire notes")
     by_name = {camp["name"]: camp for camp in camps}
     stumpys = by_name["Stumpys Bay Campground No 1"]
     ben = by_name["Ben Lomond Campground"]
@@ -194,8 +197,8 @@ def main():
     expect(by_check["inventory"]["pass"] and by_check["alerts"]["pass"], "inventory and alert checks")
     expect(by_check["fire_linkout"]["pass"] and by_check["roads_linkout"]["pass"] and by_check["tas_signup"]["pass"], "fire, roads and signup checks")
     expect(by_check["public_tas"]["pass"], "fake public build has no Tasmania")
-    expect(by_check["caravan_park_keep"]["pass"] is False and "Lake St Clair Tourist Park" in by_check["caravan_park_keep"]["reason"], "tourist park fails the keep check")
-    expect(gate["pass"] is False and gate["alerts"]["amber"] == 84 and gate["alerts"]["closed"] == 3 and gate["alerts"]["campfire"] == 103, "launch stays closed")
+    expect(by_check["caravan_park_keep"]["pass"] is True, "caravan park check passes")
+    expect(gate["pass"] is True and gate["published"] == 187 and gate["alerts"]["amber"] == 84 and gate["alerts"]["closed"] == 3 and gate["alerts"]["campfire"] == 102, "launch checks pass while the state stays off")
 
     home = os.path.join(ROOT, "dist", "index.html")
     if os.path.isfile(home):
@@ -212,7 +215,7 @@ def main():
             print(" FAIL", label)
         return 1
     print("TAS checks passed: %s" % CHECKS)
-    print("Published camps: 189. Alerts: 84 amber, 3 closed, 103 campfire notes.")
+    print("Published camps: 187. Alerts: 84 amber, 3 closed, 102 campfire notes.")
     return 0
 
 

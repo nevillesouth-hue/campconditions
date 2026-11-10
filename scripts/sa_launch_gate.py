@@ -45,32 +45,32 @@ def _inventory():
     unpublished = sa_inventory.published_parks_without_keep(camps, kept_ids)
     ok = (
         before.get("published") == 265
-        and counted["published"] == 160
+        and counted["published"] == 163
         and counted["official_confident"] == 73
         and counted["official_approximate"] == 7
         and counted["eligible_osm"] == 13
         and counted["council"] == 40
-        and counted["tourism"] == 5
-        and counted["operator"] == 22
+        and counted["tourism"] == 7
+        and counted["operator"] == 23
         and counted["duplicates_dropped"] == 1
         and len(counted.get("commercial_excluded") or []) == 3
-        and len(excluded) == 86
-        and len(held) == 19
-        and len(kept) == 21
+        and len(excluded) == 96
+        and len(held) == 6
+        and len(kept) == 24
         and all(row.get("decision") == "exclude" and row.get("reason") for row in excluded)
         and all(row.get("decision") == "hold" and row.get("reason") for row in held)
         and not unpublished
         and len(needs) == 0
     )
     reason = (
-        "160 camps, down from 265. 73 Parks SA with confident coordinates, 7 Parks SA approximate "
+        "163 camps, down from 265. 73 Parks SA with confident coordinates, 7 Parks SA approximate "
         "(parks_sa_streetview_link), 13 from the earlier operator pass, 40 council, "
-        "5 tourism, 22 operator. 86 commercial caravan, holiday and tourist parks are excluded "
-        "and 19 are held. 21 council, community and showground parks stay. "
+        "7 tourism, 23 operator. 96 commercial caravan, holiday and tourist parks are excluded "
+        "and 6 are held. 24 council, community and showground parks stay. "
         "1 duplicate dropped (Mount Gambier Central, east side). Pondalowie and Ippinitchie stay out. Needs a check: 0."
     )
     if not ok:
-        reason = "expected 160 camps and no needs-check camps, found %s and %s (%s)" % (counted["published"], len(needs), "; ".join(needs + unpublished))
+        reason = "expected 163 camps and no needs-check camps, found %s and %s (%s)" % (counted["published"], len(needs), "; ".join(needs + unpublished))
     return _check("inventory", ok, reason), camps
 
 

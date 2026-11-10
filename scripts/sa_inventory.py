@@ -693,8 +693,8 @@ def _load_park_decisions():
     if len(rows) < 123:
         raise SystemExit("caravan park decisions are missing rows")
     reviewed = [row for row in rows if (row.get("reviewed") or "") == "yes"]
-    if len(reviewed) != 123:
-        raise SystemExit("expected 123 reviewed caravan park decisions, found %s" % len(reviewed))
+    if len(reviewed) != 126:
+        raise SystemExit("expected 126 reviewed caravan park decisions, found %s" % len(reviewed))
     counts = {}
     for row in reviewed:
         decision = (row.get("decision") or "").strip()
@@ -703,7 +703,7 @@ def _load_park_decisions():
         if decision != "keep" and not (row.get("reason") or "").strip():
             raise SystemExit("caravan park decision has no reason: %s" % row.get("name"))
         counts[decision] = counts.get(decision, 0) + 1
-    if counts != {"exclude": 86, "keep": 21, "hold": 16}:
+    if counts != {"exclude": 96, "keep": 24, "hold": 6}:
         raise SystemExit("reviewed caravan park decisions were %s" % counts)
     adare = next((row for row in reviewed if (row.get("name") or "").startswith("Adare")), None)
     showground = next((row for row in reviewed if (row.get("name") or "").startswith("Adelaide Showground")), None)
@@ -768,8 +768,8 @@ def _apply_park_decisions(camps):
     missing = published_parks_without_keep(published, kept_ids)
     if missing:
         raise SystemExit("published caravan, holiday or tourist park has no keep decision: %s" % "; ".join(missing))
-    if len(kept) != 21 or len(excluded) != 86:
-        raise SystemExit("expected 21 kept and 86 excluded caravan parks, found %s and %s" % (len(kept), len(excluded)))
+    if len(kept) != 24 or len(excluded) != 96:
+        raise SystemExit("expected 24 kept and 96 excluded caravan parks, found %s and %s" % (len(kept), len(excluded)))
     load_camps.park_excluded = excluded
     load_camps.park_held = held
     load_camps.park_kept = kept

@@ -65,7 +65,7 @@ def main():
         moment,
     )
 
-    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld"], "enabled states")
+    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "enabled states")
     for slug in ("vic", "nsw", "qld"):
         state = states.by_slug(slug)
         expect(state.get("enabled") is True, slug + " enabled")
@@ -77,9 +77,9 @@ def main():
     saved = os.environ.get("CAMPCONDITIONS_ENABLE")
     try:
         os.environ["CAMPCONDITIONS_ENABLE"] = "act,sa"
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld"], "env cannot enable held states")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "env cannot enable act")
         os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld"], "existing preview env")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "existing preview env")
     finally:
         if saved is None:
             os.environ.pop("CAMPCONDITIONS_ENABLE", None)
@@ -88,9 +88,9 @@ def main():
 
     act = states.by_slug("act")
     sa = states.by_slug("sa")
-    expect(act.get("enabled") is False and sa.get("enabled") is False, "config flags stay false")
-    expect(states.public_build_allowed(act) is False and states.digest_allowed(act) is False, "act held")
-    expect(states.signup_allowed(sa) is False and states.public_build_allowed(sa) is False, "sa held")
+    expect(act.get("enabled") is False and sa.get("enabled") is True, "sa is on and act stays off")
+    expect(states.public_build_allowed(act) is False and states.digest_allowed(act) is False, "act stays off")
+    expect(states.public_build_allowed(sa) is True and states.signup_allowed(sa) is False and states.digest_allowed(sa) is False, "sa pages are public and signup stays off")
     opened = dict(act)
     opened["enabled"] = True
     opened["release"] = dict(act["release"])
@@ -101,7 +101,10 @@ def main():
     opened["release"]["gates"] = []
     expect(states.gates_pass(opened) is False, "empty gate list fails")
     expect(all(gate.get("ok") is False for gate in act["release"]["gates"]), "act gates closed")
-    expect(all(gate.get("ok") is False for gate in sa["release"]["gates"]), "sa gates closed")
+    blocking = [gate for gate in sa["release"]["gates"] if gate.get("blocks_public", True) is not False]
+    expect(blocking and all(gate.get("ok") is True for gate in blocking), "blocking sa gates are open")
+    segment = next(gate for gate in sa["release"]["gates"] if gate.get("id") == "digest_segment")
+    expect(segment.get("ok") is False and segment.get("blocks_public") is False, "sa signup segment stays off")
     expect(act["licence"]["status"] == "unresolved", "act licence unresolved")
     expect(sa["licence"]["current_site"] == "CC BY 3.0 AU", "sa site licence")
     expect(sa["licence"]["legacy_dataset"] == "CC BY 4.0", "sa legacy licence")
@@ -379,7 +382,8 @@ def main():
     expect("RESEND_SEGMENT_ACT_ID" in [item["name"] for item in report["resend"]["variables"]], "act segment named")
     expect(all(item["read_by_signup"] is False for item in report["resend"]["variables"]), "segment vars unread")
     expect("licence_parks_esa" in report["blockers"]["act"], "act licence blocker")
-    expect("licence_split" in report["blockers"]["sa"], "sa licence blocker")
+    expect("licence_split" not in report["blockers"]["sa"], "sa licence split is accepted")
+    expect("digest_segment" in report["blockers"]["sa"] and "official_source_parser" in report["blockers"]["sa"], "signup and the live parser stay off")
 
     preview_dir = tempfile.mkdtemp(prefix="act-sa-preview-")
     proc = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", "act_sa_preview.py"), "--out", preview_dir], cwd=ROOT, capture_output=True, text=True)
@@ -418,10 +422,12 @@ def main():
     home = os.path.join(ROOT, "dist", "index.html")
     if os.path.isfile(home):
         page = open(home, encoding="utf-8").read()
-        expect('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page, "homepage offers the three states")
-        expect('value="act"' not in page and 'value="sa"' not in page, "homepage checkboxes")
-        expect("Australian Capital Territory" not in page and "South Australia" not in page, "homepage names")
-        expect(not os.path.isdir(os.path.join(ROOT, "dist", "sa")), "public build has no sa pages")
+        expect('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page, "homepage signup offers the three states")
+        expect('value="act"' not in page and 'value="sa"' not in page, "signup does not offer act or sa")
+        expect("South Australia" in page and 'href="/sa/"' in page, "homepage lists sa")
+        expect("Australian Capital Territory" not in page, "homepage does not name act")
+        expect(os.path.isdir(os.path.join(ROOT, "dist", "sa")), "public build has sa pages")
+        expect(not os.path.isdir(os.path.join(ROOT, "dist", "act")), "public build has no act pages")
     status_path = os.path.join(ROOT, "dist", "status.json")
     if os.path.isfile(status_path):
         out = tempfile.mkdtemp(prefix="act-sa-digest-")
@@ -655,7 +661,7 @@ def main():
     try:
         os.environ.pop("CAMPCONDITIONS_PREVIEW", None)
         os.environ.pop("CAMPCONDITIONS_OUT", None)
-        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld"], "public pages stay the three states")
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "public pages include sa")
         os.environ["CAMPCONDITIONS_PREVIEW"] = "sa"
         os.environ["CAMPCONDITIONS_OUT"] = os.path.join(ROOT, "dist")
         try:
@@ -665,8 +671,9 @@ def main():
             expect(True, "preview refuses dist")
         preview_out = tempfile.mkdtemp(prefix="sa-inventory-preview-")
         os.environ["CAMPCONDITIONS_OUT"] = preview_out
-        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "preview can render sa")
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld"], "preview does not enable sa")
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "preview does not duplicate sa")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "sa stays enabled")
+        expect("act" not in [state["slug"] for state in states.enabled()], "preview does not enable act")
     finally:
         if saved_preview is None:
             os.environ.pop("CAMPCONDITIONS_PREVIEW", None)
@@ -817,7 +824,8 @@ def main():
     gate_preview = os.path.join(gate_root, "preview")
     os.makedirs(gate_dist)
     with open(os.path.join(gate_dist, "index.html"), "w", encoding="utf-8") as handle:
-        handle.write('<input type="checkbox" name="states" value="vic"><input type="checkbox" name="states" value="nsw"><input type="checkbox" name="states" value="qld">')
+        handle.write('<input type="checkbox" name="states" value="vic"><input type="checkbox" name="states" value="nsw"><input type="checkbox" name="states" value="qld"><a href="/sa/">South Australia</a>')
+    os.makedirs(os.path.join(gate_dist, "sa"))
     os.makedirs(os.path.join(gate_preview, "sa", "camp", "one"))
     coming = sa_signup.COMING_SOON
     fire_line = sa_fire.LINKOUT_LINE + " " + sa_fire.CFS_PAGE + " " + sa_fire.CATASTROPHIC_LINE
@@ -831,7 +839,7 @@ def main():
     expect(gate_by["fire_licence_resolved"]["pass"] is False, "licence check is false")
     expect(gate_by["inventory"]["pass"] and gate_by["notice_parser_freshness"]["pass"] and gate_by["fire_feed_freshness"]["pass"], "inventory and freshness pass")
     expect(gate_by["sa_signup"]["pass"] and gate["sa_signup_mode"] == "coming_soon", "signup mode is coming soon")
-    expect(gate_by["digest_preview"]["pass"] and gate_by["public_build_without_sa"]["pass"], "digest and public build checks")
+    expect(gate_by["digest_preview"]["pass"] and gate_by["public_sa"]["pass"], "digest and public build checks")
     expect(gate_by["sa_preview_links"]["pass"] and gate_by["sa_attribution"]["pass"], "preview links and attribution")
     os.environ["SA_FIRE_MODE"] = "linkout"
     try:

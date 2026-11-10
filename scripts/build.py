@@ -1687,7 +1687,7 @@ def map_points_object(c):
     if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
     if len(statecfg.enabled()) > 1:
         slug = c.get("state_slug") or SLUG
-        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales", "qld": "Queensland"}.get(slug, slug)
+        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales", "qld": "Queensland", "sa": "South Australia"}.get(slug, slug)
     if (c.get("state_slug") or SLUG) in ("nsw", "qld"):
         label = region_label(c)
         if label:
@@ -2281,7 +2281,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     if path == "/":
         # Link-preview copy uses a rounded count (4,800+) so it does not go stale on
         # every build. Rounded down to the hundred, never above the real total.
-        codes = " and ".join(["VIC", "NSW"]) if not _qld_enabled() else "VIC, NSW and QLD"
+        codes = _state_codes()
         og_title = f"Camp conditions and closures for {codes} | CampConditions.au"
         og_desc = f"Camp conditions and closures for {codes}."
         if NATIONAL_TOTAL >= 100:
@@ -2575,6 +2575,27 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
     return _qpws_js(js) if _qld_enabled() else js
 def _qld_enabled():
     return any(state["slug"] == "qld" for state in statecfg.enabled())
+def _sa_enabled():
+    return any(state["slug"] == "sa" for state in statecfg.enabled())
+def _state_codes():
+    """VIC, NSW, QLD and SA from the states this build actually emits."""
+    abbrevs = [state.get("abbrev") or state.get("name") or "" for state in statecfg.enabled()]
+    if len(abbrevs) <= 1:
+        return "".join(abbrevs)
+    if len(abbrevs) == 2:
+        return " and ".join(abbrevs)
+    return ", ".join(abbrevs[:-1]) + " and " + abbrevs[-1]
+def _browse_links():
+    links = [f'<a href="/{state["slug"]}/">{e(state["name"])}</a>' for state in statecfg.enabled()]
+    if not links:
+        return ""
+    if len(links) == 1:
+        body = links[0]
+    elif len(links) == 2:
+        body = " or ".join(links)
+    else:
+        body = ", ".join(links[:-1]) + " or " + links[-1]
+    return f"<p>Browse {body}.</p>"
 _QPWS_JS = (
     ('if (upOsm && upOsm.desc && upOsm.source_url && String(upOsm.source_url).indexOf("nationalparks.nsw.gov.au") !== -1) {',
      'var osmAg = String((upOsm && upOsm.source_url) || "").indexOf("parks.qld.gov.au") !== -1 ? "QPWS" : "NPWS";\n'
@@ -3149,17 +3170,15 @@ if multi_state:
     _n = [state["name"] for state in statecfg.enabled()]
     names = _n[0] if len(_n) == 1 else ", ".join(_n[:-1]) + " and " + _n[-1]
     safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
-    browse = '<p>Browse <a href="/vic/">Victoria</a> or <a href="/nsw/">New South Wales</a>.</p>'
-    if _qld_enabled():
-        browse = '<p>Browse <a href="/vic/">Victoria</a>, <a href="/nsw/">New South Wales</a> or <a href="/qld/">Queensland</a>.</p>'
+    browse = _browse_links()
     write_home_map_js()
     NATIONAL_TOTAL = len(all_rows)
-    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in Victoria and New South Wales."},
+    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in {names}."},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
     page("/", "Camp conditions | CampConditions.au",
-         f"Closures and camp conditions for {len(all_rows)} campgrounds in Victoria and New South Wales.",
+         f"Closures and camp conditions for {len(all_rows)} campgrounds in {names}.",
          f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>
-{map_block(all_rows, "Map of Victorian and New South Wales campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
+{map_block(all_rows, f"Map of {names} campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
 
 
@@ -3286,6 +3305,15 @@ def about_body():
             roads += "<p>" + (qld_copy.get("about_roads") or "") + " Road-closure data is not copied onto this site.</p>"
             sources += ('<h3 id="qld-sources">Queensland</h3><ul>' + (qld_copy.get("about_sources") or "") + "</ul>"
                         + (qld_copy.get("footer_attribution") or "") + "<p>" + (qld_copy.get("about_tail") or "") + "</p>")
+        if _sa_enabled():
+            lead = lead.replace(
+                "in Victoria and New South Wales",
+                "in Victoria, New South Wales, Queensland and South Australia",
+            )
+            sa_copy = statecfg.by_slug("sa").get("copy") or {}
+            roads += "<p>" + (sa_copy.get("directions_note") or "Check the SA Country Fire Service and official road conditions before you travel.") + "</p>"
+            sources += ('<h3 id="sa-sources">South Australia</h3><ul>' + (sa_copy.get("about_sources") or "") + "</ul>"
+                        + "<p>" + (sa_copy.get("about_tail") or "") + "</p>")
     return f"""<h1>About</h1><p>{lead}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>{roads}
@@ -3335,7 +3363,7 @@ for state in statecfg.enabled():
         if line and line not in attribution:
             attribution.append(line)
 if len(statecfg.enabled()) > 1:
-    feed_region = _multi_state("Victoria and New South Wales, Australia")
+    feed_region = names + ", Australia"
     feed_disclaimer = " ".join(
         f"{state['name']}: {(state.get('copy') or {}).get('feed_disclaimer') or ''}".strip()
         for state in statecfg.enabled()
@@ -3380,6 +3408,7 @@ def faq_items():
          "Victoria: DataVic Recreation Sites and Explore Outdoors (DEECA), Parks Victoria / DEECA MapShare closures and CFA fire danger ratings. "
          "New South Wales: the NPWS Visitor Area layer, the NPWS alerts and closures data and NSW RFS fire danger ratings. "
          + ("Queensland: QPWS camping grounds from the QSpatial tourist points layer, the QPWS park alerts RSS and Bureau of Meteorology fire danger ratings. " if _qld_enabled() else "")
+         + ("South Australia: Parks SA campgrounds and notices, council and community camps, and the SA Country Fire Service ratings page linked from each camp. " if _sa_enabled() else "")
          + "Extra campgrounds come from OpenStreetMap. The About the data page lists every source."),
         ("How often is the site updated?", UPDATE_CADENCE),
         ("What do Closed, Check conditions and No known issues mean?",
@@ -3392,6 +3421,7 @@ def faq_items():
         ("Does the site show bushfire, flood or other emergency warnings?",
          "No. Incident warnings are linked, not republished. Check VicEmergency in Victoria, NSW Rural Fire Service and NSW SES in New South Wales, "
          + ("the Queensland Fire Department and QLDTraffic in Queensland, " if _qld_enabled() else "")
+         + ("the SA Country Fire Service in South Australia, " if _sa_enabled() else "")
          + "and the Bureau of Meteorology before you travel. In an emergency call 000."),
         ("Which camps are closed this weekend?",
          "The Closures this weekend page lists every camp with a recorded closure over the coming Saturday and Sunday, and closures that start during the weekend. It is rebuilt with the rest of the site."),

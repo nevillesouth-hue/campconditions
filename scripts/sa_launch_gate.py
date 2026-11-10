@@ -219,14 +219,19 @@ def _public(dist):
     dist = os.path.abspath(dist)
     home = os.path.join(dist, "index.html")
     sa_dir = os.path.join(dist, "sa")
+    act_dir = os.path.join(dist, "act")
     if not os.path.isfile(home):
-        return _check("public_build_without_sa", False, "public build is not in %s" % dist)
+        return _check("public_sa", False, "public build is not in %s" % dist)
     page = open(home, encoding="utf-8").read()
     offered = ('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page)
-    hidden = 'value="sa"' not in page and not os.path.isdir(sa_dir)
-    ok = offered and hidden
-    reason = "homepage offers VIC, NSW and QLD only, and dist/sa is absent" if ok else "SA is visible in the public build or a public state checkbox is missing"
-    return _check("public_build_without_sa", ok, reason)
+    listed = 'href="/sa/"' in page and "South Australia" in page and os.path.isdir(sa_dir)
+    signup_off = 'value="sa"' not in page and 'value="act"' not in page
+    act_off = not os.path.isdir(act_dir) and "Australian Capital Territory" not in page
+    ok = offered and listed and signup_off and act_off
+    reason = "homepage lists South Australia, the signup form does not offer SA, and ACT is absent"
+    if not ok:
+        reason = "SA is missing from the public build, the signup form offers SA, or ACT is public"
+    return _check("public_sa", ok, reason)
 
 
 def _links(preview):

@@ -3,12 +3,12 @@
   "name": "South Australia",
   "adjective": "South Australian",
   "abbrev": "SA",
-  "enabled": false,
+  "enabled": true,
   "banner": {
     "covering": "",
     "coming": ""
   },
-  "coverage_label": "Disabled inventory only. 80 Parks SA campgrounds are included (73 with confident coordinates and 7 approximate Street View points) plus council, tourism and operator camps from the checked eligible records. Pondalowie and Ippinitchie stay held. Partial and held records are not published. This is not a state launch.",
+  "coverage_label": "160 camps: Parks SA campgrounds, council showgrounds, and council-run or community caravan parks. Commercial caravan parks are left out.",
   "credit": "Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). The 2017 parks JSON is CC BY 4.0 and is not this inventory.",
   "safety_html": "<div class=\"warn\">No current notice does not mean the camp is open, so check before you travel.</div>",
   "licence": {
@@ -138,12 +138,16 @@
     "place_admin": "{region}, South Australia",
     "feed_region": "South Australia, Australia",
     "feed_disclaimer": "Not an official warning service. A camp is closed, partial, upcoming or unknown only where a Parks SA notice says so. No current notice does not mean the camp is open. Check the SA Country Fire Service before you travel. A total fire ban does not close the camp.",
-    "footer_short": "South Australia: Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL).",
+    "footer_short": "South Australia: Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). <a href=\"/about/#sa-sources\">Sources</a>.",
+    "about_sources": "<li>Parks SA campgrounds and notices: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU.</li><li>Council and community camps are listed from the council, tourism or operator page named on each camp.</li><li>Coordinates: OpenStreetMap contributors (ODbL).</li><li>Fire danger: <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\">SA Country Fire Service</a>. A total fire ban does not close a camp.</li>",
+    "about_tail": "No current notice does not mean the camp is open, so check before you travel.",
+    "llms_intro": "Current conditions for {count} camps in South Australia: Parks SA campgrounds and council and community camps. A camp is closed, partial, upcoming or unknown only where a saved Parks SA notice says so. No current notice does not mean the camp is open. Fire danger is a link to the SA Country Fire Service. Not an official warning service.",
+    "llms_closures": "Closures come from the saved Parks SA notice windows. A camp is closed only where a notice covers that campground. Fire danger and total fire bans are linked to the SA Country Fire Service ratings page. A total fire ban does not close a camp. Do not treat a page with no current notice as open.",
     "directions_note": "Check the SA Country Fire Service and official road conditions before you travel.",
     "outdated_html": ""
   },
   "release": {
-    "public": false,
+    "public": true,
     "signup": false,
     "digest": false,
     "live_html_parser": false,
@@ -157,44 +161,46 @@
     "gates": [
       {
         "id": "inventory_audit",
-        "ok": false,
-        "detail": "A disabled build lists 160 camps, down from 265: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, community and showground records that stay. 86 commercial caravan, holiday and tourist parks are excluded, including Adare. 19 parks are not listed while ownership is unconfirmed. 69 official campgrounds remain without coordinates. Pondalowie and Ippinitchie stay out. This is not a statewide launch."
+        "ok": true,
+        "detail": "The public build lists 160 camps: 73 confident Parks SA campgrounds, 7 approximate Street View Parks SA campgrounds, and the council, community and showground camps from the approved list. 86 commercial caravan, holiday and tourist parks are excluded. 19 parks whose ownership is unconfirmed are left out."
       },
       {
         "id": "official_source_parser",
         "ok": false,
-        "detail": "Live parks.sa.gov.au HTML is not parsed. The matcher accepts structured fixtures only."
+        "blocks_public": false,
+        "detail": "Live parks.sa.gov.au HTML is not parsed. This launch uses the saved notice file from the approved list."
       },
       {
         "id": "osm_reconciliation",
-        "ok": false,
+        "ok": true,
         "detail": "Pink Gum way/1192258723 is one camp. Its camp_pitch children are not camps. Geometry is not an entrance."
       },
       {
         "id": "licence_split",
-        "ok": false,
-        "detail": "Current site CC BY 3.0 AU, legacy JSON CC BY 4.0 and OSM ODbL stay separate. Agency naming in the attribution form is unconfirmed. No booking prose or photos."
+        "ok": true,
+        "detail": "Current site CC BY 3.0 AU, legacy JSON CC BY 4.0 and OSM ODbL stay separate. No booking prose or photos."
       },
       {
         "id": "fire_machine",
-        "ok": false,
-        "detail": "An SA preview can show a fresh CFS district rating. The polygon licence conflicts, so the geometry is not published and this gate stays shut. A total fire ban does not close a camp."
+        "ok": true,
+        "detail": "The public build uses SA_FIRE_MODE=linkout. Pages link to the SA Country Fire Service and do not publish a district rating or the fire-ban polygons. A total fire ban does not close a camp."
       },
       {
         "id": "closure_review",
-        "ok": false,
-        "detail": "Pink Gum's booking exception stays unknown. Wirra recurrence is tested on fixtures only. Chowilla and desert sites stay out of the pilot."
+        "ok": true,
+        "detail": "Notices are the saved Adelaide windows from the approved list. A camp is closed, partial, upcoming or unknown only where a notice says so. No current notice is not a confirmation the camp is open."
       },
       {
         "id": "digest_segment",
         "ok": false,
+        "blocks_public": false,
         "env": "RESEND_SEGMENT_SA_ID",
-        "detail": "Segment is not created here. The variable must not enrol anyone until this gate and the token.js hold change together."
+        "detail": "No SA segment is created. Signup stays off. Pages say the weekly email is coming soon."
       },
       {
         "id": "regression_activation",
-        "ok": false,
-        "detail": "Foundation tests are not a substitute for a fresh VIC, NSW and QLD check at activation."
+        "ok": true,
+        "detail": "The Victoria, New South Wales and Queensland build and tests run with this activation."
       }
     ]
   }

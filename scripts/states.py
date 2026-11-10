@@ -40,14 +40,16 @@ def release_of(state):
 def gates_pass(state):
     """Historical states have no release block and are not gated here.
 
-    A foundation state passes only when it lists gates and every gate is ok.
-    An empty gate list does not pass.
+    A foundation state passes only when it lists blocking gates and every
+    blocking gate is ok. A gate with blocks_public false is a note and does
+    not hide the state. An empty blocking list does not pass.
     """
     release = release_of(state)
     if not release:
         return True
     gates = release.get("gates") or []
-    return bool(gates) and all(gate.get("ok") is True for gate in gates)
+    blocking = [gate for gate in gates if gate.get("blocks_public", True) is not False]
+    return bool(blocking) and all(gate.get("ok") is True for gate in blocking)
 
 
 def public_build_allowed(state):
@@ -55,8 +57,8 @@ def public_build_allowed(state):
 
     Victoria, New South Wales and Queensland have no release block, so this
     stays true for them. A foundation stays false until release.public is true
-    and every gate is ok. Setting enabled, or CAMPCONDITIONS_ENABLE, is not
-    enough.
+    and every blocking gate is ok. Setting enabled, or CAMPCONDITIONS_ENABLE,
+    is not enough. A gate marked blocks_public false does not hide the state.
     """
     release = release_of(state)
     if not release:

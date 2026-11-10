@@ -204,6 +204,20 @@ def main():
     dated_alerts = tas_alerts.parse_html(dated)
     expect(dated_alerts[0]["start"] == "2026-12-10" and dated_alerts[0]["start_time"] == "10:00" and dated_alerts[0]["end"] == "2026-12-15" and dated_alerts[0]["end_time"] == "14:00", "parser reads start and end")
     expect("Thursday" not in json.dumps(dated_alerts), "the sentence is not stored")
+    reviewed_html = dated.replace(
+        "</p></div></div>",
+        "</p><p>Last reviewed 8/11/2026 09:16 AM</p></div></div>",
+        1,
+    )
+    reviewed_alerts = tas_alerts.parse_html(reviewed_html)
+    expect(reviewed_alerts[0].get("reviewed") == "2026-11-08T09:16:00+11:00", "last reviewed is a Hobart instant and the sentence is not stored")
+    fresh = tas_alerts.stamp({"alerts": reviewed_alerts, "fetched": "2026-11-11T06:14:00+11:00", "stale": False})
+    copy = tas_alerts.checked_copy(fresh, dt.datetime(2026, 11, 11, 7, 0, tzinfo=tas_alerts.HOBART))
+    expect(copy and copy["line"].startswith("Park alerts checked ") and "updated" not in copy["line"].lower(), "the line says the feed was checked")
+    expect(copy["stale"] is True and "last reviewed more than 2 days ago" in copy["warning"] and "checked at" in copy["warning"], "an old newest alert is named separately from the check")
+    recent = dict(fresh, updated="2026-11-10T14:20:00+11:00")
+    recent_copy = tas_alerts.checked_copy(recent, dt.datetime(2026, 11, 11, 7, 0, tzinfo=tas_alerts.HOBART))
+    expect(recent_copy["stale"] is False, "a review from yesterday is not a two-day warning")
     expect(by_name["Stumpys Bay Campground No 3"]["tas_display"] == "amber", "Stumpys Bay No 3 is a park alert")
     expect(by_name["Edgar Dam Camping Ground"]["tas_display"] == "closed", "Edgar Dam is closed")
     expect(ben["tas_display"] == "amber" and ben["status"] != "closed" and ben["tas_campfire"] is True, "Ben Lomond is amber, with a campfire note")

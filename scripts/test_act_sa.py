@@ -24,6 +24,7 @@ import act_sa_status as status
 import sa_digest
 import sa_fire
 import sa_signup
+import notice_phase
 import sa_inventory
 import sa_launch_gate
 import states
@@ -665,6 +666,30 @@ def main():
     expect("11 November 2026" in box["notice_summary"] and "18 November 2026" in box["notice_summary"] and "pest control" in box["notice_summary"], "box flat quotes the dates and reason")
     expect((box.get("upcoming_closure") or {}).get("start") == "2026-11-11" and box["upcoming_closure"].get("start_time") == "06:00", "box flat starts 6am 11 nov")
     expect(box["upcoming_closure"].get("reopen") == "2026-11-18" and box["upcoming_closure"].get("reopen_time") == "06:00", "box flat reopens 6am 18 nov")
+    window = notice_phase.notice_window(box)
+    expect(window is not None and window[2] == "upcoming", "box flat page carries the build-time upcoming label")
+    expect(window[0].isoformat() == "2026-11-11T06:00:00+10:30" and window[1].isoformat() == "2026-11-18T06:00:00+10:30", "box flat instants stay in Adelaide time")
+    expect("data-notice-start=\"2026-11-11T06:00:00+10:30\"" in notice_phase.notice_attr(box), "box flat attributes name the start")
+    before_phase = dt.datetime(2026, 11, 11, 5, 59, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    expect(notice_phase.phase_at(window[0], window[1], before_phase) == "upcoming", "view time is upcoming at 5:59am")
+    at_open_phase = dt.datetime(2026, 11, 11, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    at_end_phase = dt.datetime(2026, 11, 18, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    just_before_end = dt.datetime(2026, 11, 18, 5, 59, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    expect(notice_phase.phase_at(window[0], window[1], at_open_phase) == "closed", "view time is closed at 6:00am")
+    expect(notice_phase.phase_at(window[0], window[1], just_before_end) == "closed", "view time stays closed until 6:00am on the 18th")
+    expect(notice_phase.phase_at(window[0], window[1], at_end_phase) == "ended", "view time ends at 6:00am on the 18th")
+    phase_node = subprocess.run(
+        ["node", "-e", notice_phase.PHASE_JS + """
+        const at = (iso) => noticePhase("2026-11-11T06:00:00+10:30", "2026-11-18T06:00:00+10:30", Date.parse(iso));
+        if (at("2026-11-11T05:59:00+10:30") !== "upcoming") process.exit(1);
+        if (at("2026-11-11T06:00:00+10:30") !== "closed") process.exit(1);
+        if (at("2026-11-18T05:59:00+10:30") !== "closed") process.exit(1);
+        if (at("2026-11-18T06:00:00+10:30") !== "ended") process.exit(1);
+        if (noticePhase("2026-11-11T06:00:00+10:30", "", Date.parse("2026-11-12T00:00:00+10:30")) !== "closed") process.exit(1);
+        """],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    expect(phase_node.returncode == 0, "browser phase matches Adelaide instants: " + (phase_node.stderr or phase_node.stdout)[-200:])
     for outside in ("73215", "73217", "86453", "73216", "73207", "73211"):
         row = booking[outside]
         expect(row["status_label"] == "No current notice" and row["notice_status"] == "no_current_notice" and not row["notice_url"] and row["status"] != "closed", "ngarkat camp outside the hatched blocks stays a no-notice camp: " + outside)

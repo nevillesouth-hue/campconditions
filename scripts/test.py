@@ -2252,6 +2252,41 @@ for _st, _slug, _fp in _town_pages:
     bad.append((_path, "region does not link back")); break
 if os.path.isdir(os.path.join(D, "act")) or os.path.isdir(os.path.join(D, "act", "near")):
   bad.append(("towns", "act built"))
+# A dated notice carries its start and end so the browser can move upcoming,
+# closed and ended without waiting for the next build. The build-time label stays.
+_box = os.path.join(D, "sa", "camp", "box-flat-campground", "index.html")
+if os.path.isfile(_box):
+  _box_html = open(_box, encoding="utf-8").read()
+  if 'data-notice-start="2026-11-11T06:00:00+10:30"' not in _box_html or 'data-notice-end="2026-11-18T06:00:00+10:30"' not in _box_html:
+    bad.append(("box-flat", "notice instants"))
+  if "function noticePhase" not in _box_html or "campApplyNoticePhase" not in _box_html:
+    bad.append(("box-flat", "view-time script"))
+  _built_phase = re.search(r'data-notice-built="(upcoming|closed)"', _box_html)
+  _line = re.search(r'<p class="status-line"[^>]*>(.*?)</p>', _box_html)
+  _badge = re.search(r'<span class="badge [^"]+"[^>]*>([^<]+)</span>', _line.group(1) if _line else "")
+  if not _built_phase or not _badge or _badge.group(1) not in ("Upcoming closure", "Closed"):
+    bad.append(("box-flat", "build label", _built_phase.group(1) if _built_phase else "", _badge.group(1) if _badge else ""))
+  elif (_built_phase.group(1) == "upcoming" and _badge.group(1) != "Upcoming closure") or (_built_phase.group(1) == "closed" and _badge.group(1) != "Closed"):
+    bad.append(("box-flat", "label disagrees with data-notice-built", _built_phase.group(1), _badge.group(1)))
+_sa_home = os.path.join(D, "sa", "index.html")
+if os.path.isfile(_sa_home) and "box-flat-campground" not in open(_sa_home, encoding="utf-8").read():
+  bad.append(("/sa/", "notice windows"))
+_tas_page = os.path.join(D, "tas", "index.html")
+if os.path.isfile(_tas_page):
+  _tas_html = open(_tas_page, encoding="utf-8").read()
+  if "Park alerts checked " not in _tas_html or "Park alerts updated " in _tas_html:
+    bad.append(("/tas/", "checked wording"))
+  if "The feed was checked at " not in _tas_html or "last reviewed more than 2 days ago" not in _tas_html:
+    bad.append(("/tas/", "newest alert wording"))
+  if "may be out of date: the newest" in _tas_html:
+    bad.append(("/tas/", "old stale wording"))
+_parks_sa = (feed.get("sources") or {}).get("parks_sa") or {}
+if _parks_sa.get("fetched") != "2026-11-10T17:00:00+10:30" or _parks_sa.get("snapshot") is not True:
+  bad.append(("status.json", "parks_sa snapshot", _parks_sa.get("fetched"), _parks_sa.get("snapshot")))
+if _parks_sa.get("fetched") and _parks_sa.get("fetched") == feed.get("generated"):
+  bad.append(("status.json", "parks_sa fetched matches the build"))
+if "saved snapshot" not in (open(os.path.join(D, "about-the-data", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "about-the-data", "index.html")) else ""):
+  bad.append(("/about-the-data/", "snapshot label"))
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

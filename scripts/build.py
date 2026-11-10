@@ -8,6 +8,7 @@ the primary state: /map.js, the about page and the top-level digest draft.
 import hashlib, importlib, io, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import facts
+import notice_phase
 import states as statecfg
 import town_pages
 SITE = "https://campconditions.au"
@@ -31,10 +32,12 @@ ALERTS_STALE_DAYS = 2
 TOWN_PAGES = []
 
 def alerts_line(slug):
-    """Visible "NSW alerts updated <time>" with a warning past two days.
+    """Visible alert-feed line, with a warning past two days.
 
-    The build checks the age, and a small script rechecks it in the browser,
-    so a page served from a stalled build still warns."""
+    NSW and Queensland name the newest alert update. Tasmania names when this
+    build checked the feed, and warns separately when the newest alert in that
+    feed was last reviewed more than two days ago. A small script rechecks the
+    age in the browser, so a page served from a stalled build still warns."""
     info = ALERTS_UPDATED.get(slug)
     if not info:
         return ""
@@ -43,20 +46,35 @@ def alerts_line(slug):
     agency = html.escape(str(info.get("agency") or "NPWS"))
     link = f' <a href="{feed}">{agency} alerts</a>' if feed.startswith("https://") else ""
     when = info.get("updated") or ""
+    checked = None
+    if info.get("wording") == "checked":
+        import tas_alerts
+        checked = tas_alerts.checked_copy(info, NOW)
     stale_msg = (f"{label} may be out of date: the newest {agency} alert update is more than "
                  f"{ALERTS_STALE_DAYS} days old. Check the {agency} alerts page before you travel.")
-    if not when:
+    if checked:
+        line = f'{html.escape(checked["line"])}{link}'
+        # Age the warning from the newest alert, not from the check time.
+        stamp_iso = checked["newest_iso"]
+        data_checked = f' data-checked="{html.escape(checked["checked_iso"])}"' if checked["checked_iso"] else ""
+        stale = checked["stale"]
+        stale_msg = checked["warning"]
+    elif not when:
         return (f'<p class="muted alerts-updated">{label} could not be fetched in this update.{link}</p>'
                 f'<div class="warn alerts-stale">{label} were unavailable when this page was built. Check the {agency} alerts page before you travel.</div>')
-    stamp = dt.datetime.fromisoformat(when).astimezone(TZ)
-    shown = stamp.strftime("%-d %B %Y, %-I:%M %p %Z")
-    stale = (NOW - stamp) > dt.timedelta(days=ALERTS_STALE_DAYS)
+    else:
+        stamp = dt.datetime.fromisoformat(when).astimezone(TZ)
+        shown = stamp.strftime("%-d %B %Y, %-I:%M %p %Z")
+        line = f'{label} updated {html.escape(shown)}.{link}'
+        stamp_iso = stamp.isoformat()
+        data_checked = ""
+        stale = (NOW - stamp) > dt.timedelta(days=ALERTS_STALE_DAYS)
     if info.get("stale") is True:
         stale = True
         if info.get("stale_message"):
             stale_msg = str(info["stale_message"])
     hidden = "" if stale else " hidden"
-    return (f'<p class="muted alerts-updated" data-updated="{html.escape(stamp.isoformat())}">{label} updated {html.escape(shown)}.{link}</p>'
+    return (f'<p class="muted alerts-updated" data-updated="{html.escape(stamp_iso)}"{data_checked}>{line}</p>'
             f'<div class="warn alerts-stale"{hidden}>{html.escape(stale_msg)}</div>'
             '<script>(function(){var s=document.currentScript,w=s.previousElementSibling,p=w.previousElementSibling;'
             'var t=Date.parse(p.getAttribute("data-updated"));'
@@ -659,11 +677,17 @@ for state in _page_states:
         import sa_inventory
         official = sa_inventory.load_camps(seen, moment=NOW)
         index = sa_inventory.load_alerts_index()
+        # The build reads the committed closures index. fetched is when that
+        # snapshot was saved. It is not this build's clock, and it is not
+        # replaced with NOW, which would make the snapshot look freshly fetched.
         SRC["parks_sa"] = {
             "ok": True,
             "url": index.get("url") or sa_inventory.ALERTS_INDEX_URL,
-            "fetched": index.get("fetched") or NOW.isoformat(),
+            "snapshot": True,
+            "note": "Committed Parks SA closures index. fetched is when that snapshot was saved, not when this build ran.",
         }
+        if index.get("fetched"):
+            SRC["parks_sa"]["fetched"] = index.get("fetched")
         loaded.append((state, official, [], []))
         continue
     if state.get("slug") == "tas" and (state.get("files") or {}).get("inventory"):
@@ -1455,6 +1479,7 @@ FRESH_JS = r"""<script>
     writePoints(bySlug);
     window.__campStatusPending = bySlug;
     if (window.campApplyStatus) window.campApplyStatus(bySlug);
+    if (window.campApplyNoticePhase) window.campApplyNoticePhase();
     if (meta && feed.generated) meta.setAttribute("content", feed.generated);
     embedded = feed.generated || embedded;
   }
@@ -1540,6 +1565,7 @@ def footer(shared=False, credits=True):
     return f"""<footer>{block}
 <p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/support/">Chip in</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
+""" + notice_phase.NOTICE_JS + f"""
 {_qpws_js(FRESH_JS) if _qld_enabled() else FRESH_JS}"""
 def vicemergency_url(lat, lon, name="", slug=""):
     # Verified against the respond app: ?bbox= is Leaflet toBBoxString order (west,south,east,north) and fitBounds centres the map on that box.
@@ -2356,7 +2382,12 @@ def badge(c):
         elif c.get("source") == "osm" and c.get("category") == PV_LABEL: text = "Book ahead"
         elif c.get("source") == "osm": text = "Check with operator"
         else: text = {"open": "No known issues", "closed": "Closed", "check": "Check conditions"}[status]
-    return f'<span class="badge {status}">{text}</span>'
+    attrs = "" if isinstance(c, str) else notice_phase.notice_attr(c)
+    return f'<span class="badge {status}"{attrs}>{text}</span>'
+def closure_div(camp, inner, class_name=""):
+    """Closure block. The build-time words stay for browsers without JavaScript."""
+    cls = f' class="{class_name}"' if class_name else ""
+    return f'<div{cls} id="camp-closure"{notice_phase.notice_attr(camp)}>{inner}</div>'
 def crumbs(items): return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i+1, "name": n, "item": SITE+u} for i, (n, u) in enumerate(items)]}
 NEWS = """<section class="box" id="newsletter"><h2>__NEWSLETTER_H2__</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region. We'll email a confirmation link first; you're not on the list until you click it.</p>
 <form id="digest-form" class="signup" action="/api/subscribe" method="post"><label for="digest-email">Your email</label><div class="signup-row"><input id="digest-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"> <button type="submit">Subscribe</button></div></form>
@@ -3159,7 +3190,7 @@ def emit_state(state, camps, include_home):
         page(path, COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
          f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>{plan_link}
 {map_block(camps, COPY["home_map"], external=SLUG)}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
-<p>{COPY["home_weather"]}</p>{town_section(chosen)}{news_section()}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
+<p>{COPY["home_weather"]}</p>{town_section(chosen)}{news_section()}{notice_phase.windows_tag(camps)}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
     multi = len(statecfg.enabled()) > 1
     state_is_home = multi and state.get("slug") == primary["slug"] and not include_home
     if include_home:
@@ -3175,7 +3206,7 @@ def emit_state(state, camps, include_home):
         elif state.get("slug") == "tas":
             import tas_signup
             sa_note = tas_signup.coming_soon_html()
-        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{town_section(chosen)}"
+        state_body = f"<h1>{COPY['state_h1']}</h1><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{town_section(chosen)}{notice_phase.windows_tag(camps)}"
         if not sa_note and multi:
             state_body += news_section()
         page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
@@ -3231,11 +3262,11 @@ def emit_state(state, camps, include_home):
                     reopen = str((cl or {}).get("reopen") or "")[:10]
                     when = f" · Reopens {e(reopen)}" if reopen else ""
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}{when} <a href="{e(source_url)}">{e(source_url)}</a></div>'
-                condition = f'<div id="camp-closure">{block}</div>' + condition
+                condition = closure_div(c, block) + condition
             elif upcoming and ((c.get("state_slug") == "nsw" and str(upcoming.get("source_url") or "").startswith("https://www.nationalparks.nsw.gov.au/"))
                                or (c.get("state_slug") == "qld" and str(upcoming.get("source_url") or "").startswith("https://parks.qld.gov.au/"))):
                 block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming, agency=_agency(c))
-                condition = f'<div id="camp-closure">{block}</div>' + condition
+                condition = closure_div(c, block) + condition
             notes = alert_notes_html(c)
             if notes:
                 condition += notes
@@ -3257,10 +3288,10 @@ def emit_state(state, camps, include_home):
                     block = official_npws_closure(wording, url, cl.get("source_published"), cl.get("start"), cl.get("reopen"), start_time=cl.get("start_time"), reopen_time=cl.get("reopen_time"), record=cl, agency=agency)
                 else:
                     block = f'<div class="warn"><strong>Closed:</strong> {e(wording)}</div>'
-                bits.append(f'<div id="camp-closure">{block}</div>')
+                bits.append(closure_div(c, block))
             elif upcoming and (upcoming.get("desc") or upcoming.get("start")):
                 block = official_npws_closure(upcoming.get("desc") or "", upcoming.get("source_url") or "", upcoming.get("source_published"), upcoming.get("start"), upcoming.get("reopen"), upcoming=True, start_time=upcoming.get("start_time"), reopen_time=upcoming.get("reopen_time"), record=upcoming, agency=agency)
-                bits.append(f'<div id="camp-closure">{block}</div>')
+                bits.append(closure_div(c, block))
             elif agency == "QPWS":
                 bits.append("<p><strong>No QPWS closure alert names this camping area or closes its park.</strong> The QSpatial record does not include open or closed status, fees or facilities. Check the park page and book with QPWS before you go.</p>")
             else:
@@ -3304,7 +3335,7 @@ def emit_state(state, camps, include_home):
             notice_url = str(c.get("notice_url") or "")
             link = f' <a href="{e(notice_url)}">Parks SA notice</a>' if notice_url.startswith("https://www.parks.sa.gov.au/") else ""
             box = "warn" if c.get("status") == "closed" else "box"
-            bits = [f'<div class="{box}" id="camp-closure"><strong>{e(label)}.</strong> {e(summary)}{link}</div>']
+            bits = [closure_div(c, f'<strong>{e(label)}.</strong> {e(summary)}{link}', box)]
             if c.get("needs_review"):
                 bits.append('<p class="warn"><strong>Needs a check.</strong> This camp was not confirmed by the spot-check.</p>')
             if c.get("managed_by"):
@@ -3326,7 +3357,7 @@ def emit_state(state, camps, include_home):
             dated = c.get("attribution") or ""
         else:
             closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
-            condition = f'<div id="camp-closure">{closure}</div>' + datavic_facts(c)
+            condition = closure_div(c, closure) + datavic_facts(c)
             title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)
             dated = f"Campground data dated {e(long_date(c.get('data_date') or ''))}"
@@ -3388,7 +3419,7 @@ if multi_state:
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
     page("/", "Camp conditions | CampConditions.au",
          f"Closures and camp conditions for {len(all_rows)} campgrounds in {names}.",
-         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>
+         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>{notice_phase.windows_tag(all_rows)}
 {map_block(all_rows, f"Map of {names} campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + '<script src="/map-home.js" defer></script>', on_home=True)
 
@@ -3616,7 +3647,8 @@ json.dump(feed, open(os.path.join(OUT, "status.json"), "w"), ensure_ascii=False,
 # counts come from this build and closure dates from the official records.
 UPDATE_CADENCE = ("The site is rebuilt from the official sources about every three hours, with extra builds at about 10am and 2pm "
                   "Melbourne time during daylight saving (AEDT), when many NPWS closures start or end. OpenStreetMap campgrounds and towns are refreshed weekly. "
-                  "Each page shows when it was built.")
+                  "Each page shows when it was built. A browser with JavaScript also compares a notice's start and end with the clock when you open the page, "
+                  "so a closure can change from upcoming to closed, or from closed to ended, between builds. Without JavaScript, the label stays as it was at the last build.")
 INFO_LINKS = '<p class="muted">See also: <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/about/">About</a></p>'
 def _enabled_names():
     """'Victoria, New South Wales, Queensland, South Australia and Tasmania' from the enabled configs."""
@@ -3692,8 +3724,13 @@ def data_page():
                         f'{COPY.get("footer_attribution") or ""}<p>{COPY["about_tail"]}</p>{alerts}'
                         f'<p><strong>Regions:</strong> ' + " · ".join(f'<a href="/{SLUG}/{k}/">{e(n)}</a>' for k, (n, _) in REGIONS.items()) + "</p>")
     bind(primary)
+    def source_when(info):
+        when = feed_date(info.get("fetched")) or ""
+        if info.get("snapshot"):
+            return (when + " (saved snapshot)") if when else "Saved snapshot"
+        return when
     source_rows = "".join(
-        f'<tr><td>{e(key)}</td><td>{"Yes" if info.get("ok") else "No"}</td><td>{e(feed_date(info.get("fetched")) or "")}</td></tr>'
+        f'<tr><td>{e(key)}</td><td>{"Yes" if info.get("ok") else "No"}</td><td>{e(source_when(info))}</td></tr>'
         for key, info in sorted(SRC.items()) if isinstance(info, dict))
     body = f"""<h1>About the data</h1>
 <p>CampConditions.au uses official government data for campground details and closures in {e(_enabled_names())}, with extra campgrounds from OpenStreetMap. It is not an official warning service. Values a source does not provide are left blank.</p>
@@ -3807,7 +3844,7 @@ def weekend_page():
                     dates.append("NPWS estimated end date " + spoken_day(rec["estimated_end"]))
                 elif not up:
                     dates.append("No reopening date recorded")
-                status = '<span class="badge check">Closure starts this weekend</span>' if up else badge(c)
+                status = f'<span class="badge check"{notice_phase.notice_attr(c)}>Closure starts this weekend</span>' if up else badge(c)
                 note = ' <span class="muted">This closure record may be outdated.</span>' if rec.get("outdated") else ""
                 src = str(rec.get("source_url") or "")
                 link = f' <a href="{e(src)}">Official source</a>' if src.startswith("https://") else ""
@@ -3815,10 +3852,10 @@ def weekend_page():
                            f'{"<br>" + e(wording) if wording else ""}<br><span class="muted">{e(" · ".join(dates))}</span>{note}{link}</li>')
                 items.append(c)
             head = f'<a href="/{SLUG}/{key}/">{e(name)}</a>' if key else e(name)
-            parts.append(f'<h3>{head}</h3><ul class="closure-list">{"".join(lis)}</ul>')
+            parts.append(f'<h3>{head}</h3><ul class="closure-list weekend-list">{"".join(lis)}</ul>')
     bind(primary)
     body = f"""<h1>Campground closures this weekend</h1>
-<p><strong>{e(span)}</strong>. {n_closed} campgrounds closed and {n_up} closures starting during the weekend, from the official closure records in this build ({e(STAMP)}).</p>
+<p><strong>{e(span)}</strong>. <span id="weekend-closed">{n_closed}</span> campgrounds closed and <span id="weekend-upcoming">{n_up}</span> closures starting during the weekend, from the official closure records in this build ({e(STAMP)}).</p>
 <p>Listed: camps marked Closed whose closure runs into the weekend, and upcoming closures that start before Monday. Closure wording is shortened here; the camp page and official source have the full text. Camps not listed can still be affected, so check the official source before you go. Not an official warning service. In an emergency call 000.</p>
 {"".join(parts)}
 {INFO_LINKS}"""

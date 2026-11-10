@@ -1,4 +1,4 @@
-import gzip,os,re,json,sys,html,math,subprocess,tempfile,urllib.parse
+import gzip,os,re,json,sys,html,math,subprocess,tempfile,urllib.parse,hashlib
 def tip_presentation(label, html_blob, txt_blob, bad):
   """Approved digest tip presentation (HTML + plain text)."""
   if '<strong>Been somewhere lately?</strong>' not in html_blob: bad.append((label, "bold report"))
@@ -12,11 +12,36 @@ def tip_presentation(label, html_blob, txt_blob, bad):
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0;spoken_dates=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")
+_asset_hash = {}
+def asset_hash(rel):
+  if rel not in _asset_hash:
+    path = os.path.join(D, rel.lstrip("/"))
+    _asset_hash[rel] = hashlib.sha256(open(path, "rb").read()).hexdigest()[:8] if os.path.isfile(path) else ""
+  return _asset_hash[rel]
+_ASSET_TAG = re.compile(r"<(?:script|link)\b[^>]*>", re.I)
+_ASSET_URL = re.compile(r"""\b(?:src|href)\s*=\s*(["'])([^"']+)\1""", re.I)
+def check_asset_urls(page_path, text):
+  """Site-local .js and .css use ?v=<sha256 prefix>. Leaflet CDN links stay bare."""
+  for tag in _ASSET_TAG.findall(text):
+    for _quote, url in _ASSET_URL.findall(tag):
+      if url.startswith(("http://", "https://", "//")):
+        if "leaflet" in url and "?v=" in url.split("#", 1)[0]:
+          bad.append((page_path, "cdn query", url))
+        continue
+      bare, _, query = url.partition("?")
+      bare = bare.split("#", 1)[0]
+      if not bare.startswith("/") or not bare.lower().endswith((".js", ".css")):
+        continue
+      digest = asset_hash(bare)
+      if not digest or query != "v=" + digest:
+        bad.append((page_path, "asset version", url, digest))
+        return
 for r,_,fs in os.walk(D):
   if draft_dir(r): continue
   for f in fs:
     if not f.endswith(".html"): continue
     p=os.path.join(r,f);t=open(p).read();n+=1
+    check_asset_urls(p[len(D):] or "/", t)
     for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>',t,re.S): json.loads(m);ldn+=1
     for h in re.findall(r'href="(/[^"#?]*)',t):
       tgt=os.path.join(D,h.lstrip("/"));
@@ -93,7 +118,7 @@ def map_data(where, html, vic_only=True):
       bad.append((where, "outdated marker note")); break
   return data
 def expect_map(where, html, cluster):
-  if 'id="camp-map"' not in html or 'src="/map.js"' not in html:
+  if 'id="camp-map"' not in html or 'src="/map.js?v=' not in html:
     bad.append((where, "missing map"))
   if "leaflet/1.9.4/leaflet.min.js" not in html or "integrity=" not in html or "crossorigin=" not in html:
     bad.append((where, "leaflet sri"))
@@ -112,7 +137,7 @@ national = os.path.isfile(os.path.join(D, "nsw", "index.html"))
 overview = vic if national else home
 if national:
   if 'id="state-jump"' in home: bad.append(("/", "state jump cards"))
-  if 'src="/map.js"' in home or 'src="/map-home.js"' not in home or 'id="camp-map"' not in home: bad.append(("/", "national map"))
+  if 'src="/map.js"' in home or 'src="/map.js?v=' in home or 'src="/map-home.js?v=' not in home or 'id="camp-map"' not in home: bad.append(("/", "national map"))
   if "leaflet.markercluster" not in home: bad.append(("/", "national cluster"))
   home_pts = expect_map("/vic/", overview, True)
   vic_pts = home_pts
@@ -533,6 +558,16 @@ if 'name="apple-mobile-web-app-capable"' not in home or 'name="apple-mobile-web-
 headers = open(os.path.join(D, "_headers"), encoding="utf-8").read()
 if "/status.json" not in headers or "/vic/*" not in headers or headers.count("Cache-Control: no-cache") < 8 or "/assets/" in headers:
   bad.append(("_headers", "no-cache"))
+_long = "Cache-Control: public, max-age=31536000, immutable"
+for _dir, _sub, _files in os.walk(D):
+  _sub[:] = [name for name in _sub if name != "assets"]
+  for _name in _files:
+    if not _name.endswith((".js", ".css")): continue
+    _rel = "/" + os.path.relpath(os.path.join(_dir, _name), D).replace(os.sep, "/")
+    if f"{_rel}\n  {_long}" not in headers:
+      bad.append(("_headers", "long cache", _rel))
+    if f"{_rel}\n  Cache-Control: no-cache" in headers:
+      bad.append(("_headers", "versioned no-cache", _rel))
 _rep = home.find('href="/report/">Report<span class="nav-x"> conditions</span></a>')
 if _rep < 0 or home.find('<a href="/faq/">FAQ</a><a href="/about/">About</a><a href="/support/">Chip in</a></nav>') < _rep or ".nav-x{display:none}" not in home:
   bad.append(("/", "about nav"))
@@ -1541,10 +1576,10 @@ if os.path.isfile(nsw_index):
   if 'name="states" value="vic" checked' not in vic or 'name="states" value="nsw" checked' in vic or signup_msg not in vic: bad.append(("/vic/", "signup states"))
   if 'name="states" value="nsw" checked' not in nsw_html or 'name="states" value="vic" checked' in nsw_html or signup_msg not in nsw_html: bad.append(("nsw", "signup states"))
   if 'href="/vic/">Victoria</a><a href="/nsw/">New South Wales</a>' not in home: bad.append(("/", "state menu"))
-  if 'src="/map-home.js"' in vic or 'src="/map.js"' not in vic: bad.append(("/vic/", "map script"))
+  if 'src="/map-home.js' in vic or 'src="/map.js?v=' not in vic: bad.append(("/vic/", "map script"))
   if 'class="state-pick"' not in nsw_html or 'aria-label="State: New South Wales"' not in nsw_html or ">NSW <" not in nsw_html: bad.append(("nsw", "state picker"))
   if 'href="/nsw/" aria-current="page"' not in nsw_html or 'href="/vic/">Victoria</a>' not in nsw_html: bad.append(("nsw", "state menu"))
-  if 'src="/map-nsw.js"' not in nsw_html or 'src="/map.js"' in nsw_html: bad.append(("nsw", "town script"))
+  if 'src="/map-nsw.js?v=' not in nsw_html or 'src="/map.js"' in nsw_html or 'src="/map.js?v=' in nsw_html: bad.append(("nsw", "town script"))
   if "nsw-towns.json" in home or "map-nsw.js" in home: bad.append(("/", "nsw towns on the victoria page"))
   split = tempfile.mkdtemp(prefix="campconditions-digest-states-")
   split_env = os.environ.copy()

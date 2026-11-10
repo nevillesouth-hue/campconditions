@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Status for the 49 SA notices from their Adelaide windows.
+"""Status for the saved SA notices from their Adelaide windows.
 
 Saved status labels are not an input. A result is never open. Expired
 notices stay unknown. Numbered sites are reported on the parent booking id.
@@ -207,15 +207,20 @@ def _facility_status(notice, facility, notice_status):
 
     It says significant parts of Innamincka Regional Reserve are closed and
     does not name those campgrounds. Those camps are a park alert, not closed
-    and not a partial closure. Every other notice keeps one status.
+    and not a partial closure.
+
+    A partial park closure can still close one named camp for the whole
+    window. That camp is closed while the window is active, not partial.
     """
-    if notice.get("source_index") != 42:
-        return notice_status
     effect = str((facility or {}).get("effect") or "")
-    if effect == "closed":
+    if notice.get("source_index") == 42:
+        if effect == "closed":
+            return "closed"
+        if effect.startswith("unknown"):
+            return "park_alert"
+        return notice_status
+    if effect == "closed" and notice_status == "partial":
         return "closed"
-    if effect.startswith("unknown"):
-        return "park_alert"
     return notice_status
 
 

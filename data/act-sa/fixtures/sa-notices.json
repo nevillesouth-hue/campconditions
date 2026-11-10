@@ -2176,6 +2176,45 @@
    ],
    "related_notices": [],
    "implementation_cannot": "Camp IDs."
+  },
+  {
+   "source_index": 50,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/ngarkat-conservation-park-15",
+   "title": "Part closure of Ngarkat Conservation Park",
+   "reason": "For a pest control program.",
+   "parks": [
+    "Ngarkat Conservation Park"
+   ],
+   "scope_level": "fire_management_blocks",
+   "primary_type": "partial_closure",
+   "windows": [
+    {
+     "start_local": "2026-11-11T06:00:00+10:30",
+     "end_local": "2026-11-18T06:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": "6am 11 November until 6am 18 November 2026. Published 9 November 2026."
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [
+    {
+     "booking_id": "73218",
+     "title": "Box Flat Campground",
+     "effect": "closed",
+     "block": "Box Flat"
+    }
+   ],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Notice closes the Day, Jimmys Well, Ashby and Box Flat fire management blocks. The 11 November 2026 closure map hatches those four blocks and leaves Mt Rescue, Ngarkat, McCallum, Pertendi, Scorpion Springs and Mt Shaugh outside the red boundary.",
+    "Box Flat Campground is the built asset of Box Flat Block in the Ngarkat District Fire Management Plan, and that block is hatched.",
+    "Bucks Camp is a built asset of Mt Rescue Block, which the closure map does not hatch.",
+    "Pertendi Hut and Comet Bore are built assets of Pertendi Block. Comet Bore is also named on the Mount Shaugh page. Neither block is hatched.",
+    "Pine Hut Soak is the built asset of Scorpion Springs Block. The same block's suppression note names Coxs Windmill with Pine Hut Soak. Scorpion Springs Block is not hatched.",
+    "Doggers Hut is named in the Mount Shaugh Block suppression note. Mount Shaugh Block is not hatched."
+   ],
+   "related_notices": [],
+   "implementation_cannot": "Mark Bucks Camp, Comet Bore, Coxs Windmill, Doggers Hut, Pertendi Hut or Pine Hut Soak closed. The notice map does not put those camps in a closed block."
   }
  ]
 }

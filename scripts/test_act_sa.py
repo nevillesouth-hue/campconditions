@@ -552,7 +552,7 @@ def main():
     notices = act_sa_notices.load_notices(os.path.join(ROOT, "data", "act-sa", "fixtures", "sa-notices.json"))
     as_of = dt.datetime.fromisoformat("2026-11-09T11:46:51+10:30")
     scored = act_sa_notices.evaluate_all(notices, as_of)
-    expect(len(notices) == 49 and scored["handled"] + scored["held_unknown"] == 49, "every notice is handled or held")
+    expect(len(notices) == 50 and scored["handled"] + scored["held_unknown"] == 50, "every notice is handled or held")
     expect(scored["open_inferred"] is False and all(row["camp_status"] != "open" for row in scored["notices"]), "no notice is open")
     expect(scored["geometry_exported"] is False, "notice 48 geometry is not exported")
     by_notice = scored["by_index"]
@@ -659,6 +659,28 @@ def main():
     expect(booking["73157"]["closure"]["start"] == "2026-10-31" and booking["73157"]["closure"]["reopen"] == "2026-11-12" and booking["73157"]["closure"]["reopen_time"] == "21:00", "grindells records the gammon window")
     expect("9pm" in booking["73157"]["notice_summary"] and "pest animal" in booking["73157"]["notice_summary"], "grindells quotes the official hours and reason")
     expect(booking["73202"]["status_label"] == "Alert in this park" and booking["73202"]["status"] != "closed" and booking["73139"]["notice_status"] == "park_alert", "innamincka camps are a park alert")
+    box = booking["73218"]
+    expect(box["status_label"] == "Upcoming closure" and box["status"] != "closed" and box["notice_status"] == "upcoming", "box flat is upcoming before 11 nov")
+    expect(box["notice_url"].endswith("ngarkat-conservation-park-15"), "box flat links the ngarkat notice")
+    expect("11 November 2026" in box["notice_summary"] and "18 November 2026" in box["notice_summary"] and "pest control" in box["notice_summary"], "box flat quotes the dates and reason")
+    expect((box.get("upcoming_closure") or {}).get("start") == "2026-11-11" and box["upcoming_closure"].get("start_time") == "06:00", "box flat starts 6am 11 nov")
+    expect(box["upcoming_closure"].get("reopen") == "2026-11-18" and box["upcoming_closure"].get("reopen_time") == "06:00", "box flat reopens 6am 18 nov")
+    for outside in ("73215", "73217", "86453", "73216", "73207", "73211"):
+        row = booking[outside]
+        expect(row["status_label"] == "No current notice" and row["notice_status"] == "no_current_notice" and not row["notice_url"] and row["status"] != "closed", "ngarkat camp outside the hatched blocks stays a no-notice camp: " + outside)
+    before_open = dt.datetime(2026, 11, 11, 5, 59, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    at_open = dt.datetime(2026, 11, 11, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    during_ngarkat = dt.datetime(2026, 11, 12, 12, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    at_end = dt.datetime(2026, 11, 18, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    expect(act_sa_notices.evaluate_all(notices, before_open)["bookings"]["73218"] == "upcoming", "box flat is not closed at 5:59am")
+    expect(act_sa_notices.evaluate_all(notices, at_open)["bookings"]["73218"] == "closed", "box flat closes at 6am 11 nov")
+    during_ng = act_sa_notices.evaluate_all(notices, during_ngarkat)
+    expect(during_ng["by_index"][50]["camp_status"] == "partial" and during_ng["bookings"]["73218"] == "closed", "the park closure is partial and box flat is closed")
+    expect(during_ng["bookings"].get("73215") is None and "73207" not in during_ng["bookings"], "camps outside the blocks are not attached")
+    expect(act_sa_notices.evaluate_all(notices, at_end)["bookings"]["73218"] == "expired_not_open", "box flat is not open when the window ends")
+    closed_box = sa_inventory.load_camps(set(), moment=during_ngarkat)
+    closed_box = {item: row for row in closed_box for item in row.get("booking_ids") or []}["73218"]
+    expect(closed_box["status"] == "closed" and closed_box["status_label"] == "Closed" and closed_box["closure"]["start"] == "2026-11-11", "box flat page is closed during the window")
     expect("does not name this campground" in booking["73202"]["notice_summary"] and booking["73202"]["notice_url"].endswith("innamincka-regional-reserve-2"), "the flood notice is linked and not treated as a camp closure")
     council = next(row for row in sa_camps if row["source"] == "council" and row["notice_status"] == "no_current_notice")
     expect("Parks SA" not in council["notice_summary"], "council camps do not get Parks SA notice wording")

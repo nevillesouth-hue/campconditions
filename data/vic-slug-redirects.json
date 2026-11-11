@@ -1,0 +1,6 @@
+{
+ "_note": "DataVic camps that left the official Recreation Sites feed. The old camp page is sent to its region page with a 301 instead of a bare 404. build.py writes a line only when the old page is gone and the region page exists. Add a row here when the build warns that an overlay site is no longer in the feed.",
+ "removed": {
+  "mount-taylor": "vic/gippsland"
+ }
+}

@@ -3976,6 +3976,15 @@ def slug_redirect_lines():
                     print(f"WARN slug redirect skipped: {old} -> {new}", file=sys.stderr)
                     continue
                 lines += [f"/{st}/camp/{old} /{st}/camp/{new}/ 301", f"/{st}/camp/{old}/ /{st}/camp/{new}/ 301"]
+    # DataVic camps that left the official feed: send the old page to its region page.
+    vic_path = os.path.join(ROOT, "data", "vic-slug-redirects.json")
+    if os.path.isfile(vic_path) and os.path.isdir(os.path.join(OUT, "vic")):
+        with open(vic_path, encoding="utf-8") as handle:
+            for old, target in sorted((json.load(handle).get("removed") or {}).items()):
+                if os.path.isdir(os.path.join(OUT, "vic", "camp", old)) or not os.path.isfile(os.path.join(OUT, target, "index.html")):
+                    print(f"WARN slug redirect skipped: vic/{old} -> {target}", file=sys.stderr)
+                    continue
+                lines += [f"/vic/camp/{old} /{target}/ 301", f"/vic/camp/{old}/ /{target}/ 301"]
     # Camps that were built under the wrong state: full paths, e.g. "vic/camp/x": "nsw/camp/y".
     for old, new in sorted((doc.get("cross_state") or {}).items()):
         if os.path.isdir(os.path.join(OUT, old)) or not os.path.isfile(os.path.join(OUT, new, "index.html")):

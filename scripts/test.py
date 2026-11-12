@@ -1692,6 +1692,13 @@ if os.path.isfile(nsw_index):
   tips = {"Tip A$5": "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01", "Tip A$10": "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02", "Tip A$20": "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"}
   for label, url in tips.items():
     if not re.search(r'class="tip-btn" href="' + re.escape(url) + r'"[^>]*>' + re.escape(label) + '</a>', support): bad.append(("support", label))
+  sitemap_xml = open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read()
+  if "<loc>https://campconditions.au/support/</loc>" not in sitemap_xml: bad.append(("sitemap", "/support/ missing"))
+  for st in ("vic", "nsw", "qld", "sa", "tas"):
+    sp = os.path.join(D, st, "index.html")
+    if os.path.isfile(sp):
+      sh = open(sp, encoding="utf-8").read()
+      if not re.search(r'<p class="head-counts"><span class="badge closed" id="count-closed">\d+ closed</span> <span class="badge check" id="count-check">\d+ to check</span></p>', sh): bad.append((st, "hero closed/to-check badges"))
   if support.count('class="tip-btn"') != 3 or support.count("donate.stripe.com") != 3: bad.append(("support", "three buttons"))
   if "fZu4gs0Oafib8eX0QUfQI00" in support or "plink_" in support: bad.append(("support", "old link"))
   if "The digests stay free. If you find them useful, an optional one-off tip helps cover the running costs. Thank you." not in support: bad.append(("support", "wording"))

@@ -588,10 +588,10 @@
   "phone": "03 5289 1382",
   "email": "lorne@greatoceanroadauthority.vic.gov.au",
   "website": "https://greatoceanroadparks.com.au/find-a-park/lorne/erskine-river-powered-sites",
-  "description": "Riverside Erskine section of the Lorne Foreshore park with fishing platforms and a camp kitchen; dog-free; fire drums allowed off-peak.",
+  "description": "Riverside Erskine section of the Lorne Foreshore park with fishing platforms and a camp kitchen; dog-free; fire drums allowed off-peak. Dogs are permitted at the Ocean Road and Top Bank camp sites only, and only seasonally.",
   "source_url": "https://greatoceanroadparks.com.au/find-a-park/lorne/erskine-river-powered-sites",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-11-13"
  },
  "w1068103064": {
   "category": "council_park",
@@ -630,10 +630,10 @@
   "fee_type": "paid",
   "dogs": "no",
   "website": "https://pointleo.com",
-  "description": "Committee-managed foreshore reserve with seasonal camping on Western Port; no dogs anywhere in the camping areas.",
+  "description": "Committee-managed foreshore reserve with seasonal camping on Western Port; no dogs anywhere in the camping areas. Bookings are required for campsites Friday to Sunday and recommended Sunday to Thursday.",
   "source_url": "https://pointleo.com/faqs/",
   "needs_review": false,
-  "checked_date": "2026-10-16"
+  "checked_date": "2026-11-13"
  },
  "w1280780083": {
   "exclude": "duplicate of w189992763 (Point Leo Foreshore Reserve)",
@@ -1256,7 +1256,7 @@
   "website": "https://www.hindmarsh.vic.gov.au/Visit-Hindmarsh/Explore-our-Great-Outdoors/Camping",
   "description": "Lakeside camping on Lake Hindmarsh 5 minutes from Jeparit; no bookings, honesty payment, coin showers and a camp kitchen.",
   "source_url": "https://www.hindmarsh.vic.gov.au/Visit-Hindmarsh/Explore-our-Great-Outdoors/Camping",
-  "needs_review": false,
+  "needs_review": true,
   "checked_date": "2026-10-16",
   "new": true
  },

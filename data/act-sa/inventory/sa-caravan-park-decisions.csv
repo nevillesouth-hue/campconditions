@@ -17,19 +17,19 @@ BIG4 Port Willunga,exclude,chain: BIG4,,yes
 BIG4 The Bend,exclude,chain: BIG4,,yes
 Balaklava CP,exclude,commercial caravan park (operator site; no council/community ownership stated),https://balaklavacaravanpark.com.au/,yes
 Beachport CP,exclude,commercial caravan/holiday park (operator site; family-friendly seaside stays; no council/community ownership stated),https://www.beachportcaravanpark.com.au/,yes
-Beachside CP,hold,operator URL failed (TLS); no alternate official source confirming ownership this pass,,yes
+Beachside CP,exclude,Commercial Echo Holiday Parks / Edwards Group park (Normanville),https://www.beachside.com.au/,yes
 Big 4 Holiday Park,exclude,chain: BIG4,,yes
 Black Point CP,keep,Yorke Peninsula Council Holiday Park (one of six council-managed parks),https://ypcholidayparks.com.au/,yes
 Blue Lake Holiday Park,exclude,commercial holiday park (southaustralia.com listing; no council/community ownership stated),https://southaustralia.com/products/limestone-coast/accommodation/blue-lake-holiday-park,yes
 Border Village Roadhouse CP,exclude,station/roadhouse: Border Village Roadhouse accommodation and camping,https://www.bordervillageroadhouse.com.au/accommodation/,yes
 Bordertown CP,exclude,commercial caravan park (operator site; no council/community ownership stated),https://bordertowncaravanpark.com.au/,yes
 Brighton Beachfront Holiday Park,exclude,chain: Levi (site copyright and branding Levi Adelaide Holiday Park),https://brightonholidaypark.com.au/,yes
-Ceduna Airport CP,hold,candidate operator and southaustralia.com URLs failed or 404; ownership not confirmed,,yes
+Ceduna Airport CP,exclude,Privately owned commercial caravan park,https://cedunaholidayaccommodation.com.au/,yes
 Ceduna Foreshore CP,exclude,commercial foreshore caravan park (operator site; no council/community ownership stated),https://cedunaforeshorecaravanpark.com.au/,yes
 Ceduna Shelly Beach CP (Summerstar),exclude,chain: Summerstar,,yes
 Ceduna Tourist Park,exclude,commercial tourist park (operator site; no council/community ownership stated),https://cedunatouristpark.com/,yes
 Christies Beach Tourist Park,keep,City of Onkaparinga tourist park site (Granicus/OpenCities; assets hosted on onkaparingacity.com/files/assets/cbtp),https://www.christiesbeachtouristpark.com.au/,yes
-Clayton Bay Riverside Holiday Park,hold,Visit Alexandrina listing only; does not state council or private ownership,https://www.visitalexandrina.com/itinerarybundles/accommodation/clayton-bay/clayton-bay-riverside-holiday-park,yes
+Clayton Bay Riverside Holiday Park,hold,No ownership/lease statement on Visit Alexandrina; MySay lease FAQ URL returned 404 this pass,https://www.visitalexandrina.com/itinerarybundles/accommodation/clayton-bay/clayton-bay-riverside-holiday-park,yes
 Cobdogla Station CP,exclude,station/roadhouse: Cobdogla Station Caravan Park (station/commercial park),https://cobdoglacaravanpark.com.au/,yes
 Coonawarra Bush Holiday Park,exclude,commercial bush holiday park / glamping (operator site; no council/community ownership stated),https://coonawarracaravanpark.com.au/,yes
 Cowell Foreshore CP,exclude,commercial foreshore caravan park (operator site; no council/community ownership stated),https://www.cowellforeshorecaravanpark.com.au/,yes
@@ -54,24 +54,24 @@ Gawler CP,exclude,commercial caravan park (operator about page; no council/commu
 Harbour View CP,exclude,commercial family-run caravan park (operator site),https://www.harbourviewcaravanpark.com.au/,yes
 Hindmarsh Island CP,exclude,Visit Alexandrina listing: privately owned park on 22 acres,https://www.visitalexandrina.com/itinerarybundles/accommodation/hindmarsh-island/hindmarsh-island-caravan-park,yes
 KI Caravan Park ~ Kingscote Tourist Park,exclude,commercial Kingscote Tourist Park / KI Caravan Park (operator site; no council/community ownership stated),https://www.kingscotetouristpark.com.au/,yes
-Kadina Caravan and Tourist Park,hold,operator URL failed (TLS); southaustralia.com product URL 404; ownership not confirmed,,yes
+Kadina Caravan and Tourist Park,exclude,Commercial private caravan/tourist park (no council-run claim on operator site),https://www.kadinacaravanandtouristpark.com/,yes
 Kalganyi Holiday Park,exclude,commercial holiday park (operator site; no council/community ownership stated),https://www.kalganyi.com.au/,yes
-Karoonda Tourist Park,hold,listed on District Council of Karoonda East Murray tourism site but page does not state council ownership or operation,https://www.karoonda.com/stay/caravan-tourist-parks/,yes
+Karoonda Tourist Park,keep,Council-managed park (District Council of Karoonda East Murray),https://southaustralia.com/products/murray-river-lakes-and-coorong/accommodation/karoonda-tourist-park,yes
 Kingston on Murray CP,exclude,operator: privately owned park (Geoff & Barb Calvert),https://www.komcaravanpark.com.au/,yes
 Lake Albert CP,exclude,commercial caravan park (operator site; no council/community ownership stated),https://lakealbertcaravanpark.com.au/accommodation-meningie,yes
 Lakeside Tourist Park Robe,exclude,commercial tourist park (southaustralia.com; no council/community ownership stated),https://southaustralia.com/products/limestone-coast/accommodation/lakeside-tourist-park-robe,yes
-Laura Community CP,hold,name says Community but operator page does not state community or council ownership/operation,https://lauracaravanpark.com.au/,yes
+Laura Community CP,keep,"Community-owned (town tourism association), not a commercial chain park",https://www.abc.net.au/news/2023-04-15/scones-on-arrival-at-sa-caravan-park/102225872,yes
 Leigh Creek CP,exclude,commercial caravan park at Leigh Creek Outback Resort (operator site),https://www.leighcreekresort.com.au/,yes
 Levi Adelaide Holiday Park,exclude,chain: Levi,,yes
-Lock CP,hold,operator and southaustralia.com URLs failed; ownership not confirmed,,yes
+Lock CP,hold,Listed in Elliston visitor guide with phone only; Elliston council tourism pages 403/404; ownership not stated,https://elliston.com.au/wp-content/uploads/2021/04/Elliston-Visitor-Guide-2021.pdf,yes
 Lucindale CP (Lucindale Football Club),keep,Operator: run by the Lucindale Football Club,https://www.lucindalefc.com.au/caravanpark,yes
 Marla Travellers Rest CP,exclude,station/roadhouse: Marla Traveller's Rest roadhouse hotel motel with caravan sites,https://www.marla.com.au/,yes
 Melrose Caravan & Tourist Park,exclude,commercial caravan and tourist park (operator site; no council/community ownership stated),https://melrosecaravanpark.com.au/accommodation/,yes
-Middleton CP,hold,Visit Alexandrina listing only; does not state council or private ownership,https://www.visitalexandrina.com/itinerarybundles/accommodation/middleton/middleton-caravan-park,yes
-Milang Lakeside CP,hold,Visit Alexandrina listing only; does not state council or private ownership,https://www.visitalexandrina.com/itinerarybundles/accommodation/milang/milang-lakeside-caravan-park,yes
+Middleton CP,hold,Visit Alexandrina listing only; no ownership/lease statement found,https://www.visitalexandrina.com/itinerarybundles/accommodation/middleton/middleton-caravan-park,yes
+Milang Lakeside CP,hold,Visit Alexandrina listing only; no ownership/lease statement found,https://www.visitalexandrina.com/itinerarybundles/accommodation/milang/milang-lakeside-caravan-park,yes
 Millicent Hillview CP,exclude,operator: family owned business / commercial holiday park,https://millicenthillview.com/,yes
 Moana Beach Tourist Park,keep,City of Onkaparinga tourist park site (Granicus/OpenCities; assets hosted on onkaparingacity.com/files/assets/cbtp),https://www.moanabeachtouristpark.com.au/,yes
-Moonta Bay Holiday Park,hold,operator root redirected to empty lander; southaustralia.com product URL 404; ownership not confirmed,,yes
+Moonta Bay Holiday Park,exclude,Commercial private company holiday park,https://abr.business.gov.au/AbnHistory/View/48163063063,yes
 Mt Gambier Central CP,exclude,commercial caravan park (operator site; no council/community ownership stated),https://www.mountgambiercentralcaravanpark.com.au/,yes
 NRMA Victor Harbor Beachfront,exclude,chain: NRMA,,yes
 Nullarbor Roadhouse CP,exclude,"station/roadhouse: Nullarbor Roadhouse rooms, cabins and camping",https://nullarborroadhouse.com.au/accommodation/,yes
@@ -89,32 +89,32 @@ Quorn CP,exclude,commercial caravan park (operator site; no council/community ow
 Rawnsley Park Station CP,exclude,station/roadhouse: Rawnsley Park Station caravan park,https://www.rawnsleypark.com.au/accommodation/caravan-park/,yes
 Riba's Underground Camping & CP,exclude,commercial underground camping and caravan park (operator site),https://www.camp-underground.com.au/,yes
 Sea Vu CP,exclude,commercial caravan park (operator site; no council/community ownership stated),https://www.seavucaravanpark.com.au/,yes
-Seafront Holiday Park (Penneshaw),hold,operator page returned only Kangaroo Island Shores branding with no ownership text; southaustralia.com product URL 404,https://seafrontholidaypark.com.au/,yes
+Seafront Holiday Park (Penneshaw),hold,Operator pages returned JS-only shells with no readable ownership text this pass,https://seafrontholidaypark.com.au/,yes
 Shoreline CP,exclude,commercial waterfront caravan park (operator site; no council/community ownership stated),https://www.shorelinecaravanpark.com.au/accomodation,yes
 Smoky Bay Beachfront CP,exclude,operator describes Beachside Private Caravan Park in Smoky Bay,https://smokybaycaravanpark.au/,yes
 Southend Tourist Park - The Bush Camp,exclude,commercial tourist park / bush camp (operator site; no council/community ownership stated),https://www.southendtouristpark.com/caravanpark,yes
 Spear Creek Holiday Park,exclude,commercial station holiday park with cabins and campsites (operator site),https://www.spearcreek.com.au/accommodation,yes
 Stony Creek Bush Camp CP,exclude,commercial bush camp caravan park (operator site; no council/community ownership stated),https://www.stonycreekbushcamp.com/what-we-offer,yes
-Strathalbyn CP,hold,Visit Alexandrina listing only; does not state council or private ownership,https://www.visitalexandrina.com/itinerarybundles/accommodation/strathalbyn/strathalbyn-caravan-park,yes
+Strathalbyn CP,hold,Visit Alexandrina listing only; no ownership/lease statement found,https://www.visitalexandrina.com/itinerarybundles/accommodation/strathalbyn/strathalbyn-caravan-park,yes
 Streaky Bay Islands CP,exclude,commercial tourist caravan park (operator site; no council/community ownership stated),https://streakybayislandscaravanpark.com.au/,yes
 Tumby Bay CP,exclude,commercial caravan park (Eyre Peninsula tourism listing; no council/community ownership stated),https://www.eyrepeninsula.com/products/eyre-peninsula/accommodation/tumby-bay-caravan-park,yes
 Venus Bay Beachfront Tourist Park,exclude,commercial beachfront tourist park (operator site; no council/community ownership stated),https://www.venusbaybtp.com.au/,yes
-Victor Harbor Holiday Park,hold,southaustralia.com product URL 404; no operator page confirmed this pass,,yes
+Victor Harbor Holiday Park,exclude,Commercial private company holiday park,https://abr.business.gov.au/ABN/View?id=37668951004,yes
 Wallaroo Beachfront Tourist Park,exclude,commercial beachfront holiday/tourist park (operator site; no council/community ownership stated),https://www.wallaroobeachfronttouristpark.com.au/,yes
 Wallaroo Holiday Park,exclude,commercial holiday park (southaustralia.com; cabins and units; no council/community ownership stated),https://southaustralia.com/products/yorke-peninsula/accommodation/wallaroo-holiday-park,yes
 Whyalla Caravan & Tourist Park,exclude,operator: family owned park / commercial caravan and tourist park,https://www.whyallacaravanandtouristpark.com/,yes
-Wirrina Holiday Park,hold,operator URL failed (TLS); southaustralia.com product URL 404; ownership not confirmed,,yes
+Wirrina Holiday Park,exclude,Privately owned commercial holiday park,https://www.wirrinacoveholidaypark.com.au/about-us.html,yes
 Wudinna Gawler Ranges Motel & CP,exclude,commercial motel and caravan park listed on Wudinna Telecentre stay page; no council ownership stated for the motel/CP,https://www.wudinnatelecentre.com.au/visitor-information/stay,yes
 Yalata CP,keep,Yalata Aboriginal Community roadhouse and caravan park,https://yalata.com.au/,yes
 Ardrossan Caravan Park,keep,Operator: community-owned by Ardrossan Progress Association; also on YP Council caravan park directory and Community Land Register,https://ardrossancaravanpark.com.au/,yes
 Bute Caravan Park,keep,Barunga West Council caravan and camping fact sheet: payment and key collection through neighbouring council office,https://www.topoftheyorke.com.au/sites/topoftheyorke/media/pdf/bwc_caravan-and-camping-fact-sheet_web3.pdf,yes
 Coobowie Caravan Park,keep,YP Community Land Register lists Coobowie Caravan Park under council care and control with Coobowie Progress Association lease,https://yorke.sa.gov.au/content/uploads/2026/11/R008-Register-Community-Land-v2.pdf,yes
-Corny Point Caravan Park,hold,Not named as council-managed on YPC Holiday Parks; not found as a caravan park row in Community Land Register; operator page does not state council or community ownership,https://cornypoint.com.au/,yes
+Corny Point Caravan Park,exclude,Not one of Yorke Peninsula Council’s six directly managed parks; private operator site,https://yorke.sa.gov.au/discover/places-to-stay/caravan-parks/council-managed-caravan-parks/,yes
 Edithburgh Caravan Park,keep,YP Community Land Register: Edithburgh Caravan Park under crown care and control with Edithburgh Progress Association lease to 31/12/2029,https://yorke.sa.gov.au/content/uploads/2026/11/R008-Register-Community-Land-v2.pdf,yes
 Lameroo Lakeside Caravan Park,keep,Operator: owned by Southern Mallee District Council and run by the Hotel,https://www.lameroohotelmotel.com.au/caravan-park/,yes
 Marion Bay Caravan Park,keep,Yorke Peninsula Council directly manages this park (YPC Holiday Parks; council page says council manages six parks),https://ypcholidayparks.com.au/,yes
 Minlaton Caravan Park,exclude,southaustralia.com and operator: family-owned and operated commercial park (not council-run; no community/club lease stated),https://southaustralia.com/products/yorke-peninsula/accommodation/minlaton-caravan-park,yes
-Pine Point Caravan Park,hold,"On YP Council directory and CLR lists Pine Point Caravan Park, but register text also has Sold 03/01/2023 adjacent; operator page does not state council/community run — not confirmed",https://pinepointcpk.com.au/,yes
+Pine Point Caravan Park,exclude,Not one of Yorke Peninsula Council’s six directly managed parks; private operator site,https://ypcholidayparks.com.au/our-parks/,yes
 Point Turton Caravan Park,keep,Yorke Peninsula Council directly manages this park (YPC Holiday Parks; council page says council manages six parks),https://ypcholidayparks.com.au/,yes
 Port Clinton Caravan Park,keep,YP Community Land Register lists Port Clinton Caravan Park under crown care and control; also on YP Council caravan park directory,https://yorke.sa.gov.au/content/uploads/2026/11/R008-Register-Community-Land-v2.pdf,yes
 Port Rickaby Caravan Park,keep,Yorke Peninsula Council directly manages this park (YPC Holiday Parks; council page says council manages six parks),https://ypcholidayparks.com.au/,yes
@@ -122,6 +122,6 @@ Port Victoria Gulfhaven Caravan Park,keep,YP Community Land Register lists Port 
 Price Caravan Park,keep,Operator site copyright Price Progress Association 2026 — community-run,https://www.pricecaravanpark.com.au/,yes
 Stansbury Caravan Park,keep,YP Community Land Register: Foreshore Caravan Park Stansbury under crown care and control with Stansbury Progress Association lease,https://yorke.sa.gov.au/content/uploads/2026/11/R008-Register-Community-Land-v2.pdf,yes
 Yorketown Caravan Park,keep,Yorke Peninsula Council directly manages this park (YPC Holiday Parks; council page says council manages six parks),https://ypcholidayparks.com.au/,yes
-Burra Caravan & Camping Park,hold,not in the reviewed caravan park decisions; held until ownership is confirmed,https://www.paxtonsquareprecinct.com.au/burra-caravan-park/,no
-Eudunda Caravan & Camping Park,hold,not in the reviewed caravan park decisions; held until ownership is confirmed,https://visitburra.com.au/eudunda-caravan-park/,no
-William Creek Hotel camping ground,hold,not in the reviewed caravan park decisions; held until ownership is confirmed,https://www.williamcreekhotel.com/accommodation/camping/,no
+Burra Caravan & Camping Park,exclude,"Privately operated commercial park (Paxton Square Precinct), not council-run",https://www.paxtonsquareprecinct.com.au/burra-caravan-park/,yes
+Eudunda Caravan & Camping Park,keep,"Community-run (ECBAT), not commercial chain",https://eudundacaravanpark.com/contacts/,yes
+William Creek Hotel camping ground,exclude,Hotel-operated commercial camping / accommodation,https://www.williamcreekhotel.com/about/history/,yes

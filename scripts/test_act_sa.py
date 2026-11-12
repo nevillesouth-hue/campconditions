@@ -24,6 +24,7 @@ import act_sa_status as status
 import sa_digest
 import sa_fire
 import sa_signup
+import notice_phase
 import sa_inventory
 import sa_launch_gate
 import states
@@ -65,7 +66,7 @@ def main():
         moment,
     )
 
-    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "enabled states")
+    expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "enabled states")
     for slug in ("vic", "nsw", "qld"):
         state = states.by_slug(slug)
         expect(state.get("enabled") is True, slug + " enabled")
@@ -77,9 +78,9 @@ def main():
     saved = os.environ.get("CAMPCONDITIONS_ENABLE")
     try:
         os.environ["CAMPCONDITIONS_ENABLE"] = "act,sa"
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "env cannot enable act")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "env cannot enable act")
         os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "existing preview env")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "existing preview env")
     finally:
         if saved is None:
             os.environ.pop("CAMPCONDITIONS_ENABLE", None)
@@ -412,7 +413,7 @@ def main():
     token_js = open(os.path.join(ROOT, "functions", "_lib", "token.js"), encoding="utf-8").read()
     confirm_js = open(os.path.join(ROOT, "functions", "api", "confirm.js"), encoding="utf-8").read()
     unsub_js = open(os.path.join(ROOT, "functions", "api", "unsubscribe.js"), encoding="utf-8").read()
-    expect('export const HELD_SIGNUP_STATES = ["act", "sa"];' in token_js, "signup hold")
+    expect('export const HELD_SIGNUP_STATES = ["act", "sa", "tas"];' in token_js, "signup hold")
     expect("env.RESEND_SEGMENT_ACT_ID" not in confirm_js and "env.RESEND_SEGMENT_SA_ID" not in confirm_js, "confirm does not read the segment id itself")
     expect("env.RESEND_SEGMENT_ACT_ID" not in unsub_js and "env.RESEND_SEGMENT_SA_ID" not in unsub_js, "unsubscribe ignores held env")
 
@@ -425,8 +426,11 @@ def main():
         expect('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page, "homepage signup offers the three states")
         expect('value="act"' not in page and 'value="sa"' not in page, "signup does not offer act or sa")
         expect("South Australia" in page and 'href="/sa/"' in page, "homepage lists sa")
+        expect("Tasmania" in page and 'href="/tas/"' in page, "homepage lists tas")
+        expect('value="tas"' not in page, "signup does not offer tas")
         expect("Australian Capital Territory" not in page, "homepage does not name act")
         expect(os.path.isdir(os.path.join(ROOT, "dist", "sa")), "public build has sa pages")
+        expect(os.path.isdir(os.path.join(ROOT, "dist", "tas")), "public build has tas pages")
         expect(not os.path.isdir(os.path.join(ROOT, "dist", "act")), "public build has no act pages")
     status_path = os.path.join(ROOT, "dist", "status.json")
     if os.path.isfile(status_path):
@@ -549,7 +553,7 @@ def main():
     notices = act_sa_notices.load_notices(os.path.join(ROOT, "data", "act-sa", "fixtures", "sa-notices.json"))
     as_of = dt.datetime.fromisoformat("2026-11-09T11:46:51+10:30")
     scored = act_sa_notices.evaluate_all(notices, as_of)
-    expect(len(notices) == 49 and scored["handled"] + scored["held_unknown"] == 49, "every notice is handled or held")
+    expect(len(notices) == 50 and scored["handled"] + scored["held_unknown"] == 50, "every notice is handled or held")
     expect(scored["open_inferred"] is False and all(row["camp_status"] != "open" for row in scored["notices"]), "no notice is open")
     expect(scored["geometry_exported"] is False, "notice 48 geometry is not exported")
     by_notice = scored["by_index"]
@@ -579,8 +583,8 @@ def main():
     expect(before["official_confident"] == 73 and before["official_approximate"] == 7 and before["eligible_osm"] == 34, "sa inventory base counts")
     expect(before["council"] == 43 and before["tourism"] == 22 and before["operator"] == 86 and before["published"] == 265, "counts before caravan park decisions")
     expect(counted["official_confident"] == 73 and counted["official_approximate"] == 7 and counted["eligible_osm"] == 13, "sa inventory base counts")
-    expect(counted["council"] == 40 and counted["tourism"] == 5 and counted["operator"] == 22, "listing sources after caravan park decisions")
-    expect(counted["published"] == 160 and counted["duplicates_dropped"] == 1, "sa inventory counts")
+    expect(counted["council"] == 40 and counted["tourism"] == 7 and counted["operator"] == 23, "listing sources after caravan park decisions")
+    expect(counted["published"] == 163 and counted["duplicates_dropped"] == 1, "sa inventory counts")
     expect(counted["duplicates"][0]["osm_id"] == "way/1485152213", "mount gambier east side dropped")
     expect(counted["open_inferred"] is False and counted["fire_rating_count"] == 0, "sa inventory not open and not rated")
     expect(all(row["status"] != "open" for row in sa_camps), "no confirmed open")
@@ -614,8 +618,8 @@ def main():
     expect(excluded["way/321216861"]["name"] == "Belair National Park Holiday Park", "belair holiday park excluded")
     expect(excluded["way/177930647"]["name"] == "Brownhill Creek Tourist Park", "brownhill creek excluded")
     kept_ids = {row["osm_id"] for row in counted["park_kept"]}
-    expect(len(counted["park_excluded"]) == 86 and all(row["decision"] == "exclude" and row["reason"] for row in counted["park_excluded"]), "excluded parks stay unpublished with a reason")
-    expect(len(counted["park_held"]) == 19 and all(row["decision"] == "hold" and row["reason"] and row["osm_id"] not in park_excluded for row in counted["park_held"]), "held parks are not excluded")
+    expect(len(counted["park_excluded"]) == 96 and all(row["decision"] == "exclude" and row["reason"] for row in counted["park_excluded"]), "excluded parks stay unpublished with a reason")
+    expect(len(counted["park_held"]) == 6 and all(row["decision"] == "hold" and row["reason"] and row["osm_id"] not in park_excluded for row in counted["park_held"]), "held parks are not excluded")
     expect(sa_inventory.published_parks_without_keep(sa_camps, kept_ids) == [], "published caravan holiday or tourist park needs a keep")
     expect(sa_inventory.published_parks_without_keep([{"name": "Sample Holiday Park", "category": "Campground", "osm_id": "way/sample"}], set()) == ["Sample Holiday Park"], "a holiday park with no keep decision fails")
     expect(sa_inventory.published_parks_without_keep([{"name": "Sample Tourist Park", "category": "Campground", "osm_id": "way/sample-2"}], kept_ids) == ["Sample Tourist Park"], "a tourist park with no keep decision fails")
@@ -630,9 +634,9 @@ def main():
     minlaton = next(row for row in counted["park_excluded"] if row["name"] == "Minlaton Caravan Park")
     expect("family-owned" in minlaton["reason"] and minlaton["osm_id"] not in by_osm, "minlaton is excluded")
     held_names = {row["name"] for row in counted["park_held"]}
-    expect("Corny Point Caravan Park" in held_names and "Pine Point Caravan Park" in held_names, "corny point and pine point are held")
+    expect("Corny Point Caravan Park" not in held_names and "Pine Point Caravan Park" not in held_names and {"Corny Point Caravan Park", "Pine Point Caravan Park"} <= {row["name"] for row in counted["park_excluded"]}, "corny point and pine point are excluded")
     unreviewed = sorted(row["name"] for row in counted["park_held"] if row.get("reviewed") != "yes")
-    expect(unreviewed == ["Burra Caravan & Camping Park", "Eudunda Caravan & Camping Park", "William Creek Hotel camping ground"], "parks outside the review are held")
+    expect(unreviewed == [], "every park is reviewed")
     expect("860167" not in booking, "ippinitchie stays held without a street view point")
     burra = [row for row in sa_camps if "burra creek" in row["name"].lower() or "world's end gorge" in row["name"].lower() or "worlds end" in row["name"].lower()]
     expect(len(burra) == 1 and burra[0]["osm_id"] == "node/1811163605" and "Mid point" in burra[0]["source_note"], "burra creek gorge is the west point")
@@ -649,7 +653,69 @@ def main():
     expect(booking["73157"]["notice_status"] == "closed" and booking["73157"]["status"] == "closed", "grindells closed")
     expect(booking["73157"]["notice_url"].startswith("https://www.parks.sa.gov.au/"), "closed camps link the notice")
     expect(all(not row["notice_url"] for row in sa_camps if row["notice_status"] == "no_current_notice"), "no-notice camps do not link a notice")
-    expect(booking["72075"]["status_label"] == "Partial closure" and booking["67320"]["status_label"] == "Upcoming closure", "partial and upcoming")
+    expect(booking["72075"]["status_label"] == "No current notice" and booking["72075"]["notice_status"] == "no_current_notice" and not booking["72075"]["notice_url"], "ikara notice is not current")
+    expect("ikara-flinders-ranges-national-park-35" in " ".join(sa_inventory.load_camps.dropped_notices), "404 and off-index notice is dropped")
+    expect(booking["67320"]["status_label"] == "Upcoming closure" and (booking["67320"].get("upcoming_closure") or {}).get("start") == "2026-11-15", "mambray is upcoming from 15 Nov")
+    expect((booking["67320"].get("upcoming_closure") or {}).get("reopen") == "2026-11-20" and booking["67320"]["upcoming_closure"].get("start_time") == "18:00", "mambray reopens 20 Nov")
+    expect(booking["73157"]["closure"]["start"] == "2026-10-31" and booking["73157"]["closure"]["reopen"] == "2026-11-12" and booking["73157"]["closure"]["reopen_time"] == "21:00", "grindells records the gammon window")
+    expect("9pm" in booking["73157"]["notice_summary"] and "pest animal" in booking["73157"]["notice_summary"], "grindells quotes the official hours and reason")
+    expect(booking["73202"]["status_label"] == "Alert in this park" and booking["73202"]["status"] != "closed" and booking["73139"]["notice_status"] == "park_alert", "innamincka camps are a park alert")
+    box = booking["73218"]
+    expect(box["status_label"] == "Upcoming closure" and box["status"] != "closed" and box["notice_status"] == "upcoming", "box flat is upcoming before 11 nov")
+    expect(box["notice_url"].endswith("ngarkat-conservation-park-15"), "box flat links the ngarkat notice")
+    expect("11 November 2026" in box["notice_summary"] and "18 November 2026" in box["notice_summary"] and "pest control" in box["notice_summary"], "box flat quotes the dates and reason")
+    expect((box.get("upcoming_closure") or {}).get("start") == "2026-11-11" and box["upcoming_closure"].get("start_time") == "06:00", "box flat starts 6am 11 nov")
+    expect(box["upcoming_closure"].get("reopen") == "2026-11-18" and box["upcoming_closure"].get("reopen_time") == "06:00", "box flat reopens 6am 18 nov")
+    window = notice_phase.notice_window(box)
+    expect(window is not None and window[2] == "upcoming", "box flat page carries the build-time upcoming label")
+    expect(window[0].isoformat() == "2026-11-11T06:00:00+10:30" and window[1].isoformat() == "2026-11-18T06:00:00+10:30", "box flat instants stay in Adelaide time")
+    expect("data-notice-start=\"2026-11-11T06:00:00+10:30\"" in notice_phase.notice_attr(box), "box flat attributes name the start")
+    before_phase = dt.datetime(2026, 11, 11, 5, 59, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    expect(notice_phase.phase_at(window[0], window[1], before_phase) == "upcoming", "view time is upcoming at 5:59am")
+    at_open_phase = dt.datetime(2026, 11, 11, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    at_end_phase = dt.datetime(2026, 11, 18, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    just_before_end = dt.datetime(2026, 11, 18, 5, 59, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    expect(notice_phase.phase_at(window[0], window[1], at_open_phase) == "closed", "view time is closed at 6:00am")
+    expect(notice_phase.phase_at(window[0], window[1], just_before_end) == "closed", "view time stays closed until 6:00am on the 18th")
+    expect(notice_phase.phase_at(window[0], window[1], at_end_phase) == "ended", "view time ends at 6:00am on the 18th")
+    phase_node = subprocess.run(
+        ["node", "-e", notice_phase.PHASE_JS + """
+        const at = (iso) => noticePhase("2026-11-11T06:00:00+10:30", "2026-11-18T06:00:00+10:30", Date.parse(iso));
+        if (at("2026-11-11T05:59:00+10:30") !== "upcoming") process.exit(1);
+        if (at("2026-11-11T06:00:00+10:30") !== "closed") process.exit(1);
+        if (at("2026-11-18T05:59:00+10:30") !== "closed") process.exit(1);
+        if (at("2026-11-18T06:00:00+10:30") !== "ended") process.exit(1);
+        if (noticePhase("2026-11-11T06:00:00+10:30", "", Date.parse("2026-11-12T00:00:00+10:30")) !== "closed") process.exit(1);
+        """],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    expect(phase_node.returncode == 0, "browser phase matches Adelaide instants: " + (phase_node.stderr or phase_node.stdout)[-200:])
+    for outside in ("73215", "73217", "86453", "73216", "73207", "73211"):
+        row = booking[outside]
+        expect(row["status_label"] == "No current notice" and row["notice_status"] == "no_current_notice" and not row["notice_url"] and row["status"] != "closed", "ngarkat camp outside the hatched blocks stays a no-notice camp: " + outside)
+    before_open = dt.datetime(2026, 11, 11, 5, 59, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    at_open = dt.datetime(2026, 11, 11, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    during_ngarkat = dt.datetime(2026, 11, 12, 12, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    at_end = dt.datetime(2026, 11, 18, 6, 0, tzinfo=dt.timezone(dt.timedelta(hours=10, minutes=30)))
+    expect(act_sa_notices.evaluate_all(notices, before_open)["bookings"]["73218"] == "upcoming", "box flat is not closed at 5:59am")
+    expect(act_sa_notices.evaluate_all(notices, at_open)["bookings"]["73218"] == "closed", "box flat closes at 6am 11 nov")
+    during_ng = act_sa_notices.evaluate_all(notices, during_ngarkat)
+    expect(during_ng["by_index"][50]["camp_status"] == "partial" and during_ng["bookings"]["73218"] == "closed", "the park closure is partial and box flat is closed")
+    expect(during_ng["bookings"].get("73215") is None and "73207" not in during_ng["bookings"], "camps outside the blocks are not attached")
+    expect(act_sa_notices.evaluate_all(notices, at_end)["bookings"]["73218"] == "expired_not_open", "box flat is not open when the window ends")
+    closed_box = sa_inventory.load_camps(set(), moment=during_ngarkat)
+    closed_box = {item: row for row in closed_box for item in row.get("booking_ids") or []}["73218"]
+    expect(closed_box["status"] == "closed" and closed_box["status_label"] == "Closed" and closed_box["closure"]["start"] == "2026-11-11", "box flat page is closed during the window")
+    flood = "Parks SA says Malkumba-Coongie Lakes National Park and significant parts of Innamincka Regional Reserve are closed until further notice because of a major flood. This camp isn't named, so check before travelling."
+    for innamincka in ("73202", "73138", "73139", "73142"):
+        row = booking[innamincka]
+        expect(row["status_label"] == "Alert in this park" and row["status"] != "closed" and row["notice_status"] == "park_alert", "innamincka camp stays an alert: " + innamincka)
+        expect(row["notice_summary"] == flood and row["notice_url"].endswith("innamincka-regional-reserve-2"), "the flood notice is quoted and not treated as a camp closure: " + innamincka)
+    council = next(row for row in sa_camps if row["source"] == "council" and row["notice_status"] == "no_current_notice")
+    expect("Parks SA" not in council["notice_summary"], "council camps do not get Parks SA notice wording")
+    expect(sa_inventory.notice_is_current({"source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example"}, {"urls": ["https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example"], "http_status": {}}) is True, "an indexed notice stays")
+    expect(sa_inventory.notice_is_current({"source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example"}, {"urls": ["https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example"], "http_status": {"https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example": 404}}) is False, "a 404 notice is dropped")
+    expect(sa_inventory.notice_is_current({"source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/missing"}, {"urls": ["https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/example"], "http_status": {}}) is False, "a notice off the index is dropped")
     quiet = next(row for row in sa_camps if row["notice_status"] == "no_current_notice")
     expect(quiet["status_label"] == "No current notice" and quiet["status"] != "open", "no notice is not open")
     expect(all(sa_inventory.ATTRIBUTION in row["attribution"] for row in sa_camps if row["source"] == "parks_sa"), "parks attribution")
@@ -661,7 +727,7 @@ def main():
     try:
         os.environ.pop("CAMPCONDITIONS_PREVIEW", None)
         os.environ.pop("CAMPCONDITIONS_OUT", None)
-        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "public pages include sa")
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa", "tas"], "public pages include sa")
         os.environ["CAMPCONDITIONS_PREVIEW"] = "sa"
         os.environ["CAMPCONDITIONS_OUT"] = os.path.join(ROOT, "dist")
         try:
@@ -671,8 +737,8 @@ def main():
             expect(True, "preview refuses dist")
         preview_out = tempfile.mkdtemp(prefix="sa-inventory-preview-")
         os.environ["CAMPCONDITIONS_OUT"] = preview_out
-        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa"], "preview does not duplicate sa")
-        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa"], "sa stays enabled")
+        expect([state["slug"] for state in states.page_states()] == ["vic", "nsw", "qld", "sa", "tas"], "preview does not duplicate sa")
+        expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "sa stays enabled")
         expect("act" not in [state["slug"] for state in states.enabled()], "preview does not enable act")
     finally:
         if saved_preview is None:
@@ -773,6 +839,8 @@ def main():
     link_html = sa_fire.html_line(link_camp)
     expect(link_camp.get("sa_fire_mode") == "linkout" and not link_camp.get("fire") and not link_camp.get("fire_link"), "linkout stores no rating")
     expect(sa_fire.LINKOUT_LINE in link_html and sa_fire.CFS_PAGE in link_html and sa_fire.CATASTROPHIC_LINE in link_html, "linkout line and parks sentence")
+    council_html = sa_fire.html_line(dict(link_camp, source="council"))
+    expect(sa_fire.LINKOUT_LINE in council_html and sa_fire.CATASTROPHIC_LINE not in council_html and "fire-sa-other" in council_html, "council camps do not get the Parks SA fire sentence")
     expect("No Rating" not in link_html and "No rating" not in link_html and "Mount Lofty" not in link_html, "linkout names no rating and no district")
     expect(link_camp["status"] == "closed", "linkout leaves a closure alone")
     os.environ["SA_FIRE_MODE"] = "nope"

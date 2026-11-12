@@ -3,13 +3,28 @@
 //   RESEND_API_KEY (secret), CONFIRM_SECRET (secret, long random string),
 //   FROM_EMAIL = "CampConditions.au <digest@mail.campconditions.au>", SITE_URL e.g. https://campconditions.au,
 //   RESEND_SEGMENT_ID
-import { makeToken, makeUnsubscribeToken, EMAIL_RE, signupsReady, unsubscribeLink, listUnsubscribeHeaders, chosenStates, heldSignupStates, statePhrase } from "../_lib/token.js";
+import { makeToken, makeUnsubscribeToken, EMAIL_RE, signupsReady, unsubscribeLink, listUnsubscribeHeaders, chosenStates, heldSignupStates, statePhrase, oneListMode, topicPlan, allSegmentId } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
 
 function esc(value) {
   return String(value || "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+}
+
+// One-list mode checks that the all-subscribers segment and the chosen topics exist
+// before the confirmation email is sent. With the flag off this is a no-op.
+export function listEnrolment(env, states) {
+  if (!oneListMode(env)) return { mode: "segments", ok: true, topics: [], missing: [], segmentId: "" };
+  const plan = topicPlan(env, states);
+  const segmentId = allSegmentId(env);
+  return {
+    mode: "topics",
+    ok: Boolean(segmentId) && plan.missing.length === 0 && plan.topics.length > 0,
+    topics: plan.topics,
+    missing: plan.missing,
+    segmentId,
+  };
 }
 
 // Shared by the handler and tests. Held slugs are never enrolled.
@@ -79,6 +94,7 @@ export async function onRequestPost({ request, env }) {
   if (!choice.ok) return page("Pick a state", "Choose Victoria, New South Wales, Queensland, or any mix of them.", 400);
   const states = choice.states;
   const explicit = choice.explicit;
+  if (!listEnrolment(env, states).ok) return soon();
   const token = explicit ? await makeToken(email, env.CONFIRM_SECRET, 60 * 60 * 48, states) : await makeToken(email, env.CONFIRM_SECRET);
   const site = String(env.SITE_URL).replace(/\/$/, "");
   const link = `${site}/api/confirm?token=${encodeURIComponent(token)}`;

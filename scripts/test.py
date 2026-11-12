@@ -522,6 +522,8 @@ act_sa = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_act
 if act_sa.returncode != 0: bad.append(("act-sa foundations", "test_act_sa.py failed"))
 tas_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_tas.py")], cwd=root)
 if tas_check.returncode != 0: bad.append(("tas foundations", "test_tas.py failed"))
+one_list = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_one_list.py")], cwd=root)
+if one_list.returncode != 0: bad.append(("one-list", "test_one_list.py failed"))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in about: bad.append(("credit", "footer or about"))

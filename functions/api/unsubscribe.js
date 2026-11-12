@@ -2,7 +2,7 @@
 // The token is HMAC-SHA256 of "unsubscribe\n" + the lowercase email, keyed with CONFIRM_SECRET.
 // POST is the RFC 8058 one-click action (List-Unsubscribe-Post: List-Unsubscribe=One-Click).
 // A valid token marks the Resend contact unsubscribed and removes it from RESEND_SEGMENT_ID.
-import { signupsReady, unsubscribeTokenMatches } from "../_lib/token.js";
+import { signupsReady, unsubscribeTokenMatches, oneListMode, topicId, TOPIC_ENV } from "../_lib/token.js";
 import { sitePage } from "../_lib/page.js";
 import { segmentPath, qldSegmentId } from "./confirm.js";
 
@@ -32,7 +32,7 @@ async function resend(env, path, method, body, doFetch) {
 // RESEND_SEGMENT_NSW_ID is optional. When it is set, that segment is removed too. The Queensland segment is always removed.
 // RESEND_SEGMENT_ACT_ID and RESEND_SEGMENT_SA_ID are not read. Those digests are not open, so this
 // must not call Resend for them. When a later change opens signup, remove those segments here too.
-export async function unsubscribeContact(env, email, doFetch = fetch) {
+async function unsubscribeLegacy(env, email, doFetch) {
   const patched = await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { unsubscribed: true }, doFetch);
   const removed = await resend(env, segmentPath(email, env.RESEND_SEGMENT_ID), "DELETE", undefined, doFetch);
   const nswId = String(env.RESEND_SEGMENT_NSW_ID || "").trim();
@@ -43,6 +43,20 @@ export async function unsubscribeContact(env, email, doFetch = fetch) {
   if (removedQld && !removedQld.ok && removedQld.status !== 404) return removedQld;
   if (patched.ok || removed.ok || (patched.status === 404 && removed.status === 404)) return { ok: true, status: 200, data: {} };
   return patched.ok ? removed : patched;
+}
+
+// The public link is still a whole-list unsubscribe. One-list mode also opts the
+// contact out of every configured state topic. Flag off makes no topic call.
+export async function unsubscribeContact(env, email, doFetch = fetch) {
+  const outcome = await unsubscribeLegacy(env, email, doFetch);
+  if (!outcome.ok || !oneListMode(env)) return outcome;
+  const topics = Object.keys(TOPIC_ENV).map((slug) => topicId(env, slug)).filter(Boolean);
+  if (!topics.length) return outcome;
+  const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", {
+    topics: topics.map((id) => ({ id, subscription: "opt_out" })),
+  }, doFetch);
+  if (opted.ok || opted.status === 404) return outcome;
+  return opted;
 }
 
 async function handle(request, env) {

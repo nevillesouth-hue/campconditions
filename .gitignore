@@ -9,3 +9,5 @@ __pycache__/
 .env
 *.osm.pbf
 data/.last-good/
+# One-list migration reports. They can list subscriber addresses.
+out/

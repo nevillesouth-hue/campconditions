@@ -13,6 +13,7 @@ The scheduled site rebuild must not call a mail API; sending is a separate, manu
 """
 import argparse, datetime as dt, html, json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import broadcast_plan
 import states
 
 ap = argparse.ArgumentParser()
@@ -72,13 +73,18 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
     os.makedirs(dest, exist_ok=True)
     open(os.path.join(dest, "digest.html"), "w", encoding="utf-8").write(doc)
     open(os.path.join(dest, "digest.txt"), "w", encoding="utf-8").write(txt)
-    json.dump({
+    meta = {
         "subject": subject, "previewText": preview, "generated": generated_text, "closed": len(closed), "state": state["slug"],
         "headers": {
             "List-Unsubscribe": f"<{unsub}>",
             "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
         },
-    }, open(os.path.join(dest, "meta.json"), "w"), indent=1)
+    }
+    # Empty while ONE_LIST_MODE is off, so the draft files stay as they are today.
+    extra = broadcast_plan.broadcast_meta(state["slug"])
+    if extra:
+        meta.update(extra)
+    json.dump(meta, open(os.path.join(dest, "meta.json"), "w"), indent=1)
     print(subject)
     return subject
 

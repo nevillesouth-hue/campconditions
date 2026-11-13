@@ -4004,6 +4004,15 @@ def slug_redirect_lines():
                     print(f"WARN slug redirect skipped: vic/{old} -> {target}", file=sys.stderr)
                     continue
                 lines += [f"/vic/camp/{old} /{target}/ 301", f"/vic/camp/{old}/ /{target}/ 301"]
+    # QLD camps removed on purpose (commercial caravan parks): old page goes to the state page.
+    qld_path = os.path.join(ROOT, "data", "qld-slug-redirects.json")
+    if os.path.isfile(qld_path) and os.path.isdir(os.path.join(OUT, "qld")):
+        with open(qld_path, encoding="utf-8") as handle:
+            for old, target in sorted((json.load(handle).get("removed") or {}).items()):
+                if os.path.isdir(os.path.join(OUT, "qld", "camp", old)) or not os.path.isfile(os.path.join(OUT, target, "index.html")):
+                    print(f"WARN slug redirect skipped: qld/{old} -> {target}", file=sys.stderr)
+                    continue
+                lines += [f"/qld/camp/{old} /{target}/ 301", f"/qld/camp/{old}/ /{target}/ 301"]
     # Camps that were built under the wrong state: full paths, e.g. "vic/camp/x": "nsw/camp/y".
     for old, new in sorted((doc.get("cross_state") or {}).items()):
         if os.path.isdir(os.path.join(OUT, old)) or not os.path.isfile(os.path.join(OUT, new, "index.html")):

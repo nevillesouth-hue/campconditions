@@ -4117,5 +4117,119 @@
   "toilets": "yes",
   "name": "Sommariva Rest Area",
   "checked_date": "2026-11-04"
+ },
+ "w1269299615": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated tourist and workforce caravan park with its own commercial website, cabins and on-site restaurant; not a council or community park.",
+  "source_url": "https://www.moondarracaravanpark.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "n1811159005": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated park with its own commercial website (cabins, villas and sites) at 1 Hooper Street, Alpha; no council or community operator identified.",
+  "source_url": "https://www.alphacaravanvillapark.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "n1811163975": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Now Ingenia Holidays Causeway Lake, a commercial holiday-park chain site at 11 Causeway Esplanade, Causeway Lake, near Yeppoon.",
+  "source_url": "https://www.ingeniaholidays.com.au/our-parks/queensland/ingenia-holidays-causeway-lake",
+  "checked_date": "2026-11-13"
+ },
+ "n1811165561": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately run park at 1 Ridgeway Street, Charleville, with its own website hosted by Sandy; Murweh Shire only lists it in the business directory, not as a council park.",
+  "source_url": "https://www.caravanparkscharleville.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "n1811166905": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated bush retreat and caravan park (Columboola Country Veteran’s Retreat) on 265 acres at Ryalls Road, Hookswood, with cabins and paid sites; not a council or community-run park.",
+  "source_url": "https://www.columboolacountry.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "w1032436600": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Now trading as Cooktown Orchid Travellers Park, a privately run park at the corner of Walker and Charlotte Streets, Cooktown, with its own commercial website.",
+  "source_url": "https://www.cooktownorchidtravellerspark.com/",
+  "checked_date": "2026-11-13"
+ },
+ "n1811174126": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Hotel-attached caravan park at Torrens Creek; the OSM name already marks it CLOSED, and it is a private hotel facility, not council or community-run.",
+  "source_url": "https://www.openstreetmap.org/node/1811174126",
+  "checked_date": "2026-11-13"
+ },
+ "n1811161017": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated park at 10 Vane Tempest Road, Rubyvale, with its own website; hosts named as Terry and Rowie.",
+  "source_url": "https://gemseekers.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "n1811177087": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Now The Bun Tourist Park in Kaimkillenbun, a privately run park with check-in at The Bun Hotel, 84 Moffatt Street.",
+  "source_url": "https://www.thebuntouristpark.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "n5492615221": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated park at 85 Margaret Street, Urangan, with its own website and ABN 52 624 758 318; distinct from Fraser Coast Council’s beachfront tourist parks.",
+  "source_url": "https://herveybaycaravanpark.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "w127886649": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated park with its own commercial website, about 10 km south of Rockhampton on the Bruce Highway; no council or community operator identified.",
+  "source_url": "https://www.kangaroocountrycaravanpark.com/about-us.html",
+  "checked_date": "2026-11-13"
+ },
+ "n12885398810": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): OSM tags operator=Ryke Fuel (a private fuel business), not South Burnett Regional Council. This is a different site from the council’s Kumbia Caravan Stop at Apex Park, Bell Street.",
+  "source_url": "https://www.openstreetmap.org/node/12885398810",
+  "checked_date": "2026-11-13"
+ },
+ "n4433678011": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): The park has its own commercial website and booking line; Gladstone Area Water Board points campers there but itself operates the separate free Boynedale Bush Camp. Not a council or community park.",
+  "source_url": "https://lakeawoongacaravanpark.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "n1811181728": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately owned park at 44 Coolmunda Dam Access Road; the park’s own site says Steven and Lisa bought it in 2024.",
+  "source_url": "https://www.lakecoolmundacaravanpark.com/",
+  "checked_date": "2026-11-13"
+ },
+ "n1811186744": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Public listings identify it as Midway Tourist Park and Service Station at Georgetown, a private roadhouse-style park, not council or community-run.",
+  "source_url": "https://www.openstreetmap.org/node/1811186744",
+  "checked_date": "2026-11-13"
+ },
+ "n1811187304": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Family-owned commercial business combining a Shell service station, restaurant, motel, licensed hotel, bottle shop and caravan park at the Leichhardt and Moonie Highway crossroads.",
+  "source_url": "https://mooniecrossroads.com.au/our-story/",
+  "checked_date": "2026-11-13"
+ },
+ "n10772811905": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated park at 34 Rocky Crossing Road, Agnes Water, with its own commercial website, powered and unpowered sites.",
+  "source_url": "https://thereefcaravanpark.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "w349599717": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): AAOK Riverdale Caravan Park, a privately branded commercial park at 6 Perry Street, Bundaberg North, with its own website.",
+  "source_url": "https://www.riverdalecaravanpark.com.au/",
+  "checked_date": "2026-11-13"
+ },
+ "w436060198": {
+  "exclude": true,
+  "exclude_reason": "Commercial or private caravan park, not a council or community camp (Nev approved removal 13 Nov 2026): Privately operated park at 16 Main Street, Rubyvale, with its own commercial website (cabins, powered sites, pool); GPS on the site matches this OSM record.",
+  "source_url": "https://rubyvalecaravanpark.com.au/",
+  "checked_date": "2026-11-13"
  }
 }

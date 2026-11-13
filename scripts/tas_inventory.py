@@ -3,7 +3,9 @@
 import csv
 import os
 import re
+from urllib.parse import urlparse
 
+import contacts
 import tas_alerts
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -120,6 +122,66 @@ def _council_url(value):
     return ""
 
 
+def _host(url):
+    return (urlparse(url).hostname or "").lower()
+
+
+def _operator_website(value):
+    """Official council or Hydro page. theLIST and other catalogues stay out."""
+    text = (value or "").strip()
+    if not text.startswith("https://") or contacts.is_catalogue(text):
+        return ""
+    host = _host(text)
+    if host == "hydro.com.au" or host.endswith(".hydro.com.au"):
+        return text
+    if host == "tas.gov.au" or host.endswith(".tas.gov.au"):
+        return text
+    return ""
+
+
+def _pws_park_url(value):
+    """Official Parks and Wildlife park page. Other hosts, including theLIST, are refused."""
+    text = (value or "").strip()
+    if not text.startswith("https://"):
+        return ""
+    if _host(text) in {"parks.tas.gov.au", "www.parks.tas.gov.au"}:
+        return text
+    return ""
+
+
+def pws_links_path():
+    import states
+    rel = ((states.by_slug("tas").get("files") or {}).get("pws_links") or "").strip()
+    if not rel:
+        return ""
+    return rel if os.path.isabs(rel) else os.path.join(ROOT, rel)
+
+
+def load_pws_links(path=None):
+    """Optional camp id to parks.tas.gov.au URL. A missing or empty file adds nothing."""
+    if path is None:
+        path = pws_links_path()
+    if not path or not os.path.isfile(path):
+        return {}
+    found = {}
+    for row in _read_csv(path):
+        ident = (row.get("camp_id") or row.get("campground_record_id") or "").strip()
+        url = _pws_park_url(row.get("url") or row.get("website") or "")
+        if not ident or not url or ident in found:
+            continue
+        found[ident] = url
+    return found
+
+
+def assign_website(camp, links):
+    """Council and Hydro pages, or a PWS park URL from the optional file. Never theLIST."""
+    if camp.get("tas_council"):
+        camp["website"] = _operator_website(camp.get("council_url"))
+    else:
+        camp["website"] = _pws_park_url((links or {}).get(camp.get("id") or ""))
+    return camp.get("website") or ""
+
+
 def load_rows():
     inventory_path, map_path, _decisions = _paths()
     inventory = _read_csv(inventory_path)
@@ -225,6 +287,7 @@ def load_camps(seen=None):
     seen = seen if seen is not None else set()
     drop, kept = _collapse_plan(inventory, parks)
     legacy = _legacy_slugs(inventory, parks, seen)
+    links = load_pws_links()
     camps = []
     for row in inventory:
         if (row.get("decision") or "").strip() != ELIGIBLE:
@@ -281,6 +344,9 @@ def load_camps(seen=None):
             "tas_ambers": [],
             "tas_campfire": False,
         }
+        assign_website(camp, links)
+        if not council:
+            camp["info_line"] = {"phone": contacts.PWS_PHONE, "label": contacts.PWS_LABEL}
         camps.append(camp)
     by_camp = {camp["id"]: camp for camp in camps}
     for dropped_id, keep_id in drop.items():

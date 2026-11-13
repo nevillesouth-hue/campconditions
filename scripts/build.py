@@ -7,6 +7,7 @@ the primary state: /map.js, the about page and the top-level digest draft.
 """
 import hashlib, importlib, io, json, math, os, re, html, shutil, sys, urllib.parse, urllib.request, gzip, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import contacts
 import facts
 import notice_phase
 import states as statecfg
@@ -910,6 +911,14 @@ for key, rows in list(by_state.items()):
 camps.sort(key=lambda c: c["name"].lower())
 for rows in by_state.values():
     rows.sort(key=lambda c: c["name"].lower())
+contacts.apply_state_contacts(by_state)
+for slug, rows in by_state.items():
+    with_button = sum(1 for camp in rows if contacts.page_has_contact_button(camp))
+    info = sum(1 for camp in rows if (camp.get("info_line") or {}).get("phone") == contacts.NPWS_PHONE)
+    pws = sum(1 for camp in rows if (camp.get("info_line") or {}).get("phone") == contacts.PWS_PHONE)
+    qgov = sum(1 for camp in rows if (camp.get("info_line") or {}).get("phone") == contacts.QGOV_PHONE)
+    road = sum(1 for camp in rows if camp.get("road_line"))
+    print(f"Contacts {slug}: {with_button} pages with a button, {info} NPWS line, {pws} PWS line, {road} road line, {qgov} 13 QGOV")
 
 # ---------- rendering ----------
 CSS = """:root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}*{box-sizing:border-box}body{margin:0;font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#222;background:var(--bg)}
@@ -3007,7 +3016,9 @@ def osm_blocks(c):
         bits.append(f'<p class="warn"><strong>Unverified, help us confirm</strong> — <a href="{report_href(c)}">send a correction</a>.</p>')
     desc = c.get("description") or ""
     unknown_overnight = c.get("category") == "Rest area" and not c.get("max_stay")
-    if "follow signs on site" in desc.lower() or unknown_overnight:
+    if c.get("rest_note"):
+        bits.append(f"<p>{e(c['rest_note'])}</p>")
+    elif "follow signs on site" in desc.lower() or unknown_overnight:
         bits.append("<p><strong>Follow signs on site.</strong> Overnight stays are not confirmed.</p>")
     if desc: bits.append(f"<p>{e(desc)}</p>")
     bits.append(facts_html(c, fill_unknown=True))
@@ -3022,6 +3033,9 @@ def contact_html(c):
         buttons.append(f'<a class="btn" href="mailto:{e(c["email"])}">Email</a>')
     if (c.get("website") or "").startswith("http"):
         buttons.append(f'<a class="btn" href="{e(c["website"])}">Website</a>')
+    book = str(c.get("booking_url") or c.get("book_url") or "").strip()
+    if book.startswith("https://") and not contacts.is_catalogue(book):
+        buttons.append(f'<a class="btn" href="{e(book)}">Book</a>')
     return "<p>" + " ".join(buttons) + "</p>" if buttons else ""
 FACILITY_CHECKS = (("Dogs", "fac_dogs"), ("Dump point", "fac_dump"), ("Showers", "fac_showers"), ("Tents", "fac_tents"), ("Caravans", "fac_caravans"), ("Motorhomes", "fac_motorhomes"), ("Self-contained only", "fac_self"))
 def checklist_rows(c):
@@ -3059,8 +3073,10 @@ def facts_html(c, fill_unknown):
     if c.get("self_sufficient_note"): bits.append(f"<p><strong>{e(c['self_sufficient_note'])}</strong></p>")
     contact = contact_html(c)
     if contact: bits.append(contact)
+    line = contacts.lines_html(c)
+    if line: bits.append(line)
     if c.get("max_stay"): bits.append(f"<p><strong>Max stay: {e(c['max_stay'])}</strong></p>")
-    elif fill_unknown: bits.append("<p><strong>Max stay: ask operator</strong></p>")
+    elif fill_unknown and not c.get("rest_note"): bits.append("<p><strong>Max stay: ask operator</strong></p>")
     items = facility_items(c, fill_unknown)
     collapse = facilities_collapsed(c)
     if items or collapse:
@@ -3356,6 +3372,9 @@ def emit_state(state, camps, include_home):
                 bits.append(f"<p>Visitor area type: {e(c['asset_type'])}</p>")
             if c.get("source_ref"):
                 bits.append(f"<p>{'Feature id' if agency == 'QPWS' else 'Asset id'}: {e(c['source_ref'])}</p>")
+            line = contacts.lines_html(c)
+            if line:
+                bits.append(line)
             condition = "".join(bits)
             title = f"{page_name} | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)

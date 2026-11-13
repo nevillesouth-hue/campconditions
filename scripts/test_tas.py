@@ -11,6 +11,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 os.chdir(ROOT)
 
+import contacts
 import tas_alerts
 import tas_fire
 import tas_inventory
@@ -231,6 +232,79 @@ def main():
     expect("Seasonal campfire ban." in ben_html and "Seasonal campfire ban." in stumpys_html, "campfire note")
     expect("Check with the council before you travel." in falls_html and falls["council_url"] in falls_html, "council sentence and link")
     expect("Alert in this park" not in falls_html and tas_alerts.ALERTS_URL not in falls_html, "council camp has no PWS alert")
+    expect(falls.get("website") == falls.get("council_url") and falls["website"].startswith("https://"), "falls keeps its council page as the website")
+    expect('class="btn" href="%s">Website</a>' % falls["website"] in falls_html, "falls renders a website button")
+    expect('href="tel:1300827727"' in ben_html and contacts.PWS_LABEL in ben_html, "pws camp renders the general info line")
+    expect("1300 827 727" not in falls_html and ">Call " not in falls_html, "council camp does not get the PWS line")
+    expect(not ben.get("phone") and not falls.get("phone"), "the info line is not stored as the camp phone")
+    expect(">Book</a>" not in ben_html and ">Email</a>" not in ben_html, "empty email and booking stay hidden")
+    expect(">Website</a>" not in ben_html and "Campground record:" in ben_html and ">theLIST</a>" in ben_html, "a PWS page keeps theLIST as the campground record")
+    council_sites = [camp for camp in camps if camp.get("tas_council")]
+    pws_sites = [camp for camp in camps if not camp.get("tas_council")]
+    with_button = 0
+    with_website = 0
+    for camp in council_sites:
+        page = tas_alerts.html_block(camp)
+        if camp.get("website"):
+            with_website += 1
+            with_button += 1
+            expect('class="btn" href="%s">Website</a>' % camp["website"] in page, "council website button " + camp["name"])
+            expect("thelist" not in camp["website"].lower(), "council website is not theLIST " + camp["name"])
+        else:
+            expect(">Website</a>" not in page and ">Call " not in page and ">Email</a>" not in page and ">Book</a>" not in page, "unknown council camp has no contact button " + camp["name"])
+        expect("1300 827 727" not in page and ">theLIST</a>" in page, "council page keeps theLIST and has no PWS line " + camp["name"])
+    for camp in pws_sites:
+        page = tas_alerts.html_block(camp)
+        expect('href="tel:1300827727"' in page and contacts.PWS_LABEL in page, "pws info line " + camp["name"])
+        expect(not camp.get("phone"), "pws phone field stays empty " + camp["name"])
+        with_button += 1
+    expect(len(council_sites) == 11 and len(pws_sites) == 167, "11 council camps and 167 PWS camps")
+    expect(with_website == 7, "7 council or Hydro websites")
+    expect(with_button == 174, "174 Tasmania pages show a contact button")
+    expect(tas_inventory.load_pws_links(os.path.join(ROOT, "missing-tas-pws-links.csv")) == {}, "a missing PWS link file adds nothing")
+    link_file = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8")
+    link_file.write("camp_id,url\n")
+    link_file.write("%s,https://parks.tas.gov.au/explore-our-parks/ben-lomond-national-park\n" % ben["id"])
+    link_file.write("TAS-LIST-EXAMPLE,https://data.thelist.tas.gov.au/example\n")
+    link_file.write("TAS-INSECURE,http://parks.tas.gov.au/not-secure\n")
+    link_file.close()
+    try:
+        mapped = tas_inventory.load_pws_links(link_file.name)
+        expect(mapped.get(ben["id"]) == "https://parks.tas.gov.au/explore-our-parks/ben-lomond-national-park", "PWS file keeps an official park URL")
+        expect("TAS-LIST-EXAMPLE" not in mapped and "TAS-INSECURE" not in mapped, "theLIST and insecure URLs are refused")
+        copied = dict(ben)
+        copied["website"] = ""
+        tas_inventory.assign_website(copied, mapped)
+        mapped_html = tas_alerts.html_block(copied)
+        expect('class="btn" href="https://parks.tas.gov.au/explore-our-parks/ben-lomond-national-park">Website</a>' in mapped_html, "PWS mapping renders a website button")
+        expect(">theLIST</a>" in mapped_html and "thelist.tas.gov.au" not in mapped_html.split(">Website</a>")[0][-160:].lower(), "theLIST stays a source credit")
+    finally:
+        os.remove(link_file.name)
+    bare = {"source": "qpws", "category": "QPWS camping area"}
+    qld_rest = {"source": "osm", "category": "Rest area"}
+    phoned = {"source": "osm", "category": "Camp", "phone": "07 5550 1234"}
+    booked = {"source": "osm", "category": "Camp", "booking_url": "https://example.com/book"}
+    catalogued = {"source": "osm", "category": "Camp", "website": "https://data.thelist.tas.gov.au/x"}
+    nsw_park = {"source": "npws", "category": "Camping Area"}
+    nsw_rest = {"source": "osm", "category": "Rest area", "website": "https://example.com/directory"}
+    nsw_osm = {"source": "osm", "category": "Free", "phone": "02 9999 0000"}
+    vic_rest = {"source": "osm", "category": "Rest area", "phone": "13 1963"}
+    contacts.apply_state_contacts({
+        "qld": [bare, qld_rest, phoned, booked, catalogued],
+        "nsw": [nsw_park, nsw_rest, nsw_osm],
+        "vic": [vic_rest],
+    })
+    expect(bare.get("info_line", {}).get("phone") == "13 74 68" and bare.get("info_line", {}).get("label") == contacts.QGOV_LABEL and not bare.get("phone"), "13 QGOV is a labelled fallback, not the camp phone")
+    expect(not qld_rest.get("info_line") and qld_rest.get("road_line", {}).get("phone") == "13 23 80" and qld_rest.get("website") == contacts.TMR_WEBSITE, "Queensland rest area gets the road-authority contact")
+    expect("not camping" in qld_rest.get("rest_note", "") and "20 hours" in qld_rest.get("rest_note", ""), "Queensland rest-area note follows the official page")
+    expect(not phoned.get("info_line") and not booked.get("info_line"), "a phone or booking URL suppresses 13 QGOV")
+    expect(catalogued.get("info_line", {}).get("phone") == "13 74 68", "a catalogue link does not count as a contact")
+    expect(">Book</a>" in contacts.specific_html(booked) and "https://example.com/book" in contacts.specific_html(booked), "book button when a booking URL is set")
+    expect(nsw_park.get("info_line", {}).get("phone") == "1300 072 757" and nsw_park.get("info_line", {}).get("label") == contacts.NPWS_LABEL and not nsw_park.get("phone"), "NPWS line is labelled and is not the camp phone")
+    expect(nsw_rest.get("website") == contacts.TFNSW_WEBSITE and nsw_rest.get("road_line", {}).get("phone") == "13 22 13", "NSW rest area gets the Transport for NSW contact")
+    expect("not camping" in nsw_rest.get("rest_note", "") and "overnight stay is allowed" not in nsw_rest.get("rest_note", "").lower(), "NSW rest-area note does not allow camping")
+    expect(not nsw_osm.get("info_line") and not nsw_osm.get("road_line") and nsw_osm.get("phone") == "02 9999 0000", "other NSW camps keep their own phone")
+    expect(not vic_rest.get("info_line") and not vic_rest.get("road_line") and not vic_rest.get("rest_note") and vic_rest.get("phone") == "13 1963", "Victoria rest areas are unchanged")
     expect(tas_inventory.LIST_CREDIT in stumpys_html, "LIST attribution")
     osm = next(camp for camp in camps if camp.get("coordinate_source") == "OSM")
     listed = next(camp for camp in camps if camp.get("coordinate_source") != "OSM")

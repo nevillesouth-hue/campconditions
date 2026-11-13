@@ -12,6 +12,8 @@ import html
 import json
 import os
 import re
+
+import contacts
 from zoneinfo import ZoneInfo
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -640,6 +642,8 @@ def html_block(camp):
     park = (camp.get("pws_alert_name") or "").strip()
     if park and not camp.get("tas_council"):
         bits.append(f"<p>Park: {html.escape(park)}</p>")
+    bits.append(contacts.specific_html(camp))
+    bits.append(contacts.lines_html(camp))
     credit = camp.get("attribution") or ""
     if credit:
         bits.append(f'<p class="muted">{html.escape(credit)}</p>')

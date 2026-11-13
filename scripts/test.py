@@ -1886,6 +1886,34 @@ if os.path.isfile(nsw_index):
   if closed_npws:
     closed_html = open(os.path.join(D, "nsw", "camp", closed_npws[0]["slug"], "index.html"), encoding="utf-8").read()
     if "NPWS alert" not in closed_html or "badge closed" not in closed_html or "Official NPWS wording" not in closed_html or "Alert dated" not in closed_html: bad.append((closed_npws[0]["slug"], "closed page"))
+  import contacts as _contacts
+  _npws_line = _npws_pages = 0
+  _nsw_rest = [c for c in nsw_camps if c.get("category") == "Rest area"]
+  _nsw_rest_ok = 0
+  for camp in nsw_camps:
+    page = os.path.join(D, "nsw", "camp", camp["slug"], "index.html")
+    if not os.path.isfile(page):
+      continue
+    html_page = open(page, encoding="utf-8").read()
+    if camp.get("source") == "npws":
+      _npws_pages += 1
+      if 'href="tel:1300072757"' in html_page and _contacts.NPWS_LABEL in html_page and not re.search(r'href="tel:1300072757">Call 1300 072 757</a>(?! NSW National Parks info line)', html_page):
+        _npws_line += 1
+      else:
+        bad.append((camp["slug"], "npws info line")); break
+    elif _contacts.NPWS_LABEL in html_page or "1300 072 757" in html_page:
+      bad.append((camp["slug"], "npws line on a camp that is not NPWS")); break
+    if camp.get("category") == "Rest area":
+      if (_contacts.TFNSW_WEBSITE in html_page and 'href="tel:132213"' in html_page and _contacts.TFNSW_LABEL in html_page
+          and "not camping" in html_page and "20 hours" not in html_page
+          and "Overnight stays are not confirmed" not in html_page and "Max stay: ask operator" not in html_page):
+        _nsw_rest_ok += 1
+      else:
+        bad.append((camp["slug"], "nsw rest area contact"))
+  if _npws_line != _npws_pages or _npws_line < 700:
+    bad.append(("nsw", "info line %s of %s" % (_npws_line, _npws_pages)))
+  if _nsw_rest_ok != len(_nsw_rest):
+    bad.append(("nsw", "rest contacts %s of %s" % (_nsw_rest_ok, len(_nsw_rest))))
 by_slug = {c["slug"]: c for c in vic_feed}
 for slug, region in (
     ("parkers-pines", "high-country"), ("ewarts-flat", "high-country"), ("taylors", "high-country"),
@@ -2157,6 +2185,34 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
   if "Victoria, New South Wales and Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
   _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
   if "apikey" in _q_src.lower(): bad.append(("qld", "api key in status.json"))
+  import contacts as _q_contacts
+  _qgov_pages = 0
+  _qld_rest = [c for c in _q_feed if c.get("category") == "Rest area"]
+  _qld_rest_ok = 0
+  for _c in _q_feed:
+    _p = os.path.join(D, "qld", "camp", _c["slug"], "index.html")
+    if not os.path.isfile(_p):
+      continue
+    _t = open(_p, encoding="utf-8").read()
+    if _q_contacts.QGOV_LABEL in _t:
+      _qgov_pages += 1
+      if 'href="tel:137468"' not in _t:
+        bad.append((_c["slug"], "13 QGOV label without the call button"))
+    if _c.get("category") == "Rest area":
+      if (_q_contacts.TMR_WEBSITE in _t and 'href="tel:132380"' in _t and _q_contacts.TMR_LABEL in _t
+          and "20 hours" in _t and "not camping" in _t and _q_contacts.QGOV_LABEL not in _t
+          and "Overnight stays are not confirmed" not in _t and "Max stay: ask operator" not in _t):
+        _qld_rest_ok += 1
+      else:
+        bad.append((_c["slug"], "qld rest area contact"))
+    if _c.get("source") == "qpws" and _q_contacts.QGOV_LABEL not in _t and not (_c.get("category") == "Rest area"):
+      bad.append((_c["slug"], "QPWS page missing 13 QGOV")); break
+  if _qld_rest_ok != len(_qld_rest):
+    bad.append(("qld", "rest contacts %s of %s" % (_qld_rest_ok, len(_qld_rest))))
+  if _qgov_pages < 1:
+    bad.append(("qld", "no 13 QGOV pages"))
+  print("QLD contact pages: %s show 13 QGOV, %s rest areas gained road contacts" % (_qgov_pages, _qld_rest_ok))
+  print("NSW contact pages: %s show the NPWS info line, %s rest areas gained road contacts" % (_npws_line, _nsw_rest_ok))
 # Built pages: an unmapped camp says "No fire district mapped" (never "No Rating" for that),
 # and a fallback camp shows its district's official rating plus the boundary note.
 _unmapped_pages = _fallback_pages = 0

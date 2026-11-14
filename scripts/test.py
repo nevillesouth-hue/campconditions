@@ -1687,6 +1687,13 @@ if os.path.isfile(nsw_index):
     if os.path.isdir(os.path.join(D, "vic", "camp", old)): continue
     if f"/vic/camp/{old}/ /{target}/ 301" not in redirects or not os.path.isfile(os.path.join(D, target, "index.html")):
       bad.append(("_redirects", f"removed DataVic camp {old} must redirect to {target}"))
+  qld_removed = json.load(open(os.path.join(os.path.dirname(D), "data", "qld-slug-redirects.json"), encoding="utf-8")).get("removed") or {}
+  if len(qld_removed) != 19: bad.append(("_redirects", f"expected 19 removed QLD caravan parks, got {len(qld_removed)}"))
+  for old, target in qld_removed.items():
+    if os.path.isdir(os.path.join(D, "qld", "camp", old)):
+      bad.append(("qld removed", f"{old} page still built"))
+    elif f"/qld/camp/{old}/ /{target}/ 301" not in redirects or not os.path.isfile(os.path.join(D, target, "index.html")):
+      bad.append(("_redirects", f"removed QLD caravan park {old} must redirect to {target}"))
   if "/support" in redirects or "fZu4gs0Oafib8eX0QUfQI00" in redirects: bad.append(("_redirects", "old support redirect"))
   support = open(os.path.join(D, "support", "index.html"), encoding="utf-8").read()
   tips = {"Tip A$5": "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01", "Tip A$10": "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02", "Tip A$20": "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"}

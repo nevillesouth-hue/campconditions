@@ -1053,8 +1053,9 @@ html.standalone .refresh-btn{background:var(--g);color:#fff}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
 SHARE_JS = r"""<script>
 (function () {
-  Array.prototype.forEach.call(document.querySelectorAll(".share-btn"), function (btn) {
-  function flash(message) {
+  // One delegated handler: the phone-width button (#share-page-m) sits in the
+  // freshness bar below this script, so it must not be bound per element.
+  function flash(btn, message) {
     var label = btn.querySelector(".share-label");
     if (!label) return;
     var prev = label.textContent;
@@ -1082,27 +1083,28 @@ SHARE_JS = r"""<script>
     if (ok) done();
     else window.prompt("Copy this link", url);
   }
-  function copyLink(url) {
-    var done = function () { flash("Link copied"); };
+  function copyLink(url, btn) {
+    var done = function () { flash(btn, "Link copied"); };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(done).catch(function () { legacyCopy(url, done); });
       return;
     }
     legacyCopy(url, done);
   }
-  btn.addEventListener("click", function () {
+  document.addEventListener("click", function (e) {
+    var btn = e.target && e.target.closest ? e.target.closest(".share-btn") : null;
+    if (!btn) return;
     var canon = document.querySelector('link[rel="canonical"]');
     var url = (canon && canon.href) ? canon.href : String(location.href || "").split("#")[0];
     var payload = { title: document.title || "CampConditions.au", url: url };
     if (navigator.share) {
       navigator.share(payload).catch(function (err) {
         if (err && err.name === "AbortError") return;
-        copyLink(url);
+        copyLink(url, btn);
       });
       return;
     }
-    copyLink(url);
-  });
+    copyLink(url, btn);
   });
 })();
 </script>"""

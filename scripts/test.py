@@ -549,6 +549,15 @@ if "in Safari, tap Share, then Add to Home Screen." not in home or "in Chrome, t
   bad.append(("/", "home screen steps"))
 if 'id="share-page"' not in home or "navigator.share" not in home or "clipboard.writeText" not in home or "Copy this link" not in home:
   bad.append(("/", "share"))
+if 'id="share-page-m"' not in home or 'id="share-page"' not in home or home.count('class="share-label"') < 2:
+  bad.append(("/", "both share buttons and labels"))
+if 'document.addEventListener("click"' not in home or 'closest(".share-btn")' not in home or 'querySelectorAll(".share-btn")' in home:
+  bad.append(("/", "share must use one delegated click handler"))
+_sh = home[home.index('closest(".share-btn")'):]
+if "await" in _sh.split("navigator.share")[0] or _sh.index("navigator.share(payload)") > _sh.index("copyLink(url, btn);"):
+  bad.append(("/", "navigator.share must be called first, with no await before it"))
+if home.count('class="share-btn') != 2:
+  bad.append(("/", "expected exactly two share buttons"))
 if 'id="updated-line"' not in home or 'id="refresh-data"' not in home or "Updated " not in home or 'id="count-closed"' not in overview:
   bad.append(("/", "updated line"))
 if 'cache: "no-store"' not in home or "/status.json?v=" not in home or "visibilitychange" not in home or "pageshow" not in home or 'name="campconditions-built"' not in home:

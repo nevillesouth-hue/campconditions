@@ -45,6 +45,9 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
     def para(s): return f'<tr><td style="{style}padding-top:8px;">{s}</td></tr>'
     body_rows = [para(f"{copy['digest_intro'].format(date=e(date))}<br>"
                  f"<strong>{len(closed)}</strong> of {len(rows)} campgrounds are closed.")]
+    quiet = "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#666666;padding-top:8px;"
+    share = "mailto:?subject=CampConditions.au%20-%20free%20campground%20updates&body=Thought%20this%20might%20be%20useful%20if%20you%27re%20heading%20bush.%20CampConditions%20is%20a%20free%20site%20with%20closures%20and%20conditions%20for%20campgrounds%20across%20Victoria%2C%20NSW%2C%20Queensland%2C%20SA%20and%20Tasmania%2C%20plus%20an%20optional%20weekly%20email.%0A%0Ahttps%3A%2F%2Fcampconditions.au%2F"
+    body_rows.append(f'<tr><td style="{quiet}">Free every Thursday. <a href="{share}" style="color:#666666;text-decoration:underline;">Forward to a mate</a> · <a href="https://campconditions.au/support" style="color:#666666;text-decoration:underline;">Chip in</a> (optional)</td></tr>')
     if prev_rows is not None:
         body_rows += [h2("Newly closed"), para("<br>".join(f"{link(c)} — {e((c['closure'] or {}).get('desc') or 'Closed')}" for c in newly_closed) or "None this week."),
                       h2("Reopened"), para("<br>".join(link(c) for c in reopened) or "None this week.")]
@@ -55,6 +58,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
         body_rows.append(para(f"<strong>{e(name)}</strong><br>" + ("<br>".join(link(c) + (" *" if (c.get("closure") or {}).get("outdated") else "") for c in sorted(group, key=lambda c: c["name"].lower())) or "None.")))
     body_rows.append(para('<span style="font-size:13px;color:#666666;">* Reopening date has passed — the closure record may be outdated.</span>'))
     body_rows.append(para('<strong>Been somewhere lately?</strong> <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'))
+    body_rows.append(para('Know someone heading bush this summer? Forward them this email, or send them to <a href="https://campconditions.au/" style="color:#2f5d3a;">campconditions.au</a> to get these free updates every Thursday.'))
     body_rows.append(para('<strong>The digests stay free.</strong> If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty.<br><a href="https://campconditions.au/support" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.'))
     unsub = "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}"
     foot = (copy["digest_footer"]
@@ -68,7 +72,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
 <tr><td style="padding-top:16px;"><img src="https://campconditions.au/assets/brand/logo-160.png" width="77" height="77" alt="CampConditions.au" style="display:block;border:0;"></td></tr>
 <tr><td style="{style}font-size:22px;line-height:28px;font-weight:bold;color:#2f5d3a;padding-top:8px;">CampConditions.au</td></tr>
 {body}</table></td></tr></table></body></html>"""
-    txt = re.sub(r"<br>", "\n", doc[doc.index("<body"):]); txt = re.sub(r'<a href="https://campconditions.au/support"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", txt)
+    txt = re.sub(r"<br>", "\n", doc[doc.index("<body"):]); txt = re.sub(r'<a href="mailto:[^"]*"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="https://campconditions.au/support"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", txt)
     txt = re.sub(r"</tr>", "\n", txt); txt = html.unescape(re.sub(r"<[^>]+>", "", txt)); txt = re.sub(r"\n\s*\n+", "\n\n", txt).strip()
     os.makedirs(dest, exist_ok=True)
     open(os.path.join(dest, "digest.html"), "w", encoding="utf-8").write(doc)

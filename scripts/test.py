@@ -457,6 +457,100 @@ if (!callsLookupFail.some((c) => c.method === "PATCH" && c.body && c.body.includ
 """], cwd=root, capture_output=True, text=True)
 if confirm_api.returncode != 0:
   bad.append(("confirm api", (confirm_api.stderr or confirm_api.stdout)[-400:]))
+confirm_share = subprocess.run(["node", "--input-type=module", "-e", """
+import { readFileSync } from "node:fs";
+import { onRequestGet } from "./functions/api/confirm.js";
+import { makeToken } from "./functions/_lib/token.js";
+import { SHARE_CLICK_SOURCE, SHARE_TEXT } from "./functions/_lib/share-click.js";
+const secret = "test-secret";
+const email = "reader@example.com";
+const env = {
+  RESEND_API_KEY: "test",
+  CONFIRM_SECRET: secret,
+  FROM_EMAIL: "CampConditions.au <digest@mail.campconditions.au>",
+  SITE_URL: "https://campconditions.au",
+  RESEND_SEGMENT_ID: "b9096e2d-485b-487e-90db-467e44eaf6cc",
+};
+if ("ONE_LIST_MODE" in env) process.exit(1);
+const token = await makeToken(email, secret);
+const encoded = encodeURIComponent(SHARE_TEXT);
+const facebook = "https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcampconditions.au%2F";
+const whatsapp = "https://wa.me/?text=" + encoded;
+const sms = "sms:?&body=" + encoded;
+globalThis.fetch = async () => new Response(JSON.stringify({ id: "c1" }), { status: 201 });
+const res = await onRequestGet({
+  request: new Request("https://campconditions.au/api/confirm?token=" + encodeURIComponent(token)),
+  env,
+});
+const html = await res.text();
+if (res.status !== 200 || !html.includes("You&#39;re confirmed") || !html.includes("you're confirmed for the free weekly CampConditions.au digest for Victoria.") || !html.includes("The first one goes out on Thursday.")) {
+  console.error("success page", res.status);
+  process.exit(1);
+}
+const links = [
+  'href="' + facebook + '"',
+  'href="' + whatsapp + '"',
+  'href="' + sms.replace(/&/g, "&amp;") + '"',
+];
+for (const bit of links) {
+  if (!html.includes(bit)) { console.error("missing " + bit); process.exit(1); }
+}
+if (!html.includes(">Facebook</a>") || !html.includes(">WhatsApp</a>") || !html.includes(">SMS</a>")) {
+  console.error("share labels");
+  process.exit(1);
+}
+if (!html.includes('class="share-btn"') || !html.includes('class="share-label">Copy link</span>') || !html.includes('id="share-copy"')) {
+  console.error("copy button");
+  process.exit(1);
+}
+if ((html.split('class="share-btn"').length - 1) !== 1) {
+  console.error("copy is the only share-btn so the handler does not swallow the other links");
+  process.exit(1);
+}
+if (!html.includes(SHARE_CLICK_SOURCE) || !html.includes('closest(".share-btn")') || !html.includes("navigator.share(payload)")) {
+  console.error("shared handler not inlined");
+  process.exit(1);
+}
+const handlerAt = html.indexOf('closest(".share-btn")');
+const handler = html.slice(handlerAt);
+if (handler.indexOf("navigator.share(payload)") > handler.indexOf("copyLink(url, btn);") || handler.split("navigator.share")[0].includes("await")) {
+  console.error("navigator.share must be called first");
+  process.exit(1);
+}
+if (!html.includes('<link rel="canonical" href="https://campconditions.au/">')) {
+  console.error("canonical");
+  process.exit(1);
+}
+if (html.includes(token) || html.includes("facebook.net") || html.includes("fbevents") || /<script[^>]+src=/i.test(html)) {
+  console.error("token, tracker, or third-party script");
+  process.exit(1);
+}
+if (html.includes('class="banner-row"')) {
+  console.error("confirm page must not grow the site header");
+  process.exit(1);
+}
+const confirmSrc = readFileSync("./functions/api/confirm.js", "utf8");
+if (confirmSrc.includes("addEventListener") || confirmSrc.includes("function copyLink")) {
+  console.error("confirm.js duplicated the handler");
+  process.exit(1);
+}
+if (!confirmSrc.includes("if (oneListMode(env)) return confirmOneList(env, email, doFetch, states, recordStates);")) {
+  console.error("confirm signup path changed");
+  process.exit(1);
+}
+if (readFileSync("./functions/_lib/share-click.js", "utf8").includes("ONE_LIST_MODE")) {
+  console.error("share step must not read the one-list flag");
+  process.exit(1);
+}
+const badRes = await onRequestGet({ request: new Request("https://campconditions.au/api/confirm?token=nope"), env });
+const badHtml = await badRes.text();
+if (badRes.status === 200 || badHtml.includes(facebook) || badHtml.includes("Copy link") || badHtml.includes("navigator.share")) {
+  console.error("share step on the failure page");
+  process.exit(1);
+}
+"""], cwd=root, capture_output=True, text=True)
+if confirm_share.returncode != 0:
+  bad.append(("confirm share", (confirm_share.stderr or confirm_share.stdout)[-400:]))
 unsub_api = subprocess.run(["node", "--input-type=module", "-e", """
 import { makeUnsubscribeToken, unsubscribeTokenMatches, listUnsubscribeHeaders } from "./functions/_lib/token.js";
 import { onRequestGet, onRequestPost, unsubscribeContact } from "./functions/api/unsubscribe.js";

@@ -1051,63 +1051,18 @@ a.back-map:focus-visible{outline:3px solid var(--g);outline-offset:2px}
 html.standalone .freshness{position:sticky;top:0;z-index:45}
 html.standalone .refresh-btn{background:var(--g);color:#fff}
 footer{max-width:980px;margin:2rem auto;padding:1rem;font-size:.8rem;color:#555;border-top:1px solid #ddd}"""
-SHARE_JS = r"""<script>
-(function () {
-  // One delegated handler: the phone-width button (#share-page-m) sits in the
-  // freshness bar below this script, so it must not be bound per element.
-  function flash(btn, message) {
-    var label = btn.querySelector(".share-label");
-    if (!label) return;
-    var prev = label.textContent;
-    label.textContent = message;
-    btn.classList.add("share-done");
-    setTimeout(function () {
-      label.textContent = prev;
-      btn.classList.remove("share-done");
-    }, 1600);
-  }
-  function legacyCopy(url, done) {
-    var area = document.createElement("textarea");
-    area.value = url;
-    area.setAttribute("readonly", "");
-    area.style.position = "fixed";
-    area.style.top = "0";
-    area.style.left = "0";
-    area.style.opacity = "0";
-    document.body.appendChild(area);
-    area.focus();
-    area.select();
-    var ok = false;
-    try { ok = document.execCommand("copy"); } catch (err) { ok = false; }
-    document.body.removeChild(area);
-    if (ok) done();
-    else window.prompt("Copy this link", url);
-  }
-  function copyLink(url, btn) {
-    var done = function () { flash(btn, "Link copied"); };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(done).catch(function () { legacyCopy(url, done); });
-      return;
-    }
-    legacyCopy(url, done);
-  }
-  document.addEventListener("click", function (e) {
-    var btn = e.target && e.target.closest ? e.target.closest(".share-btn") : null;
-    if (!btn) return;
-    var canon = document.querySelector('link[rel="canonical"]');
-    var url = (canon && canon.href) ? canon.href : String(location.href || "").split("#")[0];
-    var payload = { title: document.title || "CampConditions.au", url: url };
-    if (navigator.share) {
-      navigator.share(payload).catch(function (err) {
-        if (err && err.name === "AbortError") return;
-        copyLink(url, btn);
-      });
-      return;
-    }
-    copyLink(url, btn);
-  });
-})();
-</script>"""
+def _share_click_source():
+    """The delegated .share-btn handler. Same export the confirm success page inlines."""
+    path = os.path.join(ROOT, "functions", "_lib", "share-click.js")
+    text = open(path, encoding="utf-8").read()
+    marker = "export const SHARE_CLICK_SOURCE = `"
+    start = text.index(marker) + len(marker)
+    end = text.index("`;", start)
+    source = text[start:end]
+    if "navigator.share(payload)" not in source or 'closest(".share-btn")' not in source:
+        raise SystemExit("share click handler missing from functions/_lib/share-click.js")
+    return source
+SHARE_JS = "<script>\n" + _share_click_source() + "\n</script>"
 # The menu hangs over the freshness bar. On a home-screen shortcut that bar is
 # position:sticky at z-index 45 (see html.standalone .freshness). At 40 the bar
 # paints over the first state, so Victoria is missing and the menu looks clipped.

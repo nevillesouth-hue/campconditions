@@ -4,11 +4,20 @@ def tip_presentation(label, html_blob, txt_blob, bad):
   if '<strong>Been somewhere lately?</strong>' not in html_blob: bad.append((label, "bold report"))
   if '<strong>The digests stay free.</strong> If they’re useful' not in html_blob or html_blob.count("<strong>The digests stay free") != 1: bad.append((label, "bold tip opener"))
   if '<br><a href="https://campconditions.au/support" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.' not in html_blob: bad.append((label, "chip in link"))
-  if html_blob.count("campconditions.au/support") != 1 or ">https://campconditions.au/support" in html_blob or "→ Chip in" in html_blob or "campconditions.au/support/" in html_blob: bad.append((label, "support url visible"))
+  if html_blob.count("campconditions.au/support") != 2 or ">https://campconditions.au/support" in html_blob or "→ Chip in" in html_blob or "campconditions.au/support/" in html_blob: bad.append((label, "support url visible"))
+  for bit in ("Free every Thursday.", "Forward to a mate", "Chip in</a> (optional)", "Know someone heading bush this summer?", 'href="https://campconditions.au/"', ">campconditions.au</a> to get these free updates every Thursday.", "mailto:?subject="):
+    if bit not in html_blob: bad.append((label, bit))
   if txt_blob:
     if "\nChip in $5, $10 or $20\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
-  for blob in (html_blob, txt_blob):
-    if blob and not (0 <= blob.find("Been somewhere lately?") < blob.find("The digests stay free.") < blob.find("Chip in") < blob.find("No pressure either way.") < blob.find("Not an official warning service")): bad.append((label, "tip order"))
+    if "mailto:" in txt_blob: bad.append((label + " txt", "mailto"))
+    for bit in ("Free every Thursday.", "Forward to a mate", "Chip in (optional)", "Know someone heading bush this summer?", "campconditions.au (https://campconditions.au/)"):
+      if bit not in txt_blob: bad.append((label + " txt", bit))
+  for blob, chip in ((html_blob, "Chip in</a> $5, $10 or $20"), (txt_blob, "Chip in $5, $10 or $20")):
+    if not blob: continue
+    order = ("Free every Thursday.", "Been somewhere lately?", "Know someone heading bush this summer?", "The digests stay free.", chip, "No pressure either way.", "Not an official warning service")
+    at = [blob.find(bit) for bit in order]
+    head = "Newly closed" if "Newly closed" in blob else "Closed, by region"
+    if any(i < 0 for i in at) or any(at[i] >= at[i + 1] for i in range(len(at) - 1)) or not (0 <= at[0] < blob.find(head)): bad.append((label, "tip order"))
 D=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),"dist");bad=[];warnings=[];n=0;ldn=0;spoken_dates=0
 def draft_dir(path):
   return "digest" in path.replace("\\", "/").split("/")

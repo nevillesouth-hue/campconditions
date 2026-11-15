@@ -6,6 +6,7 @@
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
 import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase, saDigestSend, oneListMode, legacySegmentWrite, topicPlan, allSegmentId } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";
+import { confirmShareExtras } from "../_lib/share-click.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
 
@@ -186,7 +187,7 @@ export async function onRequestGet({ request, env }) {
       return page("Not open yet", "Those digests are not open. No address was added.", 400);
     }
     if (!result.ok) return page("Could not confirm", failureMessage(result), 503);
-    return page("You're confirmed", `Thanks — you're confirmed for the free weekly CampConditions.au digest for ${statePhrase(parsed.states)}. The first one goes out on Thursday.`);
+    return page("You're confirmed", `Thanks — you're confirmed for the free weekly CampConditions.au digest for ${statePhrase(parsed.states)}. The first one goes out on Thursday.`, 200, confirmShareExtras());
   } catch {
     return page("Could not confirm", failureMessage(null), 503);
   }

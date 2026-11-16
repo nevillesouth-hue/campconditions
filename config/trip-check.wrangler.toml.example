@@ -1,0 +1,34 @@
+# Trip Check waitlist KV binding. This file is notes only.
+# It is not named wrangler.toml, so `wrangler pages deploy` does not load it.
+#
+# A root wrangler.toml becomes the source of truth for Pages configuration and
+# can replace the dashboard bindings the campconditions project already uses.
+# Copy these lines into the dashboard, or into a wrangler.toml only after the
+# namespace id is real and Nev has said the waitlist can go live.
+#
+# Production binding (Pages project: campconditions):
+#
+# name = "campconditions"
+# pages_build_output_dir = "./dist"
+# compatibility_date = "2026-11-16"
+#
+# [[kv_namespaces]]
+# binding = "TRIPCHECK_KV"
+# id = "REPLACE_WITH_THE_NAMESPACE_ID"
+#
+# The same binding for production only, once the id is known:
+#
+# [[env.production.kv_namespaces]]
+# binding = "TRIPCHECK_KV"
+# id = "REPLACE_WITH_THE_PRODUCTION_NAMESPACE_ID"
+#
+# TRIPCHECK_ADMIN_KEY is a secret, not a var. Do not put it in this file.
+# npx wrangler pages secret put TRIPCHECK_ADMIN_KEY --project-name=campconditions
+#
+# Optional. When unset, confirmation links use CONFIRM_SECRET.
+# npx wrangler pages secret put TRIPCHECK_SECRET --project-name=campconditions
+#
+# Dashboard path for the binding:
+# Workers & Pages → campconditions → Settings → Bindings → Add → KV namespace
+# Variable name: TRIPCHECK_KV
+# Then redeploy. The function reads env.TRIPCHECK_KV.

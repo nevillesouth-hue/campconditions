@@ -2334,7 +2334,8 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
     shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/", "/faq/", "/about-the-data/", "/closures-this-weekend/"}
     # /support/ is not a data page. Leave every other page's state credit line alone.
-    show_credits = path != "/support/"
+    # /trip-check/ publishes no camp data, same as /support/.
+    show_credits = path not in {"/support/", "/trip-check/"}
     og_title, og_desc = title, desc
     if path == "/":
         # Link-preview copy uses a rounded count (4,800+) so it does not go stale on
@@ -3500,6 +3501,49 @@ document.getElementById("unsub-form").addEventListener("submit", async (ev) => {
   }
 });
 </script>""")
+# Not added to the nav, footer, sitemap or llms.txt. The address is the only way in.
+page("/trip-check/", "Trip Check waitlist",
+     "This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.",
+     """<h1>Trip Check waitlist</h1>
+<p>Trip Check is a planned add-on for CampConditions.au. You would enter the camps or towns you plan to stay at, and the dates, and we would check each night against the same closure data we already publish. You would get a printable trip pack, and an email if a camp on your dates changes status before or during the trip. You can edit the trip with a private link if your dates or stops change.</p>
+<p>This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.</p>
+<p>The weekly digest stays free.</p>
+<p>Trip Check would cover camps in Victoria, New South Wales, Queensland, South Australia and Tasmania. Western Australia and the Northern Territory are not covered until those states are live on the site.</p>
+<p>Planned prices (these are planned, not a charge):</p>
+<ul>
+<li>Single trip: A$4.99 per trip</li>
+<li>Season pass: A$24.99 a year</li>
+<li>Founding offer for everyone on this waitlist and current digest subscribers: A$14.99 for the first year</li>
+</ul>
+<form class="signup box trip-form" action="/api/trip-check-waitlist" method="post">
+<div class="sr-only" aria-hidden="true"><input id="trip-company" type="text" name="company" tabindex="-1" autocomplete="off" value=""></div>
+<label for="trip-email">Email</label>
+<div class="signup-row"><input id="trip-email" type="email" name="email" required autocomplete="email" placeholder="you@example.com"></div>
+<label for="trip-name">First name</label>
+<div class="signup-row"><input id="trip-name" type="text" name="first_name" autocomplete="given-name" maxlength="80"></div>
+<fieldset>
+<legend>Which states are you interested in?</legend>
+<p class="muted">(interest only, this does not sign you up to the digest)</p>
+<label class="state-choice"><input type="checkbox" name="states" value="vic"> VIC</label>
+<label class="state-choice"><input type="checkbox" name="states" value="nsw"> NSW</label>
+<label class="state-choice"><input type="checkbox" name="states" value="qld"> QLD</label>
+<label class="state-choice"><input type="checkbox" name="states" value="sa"> SA</label>
+<label class="state-choice"><input type="checkbox" name="states" value="tas"> TAS</label>
+</fieldset>
+<label class="consent"><input type="checkbox" name="consent" value="yes" required> I understand this is a waitlist, not a purchase. CampConditions.au can email me at this address about Trip Check. I can ask to be removed at any time.</label>
+<button type="submit">Join the waitlist</button>
+</form>""",
+     head="""<style>
+.trip-form input[type=email],.trip-form input[type=text]{width:100%;font-size:1.05rem;padding:.85rem .9rem;min-height:48px}
+.trip-form .signup-row{margin:0 0 .85rem}
+.trip-form fieldset{border:0;margin:.9rem 0 .2rem;padding:0}
+.trip-form legend{font-weight:700;padding:0}
+.trip-form .state-choice{display:inline-flex;align-items:center;gap:.35rem;font-weight:700;min-height:44px;margin:0 .85rem .15rem 0}
+.trip-form .state-choice input,.trip-form .consent input{width:1.15rem;height:1.15rem;margin:0}
+.trip-form .consent{display:flex;align-items:flex-start;gap:.55rem;font-weight:400;margin:1rem 0}
+.trip-form .consent input{margin:.35rem 0 0;flex:0 0 auto}
+.trip-form button{font-weight:700;min-height:48px;padding:.85rem 1.25rem}
+</style>""")
 REPORT_PAGE_JS = r"""<script>
 (function () {
   var params = new URLSearchParams(location.search);
@@ -3921,7 +3965,7 @@ def headers_text():
     parts = ["/", "  Cache-Control: no-cache", "", "/index.html", "  Cache-Control: no-cache", "", "/404.html", "  Cache-Control: no-cache", ""]
     for state in statecfg.page_states():
         parts += [f"/{state['slug']}/*", "  Cache-Control: no-cache", ""]
-    parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/summer/*", "  Cache-Control: no-cache", "", "/summer-camp-check-kit.pdf", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
+    parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/summer/*", "  Cache-Control: no-cache", "", "/summer-camp-check-kit.pdf", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/trip-check/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
         flag = statecfg.public_file(state, "flags")
         if flag:

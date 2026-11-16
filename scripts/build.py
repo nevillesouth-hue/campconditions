@@ -2778,6 +2778,11 @@ for state in statecfg.page_states():
 bind(primary)
 shutil.copytree(os.path.join(ROOT, "assets", "brand"), os.path.join(OUT, "assets", "brand"))
 shutil.copyfile(os.path.join(ROOT, "assets", "brand", "site.webmanifest"), os.path.join(OUT, "site.webmanifest"))
+# The Summer Camp Check Kit PDF is a committed static asset. This build copies
+# it; it does not run Chromium.
+os.makedirs(os.path.join(OUT, "summer"), exist_ok=True)
+shutil.copyfile(os.path.join(ROOT, "assets", "summer", "index.html"), os.path.join(OUT, "summer", "index.html"))
+shutil.copyfile(os.path.join(ROOT, "assets", "summer-camp-check-kit.pdf"), os.path.join(OUT, "summer-camp-check-kit.pdf"))
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
 n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"] == "check" for c in camps)
 
@@ -3916,7 +3921,7 @@ def headers_text():
     parts = ["/", "  Cache-Control: no-cache", "", "/index.html", "  Cache-Control: no-cache", "", "/404.html", "  Cache-Control: no-cache", ""]
     for state in statecfg.page_states():
         parts += [f"/{state['slug']}/*", "  Cache-Control: no-cache", ""]
-    parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
+    parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/summer/*", "  Cache-Control: no-cache", "", "/summer-camp-check-kit.pdf", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
         flag = statecfg.public_file(state, "flags")
         if flag:
@@ -3991,10 +3996,12 @@ def slug_redirect_lines():
     return lines
 open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /about/ 301
 /contact/ /about/ 301
+/summer-camp-check-kit /summer/ 301
+/summer-camp-check-kit/ /summer/ 301
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
 """ + "".join(line + "\n" for line in slug_redirect_lines()))
-urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
+urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/", "/summer/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:
     for state in statecfg.enabled():
         if state["slug"] == primary["slug"]:
@@ -4008,7 +4015,7 @@ urls += [town["url"] for town in TOWN_PAGES]
 # lastmod is the build date for pages built from live data. Pages whose text only
 # changes with a code edit carry the date of that edit, so crawlers are not told
 # they changed every three hours.
-STATIC_LASTMOD = {"/privacy/": "2026-10-27", "/terms/": "2026-10-27", "/faq/": "2026-11-01"}
+STATIC_LASTMOD = {"/privacy/": "2026-10-27", "/terms/": "2026-10-27", "/faq/": "2026-11-01", "/summer/": "2026-11-16"}
 def lastmod(u):
     fixed = STATIC_LASTMOD.get(u)
     return fixed if fixed and fixed <= NOW.date().isoformat() else NOW.date().isoformat()

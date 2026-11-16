@@ -241,7 +241,7 @@ for r, _, fs in os.walk(D):
         # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
         rel = os.path.join(r, f)
         # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating; QLD pages quote the BoM one.
-        shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}")))
+        shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}", f"{os.sep}summer{os.sep}")))
         # CFA district ratings are an official feed. The old ban was the VicEmergency warning text.
         cfa_ok = needle == "fire danger" and ("cfa.vic.gov.au" in blob or "country fire authority" in blob)
         if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f"{os.sep}qld{os.sep}" in rel or f"{os.sep}sa{os.sep}" in rel or f"{os.sep}tas{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
@@ -496,6 +496,14 @@ if (res.status !== 200 || !html.includes("You&#39;re confirmed") || !html.includ
   console.error("success page", res.status);
   process.exit(1);
 }
+if (!html.includes('href="/summer/"') || !html.includes("Your free Summer Camp Check Kit: one page of official links for VIC, NSW, QLD, SA and TAS.")) {
+  console.error("summer kit line");
+  process.exit(1);
+}
+if (!(html.indexOf("The first one goes out on Thursday.") < html.indexOf("Your free Summer Camp Check Kit") && html.indexOf("Your free Summer Camp Check Kit") < html.indexOf("Share CampConditions"))) {
+  console.error("kit line should sit under the confirmation and before the share step");
+  process.exit(1);
+}
 const links = [
   'href="' + facebook + '"',
   'href="' + whatsapp + '"',
@@ -553,6 +561,10 @@ if (readFileSync("./functions/_lib/share-click.js", "utf8").includes("ONE_LIST_M
 }
 const badRes = await onRequestGet({ request: new Request("https://campconditions.au/api/confirm?token=nope"), env });
 const badHtml = await badRes.text();
+if (badRes.status !== 400 || !badHtml.includes("Link not valid") || badHtml.includes("Summer Camp Check Kit") || badHtml.includes('href="/summer/"')) {
+  console.error("invalid token", badRes.status);
+  process.exit(1);
+}
 if (badRes.status === 200 || badHtml.includes(facebook) || badHtml.includes("Copy link") || badHtml.includes("navigator.share")) {
   console.error("share step on the failure page");
   process.exit(1);
@@ -1813,6 +1825,21 @@ if os.path.isfile(nsw_index):
     if not re.search(r'class="tip-btn" href="' + re.escape(url) + r'"[^>]*>' + re.escape(label) + '</a>', support): bad.append(("support", label))
   sitemap_xml = open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read()
   if "<loc>https://campconditions.au/support/</loc>" not in sitemap_xml: bad.append(("sitemap", "/support/ missing"))
+  if "<loc>https://campconditions.au/summer/</loc>" not in sitemap_xml: bad.append(("sitemap", "/summer/ missing"))
+  summer_path = os.path.join(D, "summer", "index.html")
+  summer = open(summer_path, encoding="utf-8").read() if os.path.isfile(summer_path) else ""
+  if "Summer Camp Check Kit" not in summer or "Download the printable PDF" not in summer or 'href="/summer-camp-check-kit.pdf"' not in summer or 'href="/privacy/"' not in summer:
+    bad.append(("/summer/", "kit page"))
+  if "@media print" not in summer or ".screen-nav { display: none" not in summer:
+    bad.append(("/summer/", "print nav"))
+  if "DRAFT" in summer or "PREVIEW" in summer or 'href="http://' in summer:
+    bad.append(("/summer/", "wording or insecure link"))
+  pdf_path = os.path.join(D, "summer-camp-check-kit.pdf")
+  pdf_bytes = open(pdf_path, "rb").read() if os.path.isfile(pdf_path) else b""
+  if len(re.findall(rb"/Type\s*/Page(?!s)", pdf_bytes)) != 1:
+    bad.append(("/summer-camp-check-kit.pdf", "expected one page"))
+  if "/summer-camp-check-kit /summer/ 301" not in redirects or "/summer-camp-check-kit/ /summer/ 301" not in redirects:
+    bad.append(("_redirects", "summer kit"))
   for st in ("vic", "nsw", "qld", "sa", "tas"):
     sp = os.path.join(D, st, "index.html")
     if os.path.isfile(sp):

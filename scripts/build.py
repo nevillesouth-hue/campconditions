@@ -3501,7 +3501,7 @@ document.getElementById("unsub-form").addEventListener("submit", async (ev) => {
   }
 });
 </script>""")
-# Not added to the nav, footer, sitemap or llms.txt. The address is the only way in.
+# Listed in the sitemap only. Not added to the nav, footer or llms.txt. The address and the sitemap are the ways in.
 page("/trip-check/", "Trip Check waitlist",
      "This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.",
      """<h1>Trip Check waitlist</h1>
@@ -4045,7 +4045,7 @@ open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
 """ + "".join(line + "\n" for line in slug_redirect_lines()))
-urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/", "/summer/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
+urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/", "/summer/", "/trip-check/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:
     for state in statecfg.enabled():
         if state["slug"] == primary["slug"]:

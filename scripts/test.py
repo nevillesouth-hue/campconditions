@@ -320,8 +320,10 @@ else:
       if "/trip-check" in open(p, encoding="utf-8").read():
         bad.append((p[len(D):] or "/", "links to trip-check"))
         break
-  if "/trip-check" in open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read() or "/trip-check" in open(os.path.join(D, "llms.txt"), encoding="utf-8").read():
-    bad.append(("sitemap or llms", "trip-check"))
+  if "<loc>https://campconditions.au/trip-check/</loc>" not in open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read():
+    bad.append(("sitemap.xml", "missing trip-check"))
+  if "/trip-check" in open(os.path.join(D, "llms.txt"), encoding="utf-8").read():
+    bad.append(("llms.txt", "trip-check"))
 priv_path = os.path.join(D, "privacy", "index.html")
 if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))

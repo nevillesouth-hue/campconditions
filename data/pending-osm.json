@@ -1,8 +1,28 @@
 {
  "note": "OpenStreetMap camps left off the map. A new id is published only after it has a record in manual-corrections.json.",
- "generated": "2026-11-09T19:23:29Z",
- "count": 7,
+ "generated": "2026-11-16T19:24:30Z",
+ "count": 14,
  "sites": [
+  {
+   "id": "n11569682042",
+   "name": "Rainbow Lake",
+   "lat": -35.917077,
+   "lon": 141.99824,
+   "tags": {
+    "access": "yes",
+    "camp_site": "standard",
+    "caravans": "yes",
+    "drinking_water": "no",
+    "fee": "yes",
+    "name": "Rainbow Lake",
+    "payment:donation_box": "yes",
+    "power_supply": "no",
+    "shower": "no",
+    "tents": "yes",
+    "toilets": "yes",
+    "tourism": "camp_site"
+   }
+  },
   {
    "id": "n14360110855",
    "name": "Patchewollock Pub",
@@ -17,6 +37,50 @@
     "tents": "yes",
     "tourism": "camp_site"
    }
+  },
+  {
+   "id": "n14364475107",
+   "name": "Wando Vale Memorial Hall",
+   "lat": -37.511768,
+   "lon": 141.444903,
+   "tags": {
+    "access": "yes",
+    "camp_site": "standard",
+    "caravans": "yes",
+    "name": "Wando Vale Memorial Hall",
+    "phone": "+61 3 7046 4407",
+    "shower": "yes",
+    "source": "formal blue caravan park sign on fence",
+    "tents": "yes",
+    "toilets": "yes",
+    "tourism": "camp_site"
+   }
+  },
+  {
+   "id": "n9587512132",
+   "name": "Mount Taylor",
+   "lat": -37.703091,
+   "lon": 147.583698,
+   "tags": {
+    "access": "yes",
+    "description": "Open camping and picnic area set amongst tall eucalypt trees. This location is central to the Mt Taylor mountain bike trails.",
+    "fee": "no",
+    "name": "Mount Taylor",
+    "operator": "DELWP Bairnsdale",
+    "source": "DELWP",
+    "tourism": "camp_site"
+   }
+  },
+  {
+   "id": "w1099468647",
+   "name": "Paradise Beach Campground",
+   "lat": -38.194148,
+   "lon": 147.422373,
+   "tags": {
+    "name": "Paradise Beach Campground",
+    "tourism": "camp_site"
+   },
+   "duplicate": "likely duplicate of n1808392044 Paradise Beach Campground, 14 m"
   },
   {
    "id": "w1359084743",
@@ -42,10 +106,48 @@
    }
   },
   {
+   "id": "w36843934",
+   "name": "Four Mile Beach Campsite",
+   "lat": -36.132311,
+   "lon": 141.927766,
+   "tags": {
+    "access": "yes",
+    "camp_site": "standard",
+    "caravans": "yes",
+    "fee": "no",
+    "kitchen": "yes",
+    "maxstay": "14 days",
+    "name": "Four Mile Beach Campsite",
+    "operator": "Hindmarsh Shire Council",
+    "power_supply": "no",
+    "shower": "yes",
+    "static_caravans": "no",
+    "tents": "yes",
+    "toilets": "yes",
+    "tourism": "camp_site"
+   }
+  },
+  {
    "id": "n10855673205",
    "name": "Erica caravan park",
    "lat": -37.97897,
    "lon": 146.373304,
+   "tags": {},
+   "note": "missing id, needs remap"
+  },
+  {
+   "id": "n14050367327",
+   "name": "Schulzes Beach Camping Area",
+   "lat": -36.04563,
+   "lon": 141.857541,
+   "tags": {},
+   "note": "missing id, needs remap"
+  },
+  {
+   "id": "n1808392044",
+   "name": "Paradise Beach Campground",
+   "lat": -38.19417,
+   "lon": 147.42222,
    "tags": {},
    "note": "missing id, needs remap"
   },

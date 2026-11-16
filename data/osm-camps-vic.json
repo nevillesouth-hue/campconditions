@@ -1,7 +1,7 @@
 {
  "attribution": "© OpenStreetMap contributors, ODbL 1.0 (openstreetmap.org/copyright)",
  "count": 1325,
- "generated": "2026-11-09T19:23:29Z",
+ "generated": "2026-11-16T19:24:30Z",
  "sites": [
   {
    "name": "1 Wild Cherry Camp",
@@ -9797,7 +9797,7 @@
    "website": "https://www.hindmarsh.vic.gov.au/Visit-Hindmarsh/Explore-our-Great-Outdoors/Camping",
    "description": "Lakeside camping on Lake Hindmarsh 5 minutes from Jeparit; no bookings, honesty payment, coin showers and a camp kitchen.",
    "source_url": "https://www.hindmarsh.vic.gov.au/Visit-Hindmarsh/Explore-our-Great-Outdoors/Camping",
-   "needs_review": false,
+   "needs_review": true,
    "checked_date": "2026-10-16",
    "osm_id": "new:four-mile-beach-campground-lake-hindmarsh"
   },
@@ -12647,7 +12647,7 @@
    "self_contained_only": "no",
    "max_nights": "",
    "dogs": "unknown",
-   "dump_point": "no",
+   "dump_point": "yes",
    "showers": "yes",
    "toilets": "yes",
    "phone": "0455 881 210",
@@ -15407,9 +15407,9 @@
    "lon": 143.974789,
    "osm_id": "w1068103063",
    "fee_type": "paid",
-   "description": "Riverside Erskine section of the Lorne Foreshore park with fishing platforms and a camp kitchen; dog-free; fire drums allowed off-peak.",
+   "description": "Riverside Erskine section of the Lorne Foreshore park with fishing platforms and a camp kitchen; dog-free; fire drums allowed off-peak. Dogs are permitted at the Ocean Road and Top Bank camp sites only, and only seasonally.",
    "source_url": "https://greatoceanroadparks.com.au/find-a-park/lorne/erskine-river-powered-sites",
-   "checked_date": "2026-10-16"
+   "checked_date": "2026-11-13"
   },
   {
    "name": "Lorne Foreshore Caravan Park - Kia Ora",
@@ -16512,20 +16512,20 @@
    "checked_date": "2026-10-17"
   },
   {
-   "name": "Merino Showgrounds",
-   "category": "showground",
-   "suits": "tent|caravan|motorhome",
-   "self_contained_only": "unknown",
-   "max_nights": "",
+   "name": "Merino Recreation Reserve",
+   "category": "donation",
+   "suits": "tent",
+   "self_contained_only": "no",
+   "max_nights": "3 nights",
    "dogs": "unknown",
    "dump_point": "unknown",
-   "showers": "unknown",
-   "toilets": "unknown",
+   "showers": "no",
+   "toilets": "yes",
    "phone": "",
    "email": "",
    "website": "",
-   "operator": "",
-   "label": "call first",
+   "operator": "Glenelg Shire Council",
+   "label": "check with operator",
    "needs_review": false,
    "lat": -37.710977,
    "lon": 141.545817,
@@ -20090,9 +20090,9 @@
    "lon": 145.077207,
    "osm_id": "w189992763",
    "fee_type": "paid",
-   "description": "Committee-managed foreshore reserve with seasonal camping on Western Port; no dogs anywhere in the camping areas.",
+   "description": "Committee-managed foreshore reserve with seasonal camping on Western Port; no dogs anywhere in the camping areas. Bookings are required for campsites Friday to Sunday and recommended Sunday to Thursday.",
    "source_url": "https://pointleo.com/faqs/",
-   "checked_date": "2026-10-16"
+   "checked_date": "2026-11-13"
   },
   {
    "name": "Police Bend Camping Area 1 (River Murray Reserve)",

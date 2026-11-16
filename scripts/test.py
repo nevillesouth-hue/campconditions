@@ -280,6 +280,48 @@ else:
   for bit in ("one-click unsubscribe link", 'for="unsub-email"', "Your email", 'action="/api/unsubscribe-request"', "Email me an unsubscribe link", "scrollIntoView", "min-height:48px", 'href="/privacy/"'):
     if bit not in unsub: bad.append(("/unsubscribe/", bit))
   if "color:#0000ee" in unsub.lower() or "color:blue" in unsub.lower(): bad.append(("/unsubscribe/", "default blue"))
+trip_path = os.path.join(D, "trip-check", "index.html")
+if not os.path.isfile(trip_path):
+  bad.append(("/trip-check/", "missing"))
+else:
+  trip = open(trip_path, encoding="utf-8").read()
+  trip_main = trip.split("<main>", 1)[-1].split("</main>", 1)[0]
+  for bit in (
+    "<h1>Trip Check waitlist</h1>",
+    "Trip Check is a planned add-on for CampConditions.au. You would enter the camps or towns you plan to stay at, and the dates, and we would check each night against the same closure data we already publish. You would get a printable trip pack, and an email if a camp on your dates changes status before or during the trip. You can edit the trip with a private link if your dates or stops change.",
+    "This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.",
+    "The weekly digest stays free.",
+    "Trip Check would cover camps in Victoria, New South Wales, Queensland, South Australia and Tasmania. Western Australia and the Northern Territory are not covered until those states are live on the site.",
+    "Planned prices (these are planned, not a charge):",
+    "Single trip: A$4.99 per trip",
+    "Season pass: A$24.99 a year",
+    "Founding offer for everyone on this waitlist and current digest subscribers: A$14.99 for the first year",
+    "Which states are you interested in?",
+    "(interest only, this does not sign you up to the digest)",
+    "> VIC<", "> NSW<", "> QLD<", "> SA<", "> TAS<",
+    "I understand this is a waitlist, not a purchase. CampConditions.au can email me at this address about Trip Check. I can ask to be removed at any time.",
+    ">Join the waitlist<",
+    'action="/api/trip-check-waitlist"',
+    'name="email"', 'name="first_name"', 'name="company"', 'name="consent"', 'name="states"',
+    'value="vic"', 'value="nsw"', 'value="qld"', 'value="sa"', 'value="tas"',
+    'for="trip-email"', ">Email<", ">First name<",
+  ):
+    if bit not in trip:
+      bad.append(("/trip-check/", bit))
+  if "<title>Trip Check waitlist</title>" not in trip: bad.append(("/trip-check/", "title"))
+  if 'action="/api/subscribe"' in trip_main or "stripe" in trip_main.lower() or 'name="card"' in trip_main: bad.append(("/trip-check/", "payment or digest form"))
+  if 'href="/privacy/"' not in trip: bad.append(("/trip-check/", "privacy link"))
+  for r, _, fs in os.walk(D):
+    if draft_dir(r): continue
+    for f in fs:
+      if not f.endswith(".html"): continue
+      p = os.path.join(r, f)
+      if os.path.abspath(p) == os.path.abspath(trip_path): continue
+      if "/trip-check" in open(p, encoding="utf-8").read():
+        bad.append((p[len(D):] or "/", "links to trip-check"))
+        break
+  if "/trip-check" in open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read() or "/trip-check" in open(os.path.join(D, "llms.txt"), encoding="utf-8").read():
+    bad.append(("sitemap or llms", "trip-check"))
 priv_path = os.path.join(D, "privacy", "index.html")
 if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
@@ -639,6 +681,8 @@ tas_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_
 if tas_check.returncode != 0: bad.append(("tas foundations", "test_tas.py failed"))
 one_list = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_one_list.py")], cwd=root)
 if one_list.returncode != 0: bad.append(("one-list", "test_one_list.py failed"))
+trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)
+if trip_check.returncode != 0: bad.append(("trip-check", (trip_check.stderr or trip_check.stdout)[-400:]))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in about: bad.append(("credit", "footer or about"))

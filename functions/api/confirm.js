@@ -187,7 +187,9 @@ export async function onRequestGet({ request, env }) {
       return page("Not open yet", "Those digests are not open. No address was added.", 400);
     }
     if (!result.ok) return page("Could not confirm", failureMessage(result), 503);
-    return page("You're confirmed", `Thanks — you're confirmed for the free weekly CampConditions.au digest for ${statePhrase(parsed.states)}. The first one goes out on Thursday.`, 200, confirmShareExtras());
+    const extras = confirmShareExtras();
+    extras.after = `<p><a href="/summer/">Your free Summer Camp Check Kit: one page of official links for VIC, NSW, QLD, SA and TAS.</a></p>${extras.after}`;
+    return page("You're confirmed", `Thanks — you're confirmed for the free weekly CampConditions.au digest for ${statePhrase(parsed.states)}. The first one goes out on Thursday.`, 200, extras);
   } catch {
     return page("Could not confirm", failureMessage(null), 503);
   }

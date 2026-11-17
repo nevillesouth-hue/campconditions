@@ -155,8 +155,8 @@
   },
   "release": {
     "public": true,
-    "signup": false,
-    "digest": false,
+    "signup": true,
+    "digest": true,
     "live_html_parser": false,
     "live_fetch": false,
     "targets_provisional": ["2026-11-14"],
@@ -198,11 +198,10 @@
         "detail": "Notices are the saved Adelaide windows from the approved list. A camp is closed, partial, upcoming or unknown only where a notice says so. No current notice is not a confirmation the camp is open."
       },
       {
-        "id": "digest_segment",
-        "ok": false,
+        "id": "digest_topic",
+        "ok": true,
         "blocks_public": false,
-        "env": "RESEND_SEGMENT_SA_ID",
-        "detail": "No SA segment is created. Signup stays off. Pages say the weekly email is coming soon."
+        "detail": "SA/TAS use the all-subscribers segment plus a private opt_out topic"
       },
       {
         "id": "regression_activation",

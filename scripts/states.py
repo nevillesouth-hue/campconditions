@@ -93,6 +93,19 @@ def signup_allowed(state):
 SIGNUP_SLUGS = ("vic", "nsw", "qld", "sa", "tas")
 
 
+def weekend_closures_line(region_name, state_name):
+    """Sub-line for the region sign-up box.
+
+    A region that is the whole state, such as South Australia or Tasmania,
+    does not say "and the rest of" that same name.
+    """
+    region = str(region_name or "").strip()
+    state = str(state_name or "").strip()
+    if region and region.casefold() == state.casefold():
+        return f"Get the weekend closures for {region} free each Thursday."
+    return f"Get the weekend closures for {region} and the rest of {state} free each Thursday."
+
+
 def signup_fieldset(offered, preselect=""):
     """Checkbox row used by the public form. Home passes an empty preselect."""
     boxes = []

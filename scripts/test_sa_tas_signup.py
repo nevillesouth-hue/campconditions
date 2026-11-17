@@ -24,6 +24,39 @@ def expect(cond, label):
     print(" FAIL", label)
 
 
+def test_region_line():
+    expect(
+        states.weekend_closures_line("South Australia", "South Australia")
+        == "Get the weekend closures for South Australia free each Thursday.",
+        "SA region line does not repeat the state",
+    )
+    expect(
+        states.weekend_closures_line("Tasmania", "Tasmania")
+        == "Get the weekend closures for Tasmania free each Thursday.",
+        "TAS region line does not repeat the state",
+    )
+    expect(
+        "Camping in South Australia? " + states.weekend_closures_line("South Australia", "South Australia")
+        == "Camping in South Australia? Get the weekend closures for South Australia free each Thursday.",
+        "SA inline sentence",
+    )
+    expect(
+        "Camping in Tasmania? " + states.weekend_closures_line("Tasmania", "Tasmania")
+        == "Camping in Tasmania? Get the weekend closures for Tasmania free each Thursday.",
+        "TAS inline sentence",
+    )
+    expect(
+        states.weekend_closures_line("Gippsland", "Victoria")
+        == "Get the weekend closures for Gippsland and the rest of Victoria free each Thursday.",
+        "multi-region states keep the rest of the state",
+    )
+    expect(
+        states.weekend_closures_line("Gold Coast", "Queensland")
+        == "Get the weekend closures for Gold Coast and the rest of Queensland free each Thursday.",
+        "Queensland regions keep the rest of the state",
+    )
+
+
 def test_flags_off():
     expect(sa_signup.COMING_SOON == "SA weekly email coming soon", "SA coming soon line")
     expect(tas_signup.COMING_SOON == "Tas weekly email coming soon", "TAS coming soon line")
@@ -137,6 +170,7 @@ def test_switch_on_shape():
 
 
 def main():
+    test_region_line()
     test_flags_off()
     test_switch_on_shape()
     if FAILURES:

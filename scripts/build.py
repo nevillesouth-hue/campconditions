@@ -2520,7 +2520,7 @@ def inline_signup(kind, region_name, camp=None):
         btn = "Sign me up"
     else:
         head = f'<strong>Camping in {e(region_name)}?</strong>'
-        sub = f"Get the weekend closures for {e(region_name)} and the rest of {e(STATE['name'])} free each Thursday."
+        sub = e(statecfg.weekend_closures_line(region_name, STATE.get("name") or ""))
         btn = "Sign me up"
     return (f'<section class="inline-signup-box {e(kind)}" aria-label="Email sign-up"><p>{head} {sub}</p>'
             f'<form class="signup inline-signup" action="/api/subscribe" method="post">{hidden}'

@@ -7,6 +7,7 @@ a public build, digest or signup. CAMPCONDITIONS_ENABLE cannot bypass a failed
 gate. CAMPCONDITIONS_PREVIEW=tas with CAMPCONDITIONS_OUT outside dist writes
 Tasmania pages for a local look, and does not enable the state.
 """
+import html
 import json
 import math
 import os
@@ -89,13 +90,32 @@ def signup_allowed(state):
     return release.get("signup") is True
 
 
-SIGNUP_SLUGS = ("vic", "nsw", "qld", "sa")
+SIGNUP_SLUGS = ("vic", "nsw", "qld", "sa", "tas")
+
+
+def signup_fieldset(offered, preselect=""):
+    """Checkbox row used by the public form. Home passes an empty preselect."""
+    boxes = []
+    for state in offered:
+        checked = " checked" if state.get("slug") == preselect else ""
+        label = html.escape(str(state.get("abbrev") or state.get("name") or ""), quote=True)
+        slug = html.escape(str(state.get("slug") or ""), quote=True)
+        boxes.append(
+            '<label style="display:inline-flex;align-items:center;gap:.35rem;font-weight:700;min-height:44px;margin:0">'
+            f'<input type="checkbox" name="states" value="{slug}"{checked} style="width:1.15rem;height:1.15rem;margin:0"> {label}</label>'
+        )
+    return (
+        '<fieldset style="border:0;margin:0 0 .45rem;padding:0;display:flex;flex-wrap:wrap;gap:.15rem .85rem;align-items:center">'
+        '<legend style="font-weight:700;padding:0;margin:0 .35rem 0 0">States</legend>'
+        + "".join(boxes)
+        + '<input type="hidden" name="choose_states" value="1"></fieldset>'
+    )
 
 
 def signup_states():
     """States offered on the public form and reopen alert.
 
-    South Australia is in the list and is omitted while signup is not allowed.
+    South Australia and Tasmania are in the list and are omitted while signup is not allowed.
     """
     offered = []
     for slug in SIGNUP_SLUGS:

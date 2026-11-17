@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Tasmania digest signup. One line, no form, and no Resend segment."""
+"""Tasmania digest signup. The form is on only when release.signup is true."""
 import html
+
+import states
 
 COMING_SOON = "Tas weekly email coming soon"
 
 
 def forms_allowed():
-    return False
+    return states.signup_allowed(states.by_slug("tas"))
 
 
 def coming_soon_html():

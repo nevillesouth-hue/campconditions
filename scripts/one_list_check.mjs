@@ -1,7 +1,9 @@
 import { confirmSubscription, QLD_SEGMENT_ID } from "../functions/api/confirm.js";
 import { listEnrolment, signupChoice } from "../functions/api/subscribe.js";
 import { unsubscribeContact } from "../functions/api/unsubscribe.js";
-import { broadcastBody, guardBroadcast, oneListMode, topicPlan } from "../functions/_lib/token.js";
+import { broadcastBody, guardBroadcast, makeToken, oneListMode, readToken, stateOpen, topicPlan } from "../functions/_lib/token.js";
+import { onRequestGet } from "../functions/api/confirm.js";
+import { confirmationMessage, pickStateMessage } from "../functions/api/subscribe.js";
 
 function assert(cond, message) {
   if (!cond) {
@@ -52,17 +54,40 @@ function base(extra = {}) {
 
 const okResponse = (status = 201) => new Response(JSON.stringify({ id: "c1" }), { status });
 
-// Flag off ignores topic ids and the all-subscribers segment.
+// Flag off, with no topic ids, is still create plus the Victoria segment.
 assert(oneListMode(base()) === false, "flag defaults off");
 assert(oneListMode(base({ ONE_LIST_MODE: "0" })) === false, "zero is off");
+function withoutTopics(extra = {}) {
+  return base({
+    RESEND_TOPIC_VIC_ID: "",
+    RESEND_TOPIC_NSW_ID: "",
+    RESEND_TOPIC_QLD_ID: "",
+    RESEND_TOPIC_SA_ID: "",
+    RESEND_TOPIC_TAS_ID: "",
+    ...extra,
+  });
+}
 {
   const { calls, fetch } = recorder(() => okResponse());
-  const result = await confirmSubscription(base(), email, fetch);
+  const result = await confirmSubscription(withoutTopics(), email, fetch);
   assert(result.ok, "flag off confirms");
   assert(calls.length === 2, "flag off is create plus the victoria segment");
   assert(calls[1].url.endsWith("/segments/" + vicSegment), "flag off uses the victoria segment");
   assert(calls.every((call) => !call.url.includes("/topics") && !call.url.includes(ALL) && !call.url.includes("topic-")), "flag off makes no topic call");
   assert(!jsonBody(calls[0]).topics && !jsonBody(calls[0]).segments, "flag off create has no topics");
+}
+
+// Legacy mode opts into a state topic when that topic id is set. It still writes the old segment.
+{
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(base(), email, fetch);
+  assert(result.ok, "legacy dual-write confirms");
+  const topicCall = calls.find((call) => call.url.endsWith("/topics") && call.method === "PATCH");
+  assert(topicCall && jsonBody(topicCall).topics.length === 1, "legacy dual-write patches the victoria topic");
+  assert(jsonBody(topicCall).topics[0].id === TOPICS.vic && jsonBody(topicCall).topics[0].subscription === "opt_in", "legacy dual-write is opt_in");
+  assert(calls.every((call) => !String(call.body || "").includes("opt_out")), "legacy dual-write never opts out");
+  assert(calls.some((call) => call.url.endsWith("/segments/" + vicSegment) && call.method === "POST"), "legacy dual-write still joins Victoria");
+  assert(!calls.some((call) => call.url.includes(ALL) || call.url.includes("topic-sa")), "legacy Victoria does not join the all segment or SA");
 }
 
 // New contact, one-list mode, no legacy segments.
@@ -150,6 +175,109 @@ assert(oneListMode(base({ ONE_LIST_MODE: "0" })) === false, "zero is off");
 }
 
 assert(signupChoice(["sa"], true).reason === "not_open", "SA signup stays closed");
+assert(signupChoice(["tas"], true).reason === "not_open", "TAS signup stays closed");
+assert(pickStateMessage({}) === "Choose Victoria, New South Wales, Queensland, or any mix of them.", "pick-a-state text is unchanged while the flags are off");
+
+const openSa = base({ SIGNUP_OPEN_SA: "1" });
+const openBoth = base({ SIGNUP_OPEN_SA: "1", SIGNUP_OPEN_TAS: "1", RESEND_TOPIC_TAS_ID: "topic-tas" });
+assert(stateOpen(openSa, "sa") === true && stateOpen(base({ SIGNUP_OPEN_SA: "1", RESEND_TOPIC_SA_ID: "" }), "sa") === false, "SA opens only with the flag and the topic");
+assert(stateOpen(openBoth, "tas") === true && stateOpen(openSa, "tas") === false, "TAS stays held until its own flag and topic");
+assert(signupChoice(["sa"], true, openSa).ok === true && signupChoice(["sa"], true, openSa).states.join(",") === "sa", "SA-only choice");
+assert(signupChoice(["sa"], true, base({ SIGNUP_OPEN_SA: "1", RESEND_TOPIC_SA_ID: "" })).reason === "not_open", "a flag without a topic stays held");
+assert(pickStateMessage(openSa) === "Choose Victoria, New South Wales, Queensland, or any mix of them.", "one open state keeps today's pick-a-state text");
+assert(pickStateMessage(openBoth) === "Choose Victoria, New South Wales, Queensland, South Australia, Tasmania, or any mix of them.", "both open states use the longer sentence");
+{
+  const note = confirmationMessage("https://campconditions.au", "https://campconditions.au/api/confirm?token=abc", "https://campconditions.au/unsubscribe/", ["sa"], "reader@example.com", openSa);
+  assert(note.html.includes("digest for South Australia") && note.text.includes("digest for South Australia"), "confirmation wording uses the state phrase");
+}
+
+// SA-only: contact, SA topic opt-in, the all segment when set, no Victoria segment and no SA segment.
+{
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(openSa, email, fetch, ["sa"], true);
+  assert(result.ok, "SA-only confirm");
+  assert(calls.some((call) => call.method === "POST" && call.url.endsWith("/contacts")), "SA-only creates the contact");
+  const topicCall = calls.find((call) => call.url.endsWith("/topics") && call.method === "PATCH");
+  assert(topicCall && jsonBody(topicCall).topics.length === 1 && jsonBody(topicCall).topics[0].id === "topic-sa" && jsonBody(topicCall).topics[0].subscription === "opt_in", "SA-only opts into the SA topic");
+  assert(calls.every((call) => !String(call.body || "").includes("opt_out")), "SA-only never opts out");
+  assert(calls.some((call) => call.method === "POST" && call.url.endsWith("/segments/" + ALL)), "SA-only joins the all segment when it is set");
+  assert(!calls.some((call) => call.url.includes(vicSegment) || call.url.includes("sa-segment") || call.url.includes("act-segment")), "SA-only writes no state segment");
+  assert(calls.some((call) => call.body && call.body.includes('"states":"sa"')), "SA-only stores sa");
+}
+{
+  const quiet = recorder(() => { throw new Error("no resend"); });
+  const result = await confirmSubscription(base({ SIGNUP_OPEN_SA: "1", RESEND_TOPIC_SA_ID: "", RESEND_SEGMENT_ALL_ID: "" }), email, quiet.fetch, ["sa"], true);
+  assert(!result.ok && quiet.calls.length === 0, "SA without a topic id is not enrolled");
+}
+{
+  const { calls, fetch } = recorder(() => okResponse());
+  const env = base({ SIGNUP_OPEN_SA: "1", RESEND_SEGMENT_ALL_ID: "" });
+  const result = await confirmSubscription(env, email, fetch, ["sa"], true);
+  assert(result.ok, "SA-only without the all segment still confirms");
+  assert(!calls.some((call) => call.url.includes("/segments/")), "no all segment means no segment call");
+}
+
+// An existing Victoria contact adding Tasmania keeps Victoria and does not opt out.
+{
+  const { calls, fetch } = recorder((call) => {
+    if (call.url.endsWith("/contacts") && call.method === "POST") return new Response("{}", { status: 409 });
+    if (call.method === "GET") return new Response(JSON.stringify({ properties: { states: "vic" } }), { status: 200 });
+    return okResponse(200);
+  });
+  const env = base({ SIGNUP_OPEN_TAS: "1", RESEND_TOPIC_TAS_ID: "topic-tas" });
+  const result = await confirmSubscription(env, email, fetch, ["tas"], true);
+  assert(result.ok, "adding Tasmania confirms");
+  const statesPatch = calls.find((call) => call.method === "PATCH" && call.body && call.body.includes('"states"'));
+  assert(statesPatch && jsonBody(statesPatch).properties.states === "vic,tas", "stored states keep Victoria");
+  const topicCall = calls.find((call) => call.url.endsWith("/topics"));
+  const topics = jsonBody(topicCall).topics;
+  assert(topics.length === 1 && topics[0].id === "topic-tas" && topics[0].subscription === "opt_in", "only Tasmania is opted in");
+  assert(calls.every((call) => !String(call.body || "").includes("opt_out")), "adding Tasmania does not opt out");
+  assert(!calls.some((call) => call.url.includes("sa-segment") || call.url.includes("tas-segment") || call.url.includes(vicSegment)), "adding Tasmania writes no state segment");
+}
+
+// A deleted Queensland segment is not called. A 404 on a legacy segment does not fail the confirm.
+{
+  const { calls, fetch } = recorder((call) => {
+    if (String(call.url).includes("/segments/")) return new Response("{}", { status: 404 });
+    return okResponse();
+  });
+  const result = await confirmSubscription(withoutTopics(), email, fetch, ["vic", "qld"], true);
+  assert(result.ok, "legacy 404 still confirms");
+  assert(calls.some((call) => call.url.includes("/segments/" + vicSegment)), "victoria segment was attempted");
+  assert(calls.some((call) => call.url.includes("/segments/qld-segment")), "queensland segment was attempted");
+}
+{
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(withoutTopics({ RESEND_SEGMENT_QLD_ID: "none" }), email, fetch, ["qld"], true);
+  assert(result.ok, "queensland none confirms");
+  assert(!calls.some((call) => String(call.url).includes("/segments/")), "queensland none makes no segment call");
+  assert(calls.some((call) => call.body && call.body.includes('"states":"qld"')), "queensland none still stores the state");
+}
+{
+  const { calls, fetch } = recorder(() => new Response("{}", { status: 200 }));
+  const gone = await unsubscribeContact(withoutTopics({ RESEND_SEGMENT_QLD_ID: "deleted", RESEND_SEGMENT_NSW_ID: "" }), email, fetch);
+  assert(gone.ok && calls.length === 2, "unsubscribe skips a deleted Queensland segment");
+  assert(calls[1].url.includes(vicSegment), "victoria segment is still removed");
+  assert(!calls.some((call) => call.url.includes(QLD_SEGMENT_ID)), "deleted Queensland segment is not called");
+}
+
+// A token that names SA verifies only while SA is open.
+{
+  const token = await makeToken(email, secret, 3600, ["sa"], openSa);
+  const open = await readToken(token, secret, openSa);
+  assert(open && !open.notOpen && open.states.join(",") === "sa", "open SA token verifies");
+  const closed = await readToken(token, secret, {});
+  assert(closed && closed.notOpen, "closed SA token is not open");
+  let calls = 0;
+  globalThis.fetch = async () => { calls += 1; return okResponse(); };
+  const res = await onRequestGet({
+    request: new Request("https://campconditions.au/api/confirm?token=" + encodeURIComponent(token)),
+    env: withoutTopics({ CONFIRM_SECRET: secret }),
+  });
+  const html = await res.text();
+  assert(res.status === 400 && html.includes("Not open yet") && calls === 0, "confirm page says not open yet");
+}
 
 // Unsubscribe: flag off is the current three calls. Flag on also opts out of every state topic.
 {
@@ -168,8 +296,15 @@ assert(signupChoice(["sa"], true).reason === "not_open", "SA signup stays closed
   assert(on.calls.some((call) => call.method === "DELETE" && call.url.includes("nsw-segment")), "old NSW segment still removed");
   const topicCall = on.calls.find((call) => call.url.endsWith("/topics"));
   const opted = jsonBody(topicCall).topics.map((topic) => topic.subscription + ":" + topic.id).sort();
-  assert(opted.join(",") === ["opt_out:" + TOPICS.nsw, "opt_out:" + TOPICS.qld, "opt_out:" + TOPICS.vic].sort().join(","), "all state topics opted out");
-  assert(!on.calls.some((call) => call.url.includes("sa-segment") || call.url.includes("topic-sa")), "unsubscribe does not touch SA");
+  assert(opted.join(",") === ["opt_out:topic-sa", "opt_out:" + TOPICS.nsw, "opt_out:" + TOPICS.qld, "opt_out:" + TOPICS.vic].sort().join(","), "configured topics including SA are opted out");
+  assert(!on.calls.some((call) => call.url.includes("sa-segment")), "unsubscribe does not write an SA segment");
+  const withTas = recorder(() => new Response("{}", { status: 200 }));
+  const tasEnv = base({ ONE_LIST_MODE: "1", RESEND_TOPIC_TAS_ID: "topic-tas" });
+  const tasGone = await unsubscribeContact(tasEnv, email, withTas.fetch);
+  assert(tasGone.ok, "tas topic unsubscribe");
+  const tasTopics = jsonBody(withTas.calls.find((call) => call.url.endsWith("/topics"))).topics.map((topic) => topic.id);
+  assert(tasTopics.includes("topic-tas") && tasTopics.includes("topic-sa"), "SA and TAS topics are opted out");
+  assert(withTas.calls.every((call) => !call.url.includes("sa-segment") && !String(call.body || "").includes("opt_in")), "unsubscribe does not opt in or write an SA segment");
 }
 
 const fields = { from: "CampConditions.au <digest@mail.campconditions.au>", subject: "Hello", html: "<p>Hi</p>" };
@@ -184,17 +319,28 @@ assert(onVic.body.topic_id !== onNsw.body.topic_id && onNsw.body.topic_id !== on
 assert(!("send" in onVic.body), "broadcast body is a draft");
 const refused = guardBroadcast({ segment_id: ALL, from: fields.from, subject: fields.subject, html: fields.html }, ALL);
 assert(!refused.ok && refused.reason === "all_segment_requires_topic", "all segment without a topic is refused");
-const sa = broadcastBody(base({ ONE_LIST_MODE: "1" }), "sa", fields);
-assert(!sa.ok && sa.reason === "state_not_open", "no SA broadcast");
+const saOff = broadcastBody(base(), "sa", fields);
+assert(!saOff.ok && saOff.reason === "state_not_open", "SA broadcast stays closed in legacy mode");
+const saOn = broadcastBody(base({ ONE_LIST_MODE: "1" }), "sa", fields);
+assert(saOn.ok && saOn.body.segment_id === ALL && saOn.body.topic_id === "topic-sa", "SA broadcast uses the all segment and topic");
+const saMissing = broadcastBody(base({ ONE_LIST_MODE: "1", RESEND_TOPIC_SA_ID: "" }), "sa", fields);
+assert(!saMissing.ok && saMissing.reason === "state_not_open", "SA broadcast without a topic is refused");
+const tasBare = broadcastBody({ ONE_LIST_MODE: "1", RESEND_TOPIC_TAS_ID: "topic-tas" }, "tas", fields);
+assert(!tasBare.ok && tasBare.reason === "state_not_open", "TAS broadcast without the all segment is refused");
+const tasOn = broadcastBody(base({ ONE_LIST_MODE: "1", RESEND_TOPIC_TAS_ID: "topic-tas" }), "tas", fields);
+assert(tasOn.ok && tasOn.body.topic_id === "topic-tas" && tasOn.body.segment_id === ALL, "TAS broadcast uses the all segment and topic");
 const qldOff = broadcastBody({ RESEND_SEGMENT_QLD_ID: "" }, "qld", fields);
 assert(qldOff.ok && qldOff.body.segment_id === QLD_SEGMENT_ID && !("topic_id" in qldOff.body), "queensland fallback segment");
+const qldNone = broadcastBody({ RESEND_SEGMENT_QLD_ID: "none" }, "qld", fields);
+assert(!qldNone.ok && qldNone.reason === "segment_unset", "queensland none is not the fallback segment");
 
 console.log("PARITY " + JSON.stringify({
   offVic: offBody.body,
   onVic: onVic.body,
   onNsw: onNsw.body,
   onQld: onQld.body,
-  sa: sa.reason,
+  sa: saOn.body,
+  saOff: saOff.reason,
   guard: refused.reason,
   qldOff: qldOff.body,
 }));

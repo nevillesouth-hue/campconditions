@@ -368,11 +368,19 @@ def test_broadcast_and_digest():
         expect(broadcast_plan.broadcast_body("vic", on, **fields) == got["onVic"], "victoria topic matches")
         expect(broadcast_plan.broadcast_body("nsw", on, **fields) == got["onNsw"], "NSW topic matches")
         expect(broadcast_plan.broadcast_body("qld", on, **fields) == got["onQld"], "Queensland topic matches")
+        expect(broadcast_plan.broadcast_body("sa", on, **fields) == got["sa"], "SA topic matches")
         try:
-            broadcast_plan.broadcast_body("sa", on, **fields)
-            expect(False, "SA broadcast should be refused")
+            broadcast_plan.broadcast_body("sa", env, **fields)
+            expect(False, "SA broadcast should be refused in legacy mode")
         except broadcast_plan.BroadcastRefused as exc:
-            expect(exc.reason == got["sa"] == "state_not_open", "SA stays closed in both languages")
+            expect(exc.reason == got["saOff"] == "state_not_open", "SA stays closed in legacy mode")
+        missing = dict(on)
+        missing["RESEND_TOPIC_SA_ID"] = ""
+        try:
+            broadcast_plan.broadcast_body("sa", missing, **fields)
+            expect(False, "SA broadcast without a topic should be refused")
+        except broadcast_plan.BroadcastRefused as exc:
+            expect(exc.reason == "state_not_open", "SA without a topic is state_not_open")
         try:
             broadcast_plan.guard_broadcast({"segment_id": "seg-all", "from": "a", "subject": "s", "html": "h"}, "seg-all")
             expect(False, "guard should refuse")
@@ -430,10 +438,62 @@ def test_broadcast_and_digest():
         expect("broadcast" not in off_state, slug + " flag off meta")
 
 
+def test_missing_segment_and_topic_union():
+    key = "re_test_SHOULD_NOT_APPEAR_99"
+    contacts, _unsubscribed = build_corpus()
+    api = Api(contacts)
+    env = env_for(api, key)
+    out = tempfile.mkdtemp(prefix="one-list-skip-")
+    code, text, err = capture(["--segments", "qld=none", "--out", out], env, api, Clock())
+    expect(code == 0, "deleted QLD segment dry-run exits 0: " + err[-200:])
+    expect("mode: dry-run\n" in text and "live_writes: 0\n" in text, "deleted QLD segment stays a dry run")
+    expect(all(method == "GET" for method, _path in methods(api)), "deleted QLD segment only reads")
+    expect(not any("/segments/seg-qld/" in path for _method, path, _body, _headers in api.calls), "deleted QLD segment is not requested")
+    expect("segment_subscribed: vic=60 nsw=34 qld=0\n" in text, "deleted QLD segment counts as zero")
+
+    missing = Api(contacts)
+    code, text, err = capture(["--segments", "qld=missing-segment", "--out", out], env, missing, Clock())
+    expect(code == 1 and "old segment missing" in err, "a 404 without the skip flag still fails")
+    code, text, err = capture(["--segments", "qld=missing-segment", "--allow-missing-segments", "--out", out], env, Api(contacts), Clock())
+    expect(code == 0 and "live_writes: 0\n" in text, "allow-missing continues after a 404: " + err[-200:])
+
+    topic_only = {
+        "id": "c9001", "email": "topic-only@example.com", "unsubscribed": False,
+        "segments": [], "properties": {"states": {"type": "string", "value": ""}},
+        "topics": {"topic-vic": "opt_in"},
+    }
+    unsubscribed_topic = {
+        "id": "c9002", "email": "gone@example.com", "unsubscribed": True,
+        "segments": [], "properties": {"states": {"type": "string", "value": ""}},
+        "topics": {"topic-nsw": "opt_in"},
+    }
+    segment_member = {
+        "id": "c9003", "email": "segment@example.com", "unsubscribed": False,
+        "segments": ["nsw"], "properties": {"states": {"type": "string", "value": "nsw"}},
+        "topics": {},
+    }
+    plain = {
+        "id": "c9004", "email": "plain@example.com", "unsubscribed": False,
+        "segments": [], "properties": {"states": {"type": "string", "value": ""}},
+        "topics": {},
+    }
+    union_api = Api([topic_only, unsubscribed_topic, segment_member, plain])
+    before = len(union_api.calls)
+    code, text, err = capture(["--all-target", "topic-union", "--out", out], env_for(union_api, key), union_api, Clock())
+    expect(code == 0, "topic union dry-run exits 0: " + err[-200:])
+    expect("planned_segment_adds: 2\n" in text, "topic union is the segment member plus the topic opt-in")
+    expect("live_writes: 0\n" in text, "topic union dry-run writes nothing")
+    expect(all(method == "GET" for method, _path in methods(union_api)[before:]), "topic union dry-run only reads")
+    report = json.load(open(os.path.join(out, "one-list-report.json"), encoding="utf-8"))
+    added = set(report["planned_segment_add_emails"])
+    expect(added == {"topic-only@example.com", "segment@example.com"}, "topic union leaves out the unsubscribed contact and the contact with no topic")
+
+
 def main():
     test_migration()
     test_edges()
     test_broadcast_and_digest()
+    test_missing_segment_and_topic_union()
     if FAILURES:
         print("one-list failures: %s" % len(FAILURES))
         return 1

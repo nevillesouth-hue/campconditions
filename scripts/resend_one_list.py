@@ -378,6 +378,22 @@ def check_topics(client, topic_ids):
     return checked
 
 
+def skipped_segment(value):
+    """A removed legacy segment. The migration does not look it up."""
+    return str(value or "").strip().lower() in {"none", "deleted", "skip"}
+
+
+def is_all_target(row):
+    """Default target is a subscribed member of an old segment.
+
+    topic-union sets all_target itself: those members, plus every other
+    contact who is still subscribed and has at least one topic opt-in.
+    """
+    if "all_target" in row:
+        return bool(row["all_target"])
+    return bool(row.get("segments")) and not row.get("unsubscribed")
+
+
 def list_segment(client, segment_id):
     """Paginate one segment. A missing segment is ('missing', []), not an exception."""
     path = "/segments/%s/contacts" % urllib.parse.quote(segment_id, safe="")
@@ -404,7 +420,7 @@ def list_segment(client, segment_id):
         after = new_after
 
 
-def load_contacts(client, segment_ids, all_id):
+def load_contacts(client, segment_ids, all_id, allow_missing=False):
     rows = {}
 
     def ensure(item):
@@ -433,8 +449,13 @@ def load_contacts(client, segment_ids, all_id):
     for item in client.list_all("/contacts"):
         ensure(item)
     for slug in STATE_ORDER:
-        status, listed = list_segment(client, segment_ids[slug])
+        segment_id = segment_ids[slug]
+        if skipped_segment(segment_id):
+            continue
+        status, listed = list_segment(client, segment_id)
         if status != "ok":
+            if allow_missing:
+                continue
             raise RuntimeError("old segment missing")
         for item in listed:
             row = ensure(item)
@@ -512,7 +533,7 @@ def build_report(rows, topic_ids, mismatches, errors, checked, all_status):
         row = rows[contact_id]
         if row["unsubscribed"]:
             skipped_unsubscribed.append({"email": row["email"], "contact_id": contact_id, "reason": "unsubscribed"})
-        elif not row["segments"]:
+        elif not row["segments"] and not is_all_target(row):
             skipped_none.append({"email": row["email"], "contact_id": contact_id, "reason": "no_segment"})
     states = {}
     opt_in_before = {}
@@ -532,10 +553,7 @@ def build_report(rows, topic_ids, mismatches, errors, checked, all_status):
             "planned_opt_in": len(missing),
             "diff": [row["email"] for row in sorted(missing, key=lambda item: item["email"])],
         }
-    union = [
-        row for row in rows.values()
-        if row["segments"] and not row["unsubscribed"]
-    ]
+    union = [row for row in rows.values() if is_all_target(row)]
     if all_status == "ok":
         segment_adds = [row for row in union if not row["in_all"]]
         planned_adds = len(segment_adds)
@@ -586,7 +604,7 @@ def apply_topics(client, rows, topic_ids, errors):
 def apply_segment(client, rows, all_id, errors):
     for contact_id in sorted(rows):
         row = rows[contact_id]
-        if row["unsubscribed"] or not row["segments"] or row["in_all"]:
+        if row["unsubscribed"] or row["in_all"] or not is_all_target(row):
             continue
         status, _data = client.call(
             "POST",
@@ -601,6 +619,29 @@ def apply_segment(client, rows, all_id, errors):
             row["in_all"] = True
         else:
             errors.append({"op": "add_segment", "contact_id": contact_id, "status": status})
+
+
+def attach_topic_union(client, rows, topic_ids, extra_ids, errors):
+    """ALL target = old-segment members, plus any other subscribed topic opt-in."""
+    watched = [topic_ids[slug] for slug in STATE_ORDER] + [item for item in extra_ids if item]
+    for contact_id in sorted(rows):
+        row = rows[contact_id]
+        if row["unsubscribed"]:
+            row["all_target"] = False
+            continue
+        if not row["segments"]:
+            status, data = client.call(
+                "GET",
+                with_query("/contacts/%s/topics" % urllib.parse.quote(contact_id, safe=""), {"limit": 100}),
+            )
+            if status != 200:
+                errors.append({"op": "get_topics", "contact_id": contact_id, "status": status})
+                row["current_topics"] = {}
+            else:
+                row["current_topics"] = topic_map(data.get("data"))
+        current = row.get("current_topics") or {}
+        opted = any(current.get(topic_id) == "opt_in" for topic_id in watched)
+        row["all_target"] = bool(row["segments"]) or opted
 
 
 def refresh_topics(client, rows, topic_ids, errors):
@@ -634,10 +675,7 @@ def diffs_after(rows, phase, all_status):
                 if not row["unsubscribed"] and slug in (row.get("missing_topics") or [])
             )
         return counts_line(counts)
-    missing = sum(
-        1 for row in rows.values()
-        if row["segments"] and not row["unsubscribed"] and not row["in_all"]
-    )
+    missing = sum(1 for row in rows.values() if is_all_target(row) and not row["in_all"])
     if all_status != "ok":
         return "missing"
     return "vic=0 nsw=0 qld=0" if missing == 0 else "missing=%s" % missing
@@ -687,7 +725,10 @@ def run(argv, env, transport=None, sleep=None, clock=None):
     parser.add_argument("--apply-topics", action="store_true", help="Same as --apply topics.")
     parser.add_argument("--apply-segment", action="store_true", help="Same as --apply segment.")
     parser.add_argument("--topics", default="", help="vic=<id>,nsw=<id>,qld=<id>. No sa= value is accepted.")
-    parser.add_argument("--segments", default="", help="Override the old segment ids. Defaults to the live VIC, NSW and QLD segments.")
+    parser.add_argument("--segments", default="", help="Override the old segment ids. qld=none or qld=deleted skips a removed segment. Defaults to the live VIC, NSW and QLD segments.")
+    parser.add_argument("--skip-segments", default="", help="Comma-separated states whose old segment is gone, for example qld.")
+    parser.add_argument("--allow-missing-segments", action="store_true", help="A 404 from an old segment is skipped instead of failing the run.")
+    parser.add_argument("--all-target", choices=("segments", "topic-union"), default="segments", help="segments (default) or topic-union: subscribed old-segment members plus every non-unsubscribed contact with at least one topic opt-in.")
     parser.add_argument("--all-segment", default="", help="All-subscribers segment id. Defaults to RESEND_SEGMENT_ALL_ID.")
     parser.add_argument("--out", default="out", help="Report directory. Default: out")
     args = parser.parse_args(argv)
@@ -717,6 +758,13 @@ def run(argv, env, transport=None, sleep=None, clock=None):
     try:
         topic_ids, missing_topics = resolve_topics(env, args.topics)
         segment_ids = resolve_segments(env, args.segments)
+        for slug in str(args.skip_segments or "").split(","):
+            slug = slug.strip().lower()
+            if not slug:
+                continue
+            if slug not in STATE_ORDER:
+                raise ValueError("bad_pair")
+            segment_ids[slug] = "skip"
     except ValueError as exc:
         summary["reason"] = str(exc)
         sys.stdout.write(redact(format_summary(summary), api_key))
@@ -746,8 +794,11 @@ def run(argv, env, transport=None, sleep=None, clock=None):
             summary["reason"] = stopped.reason + (":" + slug if slug else "")
             sys.stdout.write(redact(format_summary(summary), api_key))
             return 1
-        rows, all_status = load_contacts(client, segment_ids, all_id)
+        rows, all_status = load_contacts(client, segment_ids, all_id, allow_missing=args.allow_missing_segments)
         _planned, mismatches = plan_rows(client, rows, topic_ids, errors)
+        if args.all_target == "topic-union":
+            extra_ids = [str(env.get(key) or "").strip() for key in ("RESEND_TOPIC_SA_ID", "RESEND_TOPIC_TAS_ID")]
+            attach_topic_union(client, rows, topic_ids, extra_ids, errors)
         # Snapshot the plan before any write. Later refreshes must not change these counts.
         before = build_report(rows, topic_ids, mismatches, errors, checked, all_status)
         if phase == "topics":

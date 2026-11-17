@@ -46,7 +46,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
     body_rows = [para(f"{copy['digest_intro'].format(date=e(date))}<br>"
                  f"<strong>{len(closed)}</strong> of {len(rows)} campgrounds are closed.")]
     quiet = "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#666666;padding-top:8px;"
-    share = "mailto:?subject=CampConditions.au%20-%20free%20campground%20updates&body=Thought%20this%20might%20be%20useful%20if%20you%27re%20heading%20bush.%20CampConditions%20is%20a%20free%20site%20with%20closures%20and%20conditions%20for%20campgrounds%20across%20Victoria%2C%20NSW%2C%20Queensland%2C%20SA%20and%20Tasmania%2C%20plus%20an%20optional%20weekly%20email.%0A%0Ahttps%3A%2F%2Fcampconditions.au%2F"
+    share = "mailto:?subject=CampConditions.au%20-%20free%20campground%20updates&body=Thought%20this%20might%20be%20useful%20if%20you%27re%20heading%20bush.%20CampConditions%20is%20a%20free%20site%20with%20closures%20and%20conditions%20for%20campgrounds%20across%20Victoria%2C%20NSW%2C%20Queensland%2C%20SA%20and%20Tasmania%2C%20with%20the%20rest%20of%20Australia%20coming%20soon%2C%20plus%20an%20optional%20weekly%20email.%0A%0Ahttps%3A%2F%2Fcampconditions.au%2F"
     body_rows.append(f'<tr><td style="{quiet}">Free every Thursday. <a href="{share}" style="color:#666666;text-decoration:underline;">Forward to a mate</a> · <a href="https://campconditions.au/support" style="color:#666666;text-decoration:underline;">Chip in</a> (optional)</td></tr>')
     if prev_rows is not None:
         body_rows += [h2("Newly closed"), para("<br>".join(f"{link(c)} — {e((c['closure'] or {}).get('desc') or 'Closed')}" for c in newly_closed) or "None this week."),

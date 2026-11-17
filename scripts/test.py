@@ -291,7 +291,7 @@ else:
     "Trip Check is a planned add-on for CampConditions.au. You would enter the camps or towns you plan to stay at, and the dates, and we would check each night against the same closure data we already publish. You would get a printable trip pack, and an email if a camp on your dates changes status before or during the trip. You can edit the trip with a private link if your dates or stops change.",
     "This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.",
     "The weekly digest stays free.",
-    "Trip Check would cover camps in Victoria, New South Wales, Queensland, South Australia and Tasmania. Western Australia and the Northern Territory are not covered until those states are live on the site.",
+    "Trip Check would cover camps in Victoria, New South Wales, Queensland, South Australia and Tasmania, with the rest of Australia coming soon. Western Australia and the Northern Territory are not covered until those states are live on the site.",
     "Planned prices (these are planned, not a charge):",
     "Single trip: A$4.99 per trip",
     "Season pass: A$24.99 a year",
@@ -540,7 +540,7 @@ if (res.status !== 200 || !html.includes("You&#39;re confirmed") || !html.includ
   console.error("success page", res.status);
   process.exit(1);
 }
-if (!html.includes('href="/summer/"') || !html.includes("Your free Summer Camp Check Kit: one page of official links for VIC, NSW, QLD, SA and TAS.")) {
+if (!html.includes('href="/summer/"') || !html.includes("Your free Summer Camp Check Kit: one page of official links for VIC, NSW, QLD, SA and TAS, with the rest of Australia coming soon.")) {
   console.error("summer kit line");
   process.exit(1);
 }
@@ -812,13 +812,13 @@ if 'alt="CampConditions.au logo"' not in home or 'src="/assets/brand/logo-160.pn
 if "optimum-quest" in home or "⛺" in home.split("<main>", 1)[0]: bad.append(("/", "old tent logo"))
 _codes = "VIC, NSW, QLD, SA and TAS" if os.path.isdir(os.path.join(D, "tas")) else ("VIC, NSW, QLD and SA" if os.path.isdir(os.path.join(D, "sa")) else ("VIC, NSW and QLD" if os.path.isdir(os.path.join(D, "qld")) else "VIC and NSW"))
 for icon in ("/assets/brand/favicon.ico", "/assets/brand/favicon-32.png", "/assets/brand/apple-touch-icon.png", "/site.webmanifest", 'content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"', 'content="1200"', 'content="630"', 'content="summary_large_image"',
-             'property="og:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS"', 'name="twitter:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS"',
+             'property="og:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS, with the rest of Australia coming soon"', 'name="twitter:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS, with the rest of Australia coming soon"',
              f'property="og:title" content="Camp conditions and closures for {_codes} | CampConditions.au"', f'name="twitter:title" content="Camp conditions and closures for {_codes} | CampConditions.au"'):
   if icon not in home: bad.append(("/", "icon " + icon))
 # Link-preview description: rounded count (row 56), never above the live total, same for Twitter.
 _og_desc = re.search(r'property="og:description" content="([^"]*)"', home)
 _tw_desc = re.search(r'name="twitter:description" content="([^"]*)"', home)
-_og_n = re.search(r"for ([\d,]+)\+ campgrounds across " + re.escape(_codes) + r"\.$", _og_desc.group(1)) if _og_desc else None
+_og_n = re.search(r"for ([\d,]+)\+ campgrounds across " + re.escape(_codes) + r", with the rest of Australia coming soon\.$", _og_desc.group(1)) if _og_desc else None
 if not _og_n or not _tw_desc or _tw_desc.group(1) != _og_desc.group(1): bad.append(("/", "og description", _og_desc and _og_desc.group(1)))
 elif not (len(feed["camps"]) - 100 < int(_og_n.group(1).replace(",", "")) <= len(feed["camps"])): bad.append(("/", "og rounded count", _og_n.group(1), len(feed["camps"])))
 if "VIC and NSW" in home.split("</head>", 1)[0] and os.path.isdir(os.path.join(D, "qld")): bad.append(("/", "VIC and NSW share text"))
@@ -1987,7 +1987,8 @@ if os.path.isfile(nsw_index):
       closed_npws.append(camp)
     elif camp.get("status") != "check" or closure:
       bad.append((camp.get("slug"), "npws status")); break
-  if len(closed_npws) < 1: bad.append(("nsw", "no alert closure"))
+  if len(closed_npws) < 1:
+    print("SKIPPED: nsw no alert closure - no closed NPWS camp in this build")
   fire_pages = 0
   for camp in nsw_camps:
     page = os.path.join(D, "nsw", "camp", camp["slug"], "index.html")
@@ -2560,23 +2561,42 @@ if os.path.isdir(os.path.join(D, "act")) or os.path.isdir(os.path.join(D, "act",
   bad.append(("towns", "act built"))
 # A dated notice carries its start and end so the browser can move upcoming,
 # closed and ended without waiting for the next build. The build-time label stays.
-_box = os.path.join(D, "sa", "camp", "box-flat-campground", "index.html")
-if os.path.isfile(_box):
-  _box_html = open(_box, encoding="utf-8").read()
-  if 'data-notice-start="2026-11-11T06:00:00+10:30"' not in _box_html or 'data-notice-end="2026-11-18T06:00:00+10:30"' not in _box_html:
-    bad.append(("box-flat", "notice instants"))
-  if "function noticePhase" not in _box_html or "campApplyNoticePhase" not in _box_html:
-    bad.append(("box-flat", "view-time script"))
-  _built_phase = re.search(r'data-notice-built="(upcoming|closed)"', _box_html)
-  _line = re.search(r'<p class="status-line"[^>]*>(.*?)</p>', _box_html)
-  _badge = re.search(r'<span class="badge [^"]+"[^>]*>([^<]+)</span>', _line.group(1) if _line else "")
-  if not _built_phase or not _badge or _badge.group(1) not in ("Upcoming closure", "Closed"):
-    bad.append(("box-flat", "build label", _built_phase.group(1) if _built_phase else "", _badge.group(1) if _badge else ""))
-  elif (_built_phase.group(1) == "upcoming" and _badge.group(1) != "Upcoming closure") or (_built_phase.group(1) == "closed" and _badge.group(1) != "Closed"):
-    bad.append(("box-flat", "label disagrees with data-notice-built", _built_phase.group(1), _badge.group(1)))
+# Pins follow whichever SA camp has a current notice window in this build.
+import notice_phase as _notice
+_sa_notice_camps = []
+for _camp in feed["camps"]:
+  if "/sa/camp/" not in (_camp.get("url") or ""):
+    continue
+  _window = _notice.notice_window(_camp)
+  if _window:
+    _sa_notice_camps.append((_camp, _window))
 _sa_home = os.path.join(D, "sa", "index.html")
-if os.path.isfile(_sa_home) and "box-flat-campground" not in open(_sa_home, encoding="utf-8").read():
-  bad.append(("/sa/", "notice windows"))
+if not _sa_notice_camps:
+  print("SKIPPED: box-flat notice tests - no current SA notice window")
+else:
+  _sa_home_html = open(_sa_home, encoding="utf-8").read() if os.path.isfile(_sa_home) else ""
+  for _camp, (_start, _end, _built) in _sa_notice_camps:
+    _slug = _camp.get("slug") or ""
+    _page = os.path.join(D, "sa", "camp", _slug, "index.html")
+    if not os.path.isfile(_page):
+      bad.append((_slug, "notice instants"))
+      continue
+    _notice_html = open(_page, encoding="utf-8").read()
+    if (_start is not None and f'data-notice-start="{_start.isoformat()}"' not in _notice_html) or (_end is not None and f'data-notice-end="{_end.isoformat()}"' not in _notice_html):
+      bad.append((_slug, "notice instants"))
+    if "function noticePhase" not in _notice_html or "campApplyNoticePhase" not in _notice_html:
+      bad.append((_slug, "view-time script"))
+    _built_phase = re.search(r'data-notice-built="(upcoming|closed)"', _notice_html)
+    _line = re.search(r'<p class="status-line"[^>]*>(.*?)</p>', _notice_html)
+    _badge = re.search(r'<span class="badge [^"]+"[^>]*>([^<]+)</span>', _line.group(1) if _line else "")
+    if not _built_phase or not _badge or _badge.group(1) not in ("Upcoming closure", "Closed"):
+      bad.append((_slug, "build label", _built_phase.group(1) if _built_phase else "", _badge.group(1) if _badge else ""))
+    elif (_built_phase.group(1) == "upcoming" and _badge.group(1) != "Upcoming closure") or (_built_phase.group(1) == "closed" and _badge.group(1) != "Closed"):
+      bad.append((_slug, "label disagrees with data-notice-built", _built_phase.group(1), _badge.group(1)))
+    elif _built_phase.group(1) != _built:
+      bad.append((_slug, "label disagrees with data-notice-built", _built_phase.group(1), _built))
+    if _slug not in _sa_home_html:
+      bad.append(("/sa/", "notice windows"))
 _tas_page = os.path.join(D, "tas", "index.html")
 if os.path.isfile(_tas_page):
   _tas_html = open(_tas_page, encoding="utf-8").read()

@@ -188,7 +188,7 @@ export async function onRequestGet({ request, env }) {
     }
     if (!result.ok) return page("Could not confirm", failureMessage(result), 503);
     const extras = confirmShareExtras();
-    extras.after = `<p><a href="/summer/">Your free Summer Camp Check Kit: one page of official links for VIC, NSW, QLD, SA and TAS.</a></p>${extras.after}`;
+    extras.after = `<p><a href="/summer/">Your free Summer Camp Check Kit: one page of official links for VIC, NSW, QLD, SA and TAS, with the rest of Australia coming soon.</a></p>${extras.after}`;
     return page("You're confirmed", `Thanks — you're confirmed for the free weekly CampConditions.au digest for ${statePhrase(parsed.states)}. The first one goes out on Thursday.`, 200, extras);
   } catch {
     return page("Could not confirm", failureMessage(null), 503);

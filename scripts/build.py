@@ -1136,8 +1136,8 @@ ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link r
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CampConditions.au">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS">
-<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"><meta name="twitter:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS">"""
+<meta property="og:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS, with the rest of Australia coming soon">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://campconditions.au/assets/brand/og-image-vic-nsw-qld-sa-tas.png?v=20261110"><meta name="twitter:image:alt" content="CampConditions.au: 5,000+ campgrounds across VIC, NSW, QLD, SA and TAS, with the rest of Australia coming soon">"""
 
 def ld(obj): return f'<script type="application/ld+json">{json.dumps(obj, ensure_ascii=False)}</script>'
 A2HS = """<div id="a2hs" class="a2hs" hidden><p id="a2hs-text"></p><button type="button" id="a2hs-dismiss" aria-label="Dismiss add to home screen tip">×</button></div>
@@ -2342,9 +2342,9 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
         # every build. Rounded down to the hundred, never above the real total.
         codes = _state_codes()
         og_title = f"Camp conditions and closures for {codes} | CampConditions.au"
-        og_desc = f"Camp conditions and closures for {codes}."
+        og_desc = f"Camp conditions and closures for {codes}, with the rest of Australia coming soon."
         if NATIONAL_TOTAL >= 100:
-            og_desc = f"Closures, fire danger ratings and camp conditions for {rounded_count(NATIONAL_TOTAL)} campgrounds across {codes}."
+            og_desc = f"Closures, fire danger ratings and camp conditions for {rounded_count(NATIONAL_TOTAL)} campgrounds across {codes}, with the rest of Australia coming soon."
     h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(og_title)}"><meta property="og:description" content="{e(og_desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
@@ -3444,11 +3444,11 @@ if multi_state:
     browse = _browse_links()
     write_home_map_js()
     NATIONAL_TOTAL = len(all_rows)
-    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in {names}."},
+    national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in {names}, with the rest of Australia coming soon."},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
     page("/", "Camp conditions | CampConditions.au",
-         f"Closures and camp conditions for {len(all_rows)} campgrounds in {names}.",
-         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}.</p>{notice_phase.windows_tag(all_rows)}
+         f"Closures and camp conditions for {len(all_rows)} campgrounds in {names}, with the rest of Australia coming soon.",
+         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}, with the rest of Australia coming soon.</p>{notice_phase.windows_tag(all_rows)}
 {map_block(all_rows, f"Map of {names} campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + f'<script src="{versioned_url("/map-home.js")}" defer></script>', on_home=True)
 
@@ -3508,7 +3508,7 @@ page("/trip-check/", "Trip Check waitlist",
 <p>Trip Check is a planned add-on for CampConditions.au. You would enter the camps or towns you plan to stay at, and the dates, and we would check each night against the same closure data we already publish. You would get a printable trip pack, and an email if a camp on your dates changes status before or during the trip. You can edit the trip with a private link if your dates or stops change.</p>
 <p>This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.</p>
 <p>The weekly digest stays free.</p>
-<p>Trip Check would cover camps in Victoria, New South Wales, Queensland, South Australia and Tasmania. Western Australia and the Northern Territory are not covered until those states are live on the site.</p>
+<p>Trip Check would cover camps in Victoria, New South Wales, Queensland, South Australia and Tasmania, with the rest of Australia coming soon. Western Australia and the Northern Territory are not covered until those states are live on the site.</p>
 <p>Planned prices (these are planned, not a charge):</p>
 <ul>
 <li>Single trip: A$4.99 per trip</li>
@@ -3631,7 +3631,7 @@ def about_body():
         if _tas_enabled():
             lead = lead.replace(
                 "in Victoria, New South Wales, Queensland and South Australia",
-                "in Victoria, New South Wales, Queensland, South Australia and Tasmania",
+                "in Victoria, New South Wales, Queensland, South Australia and Tasmania, with the rest of Australia coming soon",
             )
             tas_copy = statecfg.by_slug("tas").get("copy") or {}
             roads += "<p>" + (tas_copy.get("directions_note") or "Check the Tasmania Fire Service, TasALERT and Tasmanian roadworks before you travel.") + "</p>"
@@ -3732,7 +3732,7 @@ def faq_items():
     """General questions first, then each state's approved FAQ copy."""
     items = [
         ("What is CampConditions.au?",
-         "CampConditions.au is a free site that shows campground conditions and closures for " + _enabled_names() + ", built for motorhomers, caravanners and campers. "
+         "CampConditions.au is a free site that shows campground conditions and closures for " + _enabled_names() + ", with the rest of Australia coming soon, built for motorhomers, caravanners and campers. "
          "It is not an official warning service."),
         ("Where does the information come from?",
          "Victoria: DataVic Recreation Sites and Explore Outdoors (DEECA), Parks Victoria / DEECA MapShare closures and CFA fire danger ratings. "
@@ -3805,7 +3805,7 @@ def data_page():
         f'<tr><td>{e(key)}</td><td>{"Yes" if info.get("ok") else "No"}</td><td>{e(source_when(info))}</td></tr>'
         for key, info in sorted(SRC.items()) if isinstance(info, dict))
     body = f"""<h1>About the data</h1>
-<p>CampConditions.au uses official government data for campground details and closures in {e(_enabled_names())}, with extra campgrounds from OpenStreetMap. It is not an official warning service. Values a source does not provide are left blank.</p>
+<p>CampConditions.au uses official government data for campground details and closures in {e(_enabled_names())}, with extra campgrounds from OpenStreetMap, with the rest of Australia coming soon. It is not an official warning service. Values a source does not provide are left blank.</p>
 <h2>Coverage</h2>
 <div class="table-wrap"><table><thead><tr><th scope="col">State</th><th scope="col">Campgrounds</th><th scope="col">Official records</th><th scope="col">OpenStreetMap</th><th scope="col">Closed now</th><th scope="col">Check conditions</th><th scope="col">Regions</th></tr></thead><tbody>{"".join(rows)}</tbody></table></div>
 <p class="muted">Counts are from this build, {e(STAMP)}.</p>
@@ -3817,11 +3817,11 @@ def data_page():
 <h2>Warnings</h2><p>Incident warnings are linked, not republished. Check <a href="https://emergency.vic.gov.au/">VicEmergency</a>, the <a href="https://www.rfs.nsw.gov.au/">NSW Rural Fire Service</a>, <a href="https://www.ses.nsw.gov.au/">NSW SES</a> and the <a href="https://www.bom.gov.au/weather-and-climate/warnings-and-alerts">Bureau of Meteorology</a> before you travel. In an emergency call 000.</p>
 {INFO_LINKS}"""
     dataset = {"@context": "https://schema.org", "@type": "Dataset", "name": "CampConditions.au campground status", "url": SITE + "/about-the-data/",
-               "description": "Campground status and closures for " + _enabled_names() + ", Australia, from official sources and OpenStreetMap.",
+               "description": "Campground status and closures for " + _enabled_names() + ", Australia, from official sources and OpenStreetMap, with the rest of Australia coming soon.",
                "inLanguage": "en-AU", "dateModified": NOW.isoformat(), "spatialCoverage": [{"@type": "Place", "name": s["name"] + ", Australia"} for s in statecfg.enabled()],
                "creditText": " ".join(attribution) if isinstance(attribution, list) else str(attribution),
                "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": SITE + "/status.json"}]}
-    page("/about-the-data/", "About the data | CampConditions.au", "Sources, update times and coverage for " + _enabled_names() + " campground conditions on CampConditions.au.",
+    page("/about-the-data/", "About the data | CampConditions.au", "Sources, update times and coverage for " + _enabled_names() + " campground conditions on CampConditions.au, with the rest of Australia coming soon.",
          body, [dataset, crumbs([("Home", "/"), ("About the data", "/about-the-data/")])])
 data_page()
 def weekend_window(now):
@@ -4096,7 +4096,7 @@ _sn = [s["name"] for s in statecfg.enabled()]
 state_names = _sn[0] if len(_sn) == 1 else ", ".join(_sn[:-1]) + " and " + _sn[-1]
 open(os.path.join(OUT, "llms.txt"), "w").write(f"""# CampConditions.au
 
-> Campground conditions and closures for {state_names}, Australia, from official sources and OpenStreetMap. Each state is covered on the same terms. Rebuilt several times daily. Not an official warning service.
+> Campground conditions and closures for {state_names}, Australia, from official sources and OpenStreetMap, with the rest of Australia coming soon. Each state is covered on the same terms. Rebuilt several times daily. Not an official warning service.
 
 Machine-readable status for every campground: {SITE}/status.json (includes attribution, sources and last-updated times).
 Built {STAMP}.

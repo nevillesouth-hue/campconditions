@@ -2613,6 +2613,92 @@ if _parks_sa.get("fetched") and _parks_sa.get("fetched") == feed.get("generated"
   bad.append(("status.json", "parks_sa fetched matches the build"))
 if "saved snapshot" not in (open(os.path.join(D, "about-the-data", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "about-the-data", "index.html")) else ""):
   bad.append(("/about-the-data/", "snapshot label"))
+# NPWS reserve-boundary fetch: 3-minute budget, then the last-good layer, no per-page retry.
+def check_npws_reserves_budget(bad):
+  import contextlib, hashlib, io, json, os, tempfile, urllib.parse
+  import nsw_conditions as nsw
+  base = "https://example.test/npws-reserves"
+  page1 = {"features": [{"attributes": {"reservename": "Live Park"}, "geometry": {}}], "exceededTransferLimit": True}
+  saved = [{"attributes": {"reservename": "Saved Park"}, "geometry": {}}]
+  class Clock:
+    def __init__(self):
+      self.t = 0
+    def __call__(self):
+      return self.t
+  def calls_of(fn):
+    log = []
+    def wrap(name, url, timeout=90):
+      log.append((name, url, timeout))
+      return fn(name, url, timeout)
+    wrap.log = log
+    return wrap
+  with tempfile.TemporaryDirectory() as cache:
+    nsw._save_npws_reserves_copy(base, saved, "2026-11-18T03:07:16+11:00", cache)
+    clock = Clock()
+    def first_page(name, url, timeout=90):
+      clock.t += 200
+      return page1
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      got = nsw._query_npws_reserves(calls_of(first_page), base, "reservename,reservetype", budget_seconds=180, clock=clock, cache_dir=cache)
+    if got != saved:
+      bad.append(("npws_reserves", "budget fallback", got))
+    if "FALLBACK: npws_reserves exceeded 180s, using saved copy from 2026-11-18T03:07:16+11:00" not in buf.getvalue():
+      bad.append(("npws_reserves", "budget fallback log", buf.getvalue()))
+    clock = Clock()
+    def fail_once(name, url, timeout=90):
+      return None
+    fetcher = calls_of(fail_once)
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      got = nsw._query_npws_reserves(fetcher, base, "reservename,reservetype", budget_seconds=180, clock=clock, cache_dir=cache)
+    if got != saved or len(fetcher.log) != 1:
+      bad.append(("npws_reserves", "timeout fallback", got, len(fetcher.log)))
+    if "FALLBACK: npws_reserves 503/timeout, using saved copy from 2026-11-18T03:07:16+11:00" not in buf.getvalue():
+      bad.append(("npws_reserves", "timeout fallback log", buf.getvalue()))
+  with tempfile.TemporaryDirectory() as cache:
+    def one_page(name, url, timeout=90):
+      return {"features": [{"attributes": {"reservename": "Fresh Park"}}], "exceededTransferLimit": False}
+    got = nsw._query_npws_reserves(one_page, base, "reservename,reservetype", budget_seconds=180, clock=Clock(), cache_dir=cache)
+    if not got or got[0]["attributes"]["reservename"] != "Fresh Park":
+      bad.append(("npws_reserves", "live save", got))
+    loaded, fetched = nsw._load_npws_reserves_copy(base, cache)
+    if loaded != got or not fetched:
+      bad.append(("npws_reserves", "complete copy not saved", loaded, fetched))
+    def boom(name, url, timeout=90):
+      return None
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      again = nsw._query_npws_reserves(boom, base, "reservename,reservetype", budget_seconds=180, clock=Clock(), cache_dir=cache)
+    if again != got:
+      bad.append(("npws_reserves", "reuse complete copy", again))
+  with tempfile.TemporaryDirectory() as cache:
+    prefix = base + "/query?"
+    for offset, count, exceeded in ((0, 25, True), (25, 24, False)):
+      params = urllib.parse.urlencode({
+        "where": "1=1", "outFields": "reservename,reservetype", "returnGeometry": "true",
+        "outSR": "4326", "f": "json", "resultOffset": str(offset), "resultRecordCount": "25",
+      })
+      url = prefix + params
+      doc = {"features": [{"attributes": {"reservename": "P%s" % i}} for i in range(count)], "exceededTransferLimit": exceeded}
+      path = os.path.join(cache, hashlib.sha256(url.encode("utf-8")).hexdigest() + ".json")
+      with open(path, "w", encoding="utf-8") as handle:
+        json.dump({"url": url, "fetched": "2026-11-18T03:07:16+11:00", "doc": doc}, handle)
+    def fail(name, url, timeout=90):
+      return None
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      got = nsw._query_npws_reserves(fail, base, "reservename,reservetype", budget_seconds=180, clock=Clock(), cache_dir=cache)
+    if not got or len(got) != 49:
+      bad.append(("npws_reserves", "rebuild from page copies", None if got is None else len(got)))
+    if "using saved copy from 2026-11-18T03:07:16+11:00" not in buf.getvalue():
+      bad.append(("npws_reserves", "page-copy fallback log", buf.getvalue()))
+  def dead(name, url):
+    return None
+  if nsw._query(dead, "rfs_fire_areas", "https://example.test/rfs", "firearea") is not None:
+    bad.append(("rfs_fire_areas", "query still retries or falls back"))
+
+check_npws_reserves_budget(bad)
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

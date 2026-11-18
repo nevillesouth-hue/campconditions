@@ -681,6 +681,8 @@ act_sa = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_act
 if act_sa.returncode != 0: bad.append(("act-sa foundations", "test_act_sa.py failed"))
 tas_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_tas.py")], cwd=root)
 if tas_check.returncode != 0: bad.append(("tas foundations", "test_tas.py failed"))
+parks_sa_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_parks_sa.py")], cwd=root)
+if parks_sa_check.returncode != 0: bad.append(("parks sa closures", "test_parks_sa.py failed"))
 one_list = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_one_list.py")], cwd=root)
 if one_list.returncode != 0: bad.append(("one-list", "test_one_list.py failed"))
 trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)
@@ -2607,12 +2609,24 @@ if os.path.isfile(_tas_page):
   if "may be out of date: the newest" in _tas_html:
     bad.append(("/tas/", "old stale wording"))
 _parks_sa = (feed.get("sources") or {}).get("parks_sa") or {}
-if _parks_sa.get("fetched") != "2026-11-18T10:38:24+10:30" or _parks_sa.get("snapshot") is not True:
-  bad.append(("status.json", "parks_sa snapshot", _parks_sa.get("fetched"), _parks_sa.get("snapshot")))
-if _parks_sa.get("fetched") and _parks_sa.get("fetched") == feed.get("generated"):
-  bad.append(("status.json", "parks_sa fetched matches the build"))
-if "saved snapshot" not in (open(os.path.join(D, "about-the-data", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "about-the-data", "index.html")) else ""):
+if not str(_parks_sa.get("url") or "").startswith("https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts"):
+  bad.append(("status.json", "parks_sa url", _parks_sa.get("url")))
+if _parks_sa.get("snapshot"):
+  bad.append(("status.json", "parks_sa still a snapshot"))
+if not _parks_sa.get("fetched"):
+  bad.append(("status.json", "parks_sa fetched missing"))
+elif _parks_sa.get("ok") is True and _parks_sa.get("fetched") != feed.get("generated"):
+  bad.append(("status.json", "parks_sa fetched", _parks_sa.get("fetched"), feed.get("generated")))
+elif _parks_sa.get("ok") is not True and _parks_sa.get("fetched") == feed.get("generated"):
+  bad.append(("status.json", "parks_sa fallback fetched matches the build"))
+_about_data = open(os.path.join(D, "about-the-data", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "about-the-data", "index.html")) else ""
+if "saved snapshot" in _about_data:
   bad.append(("/about-the-data/", "snapshot label"))
+if "parks_sa" not in _about_data:
+  bad.append(("/about-the-data/", "parks_sa row"))
+_sa_checked = open(os.path.join(D, "sa", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "sa", "index.html")) else ""
+if "Parks SA closures checked " not in _sa_checked:
+  bad.append(("/sa/", "checked wording"))
 # NPWS reserve-boundary fetch: 3-minute budget, then the last-good layer, no per-page retry.
 def check_npws_reserves_budget(bad):
   import contextlib, hashlib, io, json, os, tempfile, urllib.parse

@@ -83,6 +83,11 @@
       "live_fetch": false,
       "note": "Discovery URLs only. 146 park pages, 320 booking pages and 50 alert pages are not campground counts."
     },
+    "closures_index": {
+      "url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts",
+      "live_fetch": true,
+      "note": "One GET per build, no query string. The stored record is the title, park name, date window and link. A failed read keeps the last good copy."
+    },
     "cfs_tfb": {
       "url": "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
       "live_fetch": false,
@@ -140,7 +145,7 @@
     "region_description": "{count} camps in {name}. {blurb}",
     "region_list_name": "Campgrounds in {name}",
     "osm_place": "{name} in {region}, South Australia. No current notice is not a confirmation the camp is open. Type: {category}.",
-    "official_place": "{name} in {region}, South Australia. Parks SA campground. Status comes from saved notice windows. No current notice is not a confirmation the camp is open.",
+    "official_place": "{name} in {region}, South Australia. Parks SA campground. Status comes from Parks SA notice windows. No current notice is not a confirmation the camp is open.",
     "osm_source_line": "Coordinates: OpenStreetMap contributors (ODbL).",
     "place_admin": "{region}, South Australia",
     "feed_region": "South Australia, Australia",
@@ -148,8 +153,8 @@
     "footer_short": "South Australia: Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). <a href=\"/about/#sa-sources\">Sources</a>.",
     "about_sources": "<li>Parks SA campgrounds and notices: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU.</li><li>Council and community camps are listed from the council, tourism or operator page named on each camp.</li><li>Coordinates: OpenStreetMap contributors (ODbL).</li><li>Fire danger: <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\">SA Country Fire Service</a>. A total fire ban does not close a camp.</li>",
     "about_tail": "No current notice does not mean the camp is open, so check before you travel.",
-    "llms_intro": "Current conditions for {count} camps in South Australia: Parks SA campgrounds and council and community camps. A camp is closed, partial, upcoming or unknown only where a saved Parks SA notice says so. No current notice does not mean the camp is open. Fire danger is a link to the SA Country Fire Service. Not an official warning service.",
-    "llms_closures": "Closures come from the saved Parks SA notice windows. A camp is closed only where a notice covers that campground. Fire danger and total fire bans are linked to the SA Country Fire Service ratings page. A total fire ban does not close a camp. Do not treat a page with no current notice as open.",
+    "llms_intro": "Current conditions for {count} camps in South Australia: Parks SA campgrounds and council and community camps. A camp is closed, partial, upcoming or unknown only where a Parks SA notice says so. No current notice does not mean the camp is open. Fire danger is a link to the SA Country Fire Service. Not an official warning service.",
+    "llms_closures": "Closures come from the Parks SA closures and alerts page. A camp is closed only where a notice covers that campground and the date window is current. Fire danger and total fire bans are linked to the SA Country Fire Service ratings page. A total fire ban does not close a camp. Do not treat a page with no current notice as open.",
     "directions_note": "Check the SA Country Fire Service and official road conditions before you travel.",
     "outdated_html": ""
   },
@@ -173,9 +178,9 @@
       },
       {
         "id": "official_source_parser",
-        "ok": false,
+        "ok": true,
         "blocks_public": false,
-        "detail": "Live parks.sa.gov.au HTML is not parsed. This launch uses the saved notice file from the approved list."
+        "detail": "The build reads the Parks SA closures and alerts page once. A camp is closed only where that notice closes the campground and the date window covers now. A failed read keeps the last good copy."
       },
       {
         "id": "osm_reconciliation",

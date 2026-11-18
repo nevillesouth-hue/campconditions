@@ -553,7 +553,7 @@ def main():
     notices = act_sa_notices.load_notices(os.path.join(ROOT, "data", "act-sa", "fixtures", "sa-notices.json"))
     as_of = dt.datetime.fromisoformat("2026-11-09T11:46:51+10:30")
     scored = act_sa_notices.evaluate_all(notices, as_of)
-    expect(len(notices) == 50 and scored["handled"] + scored["held_unknown"] == 50, "every notice is handled or held")
+    expect(len(notices) == 53 and scored["handled"] + scored["held_unknown"] == 53, "every notice is handled or held")
     expect(scored["open_inferred"] is False and all(row["camp_status"] != "open" for row in scored["notices"]), "no notice is open")
     expect(scored["geometry_exported"] is False, "notice 48 geometry is not exported")
     by_notice = scored["by_index"]

@@ -2607,7 +2607,7 @@ if os.path.isfile(_tas_page):
   if "may be out of date: the newest" in _tas_html:
     bad.append(("/tas/", "old stale wording"))
 _parks_sa = (feed.get("sources") or {}).get("parks_sa") or {}
-if _parks_sa.get("fetched") != "2026-11-10T17:00:00+10:30" or _parks_sa.get("snapshot") is not True:
+if _parks_sa.get("fetched") != "2026-11-18T10:38:24+10:30" or _parks_sa.get("snapshot") is not True:
   bad.append(("status.json", "parks_sa snapshot", _parks_sa.get("fetched"), _parks_sa.get("snapshot")))
 if _parks_sa.get("fetched") and _parks_sa.get("fetched") == feed.get("generated"):
   bad.append(("status.json", "parks_sa fetched matches the build"))

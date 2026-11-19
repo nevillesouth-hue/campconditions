@@ -425,7 +425,7 @@ const ok = await confirmSubscription(env, email, mock);
 if (!ok.ok || calls.length !== 3 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
 if (calls[1].method !== "POST" || calls[1].body !== undefined) process.exit(1);
 if (!calls[1].url.endsWith(segmentPath(email, segment))) process.exit(1);
-if (calls[2].method !== "PATCH" || !calls[2].url.endsWith("/contacts/reader%40example.com/topics") || calls[2].body !== JSON.stringify({ topics: [{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }] })) { console.error("confirm must opt in to the vic topic"); process.exit(1); }
+if (calls[2].method !== "PATCH" || !calls[2].url.endsWith("/contacts/reader%40example.com/topics") || calls[2].body !== JSON.stringify([{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }])) { console.error("confirm must opt in to the vic topic"); process.exit(1); }
 calls.length = 0;
 const again = async (url) => {
   calls.push(url);
@@ -471,7 +471,7 @@ if (!nswOnly.ok) process.exit(1);
 if (callsNsw.some((call) => String(call.url).includes(segment))) process.exit(1);
 if (!callsNsw.some((call) => String(call.url).endsWith("/segments/nsw-segment") && call.method === "POST" && call.body === undefined)) process.exit(1);
 if (!callsNsw.some((call) => call.method === "PATCH" && call.body && call.body.includes('"states":"nsw"'))) process.exit(1);
-if (!callsNsw.some((call) => call.method === "PATCH" && String(call.url).endsWith("/topics") && call.body === JSON.stringify({ topics: [{ id: "166c5fbd-9691-4dbc-9b62-b6c600b0e076", subscription: "opt_in" }] }))) { console.error("nsw confirm must opt in to the nsw topic only"); process.exit(1); }
+if (!callsNsw.some((call) => call.method === "PATCH" && String(call.url).endsWith("/topics") && call.body === JSON.stringify([{ id: "166c5fbd-9691-4dbc-9b62-b6c600b0e076", subscription: "opt_in" }]))) { console.error("nsw confirm must opt in to the nsw topic only"); process.exit(1); }
 const callsLost = [];
 const mockLost = async (url, init) => {
   callsLost.push({ url, method: init.method, body: init.body });

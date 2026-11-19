@@ -138,7 +138,8 @@ async function confirmLegacy(env, email, doFetch, states, recordStates) {
   // adding QLD keeps VIC and NSW. A failure is returned so the reader can retry the link.
   const topics = legacyTopicPayload(env, want);
   if (topics.length) {
-    const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", { topics }, doFetch);
+    // The body is a bare array of { id, subscription } (Resend REST and SDK). A { topics } wrapper is rejected.
+    const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", topics, doFetch);
     if (!opted.ok && opted.status !== 409) return opted;
   }
   if (!segmentIds.length) return { ok: true, status: 200, data: created.data || {} };
@@ -184,7 +185,7 @@ async function confirmOneList(env, email, doFetch, states, recordStates) {
     await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { states: stored.join(",") } }, doFetch);
   }
   if (created.status === 409) {
-    const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", { topics: topicPayload }, doFetch);
+    const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", topicPayload, doFetch);
     if (!opted.ok && opted.status !== 409) return opted;
     const added = await resend(env, segmentPath(email, allId), "POST", undefined, doFetch);
     if (!added.ok && added.status !== 409) return added;

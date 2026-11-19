@@ -324,13 +324,17 @@ else:
     bad.append(("sitemap.xml", "missing trip-check"))
   if "/trip-check" in open(os.path.join(D, "llms.txt"), encoding="utf-8").read():
     bad.append(("llms.txt", "trip-check"))
+_qld_priv = os.path.isdir(os.path.join(D, "qld"))
+# Privacy names every state with an open digest. SA and TAS switch on together (release.signup in config/states).
+_five_priv = all(json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "states", _s + ".json"), encoding="utf-8")).get("release", {}).get("signup") is True for _s in ("sa", "tas"))
+_priv_date = "Last updated 19 November 2026" if _five_priv else ("Last updated 4 November 2026" if _qld_priv else "Last updated 27 October 2026")
+_priv_states = "Victoria, New South Wales, Queensland, South Australia and Tasmania" if _five_priv else ("Victoria, New South Wales and Queensland" if _qld_priv else "Victoria and New South Wales")
 priv_path = os.path.join(D, "privacy", "index.html")
 if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
 else:
   priv = open(priv_path, encoding="utf-8").read()
-  _qld_priv = os.path.isdir(os.path.join(D, "qld"))
-  for bit in ("Last updated 4 November 2026" if _qld_priv else "Last updated 27 October 2026", "campconditions@outlook.com", "Victoria, New South Wales and Queensland" if _qld_priv else "Victoria and New South Wales", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
+  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
     if bit not in priv: bad.append(("/privacy/", bit))
 for r, _, fs in os.walk(D):
   if draft_dir(r): continue
@@ -2394,7 +2398,7 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
     if 'id="digest-form"' not in _qh or 'name="states" value="qld" checked' not in _qh or 'name="states" value="vic" checked' in _qh or 'name="states" value="nsw" checked' in _qh: bad.append((_qp[len(D):], "qld signup form"))
     if 'class="digest-cta" href="#newsletter"' not in _qh or '<a href="#newsletter">Free digest</a>' not in _qh or _qh.count('class="banner-row"') != 2: bad.append((_qp[len(D):], "qld digest links"))
   _priv = open(os.path.join(D, "privacy", "index.html"), encoding="utf-8").read()
-  if "Victoria, New South Wales and Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
+  if _priv_states not in _priv or "Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
   _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
   if "apikey" in _q_src.lower(): bad.append(("qld", "api key in status.json"))
   import contacts as _q_contacts

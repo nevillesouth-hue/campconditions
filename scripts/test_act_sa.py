@@ -91,7 +91,8 @@ def main():
     sa = states.by_slug("sa")
     expect(act.get("enabled") is False and sa.get("enabled") is True, "sa is on and act stays off")
     expect(states.public_build_allowed(act) is False and states.digest_allowed(act) is False, "act stays off")
-    expect(states.public_build_allowed(sa) is True and states.signup_allowed(sa) is False and states.digest_allowed(sa) is False, "sa pages are public and signup stays off")
+    sa_on = sa["release"]["signup"] is True
+    expect(states.public_build_allowed(sa) is True and states.signup_allowed(sa) is sa_on and states.digest_allowed(sa) is sa_on, "sa pages are public and signup follows the release flags")
     opened = dict(act)
     opened["enabled"] = True
     opened["release"] = dict(act["release"])
@@ -104,8 +105,13 @@ def main():
     expect(all(gate.get("ok") is False for gate in act["release"]["gates"]), "act gates closed")
     blocking = [gate for gate in sa["release"]["gates"] if gate.get("blocks_public", True) is not False]
     expect(blocking and all(gate.get("ok") is True for gate in blocking), "blocking sa gates are open")
-    segment = next(gate for gate in sa["release"]["gates"] if gate.get("id") == "digest_segment")
-    expect(segment.get("ok") is False and segment.get("blocks_public") is False, "sa signup segment stays off")
+    if sa_on:
+        topic = next((gate for gate in sa["release"]["gates"] if gate.get("id") == "digest_topic"), {})
+        expect(topic.get("ok") is True and topic.get("blocks_public") is False, "sa digest topic gate is open")
+        expect(not any(gate.get("id") == "digest_segment" for gate in sa["release"]["gates"]), "no sa segment gate once the topic is used")
+    else:
+        segment = next(gate for gate in sa["release"]["gates"] if gate.get("id") == "digest_segment")
+        expect(segment.get("ok") is False and segment.get("blocks_public") is False, "sa signup segment stays off")
     expect(act["licence"]["status"] == "unresolved", "act licence unresolved")
     expect(sa["licence"]["current_site"] == "CC BY 3.0 AU", "sa site licence")
     expect(sa["licence"]["legacy_dataset"] == "CC BY 4.0", "sa legacy licence")
@@ -384,7 +390,7 @@ def main():
     expect(all(item["read_by_signup"] is False for item in report["resend"]["variables"]), "segment vars unread")
     expect("licence_parks_esa" in report["blockers"]["act"], "act licence blocker")
     expect("licence_split" not in report["blockers"]["sa"], "sa licence split is accepted")
-    expect("digest_segment" in report["blockers"]["sa"] and "official_source_parser" in report["blockers"]["sa"], "signup and the live parser stay off")
+    expect(("digest_segment" in report["blockers"]["sa"]) is (not sa_on) and "official_source_parser" in report["blockers"]["sa"], "signup blocker follows the flag and the live parser stays off")
 
     preview_dir = tempfile.mkdtemp(prefix="act-sa-preview-")
     proc = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", "act_sa_preview.py"), "--out", preview_dir], cwd=ROOT, capture_output=True, text=True)
@@ -860,23 +866,23 @@ def main():
         expect(True, "bad fire mode is rejected")
     finally:
         os.environ.pop("SA_FIRE_MODE", None)
-    expect(sa_signup.mode() == "coming_soon" and sa_signup.forms_allowed() is False, "signup stays closed without a segment")
+    expect(sa_signup.mode() == "coming_soon" and sa_signup.forms_allowed() is sa_on, "forms follow release.signup without a segment")
     os.environ["SA_SIGNUP_MODE"] = "open"
     try:
-        expect(sa_signup.mode() == "coming_soon" and sa_signup.forms_allowed() is False, "open mode without a segment stays closed")
+        expect(sa_signup.mode() == "coming_soon" and sa_signup.forms_allowed() is sa_on, "open mode without a segment still follows release.signup")
     finally:
         os.environ.pop("SA_SIGNUP_MODE", None)
     os.environ["SA_SIGNUP_MODE"] = "open"
     os.environ["RESEND_SEGMENT_SA_ID"] = "sa-segment"
     try:
-        expect(sa_signup.mode() == "open" and sa_signup.forms_allowed() is False, "a segment does not open signup while the flag is off")
+        expect(sa_signup.mode() == "open" and sa_signup.forms_allowed() is sa_on, "a segment does not change signup; only release.signup does")
     finally:
         os.environ.pop("SA_SIGNUP_MODE", None)
         os.environ.pop("RESEND_SEGMENT_SA_ID", None)
     soon = sa_signup.coming_soon_html()
     expect(sa_signup.COMING_SOON in soon and "<form" not in soon and "/api/subscribe" not in soon, "coming soon has no form")
 
-    expect([state["slug"] for state in states.signup_states()] == ["vic", "nsw", "qld"], "signup offers the three public states")
+    expect([state["slug"] for state in states.signup_states()] == (["vic", "nsw", "qld", "sa", "tas"] if sa_on and states.signup_allowed(states.by_slug("tas")) else ["vic", "nsw", "qld"]), "signup offers the open public states")
     refused = sa_digest.send_decision({"RESEND_SEGMENT_SA_ID": "abc"}, False)
     expect(refused["send"] is False and refused["reason"] == "region_disabled" and refused["called_resend"] is False, "disabled region refuses send")
     unset = sa_digest.send_decision({}, True)

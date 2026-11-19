@@ -25,7 +25,7 @@ SEGMENT_ENV = {
     "nsw": "RESEND_SEGMENT_NSW_ID",
     "qld": "RESEND_SEGMENT_QLD_ID",
 }
-# Same fallback as functions/api/confirm.js. A segment id is not a secret.
+# Deleted 19 Nov 2026. Kept only so old references resolve; sends never use it.
 QLD_SEGMENT_FALLBACK = "2488900b-f026-44e8-9d74-098d38ef3468"
 _ON = {"1", "true", "on", "yes"}
 
@@ -49,11 +49,12 @@ def _topic_id(env, slug):
 
 
 def _legacy_segment(env, slug):
+    # Sends never use QLD_SEGMENT_FALLBACK: that segment was deleted on 19 Nov 2026.
     if slug == "qld":
         raw = str(env.get("RESEND_SEGMENT_QLD_ID") if env.get("RESEND_SEGMENT_QLD_ID") is not None else "").strip()
         if raw.lower() in ("none", "deleted"):
             return ""
-        return raw or QLD_SEGMENT_FALLBACK
+        return raw
     return str(env.get(SEGMENT_ENV.get(slug) or "") or "").strip()
 
 
@@ -76,6 +77,11 @@ def target(slug, env=None):
     if not one_list_mode(provided):
         segment = _legacy_segment(provided, state)
         if not segment:
+            # No live legacy segment: use the all-subscribers segment plus the state topic, or refuse.
+            all_id = _all_segment(provided)
+            topic = _topic_id(provided, state)
+            if all_id and topic:
+                return {"ok": True, "reason": "", "segment_id": all_id, "topic_id": topic}
             return {"ok": False, "reason": "segment_unset", "segment_id": "", "topic_id": ""}
         return {"ok": True, "reason": "", "segment_id": segment, "topic_id": ""}
     segment = _all_segment(provided)

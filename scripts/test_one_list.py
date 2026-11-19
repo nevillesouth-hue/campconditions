@@ -386,6 +386,14 @@ def test_broadcast_and_digest():
             expect(False, "guard should refuse")
         except broadcast_plan.BroadcastRefused as exc:
             expect(exc.reason == got["guard"], "guard reason matches")
+        qld_gone = dict(env)
+        qld_gone["RESEND_SEGMENT_QLD_ID"] = "none"
+        expect(broadcast_plan.broadcast_body("qld", qld_gone, **fields) == got["qldOff"], "Queensland without its segment matches JS (all segment plus topic)")
+        try:
+            broadcast_plan.broadcast_body("qld", {"RESEND_SEGMENT_QLD_ID": ""}, **fields)
+            expect(False, "Queensland send must not fall back to the deleted segment")
+        except broadcast_plan.BroadcastRefused as exc:
+            expect(exc.reason == "segment_unset", "Queensland with no segment and no topic is refused")
         expect("topic_id" not in off, "flag off omits topic_id")
         expect(broadcast_plan.broadcast_meta("vic", env) == {}, "flag off adds no digest meta")
         meta = broadcast_plan.broadcast_meta("nsw", on)

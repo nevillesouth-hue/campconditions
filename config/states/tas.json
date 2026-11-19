@@ -137,8 +137,8 @@
   },
   "release": {
     "public": true,
-    "signup": false,
-    "digest": false,
+    "signup": true,
+    "digest": true,
     "live_html_parser": true,
     "live_fetch": false,
     "targets_are_not_permission_to_ship": true,
@@ -173,11 +173,10 @@
         "detail": "Pages link to Tasmanian roadworks. The State Growth layer is not ingested."
       },
       {
-        "id": "digest_segment",
-        "ok": false,
+        "id": "digest_topic",
+        "ok": true,
         "blocks_public": false,
-        "env": "RESEND_SEGMENT_TAS_ID",
-        "detail": "No Tasmania segment is created. Signup stays off. Pages say the weekly email is coming soon."
+        "detail": "SA/TAS use the all-subscribers segment plus a private opt_out topic"
       },
       {
         "id": "regression_activation",

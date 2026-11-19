@@ -35,13 +35,22 @@ def main():
     act = states.by_slug("act")
     expect(tas.get("enabled") is True, "tas enabled")
     expect(tas["release"]["public"] is True, "tas public")
-    expect(tas["release"]["signup"] is False and tas["release"]["digest"] is False, "no signup and no digest")
+    tas_on = tas["release"]["signup"] is True
+    if tas_on:
+        expect(tas["release"]["digest"] is True, "signup and digest switch on together")
+    else:
+        expect(tas["release"]["signup"] is False and tas["release"]["digest"] is False, "no signup and no digest")
     expect(states.public_build_allowed(tas) is True, "public build allowed")
-    expect(states.signup_allowed(tas) is False and states.digest_allowed(tas) is False, "signup and digest refused")
+    expect(states.signup_allowed(tas) is tas_on and states.digest_allowed(tas) is tas_on, "signup and digest follow the release flags")
     blocking = [gate for gate in tas["release"]["gates"] if gate.get("blocks_public", True) is not False]
     expect(blocking and all(gate.get("ok") is True for gate in blocking), "blocking tas gates are open")
-    segment = next(gate for gate in tas["release"]["gates"] if gate.get("id") == "digest_segment")
-    expect(segment.get("ok") is False and segment.get("blocks_public") is False, "tas signup segment stays off")
+    if tas_on:
+        topic = next((gate for gate in tas["release"]["gates"] if gate.get("id") == "digest_topic"), {})
+        expect(topic.get("ok") is True and topic.get("blocks_public") is False, "tas digest topic gate is open")
+        expect(not any(gate.get("id") == "digest_segment" for gate in tas["release"]["gates"]), "no tas segment gate once the topic is used")
+    else:
+        segment = next(gate for gate in tas["release"]["gates"] if gate.get("id") == "digest_segment")
+        expect(segment.get("ok") is False and segment.get("blocks_public") is False, "tas signup segment stays off")
     expect(act.get("enabled") is False and states.public_build_allowed(act) is False, "act stays off")
     expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "enabled states include tas")
 
@@ -320,7 +329,7 @@ def main():
     soon = tas_signup.coming_soon_html()
     os.environ["RESEND_SEGMENT_TAS_ID"] = "do-not-create"
     try:
-        expect(tas_signup.forms_allowed() is False, "a segment variable does not open signup")
+        expect(tas_signup.forms_allowed() is tas_on, "a segment variable does not change signup; only release.signup does")
     finally:
         os.environ.pop("RESEND_SEGMENT_TAS_ID", None)
     expect(tas_signup.COMING_SOON in soon and "<form" not in soon and "/api/subscribe" not in soon, "coming soon line has no form")

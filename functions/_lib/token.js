@@ -180,6 +180,15 @@ export function legacySegmentId(env, slug) {
   return String((env && env[key]) || "").trim();
 }
 
+// Legacy segment for a send. Unlike legacySegmentId, Queensland has no built-in fallback here.
+function sendSegmentId(env, state) {
+  if (state === "qld") {
+    const raw = String(env && env.RESEND_SEGMENT_QLD_ID != null ? env.RESEND_SEGMENT_QLD_ID : "").trim();
+    return /^(none|deleted)$/i.test(raw) ? "" : raw;
+  }
+  return legacySegmentId(env, state);
+}
+
 export function broadcastTarget(env, slug) {
   const state = String(slug || "").trim().toLowerCase();
   if (TOPIC_ONLY.includes(state)) {
@@ -194,8 +203,15 @@ export function broadcastTarget(env, slug) {
     return { ok: false, reason: "state_not_open", segmentId: "", topicId: "" };
   }
   if (!oneListMode(env)) {
-    const segmentId = legacySegmentId(env, state);
-    if (!segmentId) return { ok: false, reason: "segment_unset", segmentId: "", topicId: "" };
+    // Sends never use the hard-coded Queensland id: that segment was deleted on 19 Nov 2026.
+    // A state with no live legacy segment goes to the all-subscribers segment plus its topic, or is refused.
+    const segmentId = sendSegmentId(env, state);
+    if (!segmentId) {
+      const all = allSegmentId(env);
+      const id = topicId(env, state);
+      if (all && id) return { ok: true, reason: "", segmentId: all, topicId: id, oneList: true };
+      return { ok: false, reason: "segment_unset", segmentId: "", topicId: "" };
+    }
     return { ok: true, reason: "", segmentId, topicId: "", oneList: false };
   }
   const segmentId = allSegmentId(env);

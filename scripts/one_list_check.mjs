@@ -331,8 +331,12 @@ const tasBare = broadcastBody({ ONE_LIST_MODE: "1", RESEND_TOPIC_TAS_ID: "topic-
 assert(!tasBare.ok && tasBare.reason === "state_not_open", "TAS broadcast without the all segment is refused");
 const tasOn = broadcastBody(base({ ONE_LIST_MODE: "1", RESEND_TOPIC_TAS_ID: "topic-tas" }), "tas", fields);
 assert(tasOn.ok && tasOn.body.topic_id === "topic-tas" && tasOn.body.segment_id === ALL, "TAS broadcast uses the all segment and topic");
-const qldOff = broadcastBody({ RESEND_SEGMENT_QLD_ID: "" }, "qld", fields);
-assert(qldOff.ok && qldOff.body.segment_id === QLD_SEGMENT_ID && !("topic_id" in qldOff.body), "queensland fallback segment");
+const qldBare = broadcastBody({ RESEND_SEGMENT_QLD_ID: "" }, "qld", fields);
+assert(!qldBare.ok && qldBare.reason === "segment_unset", "queensland send never uses the deleted segment id");
+const qldOff = broadcastBody(base({ RESEND_SEGMENT_QLD_ID: "none" }), "qld", fields);
+assert(qldOff.ok && qldOff.body.segment_id === ALL && qldOff.body.topic_id === TOPICS.qld && qldOff.body.segment_id !== QLD_SEGMENT_ID, "queensland without its segment uses the all segment and topic");
+const qldExplicit = broadcastBody({ RESEND_SEGMENT_QLD_ID: "qld-live" }, "qld", fields);
+assert(qldExplicit.ok && qldExplicit.body.segment_id === "qld-live" && !("topic_id" in qldExplicit.body), "an explicit queensland segment is still honoured");
 const qldNone = broadcastBody({ RESEND_SEGMENT_QLD_ID: "none" }, "qld", fields);
 assert(!qldNone.ok && qldNone.reason === "segment_unset", "queensland none is not the fallback segment");
 

@@ -4,7 +4,7 @@
 //   POST /contacts                         { email, unsubscribed: false }
 //   POST /contacts/{email}/segments/{id}   no body
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
-import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase, saDigestSend, oneListMode, legacySegmentWrite, topicPlan, allSegmentId } from "../_lib/token.js";
+import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase, saDigestSend, oneListMode, legacySegmentWrite, topicPlan, allSegmentId, topicId } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";
 import { confirmShareExtras } from "../_lib/share-click.js";
 
@@ -13,6 +13,26 @@ const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { 
 // Resend "Queensland digest" segment. A segment id is not a secret (it only works with the API key).
 // RESEND_SEGMENT_QLD_ID overrides it when set on the Pages project.
 export const QLD_SEGMENT_ID = "2488900b-f026-44e8-9d74-098d38ef3468";
+
+// Resend state topics (private, opt_out). The 19 Nov digests send with topic_id, so a
+// contact that is in a segment but not opted in to its state topic gets no digest.
+// Topic ids are not secrets. RESEND_TOPIC_<STATE>_ID overrides each one when set.
+export const LIVE_TOPIC_IDS = {
+  vic: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7",
+  nsw: "166c5fbd-9691-4dbc-9b62-b6c600b0e076",
+  qld: "268e2f38-88e7-4d84-8e35-b6a05823100c",
+};
+
+// opt_in entries for the states this confirmation enrols, and nothing else.
+// Held states (ACT, SA) have no entry, so they never get a topic.
+export function legacyTopicPayload(env, states) {
+  const out = [];
+  for (const slug of chosenStates(states)) {
+    const id = topicId(env, slug) || LIVE_TOPIC_IDS[slug] || "";
+    if (id) out.push({ id, subscription: "opt_in" });
+  }
+  return out;
+}
 
 export function qldSegmentId(env) {
   return String((env && env.RESEND_SEGMENT_QLD_ID) || QLD_SEGMENT_ID).trim();
@@ -81,7 +101,8 @@ export function segmentPlan(env, states, recordStates) {
 // QLD joins the Queensland digest segment (qldSegmentId), and is not added to the Victoria segment.
 // RESEND_SEGMENT_ACT_ID is not read. RESEND_SEGMENT_SA_ID is read by saDigestSend and
 // is not used while the SA region flag is off or the variable is empty. Setting it enrols nobody.
-// ONE_LIST_MODE off (the default) runs this path and does not read topic ids.
+// ONE_LIST_MODE off (the default) runs this path. It also opts the contact in to the
+// chosen states' topics (legacyTopicPayload), because the digests now send with topic_id.
 async function confirmLegacy(env, email, doFetch, states, recordStates) {
   const plan = segmentPlan(env, states, recordStates);
   if (plan.refuse === "not_open") {
@@ -108,12 +129,19 @@ async function confirmLegacy(env, email, doFetch, states, recordStates) {
     await resend(env, `/contacts/${encodeURIComponent(email)}`, "PATCH", { properties: { states: stored.join(",") } }, doFetch);
   }
   const segmentIds = plan.segmentIds;
-  if (!segmentIds.length) return { ok: true, status: 200, data: created.data || {} };
   let added = created;
   for (const id of segmentIds) {
     added = await resend(env, segmentPath(email, id), "POST", undefined, doFetch);
     if (!added.ok && added.status !== 409) return added;
   }
+  // Opt in to the chosen states' topics only. Never opts anyone out, so a reader
+  // adding QLD keeps VIC and NSW. A failure is returned so the reader can retry the link.
+  const topics = legacyTopicPayload(env, want);
+  if (topics.length) {
+    const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", { topics }, doFetch);
+    if (!opted.ok && opted.status !== 409) return opted;
+  }
+  if (!segmentIds.length) return { ok: true, status: 200, data: created.data || {} };
   return { ok: true, status: added.status, data: added.data };
 }
 

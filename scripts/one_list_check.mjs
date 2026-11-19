@@ -59,10 +59,50 @@ assert(oneListMode(base({ ONE_LIST_MODE: "0" })) === false, "zero is off");
   const { calls, fetch } = recorder(() => okResponse());
   const result = await confirmSubscription(base(), email, fetch);
   assert(result.ok, "flag off confirms");
-  assert(calls.length === 2, "flag off is create plus the victoria segment");
+  assert(calls.length === 3, "flag off is create, the victoria segment, then the victoria topic");
   assert(calls[1].url.endsWith("/segments/" + vicSegment), "flag off uses the victoria segment");
-  assert(calls.every((call) => !call.url.includes("/topics") && !call.url.includes(ALL) && !call.url.includes("topic-")), "flag off makes no topic call");
+  assert(calls[2].method === "PATCH" && calls[2].url.endsWith("/contacts/reader%40example.com/topics"), "flag off opts in to the topic");
+  assert(JSON.stringify(jsonBody(calls[2])) === JSON.stringify({ topics: [{ id: TOPICS.vic, subscription: "opt_in" }] }), "flag off opts in to the victoria topic only");
+  assert(calls.every((call) => !call.url.includes(ALL)), "flag off does not use the all segment");
   assert(!jsonBody(calls[0]).topics && !jsonBody(calls[0]).segments, "flag off create has no topics");
+}
+
+// Flag off: a confirmed sign-up opts in to its chosen state's topic only (19 Nov fix).
+{
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(base(), email, fetch, ["nsw"], true);
+  assert(result.ok, "flag off nsw confirms");
+  const patches = calls.filter((call) => call.url.endsWith("/topics"));
+  assert(patches.length === 1 && JSON.stringify(jsonBody(patches[0])) === JSON.stringify({ topics: [{ id: TOPICS.nsw, subscription: "opt_in" }] }), "flag off nsw opts in to nsw only");
+  assert(calls.every((call) => !String(call.body || "").includes("opt_out")), "flag off never opts out");
+}
+{
+  // No topic env vars: the built-in live topic ids are used, and held states get none.
+  const env = base();
+  for (const key of ["RESEND_TOPIC_VIC_ID", "RESEND_TOPIC_NSW_ID", "RESEND_TOPIC_QLD_ID", "RESEND_TOPIC_SA_ID"]) delete env[key];
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(env, email, fetch, ["vic", "qld", "sa", "act"], true);
+  assert(result.ok, "flag off without topic env confirms");
+  const patch = calls.find((call) => call.url.endsWith("/topics"));
+  assert(patch && JSON.stringify(jsonBody(patch)) === JSON.stringify({ topics: [{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }, { id: "268e2f38-88e7-4d84-8e35-b6a05823100c", subscription: "opt_in" }] }), "built-in topic ids for vic and qld only");
+}
+{
+  // Existing contact (409) adding QLD: opts in to QLD only and never touches VIC or NSW.
+  const { calls, fetch } = recorder((call) => {
+    if (call.url.endsWith("/contacts") && call.method === "POST") return new Response("{}", { status: 409 });
+    if (call.method === "GET") return new Response(JSON.stringify({ properties: { states: "vic,nsw" } }), { status: 200 });
+    return okResponse(200);
+  });
+  const result = await confirmSubscription(base(), email, fetch, ["qld"], true);
+  assert(result.ok, "flag off 409 confirms");
+  const patch = calls.find((call) => call.url.endsWith("/topics"));
+  assert(patch && JSON.stringify(jsonBody(patch)) === JSON.stringify({ topics: [{ id: TOPICS.qld, subscription: "opt_in" }] }), "409 opts in to the new state only");
+}
+{
+  // A failed topic write is reported, so the reader can retry the link.
+  const { fetch } = recorder((call) => (call.url.endsWith("/topics") ? new Response("{}", { status: 500 }) : okResponse()));
+  const result = await confirmSubscription(base(), email, fetch, ["nsw"], true);
+  assert(!result.ok && result.status === 500, "topic failure is not reported as confirmed");
 }
 
 // New contact, one-list mode, no legacy segments.

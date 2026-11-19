@@ -418,19 +418,21 @@ const mock = async (url, init) => {
   calls.push({ url, method: init.method, body: init.body });
   if (url.endsWith("/contacts")) return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  if (url.endsWith("/topics") && init.method === "PATCH") return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   return new Response("no", { status: 500 });
 };
 const ok = await confirmSubscription(env, email, mock);
-if (!ok.ok || calls.length !== 2 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
+if (!ok.ok || calls.length !== 3 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
 if (calls[1].method !== "POST" || calls[1].body !== undefined) process.exit(1);
 if (!calls[1].url.endsWith(segmentPath(email, segment))) process.exit(1);
+if (calls[2].method !== "PATCH" || !calls[2].url.endsWith("/contacts/reader%40example.com/topics") || calls[2].body !== JSON.stringify({ topics: [{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }] })) { console.error("confirm must opt in to the vic topic"); process.exit(1); }
 calls.length = 0;
 const again = async (url) => {
   calls.push(url);
   return new Response(JSON.stringify({ name: "already_exists" }), { status: 409 });
 };
 const dup = await confirmSubscription(env, email, again);
-if (!dup.ok || calls.length !== 2) process.exit(1);
+if (!dup.ok || calls.length !== 3) process.exit(1);
 const restricted = { ok: false, status: 401, data: { name: "restricted_api_key", message: "This API key is restricted to only send emails." } };
 const msg = failureMessage(restricted);
 if (!msg.includes("can send mail but cannot save contacts") || msg.includes("502")) process.exit(1);
@@ -447,10 +449,11 @@ const mock2 = async (url, init) => {
     return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
   }
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  if (url.endsWith("/topics") && init.method === "PATCH") return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   return new Response("no", { status: 500 });
 };
 const retried = await confirmSubscription(envWithSecret, email, mock2);
-if (!retried.ok || calls2.length !== 3 || !calls2[0].body.includes("unsubscribe_token") || calls2[1].body.includes("unsubscribe_token")) process.exit(1);
+if (!retried.ok || calls2.length !== 4 || !calls2[0].body.includes("unsubscribe_token") || calls2[1].body.includes("unsubscribe_token")) process.exit(1);
 import { makeToken, readToken } from "./functions/_lib/token.js";
 const oldToken = await makeToken(email, "test-secret");
 const oldRead = await readToken(oldToken, "test-secret");
@@ -468,10 +471,12 @@ if (!nswOnly.ok) process.exit(1);
 if (callsNsw.some((call) => String(call.url).includes(segment))) process.exit(1);
 if (!callsNsw.some((call) => String(call.url).endsWith("/segments/nsw-segment") && call.method === "POST" && call.body === undefined)) process.exit(1);
 if (!callsNsw.some((call) => call.method === "PATCH" && call.body && call.body.includes('"states":"nsw"'))) process.exit(1);
+if (!callsNsw.some((call) => call.method === "PATCH" && String(call.url).endsWith("/topics") && call.body === JSON.stringify({ topics: [{ id: "166c5fbd-9691-4dbc-9b62-b6c600b0e076", subscription: "opt_in" }] }))) { console.error("nsw confirm must opt in to the nsw topic only"); process.exit(1); }
 const callsLost = [];
 const mockLost = async (url, init) => {
   callsLost.push({ url, method: init.method, body: init.body });
   if (url.endsWith("/contacts") && init.method === "POST") return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
+  if (init.method === "PATCH" && url.endsWith("/topics")) return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   if (init.method === "PATCH") return new Response(JSON.stringify({ name: "validation_error" }), { status: 422 });
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
   return new Response("no", { status: 500 });

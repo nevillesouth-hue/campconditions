@@ -1,8 +1,9 @@
-// Double opt-in, step 2. Adds the address to the Resend segment only after the signed link is clicked.
+// Double opt-in, step 2. Creates the Resend contact only after the signed link is clicked.
 // Returns 503 "Sign-ups open soon" unless RESEND_API_KEY, CONFIRM_SECRET, FROM_EMAIL, SITE_URL and RESEND_SEGMENT_ID are all set.
 // Contact API (segments, not the old audiences API):
-//   POST /contacts                         { email, unsubscribed: false }
-//   POST /contacts/{email}/segments/{id}   no body
+//   POST  /contacts                          { email, unsubscribed: false, properties, topics? }
+//   PATCH /contacts/{email}/topics           bare array [{ id, subscription: "opt_in" }] for the chosen states only
+//   POST  /contacts/{email}/segments/{id}    no body (ALL segment, plus legacy state segments while SIGNUP_WRITE_LEGACY_SEGMENTS=1)
 // A sending-only key can send the confirmation email but cannot create contacts (401 restricted_api_key).
 import { readToken, signupsReady, makeUnsubscribeToken, chosenStates, heldSignupStates, statePhrase, oneListMode, legacySegmentWrite, topicPlan, topicId, allSegmentId, legacySegmentId } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";

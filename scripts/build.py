@@ -1741,6 +1741,15 @@ def map_row(c):
     else:
         while row and row[-1] is None:
             row.pop()
+    # Index 14. Absent when the camp has no parks, so other states stay as they were.
+    park_key = ""
+    if c.get("parks"):
+        import qld_conditions
+        park_key = qld_conditions.park_search_key(c.get("parks"))
+    if park_key:
+        while len(row) < 14:
+            row.append(None if len(row) < 12 else "")
+        row.append(park_key)
     return row
 def map_points_object(c):
     """Full-precision point for a one-camp map. Aggregate maps use map_row instead."""
@@ -1850,6 +1859,7 @@ MAP_JS = r"""(function () {
     if (p.length > 11 && (p[11] === 0 || p[11] === 1)) out.motorhomes = p[11];
     if (p[12]) out.reg = p[12];
     if (p[13]) out.note = p[13];
+    if (p[14]) out.park = p[14];
     return out;
   }
   if (data.length && Array.isArray(data[0])) data = data.map(expandPoint);
@@ -2045,6 +2055,36 @@ __REGION_FN__
     if (n.indexOf(q) === 0) return 1;
     return partial ? 3 : 2;
   }
+  // Distinctive park phrases only. Whole words, so "girra" does not match
+  // Girraween and Girramay stays separate. Generic words alone match nothing.
+  // Keep in step with qld_conditions.PARK_GENERIC_WORDS.
+  var PARK_GENERIC = {"national": 1, "park": 1, "island": 1, "islands": 1, "range": 1, "creek": 1, "mount": 1, "forest": 1};
+  function parkScore(camp, query) {
+    if (!camp || !camp.park) return -1;
+    var q = fold(query);
+    if (q.length < 2) return -1;
+    var qWords = q.split(" "), generic = true, i, k, at;
+    for (i = 0; i < qWords.length; i++) {
+      if (!PARK_GENERIC[qWords[i]]) { generic = false; break; }
+    }
+    if (generic) return -1;
+    var phrases = String(camp.park).split("|"), best = -1;
+    for (i = 0; i < phrases.length; i++) {
+      var pWords = fold(phrases[i]).split(" ");
+      if (!pWords[0] || qWords.length > pWords.length) continue;
+      for (at = 0; at <= pWords.length - qWords.length; at++) {
+        var ok = true;
+        for (k = 0; k < qWords.length; k++) {
+          if (pWords[at + k] !== qWords[k]) { ok = false; break; }
+        }
+        if (!ok) continue;
+        var score = qWords.length === pWords.length ? 1 : 2;
+        if (best < 0 || score < best) best = score;
+        break;
+      }
+    }
+    return best;
+  }
 __NEAREST_FN__
   function byRank(a, b) {
     if (a.score !== b.score) return a.score - b.score;
@@ -2061,8 +2101,13 @@ __NEAREST_FN__
     });
     data.forEach(function (camp, index) {
       var score = matchScore(camp.name, q);
+      var viaPark = false;
+      if (score < 0) {
+        score = parkScore(camp, q);
+        viaPark = score >= 0;
+      }
       if (score < 0) return;
-      hits.push({kind: "camp", score: score, rank: 2, name: camp.name, camp: camp, index: index});
+      hits.push({kind: "camp", score: score, rank: 2, name: camp.name, camp: camp, index: index, viaPark: viaPark});
     });
     hits.sort(byRank);
     var top = hits.slice(0, 9);
@@ -2071,7 +2116,12 @@ __NEAREST_FN__
       hits.filter(function (hit) { return hit.kind !== top[0].kind; }).slice(0, 3).forEach(function (hit) { top.push(hit); });
       top.sort(byRank);
     }
-    return top.slice(0, 12);
+    top = top.slice(0, 12);
+    // A park name has to list every camp in that park, past the 12-row cap.
+    hits.forEach(function (hit) {
+      if (hit.viaPark && top.indexOf(hit) < 0) top.push(hit);
+    });
+    return top;
   }
   var townInput = document.getElementById("town-search");
   var suggest = document.getElementById("town-suggest");
@@ -3401,6 +3451,10 @@ def emit_state(state, camps, include_home):
             title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)
             dated = f"Campground data dated {e(long_date(c.get('data_date') or ''))}"
+        if c.get("parks"):
+            import qld_conditions
+            title, desc = qld_conditions.park_title_and_description(
+                title, desc, c.get("name") or "", c.get("page_name") or c.get("name") or "", c.get("parks"))
         camp_path = camp_url(c)
         camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
                    "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},

@@ -288,6 +288,171 @@ def expand_park(name):
     return out
 
 
+# Estate type words stripped before a park name is used as a search phrase.
+# Longest first so "national park" is removed as a whole, not as two leftovers.
+_PARK_SUFFIXES = tuple(sorted((
+    "national park",
+    "conservation park",
+    "resources reserve",
+    "state forest",
+    "forest reserve",
+    "timber reserve",
+    "recreation area",
+    "regional park",
+    "forest drive",
+    "marine park",
+), key=len, reverse=True))
+# A query that is only these words does not match a park. "island" must not
+# return every island park, and "range" must not return every range park.
+PARK_GENERIC_WORDS = frozenset({
+    "national", "park", "island", "islands", "range", "creek", "mount", "forest",
+})
+# Full <title> length, including " | CampConditions.au". Longer than this, the
+# park is left off the title. The meta description can still name it.
+TITLE_PARK_LIMIT = 120
+
+
+def fold_search(value):
+    """Same folding as the map search box: lower case, letters and digits only."""
+    text = re.sub(r"[^a-z0-9]+", " ", str(value or "").lower())
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def park_distinctive(name):
+    """The part of a park name that is not its type.
+
+    'Girraween National Park' is 'girraween'. Parentheticals and a trailing
+    number (Danbulla State Forest 1) are qualifiers, not the name.
+    """
+    text = re.sub(r"\([^)]*\)", " ", str(name or ""))
+    text = re.sub(r"\s+\d+\s*$", "", text.strip())
+    folded = fold_search(text)
+    for suffix in _PARK_SUFFIXES:
+        if folded == suffix:
+            return ""
+        tail = " " + suffix
+        if folded.endswith(tail):
+            return folded[: -len(tail)].strip()
+    return folded
+
+
+def park_phrases(parks):
+    """Distinctive phrases for camp['parks'], in that list's order."""
+    phrases = []
+    for raw in parks or []:
+        phrase = park_distinctive(raw)
+        if phrase and phrase not in phrases:
+            phrases.append(phrase)
+    return phrases
+
+
+def park_search_key(parks):
+    """Map-point field. One phrase per park, separated by |."""
+    return "|".join(park_phrases(parks))
+
+
+def _words_contain(phrase, text):
+    phrase_words = fold_search(phrase).split(" ")
+    text_words = fold_search(text).split(" ")
+    if not phrase_words or not phrase_words[0] or len(phrase_words) > len(text_words):
+        return False
+    span = len(phrase_words)
+    return any(text_words[i:i + span] == phrase_words for i in range(len(text_words) - span + 1))
+
+
+def park_query_match(phrases, query):
+    """True when the query is a whole word or a contiguous phrase in a park name.
+
+    'girra' does not match 'girraween'. 'girraween' does not match Girramay or
+    Girringun. A query made only of generic words ('park', 'island', 'range')
+    does not match.
+    """
+    folded = fold_search(query)
+    if len(folded) < 2:
+        return False
+    query_words = folded.split(" ")
+    if not query_words or all(word in PARK_GENERIC_WORDS for word in query_words):
+        return False
+    for phrase in phrases or []:
+        if _words_contain(folded, phrase):
+            return True
+    return False
+
+
+def _short_park_name(name):
+    """Park name without parentheticals or a trailing estate number."""
+    text = re.sub(r"\s*\([^)]*\)", " ", str(name or ""))
+    text = re.sub(r"\s+\d+\s*$", "", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def park_display_name(parks, *texts):
+    """Official park name to show, or '' when a camp name already says it.
+
+    A national park is preferred when the point sits in more than one estate.
+    The distinctive phrase has to be missing from every camp name passed in.
+    """
+    names = []
+    for raw in parks or []:
+        name = re.sub(r"\s+", " ", str(raw or "")).strip()
+        if name and name not in names:
+            names.append(name)
+
+    def rank(name):
+        folded = fold_search(name)
+        if "national park" in folded:
+            kind = 0
+        elif "conservation park" in folded:
+            kind = 1
+        else:
+            kind = 2
+        return (kind, len(name), name)
+
+    for name in sorted(names, key=rank):
+        phrase = park_distinctive(name)
+        if not phrase:
+            continue
+        if any(_words_contain(phrase, text) for text in texts if text):
+            continue
+        return name
+    return ""
+
+
+def park_title_and_description(title, description, name, page_name, parks, limit=TITLE_PARK_LIMIT):
+    """Add ', {park}' after the camp name in the title and the meta description.
+
+    No parks, or the camp name already contains the park's distinctive name:
+    both strings come back unchanged. A title that would pass `limit` keeps
+    its old text. The description still names the park.
+    """
+    if not parks:
+        return title, description
+    label = park_display_name(parks, name, page_name)
+    if not label:
+        return title, description
+    short = _short_park_name(label) or label
+
+    def with_title(park):
+        if page_name and str(title).startswith(page_name):
+            return page_name + ", " + park + title[len(page_name):]
+        return ""
+
+    def with_desc(park):
+        if name and str(description).startswith(name):
+            return name + ", " + park + description[len(name):]
+        return description
+
+    full_title = with_title(label)
+    if full_title and len(full_title) <= limit:
+        return full_title, with_desc(label)
+    if short != label:
+        short_title = with_title(short)
+        if short_title and len(short_title) <= limit:
+            return short_title, with_desc(short)
+    desc_label = short if len(label) > 60 else label
+    return title, with_desc(desc_label)
+
+
 def parse_rss(payload):
     """QPWS alert items: title, link, published, description (without the parks list) and affected parks."""
     if not payload:

@@ -2386,7 +2386,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     if on_home is None:
         on_home = path == "/"
     national = bool(on_home and path == "/" and len(statecfg.enabled()) > 1)
-    shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/", "/faq/", "/about-the-data/", "/closures-this-weekend/"}
+    shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/fire-season/"}
     # /support/ is not a data page. Leave every other page's state credit line alone.
     # /trip-check/ publishes no camp data, same as /support/.
     show_credits = path not in {"/support/", "/trip-check/"}
@@ -4006,6 +4006,77 @@ def weekend_page():
          f"Campgrounds closed in {_enabled_names()} this weekend ({span}), from official closure records.",
          body, [item_list, crumbs([("Home", "/"), ("Closures this weekend", "/closures-this-weekend/")])])
 weekend_page()
+def fire_season_page():
+    """Static explainer. Rules are the ones read from the linked official pages.
+    No live rating or warning text is copied here. Not added to the nav."""
+    desc = ("How fire danger ratings and Total Fire Bans affect camping in Victoria, New South Wales, "
+            "Queensland, South Australia and Tasmania. Links to the official sources.")
+    body = """<h1>Fire season</h1>
+<div class="warn"><strong>Not an official warning service.</strong> Check the official sources linked on each page before you travel. In an emergency call <a href="tel:000">000</a>.</div>
+<p>This page is for campers in Victoria, New South Wales, Queensland, South Australia and Tasmania. It explains fire danger ratings and Total Fire Bans. It does not list today's ratings or warnings.</p>
+<p>Ratings and bans change. Check the official source on the day you travel, including the morning you leave.</p>
+<h2>Fire danger ratings</h2>
+<p>The <a href="https://www.afdrs.com.au/">Australian Fire Danger Rating System</a> is used across Australia. A rating describes how dangerous a fire could be if one started. The <a href="https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/">SA Country Fire Service</a> says it is not a prediction that a bushfire will start. The same four levels are used in every state.</p>
+<ul>
+<li><strong>Moderate.</strong> Plan and prepare.</li>
+<li><strong>High.</strong> Be ready to act.</li>
+<li><strong>Extreme.</strong> Take action now to protect your life and property.</li>
+<li><strong>Catastrophic.</strong> For your survival, leave bushfire risk areas.</li>
+</ul>
+<p><strong>No Rating</strong> is also an official level. The <a href="https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/about-fire-danger-ratings">Country Fire Authority</a> and the <a href="https://www.bom.gov.au/resources/learn-and-explore/fire-weather-knowledge-centre/fire-weather-services">Bureau of Meteorology</a> describe it as a day when no proactive action is required. Fires can still start. They are not likely to move in a way that threatens the community. No Rating is not the same thing as a camp with no district on this site. That difference is set out below.</p>
+<h2>Total Fire Bans and camping</h2>
+<p>A rating describes the danger if a fire starts. A Total Fire Ban is a decision by the fire agency to restrict fires in the open. The <a href="https://www.bom.gov.au/resources/learn-and-explore/fire-weather-knowledge-centre/fire-weather-services">Bureau of Meteorology</a> says each state and territory fire agency is responsible for total fire bans. Read the rules for the state you are camping in.</p>
+<h3>Victoria</h3>
+<p>The <a href="https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/can-i-or-cant-i">Country Fire Authority</a> says that on a Total Fire Ban day you can't light a campfire. Campfires and fires for warmth are banned. Solid-fuel barbecues are banned in the open air. A gas or electric barbecue is allowed only when the conditions on that CFA page are met.</p>
+<p>CFA also says a state forest or national park may have other rules. During the Fire Danger Period the rules are different, and CFA sets them out on the same page.</p>
+<p>Ratings and bans: <a href="https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings">CFA Total Fire Bans and Fire Danger Ratings</a>. Warnings: <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a>. VicEmergency Hotline <a href="tel:1800226226">1800 226 226</a>.</p>
+<h3>New South Wales</h3>
+<p>The <a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules">NSW Rural Fire Service</a> says a total fire ban means no fires out in the open. You cannot light, maintain or use a fire in the open. A solid-fuel barbecue cannot be used outside. An electric or gas barbecue can be used only when the conditions on that RFS page are met.</p>
+<p>The RFS says Total Fire Bans are usually declared when the fire danger rating is Extreme or Catastrophic. Outside those days, a solid fuel ban or a park fire ban may still be declared in a NSW state forest or national park.</p>
+<p>Ratings and bans: <a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans">NSW RFS Fire Danger Ratings and Total Fire Bans</a>. Warnings: <a href="https://www.nsw.gov.au/emergency/hazards-near-me-app">Hazards Near Me</a>.</p>
+<h3>Queensland</h3>
+<p>The <a href="https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions">Queensland Fire Department</a> does not use the term Total Fire Ban. It may declare a local fire ban for all or part of a council area. During a fire ban or a state of fire emergency it is illegal to light certain types of fires, and permits to light a fire are cancelled.</p>
+<p>QFD says you must check for a fire ban before you light a fire, including a campfire. The ban notice says which fires are covered. Phone <a href="tel:1800020440">1800 020 440</a>.</p>
+<p>The <a href="https://www.bom.gov.au/news-and-media/queenslands-fire-weather-districts-have-changed">Bureau of Meteorology</a> says the Queensland Fire Department sets the fire danger rating for each Queensland fire weather district, using Bureau forecasts. The Bureau publishes the rating. District ratings: <a href="https://reg.bom.gov.au/qld/forecasts/fire-danger-ratings.shtml">Queensland fire danger ratings</a>.</p>
+<h3>South Australia</h3>
+<p>The <a href="https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/">SA Country Fire Service</a> publishes fire danger ratings and Total Fire Bans for each fire ban district. The CFS says a Total Fire Ban is declared on days when the rating is Extreme or Catastrophic.</p>
+<p>On a Total Fire Ban day, the <a href="https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/what-can-i-do/">CFS</a> says a campfire, bonfire or fire for cooking, warmth or comfort is not permitted unless you have a Schedule 10 permit from the local council. Those permits are generally only issued for emergencies. Fires are not permitted in a national or conservation park, or in a forest reserve. A gas or electric barbecue has conditions on that page.</p>
+<p>The Fire Danger Season, generally November to April, has its own restrictions. Check the CFS page for both. CFS Information Hotline <a href="tel:1800362361">1800 362 361</a>.</p>
+<h3>Tasmania</h3>
+<p>The <a href="https://www.fire.tas.gov.au/about/rules-during-fire-permit-periods-and-total-fire-bans/">Tasmania Fire Service</a> says that during a Total Fire Ban you are not allowed to light any fires outside. A campfire or bonfire is not allowed. An electric or gas barbecue is allowed only when the conditions on that page are met. Fire use is also subject to park and reserve restrictions.</p>
+<p>Outside a Total Fire Ban, a Fire Permit Period can apply to a council area, a region, or the whole state. Campfires then have conditions on the same TFS page.</p>
+<p>A Total Fire Ban can cover a council area, a region, or the whole state. Current bans: <a href="https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/">Tasmania Fire Service Total Fire Bans</a>. Warnings: <a href="https://alert.tas.gov.au/">TasALERT</a>. TFS Information Line <a href="tel:1800000699">1800 000 699</a>.</p>
+<h2>How this site shows fire information</h2>
+<p>Camp pages do not copy incident warnings. What they show depends on the state.</p>
+<ul>
+<li><strong>Victoria.</strong> The camp page shows the CFA fire danger rating and Total Fire Ban status for that camp's Total Fire Ban district.</li>
+<li><strong>New South Wales.</strong> The camp page shows the NSW RFS fire danger rating and Total Fire Ban status for that camp's fire weather district.</li>
+<li><strong>Queensland.</strong> The camp page shows the Bureau of Meteorology fire danger rating for that camp's Queensland fire weather district. Local fire bans are not copied. The page links to the Queensland Fire Department.</li>
+<li><strong>South Australia.</strong> The camp page links to the SA Country Fire Service. It does not show a district rating.</li>
+<li><strong>Tasmania.</strong> The camp page links to the Tasmania Fire Service and TasALERT. It does not show a rating.</li>
+</ul>
+<h3>No fire district mapped</h3>
+<p>Some camps in Victoria, New South Wales and Queensland are outside every official district. That is often an offshore island. Those pages say <strong>No fire district mapped</strong>.</p>
+<p>That sentence is not a fire danger rating. Do not read it as No Rating. This site uses the words No Rating only when the agency published that rating for the camp's district.</p>
+<p>A camp within 1 kilometre of a district boundary can show the nearest official district. The page says it is the nearest district. South Australia and Tasmania camp pages do not use the "No fire district mapped" sentence. They link out, as above.</p>
+<h2>Official sources</h2>
+<p>Use these pages for the day you travel. This site does not republish them.</p>
+<ul>
+<li><a href="https://www.afdrs.com.au/">Australian Fire Danger Rating System</a></li>
+<li><a href="https://www.bom.gov.au/resources/learn-and-explore/fire-weather-knowledge-centre/fire-weather-services">Bureau of Meteorology fire weather services</a></li>
+<li>Victoria: <a href="https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings">CFA Total Fire Bans and Fire Danger Ratings</a>, <a href="https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/can-i-or-cant-i">Can I or can't I?</a>, <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a></li>
+<li>New South Wales: <a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans">RFS ratings and Total Fire Bans</a>, <a href="https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules">Total Fire Ban rules</a>, <a href="https://www.nsw.gov.au/emergency/hazards-near-me-app">Hazards Near Me</a></li>
+<li>Queensland: <a href="https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions">QFD fire bans and restrictions</a>, <a href="https://reg.bom.gov.au/qld/forecasts/fire-danger-ratings.shtml">Bureau of Meteorology Queensland fire danger ratings</a></li>
+<li>South Australia: <a href="https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/">CFS Total Fire Bans and ratings</a>, <a href="https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/what-can-i-do/">What can I do?</a></li>
+<li>Tasmania: <a href="https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/">TFS Total Fire Bans</a>, <a href="https://www.fire.tas.gov.au/about/rules-during-fire-permit-periods-and-total-fire-bans/">rules during a Total Fire Ban</a>, <a href="https://alert.tas.gov.au/">TasALERT</a></li>
+</ul>
+<p class="muted">See also: <a href="/summer/">Summer Camp Check Kit</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a></p>"""
+    webpage = {"@context": "https://schema.org", "@type": "WebPage", "name": "Fire season",
+               "url": SITE + "/fire-season/", "description": desc, "inLanguage": "en-AU",
+               "isPartOf": {"@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/"}}
+    page("/fire-season/", "Fire season | CampConditions.au", desc, body,
+         [webpage, crumbs([("Home", "/"), ("Fire season", "/fire-season/")])])
+fire_season_page()
 # HTML and JSON revalidate. Local .js and .css are named with ?v=<content hash>,
 # so a changed file is a new URL and those files can be cached for a long time.
 # Do not also set Cache-Control on /assets/*: Pages joins every matching
@@ -4033,7 +4104,7 @@ def headers_text():
     parts = ["/", "  Cache-Control: no-cache", "", "/index.html", "  Cache-Control: no-cache", "", "/404.html", "  Cache-Control: no-cache", ""]
     for state in statecfg.page_states():
         parts += [f"/{state['slug']}/*", "  Cache-Control: no-cache", ""]
-    parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/summer/*", "  Cache-Control: no-cache", "", "/summer-camp-check-kit.pdf", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/trip-check/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
+    parts += ["/about/*", "  Cache-Control: no-cache", "", "/faq/*", "  Cache-Control: no-cache", "", "/about-the-data/*", "  Cache-Control: no-cache", "", "/closures-this-weekend/*", "  Cache-Control: no-cache", "", "/privacy/*", "  Cache-Control: no-cache", "", "/terms/*", "  Cache-Control: no-cache", "", "/report/*", "  Cache-Control: no-cache", "", "/summer/*", "  Cache-Control: no-cache", "", "/fire-season/*", "  Cache-Control: no-cache", "", "/summer-camp-check-kit.pdf", "  Cache-Control: no-cache", "", "/unsubscribe/*", "  Cache-Control: no-cache", "", "/trip-check/*", "  Cache-Control: no-cache", "", "/status.json", "  Cache-Control: no-cache", ""]
     for state in statecfg.enabled():
         flag = statecfg.public_file(state, "flags")
         if flag:
@@ -4113,7 +4184,7 @@ open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
 """ + "".join(line + "\n" for line in slug_redirect_lines()))
-urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/", "/summer/", "/trip-check/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
+urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/", "/summer/", "/fire-season/", "/trip-check/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:
     for state in statecfg.enabled():
         if state["slug"] == primary["slug"]:
@@ -4127,7 +4198,7 @@ urls += [town["url"] for town in TOWN_PAGES]
 # lastmod is the build date for pages built from live data. Pages whose text only
 # changes with a code edit carry the date of that edit, so crawlers are not told
 # they changed every three hours.
-STATIC_LASTMOD = {"/privacy/": "2026-10-27", "/terms/": "2026-10-27", "/faq/": "2026-11-01", "/summer/": "2026-11-16"}
+STATIC_LASTMOD = {"/privacy/": "2026-10-27", "/terms/": "2026-10-27", "/faq/": "2026-11-01", "/summer/": "2026-11-16", "/fire-season/": "2026-11-19"}
 def lastmod(u):
     fixed = STATIC_LASTMOD.get(u)
     return fixed if fixed and fixed <= NOW.date().isoformat() else NOW.date().isoformat()

@@ -243,7 +243,7 @@ for r, _, fs in os.walk(D):
         # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
         rel = os.path.join(r, f)
         # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating; QLD pages quote the BoM one.
-        shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}", f"{os.sep}summer{os.sep}")))
+        shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}", f"{os.sep}summer{os.sep}", f"{os.sep}fire-season{os.sep}")))
         # CFA district ratings are an official feed. The old ban was the VicEmergency warning text.
         cfa_ok = needle == "fire danger" and ("cfa.vic.gov.au" in blob or "country fire authority" in blob)
         if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f"{os.sep}qld{os.sep}" in rel or f"{os.sep}sa{os.sep}" in rel or f"{os.sep}tas{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
@@ -1905,6 +1905,56 @@ if os.path.isfile(nsw_index):
     bad.append(("/summer/", "print nav"))
   if "DRAFT" in summer or "PREVIEW" in summer or 'href="http://' in summer:
     bad.append(("/summer/", "wording or insecure link"))
+  if 'href="/fire-season/"' not in summer or "Fire season" not in summer:
+    bad.append(("/summer/", "fire season link"))
+  fire_season_path = os.path.join(D, "fire-season", "index.html")
+  fire_season = open(fire_season_path, encoding="utf-8").read() if os.path.isfile(fire_season_path) else ""
+  if not fire_season:
+    bad.append(("/fire-season/", "missing"))
+  else:
+    fire_head = fire_season.split("<main>", 1)[0]
+    fire_main = fire_season.split("<main>", 1)[-1].split("</main>", 1)[0]
+    if fire_season.count('class="banner-row"') != 2 or 'href="/fire-season/"' in fire_head:
+      bad.append(("/fire-season/", "header"))
+    if '<link rel="canonical" href="https://campconditions.au/fire-season/"' not in fire_season:
+      bad.append(("/fire-season/", "canonical"))
+    if 'property="og:title"' not in fire_season or 'property="og:image"' not in fire_season:
+      bad.append(("/fire-season/", "og"))
+    if "<h1>Fire season</h1>" not in fire_main or "Not an official warning service." not in fire_main:
+      bad.append(("/fire-season/", "disclaimer"))
+    if "Check the official sources linked on each page before you travel." not in fire_main:
+      bad.append(("/fire-season/", "check before travel"))
+    if "No fire district mapped" not in fire_main or "That sentence is not a fire danger rating." not in fire_main:
+      bad.append(("/fire-season/", "unmapped wording"))
+    if "No Rating" not in fire_main:
+      bad.append(("/fire-season/", "official No Rating level"))
+    for link in (
+      "https://www.afdrs.com.au/",
+      "https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings",
+      "https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/can-i-or-cant-i",
+      "https://emergency.vic.gov.au/respond/",
+      "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans",
+      "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules",
+      "https://www.nsw.gov.au/emergency/hazards-near-me-app",
+      "https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions",
+      "https://reg.bom.gov.au/qld/forecasts/fire-danger-ratings.shtml",
+      "https://www.bom.gov.au/resources/learn-and-explore/fire-weather-knowledge-centre/fire-weather-services",
+      "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+      "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/what-can-i-do/",
+      "https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/",
+      "https://www.fire.tas.gov.au/about/rules-during-fire-permit-periods-and-total-fire-bans/",
+      "https://alert.tas.gov.au/",
+    ):
+      if f'href="{link}"' not in fire_main:
+        bad.append(("/fire-season/", "missing link", link))
+    if "<loc>https://campconditions.au/fire-season/</loc>" not in sitemap_xml:
+      bad.append(("sitemap", "/fire-season/ missing"))
+    if "/fire-season/*\n  Cache-Control: no-cache" not in open(os.path.join(D, "_headers"), encoding="utf-8").read():
+      bad.append(("_headers", "/fire-season/"))
+    _fs_ld = [json.loads(m) for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', fire_season, re.S)]
+    _fs_types = [b.get("@type") for b in _fs_ld]
+    if "WebPage" not in _fs_types or "BreadcrumbList" not in _fs_types:
+      bad.append(("/fire-season/", "json-ld", _fs_types))
   pdf_path = os.path.join(D, "summer-camp-check-kit.pdf")
   pdf_bytes = open(pdf_path, "rb").read() if os.path.isfile(pdf_path) else b""
   if len(re.findall(rb"/Type\s*/Page(?!s)", pdf_bytes)) != 1:

@@ -71,9 +71,11 @@ function withoutTopics(extra = {}) {
   const { calls, fetch } = recorder(() => okResponse());
   const result = await confirmSubscription(withoutTopics(), email, fetch);
   assert(result.ok, "flag off confirms");
-  assert(calls.length === 2, "flag off is create plus the victoria segment");
-  assert(calls[1].url.endsWith("/segments/" + vicSegment), "flag off uses the victoria segment");
-  assert(calls.every((call) => !call.url.includes("/topics") && !call.url.includes(ALL) && !call.url.includes("topic-")), "flag off makes no topic call");
+  assert(calls.length === 3, "flag off is create, the victoria topic, then the victoria segment");
+  assert(calls.some((call) => call.url.endsWith("/segments/" + vicSegment)), "flag off uses the victoria segment");
+  const builtIn = calls.find((call) => call.url.endsWith("/topics") && call.method === "PATCH");
+  assert(builtIn && JSON.stringify(jsonBody(builtIn)) === JSON.stringify([{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }]), "flag off without topic env opts in to the built-in victoria topic only (bare array)");
+  assert(calls.every((call) => !call.url.includes(ALL) && !call.url.includes("topic-")), "flag off does not use the all segment or env topics");
   assert(!jsonBody(calls[0]).topics && !jsonBody(calls[0]).segments, "flag off create has no topics");
 }
 
@@ -83,8 +85,8 @@ function withoutTopics(extra = {}) {
   const result = await confirmSubscription(base(), email, fetch);
   assert(result.ok, "legacy dual-write confirms");
   const topicCall = calls.find((call) => call.url.endsWith("/topics") && call.method === "PATCH");
-  assert(topicCall && jsonBody(topicCall).topics.length === 1, "legacy dual-write patches the victoria topic");
-  assert(jsonBody(topicCall).topics[0].id === TOPICS.vic && jsonBody(topicCall).topics[0].subscription === "opt_in", "legacy dual-write is opt_in");
+  assert(topicCall && jsonBody(topicCall).length === 1, "legacy dual-write patches the victoria topic");
+  assert(jsonBody(topicCall)[0].id === TOPICS.vic && jsonBody(topicCall)[0].subscription === "opt_in", "legacy dual-write is opt_in");
   assert(calls.every((call) => !String(call.body || "").includes("opt_out")), "legacy dual-write never opts out");
   assert(calls.some((call) => call.url.endsWith("/segments/" + vicSegment) && call.method === "POST"), "legacy dual-write still joins Victoria");
   assert(!calls.some((call) => call.url.includes(ALL) || call.url.includes("topic-sa")), "legacy Victoria does not join the all segment or SA");
@@ -118,7 +120,7 @@ function withoutTopics(extra = {}) {
   assert(result.ok, "existing contact confirms");
   const topicPatch = calls.find((call) => call.url.endsWith("/topics") && call.method === "PATCH");
   assert(topicPatch, "existing contact gets a topic patch");
-  const topics = jsonBody(topicPatch).topics;
+  const topics = jsonBody(topicPatch);
   assert(topics.length === 1 && topics[0].id === TOPICS.qld && topics[0].subscription === "opt_in", "only the new state is opted in");
   const statesPatch = calls.find((call) => call.method === "PATCH" && call.body && call.body.includes('"states"'));
   assert(statesPatch && jsonBody(statesPatch).properties.states === "vic,nsw,qld", "stored states keep Victoria and NSW");
@@ -198,7 +200,7 @@ assert(pickStateMessage(openBoth) === "Choose Victoria, New South Wales, Queensl
   assert(result.ok, "SA-only confirm");
   assert(calls.some((call) => call.method === "POST" && call.url.endsWith("/contacts")), "SA-only creates the contact");
   const topicCall = calls.find((call) => call.url.endsWith("/topics") && call.method === "PATCH");
-  assert(topicCall && jsonBody(topicCall).topics.length === 1 && jsonBody(topicCall).topics[0].id === "topic-sa" && jsonBody(topicCall).topics[0].subscription === "opt_in", "SA-only opts into the SA topic");
+  assert(topicCall && jsonBody(topicCall).length === 1 && jsonBody(topicCall)[0].id === "topic-sa" && jsonBody(topicCall)[0].subscription === "opt_in", "SA-only opts into the SA topic");
   assert(calls.every((call) => !String(call.body || "").includes("opt_out")), "SA-only never opts out");
   assert(calls.some((call) => call.method === "POST" && call.url.endsWith("/segments/" + ALL)), "SA-only joins the all segment when it is set");
   assert(!calls.some((call) => call.url.includes(vicSegment) || call.url.includes("sa-segment") || call.url.includes("act-segment")), "SA-only writes no state segment");
@@ -230,8 +232,8 @@ assert(pickStateMessage(openBoth) === "Choose Victoria, New South Wales, Queensl
   const statesPatch = calls.find((call) => call.method === "PATCH" && call.body && call.body.includes('"states"'));
   assert(statesPatch && jsonBody(statesPatch).properties.states === "vic,tas", "stored states keep Victoria");
   const topicCall = calls.find((call) => call.url.endsWith("/topics"));
-  const topics = jsonBody(topicCall).topics;
-  assert(topics.length === 1 && topics[0].id === "topic-tas" && topics[0].subscription === "opt_in", "only Tasmania is opted in");
+  const topics = jsonBody(topicCall);
+  assert(Array.isArray(topics) && topics.length === 1 && topics[0].id === "topic-tas" && topics[0].subscription === "opt_in", "only Tasmania is opted in");
   assert(calls.every((call) => !String(call.body || "").includes("opt_out")), "adding Tasmania does not opt out");
   assert(!calls.some((call) => call.url.includes("sa-segment") || call.url.includes("tas-segment") || call.url.includes(vicSegment)), "adding Tasmania writes no state segment");
 }
@@ -295,14 +297,14 @@ assert(pickStateMessage(openBoth) === "Choose Victoria, New South Wales, Queensl
   assert(on.calls[0].body.includes('"unsubscribed":true'), "one-list still unsubscribes the whole list");
   assert(on.calls.some((call) => call.method === "DELETE" && call.url.includes("nsw-segment")), "old NSW segment still removed");
   const topicCall = on.calls.find((call) => call.url.endsWith("/topics"));
-  const opted = jsonBody(topicCall).topics.map((topic) => topic.subscription + ":" + topic.id).sort();
+  const opted = jsonBody(topicCall).map((topic) => topic.subscription + ":" + topic.id).sort();
   assert(opted.join(",") === ["opt_out:topic-sa", "opt_out:" + TOPICS.nsw, "opt_out:" + TOPICS.qld, "opt_out:" + TOPICS.vic].sort().join(","), "configured topics including SA are opted out");
   assert(!on.calls.some((call) => call.url.includes("sa-segment")), "unsubscribe does not write an SA segment");
   const withTas = recorder(() => new Response("{}", { status: 200 }));
   const tasEnv = base({ ONE_LIST_MODE: "1", RESEND_TOPIC_TAS_ID: "topic-tas" });
   const tasGone = await unsubscribeContact(tasEnv, email, withTas.fetch);
   assert(tasGone.ok, "tas topic unsubscribe");
-  const tasTopics = jsonBody(withTas.calls.find((call) => call.url.endsWith("/topics"))).topics.map((topic) => topic.id);
+  const tasTopics = jsonBody(withTas.calls.find((call) => call.url.endsWith("/topics"))).map((topic) => topic.id);
   assert(tasTopics.includes("topic-tas") && tasTopics.includes("topic-sa"), "SA and TAS topics are opted out");
   assert(withTas.calls.every((call) => !call.url.includes("sa-segment") && !String(call.body || "").includes("opt_in")), "unsubscribe does not opt in or write an SA segment");
 }

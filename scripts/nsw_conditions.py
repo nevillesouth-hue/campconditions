@@ -7,11 +7,14 @@ the polygon that contains the camp. If a feed or its boundary layer is
 unavailable, this leaves status and the fire line unset.
 """
 import datetime as dt
+import hashlib
 import html as html_lib
 import json
 import math
+import os
 import re
 import sys
+import time
 import urllib.parse
 import xml.etree.ElementTree as ET
 
@@ -1352,6 +1355,99 @@ def section_applies(heading, body, reserve, camp_name):
     return _reserve_named(text, reserve)
 
 
+NPWS_RESERVES_SECONDS = int(os.environ.get("NPWS_RESERVES_SECONDS") or 180)
+_LAST_GOOD_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", ".last-good")
+
+
+def _call_fetch_json(fetch_json, name, url, timeout):
+    try:
+        return fetch_json(name, url, timeout=timeout)
+    except TypeError:
+        return fetch_json(name, url)
+
+
+def _npws_reserves_complete_path(base, cache_dir=None):
+    digest = hashlib.sha256(base.rstrip("/").encode("utf-8")).hexdigest()
+    return os.path.join(cache_dir or _LAST_GOOD_DIR, "npws_reserves-complete-" + digest + ".json")
+
+
+def _save_npws_reserves_copy(base, features, fetched, cache_dir=None):
+    directory = cache_dir or _LAST_GOOD_DIR
+    os.makedirs(directory, exist_ok=True)
+    path = _npws_reserves_complete_path(base, directory)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as handle:
+        json.dump({"url": base.rstrip("/"), "fetched": fetched, "features": features}, handle)
+    os.replace(tmp, path)
+
+
+def _features_from_page_copies(base, cache_dir):
+    """Rebuild a complete layer from per-page last-good files of a previous build."""
+    prefix = base.rstrip("/") + "/query?"
+    pages = []
+    for name in os.listdir(cache_dir):
+        if not name.endswith(".json"):
+            continue
+        path = os.path.join(cache_dir, name)
+        try:
+            with open(path, encoding="utf-8") as handle:
+                row = json.load(handle)
+            url = row.get("url") or ""
+            if not url.startswith(prefix):
+                continue
+            query = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
+            offset = int((query.get("resultOffset") or ["0"])[0])
+            doc = row.get("doc") or {}
+            if not isinstance(doc, dict):
+                continue
+            pages.append((offset, doc, row.get("fetched") or ""))
+        except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+            continue
+    if not pages:
+        return None, ""
+    pages.sort(key=lambda item: item[0])
+    expected = 0
+    features = []
+    fetched = pages[0][2]
+    for offset, doc, page_fetched in pages:
+        if offset != expected:
+            return None, ""
+        batch = doc.get("features") or []
+        features.extend(batch)
+        if not batch or not doc.get("exceededTransferLimit"):
+            if (offset, doc, page_fetched) != pages[-1]:
+                return None, ""
+            return features, fetched
+        expected += len(batch)
+    return None, ""
+
+
+def _load_npws_reserves_copy(base, cache_dir=None):
+    directory = cache_dir or _LAST_GOOD_DIR
+    path = _npws_reserves_complete_path(base, directory)
+    try:
+        with open(path, encoding="utf-8") as handle:
+            row = json.load(handle)
+        features = row.get("features")
+        fetched = row.get("fetched") or ""
+        if isinstance(features, list) and features:
+            return features, fetched
+    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError):
+        pass
+    if os.path.isdir(directory):
+        return _features_from_page_copies(base, directory)
+    return None, ""
+
+
+def _fallback_npws_reserves(base, reason, cache_dir=None):
+    features, fetched = _load_npws_reserves_copy(base, cache_dir)
+    if features is None:
+        print(f"WARN npws_reserves {reason} and no saved copy", file=sys.stderr)
+        return None
+    print(f"FALLBACK: npws_reserves {reason}, using saved copy from {fetched}", file=sys.stderr)
+    return features
+
+
 def _query(fetch_json, name, base, out_fields):
     features = []
     offset = 0
@@ -1373,6 +1469,62 @@ def _query(fetch_json, name, base, out_fields):
         if not batch or not doc.get("exceededTransferLimit"):
             return features
         offset += len(batch)
+    return features
+
+
+def _query_npws_reserves(fetch_json, base, out_fields, budget_seconds=None, clock=None, cache_dir=None):
+    """Fetch NPWS reserve polygons, with a short overall budget and a last-good fallback.
+
+    Unlike _query, a timeout or 503 does not move on to the next page. The
+    complete saved layer is used instead so a slow boundary server cannot
+    stall the build.
+    """
+    budget = NPWS_RESERVES_SECONDS if budget_seconds is None else budget_seconds
+    now = clock or time.monotonic
+    started = now()
+    features = []
+    offset = 0
+    while offset <= 5000:
+        elapsed = now() - started
+        if elapsed >= budget:
+            return _fallback_npws_reserves(base, f"exceeded {int(budget)}s", cache_dir)
+        remaining = budget - elapsed
+        timeout = max(1, min(90, remaining))
+        params = urllib.parse.urlencode({
+            "where": "1=1",
+            "outFields": out_fields,
+            "returnGeometry": "true",
+            "outSR": "4326",
+            "f": "json",
+            "resultOffset": str(offset),
+            "resultRecordCount": "25",
+        })
+        doc = _call_fetch_json(fetch_json, "npws_reserves", base.rstrip("/") + "/query?" + params, timeout)
+        if not isinstance(doc, dict) or doc.get("error"):
+            reason = "503/timeout"
+            if isinstance(doc, dict) and doc.get("error"):
+                err = str(doc.get("error"))
+                if "503" in err or "timeout" in err.lower() or "timed out" in err.lower() or "unavailable" in err.lower():
+                    reason = "503/timeout"
+                else:
+                    reason = f"exceeded {int(budget)}s" if (now() - started) >= budget else "503/timeout"
+            return _fallback_npws_reserves(base, reason, cache_dir)
+        batch = doc.get("features") or []
+        features.extend(batch)
+        if not batch or not doc.get("exceededTransferLimit"):
+            fetched = dt.datetime.now(dt.timezone.utc).astimezone().isoformat()
+            try:
+                _save_npws_reserves_copy(base, features, fetched, cache_dir)
+            except OSError as exc:
+                print("WARN npws_reserves complete copy not saved", exc, file=sys.stderr)
+            return features
+        offset += len(batch)
+        if now() - started >= budget:
+            return _fallback_npws_reserves(base, f"exceeded {int(budget)}s", cache_dir)
+    try:
+        _save_npws_reserves_copy(base, features, dt.datetime.now(dt.timezone.utc).astimezone().isoformat(), cache_dir)
+    except OSError as exc:
+        print("WARN npws_reserves complete copy not saved", exc, file=sys.stderr)
     return features
 
 
@@ -1648,7 +1800,7 @@ def apply(camps, sources, fetch_json, fetch_text):
                 label, page = "NPWS alerts RSS", alerts["url"]
                 if items:
                     print("WARN NPWS alerts from the RSS fallback, built " + (updated.isoformat() if updated else "unknown"), file=sys.stderr)
-            features = _fetch_ok(_query(fetch_json, "npws_reserves", reserves["url"], "reservename,reservetype"), "NPWS reserve boundaries") if items else None
+            features = _fetch_ok(_query_npws_reserves(fetch_json, reserves["url"], "reservename,reservetype"), "NPWS reserve boundaries") if items else None
             if items and features is not None:
                 records = _reserve_records(features)
                 if records:

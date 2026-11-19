@@ -75,11 +75,21 @@ function notOpen() {
   return { ok: false, status: 400, data: { name: "signup_not_open", message: "Those digests are not open. No address was added." } };
 }
 
-// Topics this confirmation opts into. Never opt_out. VIC/NSW/QLD only when that topic id is set.
-function chosenTopicOptIns(env, slugs) {
+// Resend state topics (private, opt_out). The digests send with topic_id, so a contact
+// that is in a segment but not opted in to its state topic gets no digest.
+// Topic ids are not secrets. RESEND_TOPIC_<STATE>_ID overrides each one when set.
+// SA and TAS have no built-in id: they stay topic-env-only and held until opened.
+export const LIVE_TOPIC_IDS = {
+  vic: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7",
+  nsw: "166c5fbd-9691-4dbc-9b62-b6c600b0e076",
+  qld: "268e2f38-88e7-4d84-8e35-b6a05823100c",
+};
+
+// Topics this confirmation opts into. Never opt_out. Only the chosen open states.
+export function chosenTopicOptIns(env, slugs) {
   const topics = [];
   for (const slug of slugs) {
-    const id = topicId(env, slug);
+    const id = topicId(env, slug) || LIVE_TOPIC_IDS[slug] || "";
     if (!id) continue;
     topics.push({ id, subscription: "opt_in" });
   }
@@ -88,9 +98,10 @@ function chosenTopicOptIns(env, slugs) {
 
 async function patchTopics(env, email, doFetch, topics) {
   if (!topics.length) return { ok: true, status: 200, data: {} };
-  const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", { topics }, doFetch);
+  // The body is a bare array of { id, subscription } (Resend REST and SDK). A { topics } wrapper is rejected.
+  const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", topics, doFetch);
   if (!opted.ok && opted.status !== 409) return opted;
-  return opted;
+  return { ...opted, ok: true };
 }
 
 async function addAllSegment(env, email, doFetch) {
@@ -98,7 +109,7 @@ async function addAllSegment(env, email, doFetch) {
   if (!allId) return { ok: true, status: 200, data: {}, skipped: true };
   const added = await resend(env, segmentPath(email, allId), "POST", undefined, doFetch);
   if (!added.ok && added.status !== 409) return added;
-  return added;
+  return { ...added, ok: true };
 }
 
 // Legacy segment writes. 404 means that segment is already gone, so the confirm continues.

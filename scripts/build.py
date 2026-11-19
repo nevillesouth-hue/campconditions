@@ -102,12 +102,12 @@ bind(statecfg.enabled()[0])
 OSM_CATEGORIES = ["Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", PV_LABEL]
 CAT_LABEL = {"free": "Free", "donation": "Donation", "showground": "Showground", "council_park": "Council park", "council_park_leased": "Council park (leased)", "rest_area": "Rest area", "pub_stay": "Pub stay", "park_campground": PV_LABEL, "osm_camp": "Camp"}
 
-def _read_response(url, headers=None):
+def _read_response(url, headers=None, timeout=90):
     base = {"User-Agent": "CampConditions.au/0.1 (+https://campconditions.au)", "Accept-Encoding": "gzip"}
     if headers:
         base.update(headers)
     req = urllib.request.Request(url, headers=base)
-    with urllib.request.urlopen(req, timeout=90) as r:
+    with urllib.request.urlopen(req, timeout=timeout) as r:
         b = r.read()
         if r.headers.get("Content-Encoding") == "gzip" or b[:2] == b"\x1f\x8b":
             b = gzip.decompress(b)
@@ -145,9 +145,9 @@ def _last_good_load(url):
         return None, ""
     return row.get("doc"), row["fetched"]
 
-def fetch(name, url):
+def fetch(name, url, timeout=90):
     try:
-        d = json.loads(_read_response(url))
+        d = json.loads(_read_response(url, timeout=timeout))
         if name in LAST_GOOD_SOURCES:
             if isinstance(d, dict) and d.get("error"):
                 raise ValueError(f"service error: {str(d.get('error'))[:150]}")
@@ -156,7 +156,9 @@ def fetch(name, url):
         return d
     except Exception as e:
         SRC[name] = {"ok": False, "url": url, "error": str(e)[:200]}; print("WARN", name, e, file=sys.stderr)
-        if name in LAST_GOOD_SOURCES:
+        # npws_reserves last-good is the complete layer, applied by nsw_conditions
+        # after a time budget or a 503/timeout, not a per-page retry.
+        if name in LAST_GOOD_SOURCES and name != "npws_reserves":
             doc, fetched = _last_good_load(url)
             if doc is not None:
                 SRC[name]["fallback"] = "last good boundary copy fetched " + fetched

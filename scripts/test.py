@@ -418,19 +418,22 @@ const mock = async (url, init) => {
   calls.push({ url, method: init.method, body: init.body });
   if (url.endsWith("/contacts")) return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  if (url.endsWith("/topics") && init.method === "PATCH") return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   return new Response("no", { status: 500 });
 };
 const ok = await confirmSubscription(env, email, mock);
-if (!ok.ok || calls.length !== 2 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
-if (calls[1].method !== "POST" || calls[1].body !== undefined) process.exit(1);
-if (!calls[1].url.endsWith(segmentPath(email, segment))) process.exit(1);
+if (!ok.ok || calls.length !== 3 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
+const segCall = calls.find((call) => String(call.url).endsWith(segmentPath(email, segment)));
+if (!segCall || segCall.method !== "POST" || segCall.body !== undefined) process.exit(1);
+const topicCall = calls.find((call) => String(call.url).endsWith("/contacts/reader%40example.com/topics"));
+if (!topicCall || topicCall.method !== "PATCH" || topicCall.body !== JSON.stringify([{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }])) { console.error("confirm must opt in to the vic topic (bare array)"); process.exit(1); }
 calls.length = 0;
 const again = async (url) => {
   calls.push(url);
   return new Response(JSON.stringify({ name: "already_exists" }), { status: 409 });
 };
 const dup = await confirmSubscription(env, email, again);
-if (!dup.ok || calls.length !== 2) process.exit(1);
+if (!dup.ok || calls.length !== 3) process.exit(1);
 const restricted = { ok: false, status: 401, data: { name: "restricted_api_key", message: "This API key is restricted to only send emails." } };
 const msg = failureMessage(restricted);
 if (!msg.includes("can send mail but cannot save contacts") || msg.includes("502")) process.exit(1);
@@ -447,10 +450,11 @@ const mock2 = async (url, init) => {
     return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
   }
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  if (url.endsWith("/topics") && init.method === "PATCH") return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   return new Response("no", { status: 500 });
 };
 const retried = await confirmSubscription(envWithSecret, email, mock2);
-if (!retried.ok || calls2.length !== 3 || !calls2[0].body.includes("unsubscribe_token") || calls2[1].body.includes("unsubscribe_token")) process.exit(1);
+if (!retried.ok || calls2.length !== 4 || !calls2[0].body.includes("unsubscribe_token") || calls2[1].body.includes("unsubscribe_token")) process.exit(1);
 import { makeToken, readToken } from "./functions/_lib/token.js";
 const oldToken = await makeToken(email, "test-secret");
 const oldRead = await readToken(oldToken, "test-secret");
@@ -468,10 +472,12 @@ if (!nswOnly.ok) process.exit(1);
 if (callsNsw.some((call) => String(call.url).includes(segment))) process.exit(1);
 if (!callsNsw.some((call) => String(call.url).endsWith("/segments/nsw-segment") && call.method === "POST" && call.body === undefined)) process.exit(1);
 if (!callsNsw.some((call) => call.method === "PATCH" && call.body && call.body.includes('"states":"nsw"'))) process.exit(1);
+if (!callsNsw.some((call) => call.method === "PATCH" && String(call.url).endsWith("/topics") && call.body === JSON.stringify([{ id: "166c5fbd-9691-4dbc-9b62-b6c600b0e076", subscription: "opt_in" }]))) { console.error("nsw confirm must opt in to the nsw topic only"); process.exit(1); }
 const callsLost = [];
 const mockLost = async (url, init) => {
   callsLost.push({ url, method: init.method, body: init.body });
   if (url.endsWith("/contacts") && init.method === "POST") return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
+  if (init.method === "PATCH" && url.endsWith("/topics")) return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   if (init.method === "PATCH") return new Response(JSON.stringify({ name: "validation_error" }), { status: 422 });
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
   return new Response("no", { status: 500 });
@@ -2619,12 +2625,98 @@ if os.path.isfile(_tas_page):
   if "may be out of date: the newest" in _tas_html:
     bad.append(("/tas/", "old stale wording"))
 _parks_sa = (feed.get("sources") or {}).get("parks_sa") or {}
-if _parks_sa.get("fetched") != "2026-11-10T17:00:00+10:30" or _parks_sa.get("snapshot") is not True:
+if _parks_sa.get("fetched") != "2026-11-18T10:38:24+10:30" or _parks_sa.get("snapshot") is not True:
   bad.append(("status.json", "parks_sa snapshot", _parks_sa.get("fetched"), _parks_sa.get("snapshot")))
 if _parks_sa.get("fetched") and _parks_sa.get("fetched") == feed.get("generated"):
   bad.append(("status.json", "parks_sa fetched matches the build"))
 if "saved snapshot" not in (open(os.path.join(D, "about-the-data", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "about-the-data", "index.html")) else ""):
   bad.append(("/about-the-data/", "snapshot label"))
+# NPWS reserve-boundary fetch: 3-minute budget, then the last-good layer, no per-page retry.
+def check_npws_reserves_budget(bad):
+  import contextlib, hashlib, io, json, os, tempfile, urllib.parse
+  import nsw_conditions as nsw
+  base = "https://example.test/npws-reserves"
+  page1 = {"features": [{"attributes": {"reservename": "Live Park"}, "geometry": {}}], "exceededTransferLimit": True}
+  saved = [{"attributes": {"reservename": "Saved Park"}, "geometry": {}}]
+  class Clock:
+    def __init__(self):
+      self.t = 0
+    def __call__(self):
+      return self.t
+  def calls_of(fn):
+    log = []
+    def wrap(name, url, timeout=90):
+      log.append((name, url, timeout))
+      return fn(name, url, timeout)
+    wrap.log = log
+    return wrap
+  with tempfile.TemporaryDirectory() as cache:
+    nsw._save_npws_reserves_copy(base, saved, "2026-11-18T03:07:16+11:00", cache)
+    clock = Clock()
+    def first_page(name, url, timeout=90):
+      clock.t += 200
+      return page1
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      got = nsw._query_npws_reserves(calls_of(first_page), base, "reservename,reservetype", budget_seconds=180, clock=clock, cache_dir=cache)
+    if got != saved:
+      bad.append(("npws_reserves", "budget fallback", got))
+    if "FALLBACK: npws_reserves exceeded 180s, using saved copy from 2026-11-18T03:07:16+11:00" not in buf.getvalue():
+      bad.append(("npws_reserves", "budget fallback log", buf.getvalue()))
+    clock = Clock()
+    def fail_once(name, url, timeout=90):
+      return None
+    fetcher = calls_of(fail_once)
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      got = nsw._query_npws_reserves(fetcher, base, "reservename,reservetype", budget_seconds=180, clock=clock, cache_dir=cache)
+    if got != saved or len(fetcher.log) != 1:
+      bad.append(("npws_reserves", "timeout fallback", got, len(fetcher.log)))
+    if "FALLBACK: npws_reserves 503/timeout, using saved copy from 2026-11-18T03:07:16+11:00" not in buf.getvalue():
+      bad.append(("npws_reserves", "timeout fallback log", buf.getvalue()))
+  with tempfile.TemporaryDirectory() as cache:
+    def one_page(name, url, timeout=90):
+      return {"features": [{"attributes": {"reservename": "Fresh Park"}}], "exceededTransferLimit": False}
+    got = nsw._query_npws_reserves(one_page, base, "reservename,reservetype", budget_seconds=180, clock=Clock(), cache_dir=cache)
+    if not got or got[0]["attributes"]["reservename"] != "Fresh Park":
+      bad.append(("npws_reserves", "live save", got))
+    loaded, fetched = nsw._load_npws_reserves_copy(base, cache)
+    if loaded != got or not fetched:
+      bad.append(("npws_reserves", "complete copy not saved", loaded, fetched))
+    def boom(name, url, timeout=90):
+      return None
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      again = nsw._query_npws_reserves(boom, base, "reservename,reservetype", budget_seconds=180, clock=Clock(), cache_dir=cache)
+    if again != got:
+      bad.append(("npws_reserves", "reuse complete copy", again))
+  with tempfile.TemporaryDirectory() as cache:
+    prefix = base + "/query?"
+    for offset, count, exceeded in ((0, 25, True), (25, 24, False)):
+      params = urllib.parse.urlencode({
+        "where": "1=1", "outFields": "reservename,reservetype", "returnGeometry": "true",
+        "outSR": "4326", "f": "json", "resultOffset": str(offset), "resultRecordCount": "25",
+      })
+      url = prefix + params
+      doc = {"features": [{"attributes": {"reservename": "P%s" % i}} for i in range(count)], "exceededTransferLimit": exceeded}
+      path = os.path.join(cache, hashlib.sha256(url.encode("utf-8")).hexdigest() + ".json")
+      with open(path, "w", encoding="utf-8") as handle:
+        json.dump({"url": url, "fetched": "2026-11-18T03:07:16+11:00", "doc": doc}, handle)
+    def fail(name, url, timeout=90):
+      return None
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+      got = nsw._query_npws_reserves(fail, base, "reservename,reservetype", budget_seconds=180, clock=Clock(), cache_dir=cache)
+    if not got or len(got) != 49:
+      bad.append(("npws_reserves", "rebuild from page copies", None if got is None else len(got)))
+    if "using saved copy from 2026-11-18T03:07:16+11:00" not in buf.getvalue():
+      bad.append(("npws_reserves", "page-copy fallback log", buf.getvalue()))
+  def dead(name, url):
+    return None
+  if nsw._query(dead, "rfs_fire_areas", "https://example.test/rfs", "firearea") is not None:
+    bad.append(("rfs_fire_areas", "query still retries or falls back"))
+
+check_npws_reserves_budget(bad)
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.

@@ -1,7 +1,7 @@
 {
  "as_of_adelaide": "2026-11-09T11:46:51+10:30",
  "timezone": "Australia/Adelaide",
- "note": "Derived from the 9 Nov classification. Saved status labels are omitted so tests compute status from windows.",
+ "note": "Derived from the 9 Nov classification. Notices 51-53 added 18 November 2026 from official Parks SA notice pages. Saved status labels are omitted so tests compute status from windows.",
  "notices": [
   {
    "source_index": 1,
@@ -1473,7 +1473,8 @@
    },
    "unknowns": [],
    "related_notices": [
-    30
+    30,
+    52
    ],
    "implementation_cannot": "Apply to Chowilla Game Reserve."
   },
@@ -1734,10 +1735,10 @@
    "affected_camp_facilities": [],
    "unmapped_camp_scope": null,
    "unknowns": [
-    "No Wapma Thura camp IDs in saved catalogue"
+    "Official page does not name a campground. Ippinitchie Campground (860167) is in the saved catalogue but is held without coordinates, so it has no published page."
    ],
    "related_notices": [],
-   "implementation_cannot": "Camp IDs."
+   "implementation_cannot": "Mark Ippinitchie Campground on a published page."
   },
   {
    "source_index": 40,
@@ -2014,7 +2015,9 @@
     "Which Innamincka campgrounds are closed is not stated",
     "Open-site list is not proof any campground is open"
    ],
-   "related_notices": [],
+   "related_notices": [
+    53
+   ],
    "implementation_cannot": "Infer Innamincka camps open or closed."
   },
   {
@@ -2213,8 +2216,108 @@
     "Pine Hut Soak is the built asset of Scorpion Springs Block. The same block's suppression note names Coxs Windmill with Pine Hut Soak. Scorpion Springs Block is not hatched.",
     "Doggers Hut is named in the Mount Shaugh Block suppression note. Mount Shaugh Block is not hatched."
    ],
-   "related_notices": [],
+   "related_notices": [
+    51
+   ],
    "implementation_cannot": "Mark Bucks Camp, Comet Bore, Coxs Windmill, Doggers Hut, Pertendi Hut or Pine Hut Soak closed. The notice map does not put those camps in a closed block."
+  },
+  {
+   "source_index": 51,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/ngarkat-conservation-park-16",
+   "title": "Part closure of Ngarkat Conservation Park",
+   "reason": "Seasonal closure of the Border Track one-way section. The Pines and the Gums campground are also closed during this period.",
+   "parks": [
+    "Ngarkat Conservation Park"
+   ],
+   "scope_level": "track_and_named_campgrounds",
+   "primary_type": "partial_closure",
+   "windows": [],
+   "recurrence": {
+    "type": "annual",
+    "current_occurrence": {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "Seasonal closure now in place. Official page says the Border Track is open from 1 April to 31 October each year and does not give clock times. Published 18 November 2026."
+    }
+   },
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Official page names The Pines and the Gums campground as closed during the seasonal Border Track closure.",
+    "The Pines Campground (4WD) 73212 and The Gums Campground (4WD) 73213 are in the saved Ngarkat catalogue but are held without coordinates, so they have no published page.",
+    "Do not attach Little Dip Conservation Park's The Gums campground (71627), which is a different park.",
+    "No other Ngarkat campground on a published page is named."
+   ],
+   "related_notices": [
+    50
+   ],
+   "implementation_cannot": "Mark The Pines or The Gums on a published page. Those Ngarkat camps are held without coordinates. Do not attach Little Dip Conservation Park's The Gums campground (71627)."
+  },
+  {
+   "source_index": 52,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/chowilla-regional-reserve-and-danggali-conservation-park-and-wilderness-protection-area",
+   "title": "Full closure of Chowilla Regional Reserve and Danggali Conservation Park and Wilderness Protection Area",
+   "reason": "For public safety during a pest control operation.",
+   "parks": [
+    "Chowilla Regional Reserve",
+    "Danggali Conservation Park and Wilderness Protection Area"
+   ],
+   "scope_level": "whole_parks",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": null,
+     "end_local": null,
+     "precision": "date_only",
+     "note": "2026-11-20 to 2026-11-26 date-only. Official page: Friday 20 - Thursday 26 November 2026. Published 16 November 2026."
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Official page names the two parks, not a campground.",
+    "Danggali Campground (4WD) 73195 is in the saved catalogue but is held without coordinates, so it has no published page.",
+    "Border Cliffs campground and Chowilla Creekside campsites are in Chowilla Game Reserve, which this notice does not name."
+   ],
+   "related_notices": [
+    30,
+    31
+   ],
+   "implementation_cannot": "Apply to Chowilla Game Reserve or mark Danggali Campground on a published page."
+  },
+  {
+   "source_index": 53,
+   "source_url": "https://www.parks.sa.gov.au/know-before-you-go/closures-and-alerts/innamincka-regional-reserve-and-malkumba-coongie-lakes-national-park-4",
+   "title": "Full closure of Innamincka Regional Reserve and Malkumba-Coongie Lakes National Park",
+   "reason": "For public safety during a pest control and monitoring program.",
+   "parks": [
+    "Innamincka Regional Reserve",
+    "Malkumba-Coongie Lakes National Park"
+   ],
+   "scope_level": "whole_parks_with_exclusion",
+   "primary_type": "full_closure",
+   "windows": [
+    {
+     "start_local": "2026-11-16T06:00:00+10:30",
+     "end_local": "2026-11-18T20:00:00+10:30",
+     "precision": "exact_local_time",
+     "note": "6am 16 November until 8pm 18 November 2026. Published 16 November 2026."
+    }
+   ],
+   "recurrence": null,
+   "affected_camp_facilities": [],
+   "unmapped_camp_scope": null,
+   "unknowns": [
+    "Official page closes Innamincka Regional Reserve (excluding the Town Common) and Malkumba-Coongie Lakes National Park, and does not name a campground.",
+    "Malkumba-Coongie Lakes Campground 73204 is in the saved catalogue but is held without coordinates, so it has no published page.",
+    "Which published Innamincka campgrounds are inside the Town Common, and which are outside it, is not stated."
+   ],
+   "related_notices": [
+    42
+   ],
+   "implementation_cannot": "Infer which Innamincka camps are outside the Town Common, or mark Malkumba-Coongie Lakes Campground on a published page."
   }
  ]
 }

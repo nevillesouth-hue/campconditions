@@ -810,6 +810,7 @@ def disambiguate_names(group):
             if ref:
                 camp["page_name"] = f"{camp['name']} ({ref})"
 by_state = {}
+TAS_ALERT_RESULT = None
 for state, official, osm_rows, state_closures in loaded:
     bind(state)
     visitor = (state.get("sources") or {}).get("npws_visitor_areas") or {}
@@ -861,6 +862,7 @@ for state, official, osm_rows, state_closures in loaded:
     if state.get("slug") == "tas" and (sources.get("pws_alerts") or {}).get("url"):
         import tas_alerts
         fetched = tas_alerts.fetch_alerts(fetch_text, LAST_GOOD_DIR, now=NOW)
+        TAS_ALERT_RESULT = fetched
         tas_alerts.apply_alerts(state_camps, fetched["alerts"])
         ALERTS_UPDATED[state["slug"]] = tas_alerts.stamp(fetched)
         counted = tas_alerts.counts(state_camps)
@@ -2497,7 +2499,8 @@ def inline_signup(kind, region_name, camp=None):
             return sa_signup.coming_soon_html()
     if SLUG == "tas":
         import tas_signup
-        return tas_signup.coming_soon_html()
+        if not tas_signup.forms_allowed():
+            return tas_signup.coming_soon_html()
     if not statecfg.signup_allowed(STATE):
         return ""
     state = STATE.get("abbrev") or STATE["name"]
@@ -2519,7 +2522,7 @@ def inline_signup(kind, region_name, camp=None):
         btn = "Sign me up"
     else:
         head = f'<strong>Camping in {e(region_name)}?</strong>'
-        sub = f"Get the weekend closures for {e(region_name)} and the rest of {e(STATE['name'])} free each Thursday."
+        sub = e(statecfg.weekend_closures_line(region_name, STATE.get("name") or ""))
         btn = "Sign me up"
     return (f'<section class="inline-signup-box {e(kind)}" aria-label="Email sign-up"><p>{head} {sub}</p>'
             f'<form class="signup inline-signup" action="/api/subscribe" method="post">{hidden}'
@@ -2538,23 +2541,17 @@ def news_section(heading=None, preselect=None):
     offered = statecfg.signup_states()
     if preselect and preselect not in {state["slug"] for state in offered}:
         return ""
-    boxes = []
-    for state in offered:
-        picked = state.get("slug") == preselect
-        checked = " checked" if picked else ""
-        boxes.append(
-            '<label style="display:inline-flex;align-items:center;gap:.35rem;font-weight:700;min-height:44px;margin:0">'
-            f'<input type="checkbox" name="states" value="{e(state["slug"])}"{checked} style="width:1.15rem;height:1.15rem;margin:0"> {e(state.get("abbrev") or state["name"])}</label>'
-        )
-    field = (
-        '<fieldset style="border:0;margin:0 0 .45rem;padding:0;display:flex;flex-wrap:wrap;gap:.15rem .85rem;align-items:center">'
-        '<legend style="font-weight:700;padding:0;margin:0 .35rem 0 0">States</legend>'
-        + "".join(boxes)
-        + '<input type="hidden" name="choose_states" value="1"></fieldset>'
-    )
+    field = statecfg.signup_fieldset(offered, preselect or "")
     return html_form.replace('<label for="digest-email">Your email</label>', field + '<label for="digest-email">Your email</label>', 1)
 
 shutil.rmtree(OUT, ignore_errors=True); os.makedirs(OUT)
+if TAS_ALERT_RESULT is not None:
+    import tas_alerts
+    _tas_alert_dir = os.path.join(OUT, "digest", "tas")
+    os.makedirs(_tas_alert_dir, exist_ok=True)
+    with open(os.path.join(_tas_alert_dir, "alerts.json"), "w", encoding="utf-8") as _tas_alert_file:
+        json.dump(tas_alerts.digest_document(TAS_ALERT_RESULT), _tas_alert_file, ensure_ascii=False, indent=2)
+        _tas_alert_file.write("\n")
 primary = next(state for state in statecfg.enabled() if state.get("enabled"))
 bind(primary)
 VIC_NEAREST_FN = """  function nearestTown(lat, lon) {
@@ -2675,6 +2672,11 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
     return js
 def _qld_enabled():
     return any(state["slug"] == "qld" for state in statecfg.enabled())
+def _signup_open(slug):
+    try:
+        return statecfg.signup_allowed(statecfg.by_slug(slug))
+    except KeyError:
+        return False
 def _sa_enabled():
     return any(state["slug"] == "sa" for state in statecfg.enabled())
 def _tas_enabled():
@@ -2784,7 +2786,13 @@ shutil.copyfile(os.path.join(ROOT, "assets", "brand", "site.webmanifest"), os.pa
 # The Summer Camp Check Kit PDF is a committed static asset. This build copies
 # it; it does not run Chromium.
 os.makedirs(os.path.join(OUT, "summer"), exist_ok=True)
-shutil.copyfile(os.path.join(ROOT, "assets", "summer", "index.html"), os.path.join(OUT, "summer", "index.html"))
+_summer_html = open(os.path.join(ROOT, "assets", "summer", "index.html"), encoding="utf-8").read()
+if _signup_open("sa") and _signup_open("tas"):
+    _summer_html = _summer_html.replace(
+        "(The email covers VIC, NSW and QLD for now.)",
+        "(The email covers VIC, NSW, QLD, SA and TAS.)",
+    )
+open(os.path.join(OUT, "summer", "index.html"), "w", encoding="utf-8").write(_summer_html)
 shutil.copyfile(os.path.join(ROOT, "assets", "summer-camp-check-kit.pdf"), os.path.join(OUT, "summer-camp-check-kit.pdf"))
 by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
 n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"] == "check" for c in camps)
@@ -3233,7 +3241,8 @@ def emit_state(state, camps, include_home):
                 sa_note = sa_signup.coming_soon_html()
         elif state.get("slug") == "tas":
             import tas_signup
-            sa_note = tas_signup.coming_soon_html()
+            if not tas_signup.forms_allowed():
+                sa_note = tas_signup.coming_soon_html()
         state_body = f"<div class=\"page-head\"><h1>{COPY['state_h1']}</h1><p class=\"head-counts\"><span class=\"badge closed\" id=\"count-closed\">{n_closed} closed</span> <span class=\"badge check\" id=\"count-check\">{n_check} to check</span></p></div><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{town_section(chosen)}{notice_phase.windows_tag(camps)}"
         if not sa_note and multi:
             state_body += news_section()
@@ -3651,6 +3660,9 @@ if len(statecfg.enabled()) > 1:
     privacy_date = "27 October 2026"
     if _qld_enabled():
         privacy_date = "4 November 2026"
+    if _signup_open("sa") and _signup_open("tas"):
+        privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria, New South Wales, Queensland, South Australia and Tasmania. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
+        privacy_date = "19 November 2026"
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
  f"<h1>Privacy</h1><p>Last updated {privacy_date}.</p>\n<h2>Who we are</h2><p>{privacy_who}</p>\n" + """<h2>What we collect</h2><p>If you sign up, we collect your email address and the date and time of your sign-up and confirmation. We don't use tracking cookies. Cloudflare, which hosts this site, may log basic technical data such as your IP address for security.</p>
 <h2>Why we collect it</h2><p>We use your email only to send the digest and service emails about your subscription, such as the confirmation message.</p>

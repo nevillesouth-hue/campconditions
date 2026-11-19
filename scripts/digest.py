@@ -16,11 +16,6 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import broadcast_plan
 import states
 
-ap = argparse.ArgumentParser()
-ap.add_argument("--current", default=os.path.join("dist", "status.json"))
-ap.add_argument("--previous", default="")
-ap.add_argument("--out", default=os.path.join("dist", "digest"))
-a = ap.parse_args()
 e = lambda s: html.escape(str(s or ""), quote=True)
 
 def link(c):
@@ -30,8 +25,54 @@ def camps_for(state, rows):
     needle = f"/{state['slug']}/"
     return [c for c in rows if needle in str(c.get("url") or "")]
 
-def write_digest(state, rows, prev_rows, generated, generated_text, dest):
+def _upcoming_lines(rows):
+    lines = []
+    for camp in rows:
+        upcoming = camp.get("upcoming_closure") or {}
+        notice = camp.get("notice_status") == "upcoming" or camp.get("status") == "upcoming"
+        if not (notice or upcoming.get("desc") or upcoming.get("reason") or upcoming.get("start")):
+            continue
+        note = upcoming.get("desc") or upcoming.get("reason") or "Upcoming"
+        if upcoming.get("start"):
+            note = "%s · %s" % (note, str(upcoming.get("start"))[:10])
+        lines.append("%s — %s" % (link(camp), e(note)))
+    return "<br>".join(lines) or "None this week."
+
+
+def _alert_lines(alerts):
+    lines = []
+    for alert in alerts or []:
+        if not isinstance(alert, dict):
+            continue
+        headline = str(alert.get("headline") or "").strip()
+        if not headline:
+            continue
+        parks = [str(name).strip() for name in (alert.get("parks") or []) if str(name).strip()]
+        href = str(alert.get("link") or "https://parks.tas.gov.au/explore-our-parks/know-before-you-go/alerts")
+        text = e(headline)
+        if parks:
+            text += " — " + ", ".join(e(name) for name in parks)
+        text += ' <a href="%s" style="color:#2f5d3a;">Parks and Wildlife Service alerts</a>' % e(href)
+        lines.append(text)
+    return "<br>".join(lines) or "None this week."
+
+
+def load_tas_alerts(current_path):
+    """Headlines written by the build. Missing file means no alerts section rows."""
+    path = os.path.join(os.path.dirname(os.path.abspath(current_path)), "digest", "tas", "alerts.json")
+    if not os.path.isfile(path):
+        return []
+    try:
+        with open(path, encoding="utf-8") as handle:
+            doc = json.load(handle)
+    except (OSError, ValueError):
+        return []
+    return doc.get("alerts") or []
+
+
+def write_digest(state, rows, prev_rows, generated, generated_text, dest, alerts=None):
     copy = state.get("copy") or {}
+    slug = state.get("slug") or ""
     reg = {key: name for key, name, _blurb in states.regions(state)}
     closed = [c for c in rows if c["status"] == "closed"]
     prev_closed = {c["slug"] for c in prev_rows if c["status"] == "closed"} if prev_rows is not None else set()
@@ -48,7 +89,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
     quiet = "font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#666666;padding-top:8px;"
     share = "mailto:?subject=CampConditions.au%20-%20free%20campground%20updates&body=Thought%20this%20might%20be%20useful%20if%20you%27re%20heading%20bush.%20CampConditions%20is%20a%20free%20site%20with%20closures%20and%20conditions%20for%20campgrounds%20across%20Victoria%2C%20NSW%2C%20Queensland%2C%20SA%20and%20Tasmania%2C%20with%20the%20rest%20of%20Australia%20coming%20soon%2C%20plus%20an%20optional%20weekly%20email.%0A%0Ahttps%3A%2F%2Fcampconditions.au%2F"
     body_rows.append(f'<tr><td style="{quiet}">Free every Thursday. <a href="{share}" style="color:#666666;text-decoration:underline;">Forward to a mate</a> · <a href="https://campconditions.au/support" style="color:#666666;text-decoration:underline;">Chip in</a> (optional)</td></tr>')
-    if prev_rows is not None:
+    if prev_rows is not None or slug in ("sa", "tas"):
         body_rows += [h2("Newly closed"), para("<br>".join(f"{link(c)} — {e((c['closure'] or {}).get('desc') or 'Closed')}" for c in newly_closed) or "None this week."),
                       h2("Reopened"), para("<br>".join(link(c) for c in reopened) or "None this week.")]
     body_rows.append(para(copy["digest_warnings"]))
@@ -56,6 +97,12 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
     for key, name in reg.items():
         group = [c for c in closed if c["region"] == key]
         body_rows.append(para(f"<strong>{e(name)}</strong><br>" + ("<br>".join(link(c) + (" *" if (c.get("closure") or {}).get("outdated") else "") for c in sorted(group, key=lambda c: c["name"].lower())) or "None.")))
+    if slug == "sa":
+        body_rows.append(h2("Coming up"))
+        body_rows.append(para(_upcoming_lines(rows)))
+    if slug == "tas":
+        body_rows.append(h2("Park alerts this week"))
+        body_rows.append(para(_alert_lines(alerts)))
     body_rows.append(para('<span style="font-size:13px;color:#666666;">* Reopening date has passed — the closure record may be outdated.</span>'))
     body_rows.append(para('<strong>Been somewhere lately?</strong> <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'))
     body_rows.append(para('Know someone heading bush this summer? Forward them this email, or send them to <a href="https://campconditions.au/" style="color:#2f5d3a;">campconditions.au</a> to get these free updates every Thursday.'))
@@ -92,13 +139,24 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest):
     print(subject)
     return subject
 
-cur = json.load(open(a.current, encoding="utf-8"))
-prev = json.load(open(a.previous, encoding="utf-8")) if a.previous and os.path.isfile(a.previous) else None
-generated = dt.datetime.fromisoformat(cur["generated"])
-enabled = [state for state in states.enabled() if states.digest_allowed(state)]
-primary = enabled[0]
-prev_camps = prev["camps"] if prev else None
-write_digest(primary, camps_for(primary, cur["camps"]), camps_for(primary, prev_camps) if prev_camps is not None else None, generated, cur["generated"], a.out)
-if len(enabled) > 1:
-    for state in enabled:
-        write_digest(state, camps_for(state, cur["camps"]), camps_for(state, prev_camps) if prev_camps is not None else None, generated, cur["generated"], os.path.join(a.out, state["slug"]))
+def main(argv=None):
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--current", default=os.path.join("dist", "status.json"))
+    ap.add_argument("--previous", default="")
+    ap.add_argument("--out", default=os.path.join("dist", "digest"))
+    a = ap.parse_args(argv)
+    cur = json.load(open(a.current, encoding="utf-8"))
+    prev = json.load(open(a.previous, encoding="utf-8")) if a.previous and os.path.isfile(a.previous) else None
+    generated = dt.datetime.fromisoformat(cur["generated"])
+    enabled = [state for state in states.enabled() if states.digest_allowed(state)]
+    primary = enabled[0]
+    prev_camps = prev["camps"] if prev else None
+    tas_alerts = load_tas_alerts(a.current)
+    write_digest(primary, camps_for(primary, cur["camps"]), camps_for(primary, prev_camps) if prev_camps is not None else None, generated, cur["generated"], a.out, tas_alerts if primary.get("slug") == "tas" else None)
+    if len(enabled) > 1:
+        for state in enabled:
+            write_digest(state, camps_for(state, cur["camps"]), camps_for(state, prev_camps) if prev_camps is not None else None, generated, cur["generated"], os.path.join(a.out, state["slug"]), tas_alerts if state.get("slug") == "tas" else None)
+
+
+if __name__ == "__main__":
+    main()

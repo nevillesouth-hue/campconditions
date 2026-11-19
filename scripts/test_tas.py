@@ -343,7 +343,11 @@ def main():
     if os.path.isfile(home):
         page = open(home, encoding="utf-8").read()
         expect('href="/tas/"' in page and "Tasmania" in page, "built homepage lists Tasmania")
-        expect('value="tas"' not in page and 'value="act"' not in page, "signup does not offer tas or act")
+        expect('value="act"' not in page, "signup does not offer act")
+        if states.signup_allowed(states.by_slug("tas")):
+            expect('value="tas"' in page and 'value="tas" checked' not in page, "homepage offers TAS unticked")
+        else:
+            expect('value="tas"' not in page, "signup does not offer tas while the flag is off")
         expect(os.path.isdir(os.path.join(ROOT, "dist", "tas")), "built site has Tasmania pages")
         expect(not os.path.isdir(os.path.join(ROOT, "dist", "act")), "built site has no ACT pages")
 

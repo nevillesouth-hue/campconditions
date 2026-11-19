@@ -121,10 +121,10 @@
   },
   "copy": {
     "digest_subject": "South Australia camps this week: {closed} closed",
-    "digest_intro": "G'day! Here's the South Australian notice summary for {date}. Do not send. This file is a local preview.",
+    "digest_intro": "G'day! Here's what's changed for South Australian camps and campgrounds, {date}.",
     "digest_warnings": "Warnings change quickly, so we don't list them here. <a href=\"https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/\" style=\"color:#2f5d3a;\">Check the SA Country Fire Service ratings</a> before you go.",
-    "digest_footer": "Do not send. Not an official warning service. Fire danger: SA Country Fire Service (cfs.sa.gov.au). Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). In an emergency call 000.<br>",
-    "newsletter_h2": "",
+    "digest_footer": "Not an official warning service. Source: Department for Environment and Water, parks.sa.gov.au, CC BY 3.0 AU. Coordinates: OpenStreetMap contributors (ODbL). In an emergency call 000.<br>",
+    "newsletter_h2": "Get the free weekly South Australia digest",
     "home_title": "South Australia camp conditions — {count} sites | CampConditions.au",
     "home_description": "{count} camps across South Australia, including Parks SA campgrounds and council and community camps. No current notice does not mean the camp is open, so check before you travel.",
     "home_h1": "South Australia camp conditions",

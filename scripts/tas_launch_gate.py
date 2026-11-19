@@ -174,7 +174,7 @@ def _signup():
         tas_signup.COMING_SOON in page
         and "<form" not in page
         and "/api/subscribe" not in page
-        and not tas_signup.forms_allowed()
+        and tas_signup.forms_allowed() is states.signup_allowed(states.by_slug("tas"))
         and '"tas"' in token
         and "env.RESEND_SEGMENT_TAS_ID" not in confirm
         and "env.RESEND_SEGMENT_TAS_ID" not in unsubscribe

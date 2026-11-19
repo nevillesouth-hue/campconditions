@@ -423,9 +423,10 @@ const mock = async (url, init) => {
 };
 const ok = await confirmSubscription(env, email, mock);
 if (!ok.ok || calls.length !== 3 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
-if (calls[1].method !== "POST" || calls[1].body !== undefined) process.exit(1);
-if (!calls[1].url.endsWith(segmentPath(email, segment))) process.exit(1);
-if (calls[2].method !== "PATCH" || !calls[2].url.endsWith("/contacts/reader%40example.com/topics") || calls[2].body !== JSON.stringify([{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }])) { console.error("confirm must opt in to the vic topic"); process.exit(1); }
+const segCall = calls.find((call) => String(call.url).endsWith(segmentPath(email, segment)));
+if (!segCall || segCall.method !== "POST" || segCall.body !== undefined) process.exit(1);
+const topicCall = calls.find((call) => String(call.url).endsWith("/contacts/reader%40example.com/topics"));
+if (!topicCall || topicCall.method !== "PATCH" || topicCall.body !== JSON.stringify([{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }])) { console.error("confirm must opt in to the vic topic (bare array)"); process.exit(1); }
 calls.length = 0;
 const again = async (url) => {
   calls.push(url);
@@ -688,6 +689,8 @@ tas_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_
 if tas_check.returncode != 0: bad.append(("tas foundations", "test_tas.py failed"))
 one_list = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_one_list.py")], cwd=root)
 if one_list.returncode != 0: bad.append(("one-list", "test_one_list.py failed"))
+sa_tas = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_sa_tas_signup.py")], cwd=root)
+if sa_tas.returncode != 0: bad.append(("sa-tas signup", "test_sa_tas_signup.py failed"))
 trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)
 if trip_check.returncode != 0: bad.append(("trip-check", (trip_check.stderr or trip_check.stdout)[-400:]))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
@@ -1787,8 +1790,18 @@ if os.path.isfile(nsw_index):
       if not (0 <= blob.find("Been somewhere lately?") < blob.find(tip_phrase) < blob.find("Not an official warning service")):
         bad.append((label, "tip placement"))
     digest_total = camp_count(vic_draft) + camp_count(nsw_draft) + (camp_count(qld_draft) if qld_draft else 0)
-    held_digest_camps = sum(1 for c in feed["camps"] if "/sa/" in (c.get("url") or "") or "/tas/" in (c.get("url") or ""))
-    # South Australia and Tasmania have no digest while signup stays off.
+    held_digest_camps = 0
+    for _c in feed["camps"]:
+      _url = _c.get("url") or ""
+      for _slug in ("sa", "tas"):
+        if f"/{_slug}/" in _url and not states.digest_allowed(states.by_slug(_slug)):
+          held_digest_camps += 1
+          break
+    for _slug in ("sa", "tas"):
+      _extra = os.path.join(split, _slug, "digest.html")
+      if states.digest_allowed(states.by_slug(_slug)) and os.path.isfile(_extra):
+        digest_total += camp_count(open(_extra, encoding="utf-8").read())
+    # South Australia and Tasmania are left out of the total while release.digest is off.
     if digest_total != len(feed["camps"]) - held_digest_camps:
       bad.append(("digest states", f"{digest_total}+held {held_digest_camps}!={len(feed['camps'])}"))
   if "Spatial Services" not in nsw_html or "Creative Commons Attribution 4.0" not in nsw_html: bad.append(("nsw", "town attribution"))
@@ -2508,8 +2521,8 @@ for _st, _slug, _fp in _town_pages:
   if _path not in sm: bad.append((_path, "sitemap")); break
   if f"<h1>Camping near " not in _html or "in a straight line" not in _html or "not by road" not in _html:
     bad.append((_path, "wording")); break
-  if _st in ("sa", "tas"):
-    # Signup stays off until that state's digest exists. The page shows the
+  if _st in ("sa", "tas") and not states.signup_allowed(states.by_slug(_st)):
+    # Signup stays off until release.signup is on. The page shows the
     # coming-soon line and does not post to /api/subscribe.
     _soon = "SA weekly email coming soon" if _st == "sa" else "Tas weekly email coming soon"
     if _soon not in _html or 'action="/api/subscribe"' in _html or 'name="states"' in _html:

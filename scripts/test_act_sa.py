@@ -424,10 +424,17 @@ def main():
     if os.path.isfile(home):
         page = open(home, encoding="utf-8").read()
         expect('value="vic"' in page and 'value="nsw"' in page and 'value="qld"' in page, "homepage signup offers the three states")
-        expect('value="act"' not in page and 'value="sa"' not in page, "signup does not offer act or sa")
+        expect('value="act"' not in page, "signup does not offer act")
+        if states.signup_allowed(states.by_slug("sa")):
+            expect('value="sa"' in page and 'value="sa" checked' not in page, "homepage offers SA unticked")
+        else:
+            expect('value="sa"' not in page, "signup does not offer sa while the flag is off")
         expect("South Australia" in page and 'href="/sa/"' in page, "homepage lists sa")
         expect("Tasmania" in page and 'href="/tas/"' in page, "homepage lists tas")
-        expect('value="tas"' not in page, "signup does not offer tas")
+        if states.signup_allowed(states.by_slug("tas")):
+            expect('value="tas"' in page and 'value="tas" checked' not in page, "homepage offers TAS unticked")
+        else:
+            expect('value="tas"' not in page, "signup does not offer tas while the flag is off")
         expect("Australian Capital Territory" not in page, "homepage does not name act")
         expect(os.path.isdir(os.path.join(ROOT, "dist", "sa")), "public build has sa pages")
         expect(os.path.isdir(os.path.join(ROOT, "dist", "tas")), "public build has tas pages")
@@ -442,7 +449,11 @@ def main():
             cwd=ROOT, capture_output=True, text=True, env=env,
         )
         expect(digest.returncode == 0, "digest still drafts")
-        expect(not os.path.isdir(os.path.join(out, "act")) and not os.path.isdir(os.path.join(out, "sa")), "no held digest")
+        expect(not os.path.isdir(os.path.join(out, "act")), "no ACT digest")
+        if states.digest_allowed(states.by_slug("sa")):
+            expect(os.path.isdir(os.path.join(out, "sa")), "SA digest draft is written when release.digest is on")
+        else:
+            expect(not os.path.isdir(os.path.join(out, "sa")), "no SA digest while release.digest is off")
         meta = json.load(open(os.path.join(out, "meta.json"), encoding="utf-8"))
         expect(meta.get("state") == "vic", "top digest stays victoria")
 

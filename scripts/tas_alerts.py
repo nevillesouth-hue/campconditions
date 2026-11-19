@@ -731,6 +731,21 @@ def fetch_alerts(fetch_text, directory, now=None):
     return {"alerts": [], "stale": True, "fetched": "", "fallback": False}
 
 
+def digest_document(result):
+    """Headline, park names and the alerts link. The alert body is not stored."""
+    alerts = []
+    for alert in (result or {}).get("alerts") or []:
+        stored = _stored_alert(alert)
+        if not stored:
+            continue
+        alerts.append({
+            "headline": stored["headline"],
+            "parks": stored.get("parks") or [],
+            "link": stored.get("link") or ALERTS_URL,
+        })
+    return {"alerts": alerts, "link": ALERTS_URL, "fetched": str((result or {}).get("fetched") or "")}
+
+
 def stamp(result):
     """Feed line for the state page.
 

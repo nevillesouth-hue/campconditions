@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""South Australian digest signup. No form unless a Resend segment exists.
+"""South Australian digest signup.
 
-SA_SIGNUP_MODE=open shows the existing signup and reopen boxes only when
-release.signup is allowed and RESEND_SEGMENT_SA_ID is set. Any other case
-shows one line and no form, so a page cannot enrol a list that does not exist.
+The public form follows release.signup. SA_SIGNUP_MODE remains for the launch
+gate. No South Australia segment is required, and none is created.
 """
 import html
 import os
@@ -25,11 +24,7 @@ def mode():
 
 
 def forms_allowed():
-    """True only for an open mode that names a segment and whose signup gate is on."""
-    if mode() != "open":
-        return False
-    if not (os.environ.get("RESEND_SEGMENT_SA_ID") or "").strip():
-        return False
+    """True when release.signup allows the public form. No segment id is required."""
     return states.signup_allowed(states.by_slug("sa"))
 
 

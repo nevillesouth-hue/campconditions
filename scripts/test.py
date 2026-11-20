@@ -2105,7 +2105,7 @@ if os.path.isfile(nsw_index):
     closed_html = open(os.path.join(D, "nsw", "camp", closed_npws[0]["slug"], "index.html"), encoding="utf-8").read()
     if "NPWS alert" not in closed_html or "badge closed" not in closed_html or "Official NPWS wording" not in closed_html or "Alert dated" not in closed_html: bad.append((closed_npws[0]["slug"], "closed page"))
   import contacts as _contacts
-  _npws_line = _npws_pages = 0
+  _npws_line = _npws_pages = _npws_web = 0
   _nsw_rest = [c for c in nsw_camps if c.get("category") == "Rest area"]
   _nsw_rest_ok = 0
   for camp in nsw_camps:
@@ -2115,6 +2115,12 @@ if os.path.isfile(nsw_index):
     html_page = open(page, encoding="utf-8").read()
     if camp.get("source") == "npws":
       _npws_pages += 1
+      _npws_site = re.findall(r'<a class="btn" href="([^"]+)"[^>]*>Website</a>', html_page)
+      if _npws_site:
+        if all(_u.startswith("https://www.nationalparks.nsw.gov.au/") for _u in _npws_site):
+          _npws_web += 1
+        else:
+          bad.append((camp["slug"], "npws website is not an official NPWS page")); break
       if 'href="tel:1300072757"' in html_page and _contacts.NPWS_LABEL in html_page and not re.search(r'href="tel:1300072757">Call 1300 072 757</a>(?! NSW National Parks info line)', html_page):
         _npws_line += 1
       else:
@@ -2128,6 +2134,8 @@ if os.path.isfile(nsw_index):
         _nsw_rest_ok += 1
       else:
         bad.append((camp["slug"], "nsw rest area contact"))
+  if _npws_web < 280:
+    bad.append(("nsw", "official NPWS park Website buttons %s, expected at least 280" % _npws_web))
   if _npws_line != _npws_pages or _npws_line < 700:
     bad.append(("nsw", "info line %s of %s" % (_npws_line, _npws_pages)))
   if _nsw_rest_ok != len(_nsw_rest):
@@ -2562,7 +2570,7 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
   _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
   if "apikey" in _q_src.lower(): bad.append(("qld", "api key in status.json"))
   import contacts as _q_contacts
-  _qgov_pages = 0
+  _qgov_pages = _qpws_web = 0
   _qld_rest = [c for c in _q_feed if c.get("category") == "Rest area"]
   _qld_rest_ok = 0
   for _c in _q_feed:
@@ -2581,14 +2589,23 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
         _qld_rest_ok += 1
       else:
         bad.append((_c["slug"], "qld rest area contact"))
+    if _c.get("source") == "qpws":
+      _q_site = re.findall(r'<a class="btn" href="([^"]+)"[^>]*>Website</a>', _t)
+      if _q_site:
+        if all(_u.startswith("https://parks.qld.gov.au/") for _u in _q_site):
+          _qpws_web += 1
+        else:
+          bad.append((_c["slug"], "qpws website is not an official QPWS page")); break
     if _c.get("source") == "qpws" and _q_contacts.QGOV_LABEL not in _t and not (_c.get("category") == "Rest area"):
       bad.append((_c["slug"], "QPWS page missing 13 QGOV")); break
   if _qld_rest_ok != len(_qld_rest):
     bad.append(("qld", "rest contacts %s of %s" % (_qld_rest_ok, len(_qld_rest))))
   if _qgov_pages < 1:
     bad.append(("qld", "no 13 QGOV pages"))
-  print("QLD contact pages: %s show 13 QGOV, %s rest areas gained road contacts" % (_qgov_pages, _qld_rest_ok))
-  print("NSW contact pages: %s show the NPWS info line, %s rest areas gained road contacts" % (_npws_line, _nsw_rest_ok))
+  if _qpws_web < 310:
+    bad.append(("qld", "official QPWS park Website buttons %s, expected at least 310" % _qpws_web))
+  print("QLD contact pages: %s show 13 QGOV, %s rest areas gained road contacts, %s QPWS official park Website buttons" % (_qgov_pages, _qld_rest_ok, _qpws_web))
+  print("NSW contact pages: %s show the NPWS info line, %s rest areas gained road contacts, %s NPWS official park Website buttons" % (_npws_line, _nsw_rest_ok, _npws_web))
 # Built pages: an unmapped camp says "No fire district mapped" (never "No Rating" for that),
 # and a fallback camp shows its district's official rating plus the boundary note.
 _unmapped_pages = _fallback_pages = 0

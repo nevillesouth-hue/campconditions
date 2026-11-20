@@ -916,6 +916,14 @@ camps.sort(key=lambda c: c["name"].lower())
 for rows in by_state.values():
     rows.sort(key=lambda c: c["name"].lower())
 contacts.apply_state_contacts(by_state)
+_park_links = {}
+for _slug in contacts.PARK_LINK_HOSTS:
+    _rel = ((statecfg.by_slug(_slug) or {}).get("files") or {}).get("park_links") or ""
+    if _rel:
+        _park_links[_slug] = contacts.load_park_links(_slug, _rel if os.path.isabs(_rel) else os.path.join(ROOT, _rel))
+for _slug, _n in contacts.apply_park_websites(by_state, _park_links).items():
+    if _slug in _park_links:
+        print(f"Official park website {_slug}: {_n} of {len(_park_links[_slug])} mapped camps")
 for slug, rows in by_state.items():
     with_button = sum(1 for camp in rows if contacts.page_has_contact_button(camp))
     info = sum(1 for camp in rows if (camp.get("info_line") or {}).get("phone") == contacts.NPWS_PHONE)
@@ -3396,6 +3404,9 @@ def emit_state(state, camps, include_home):
                 bits.append(f"<p>Visitor area type: {e(c['asset_type'])}</p>")
             if c.get("source_ref"):
                 bits.append(f"<p>{'Feature id' if agency == 'QPWS' else 'Asset id'}: {e(c['source_ref'])}</p>")
+            buttons = contacts.specific_html(c)
+            if buttons:
+                bits.append(buttons)
             line = contacts.lines_html(c)
             if line:
                 bits.append(line)

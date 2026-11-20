@@ -31,6 +31,7 @@
     "osm_csv": "",
     "enrichment": "",
     "corrections": "data/manual-corrections-qld.json",
+    "park_links": "data/qpws-park-links.csv",
     "pending": "",
     "flags": "",
     "tourism_regions": "data/qld-tourism-regions.json",

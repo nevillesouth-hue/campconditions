@@ -15,7 +15,9 @@ Numbers and pages below were read once from the agency's own site on 13 Nov 2026
 - 13 74 68: https://www.qld.gov.au/contact-us
 - NSW rest-stop wording: https://www.service.nsw.gov.au/referral/find-rest-areas-in-nsw
 """
+import csv
 import html
+import os
 import re
 from urllib.parse import urlparse
 
@@ -171,3 +173,58 @@ def apply_state_contacts(by_state):
 
 def page_has_contact_button(camp):
     return bool(specific_html(camp) or lines_html(camp))
+
+
+# Official park pages by state. A Website button is added only for a camp id in
+# the state's park_links file, and only when the URL is on that agency's host.
+PARK_LINK_HOSTS = {
+    "qld": {"parks.qld.gov.au"},
+    "nsw": {"www.nationalparks.nsw.gov.au"},
+}
+PARK_LINK_SOURCES = {"qld": "qpws", "nsw": "npws"}
+
+
+def official_park_url(slug, url):
+    """The URL when it is https on the state's official parks host, else empty."""
+    text = (url or "").strip()
+    if not text.startswith("https://"):
+        return ""
+    return text if _host(text) in PARK_LINK_HOSTS.get(slug, set()) else ""
+
+
+def load_park_links(slug, path):
+    """camp_id (feature or asset id) to official park URL. A missing file adds nothing."""
+    if not path or not os.path.isfile(path):
+        return {}
+    found = {}
+    with open(path, encoding="utf-8", newline="") as handle:
+        for row in csv.DictReader(handle):
+            ident = (row.get("camp_id") or "").strip()
+            url = official_park_url(slug, row.get("url") or "")
+            if ident and url and ident not in found:
+                found[ident] = url
+    return found
+
+
+def apply_park_websites(by_state, links_by_state):
+    """Website button from the checked official park page.
+
+    Runs after apply_state_contacts, so the labelled lines already on a page
+    (NPWS info line, 13 QGOV) stay. A camp that already has a website keeps it.
+    Returns the number of camps given a park website, by state.
+    """
+    added = {}
+    for slug, camps in by_state.items():
+        links = links_by_state.get(slug) or {}
+        source = PARK_LINK_SOURCES.get(slug)
+        count = 0
+        if links and source:
+            for camp in camps:
+                if camp.get("source") != source or str(camp.get("website") or "").strip():
+                    continue
+                url = links.get(str(camp.get("source_ref") or "").strip())
+                if url:
+                    camp["website"] = url
+                    count += 1
+        added[slug] = count
+    return added

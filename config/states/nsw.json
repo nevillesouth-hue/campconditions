@@ -28,6 +28,7 @@
   "osm_csv": "",
   "enrichment": "",
   "corrections": "data/manual-corrections-nsw.json",
+  "park_links": "data/npws-park-links.csv",
   "pending": "",
   "flags": "",
   "tourism_regions": "data/nsw-tourism-regions.json"

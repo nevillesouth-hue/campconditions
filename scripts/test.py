@@ -99,6 +99,8 @@ def expand_map_point(pt):
     out["reg"] = pt[12]
   if len(pt) > 13 and pt[13]:
     out["note"] = pt[13]
+  if len(pt) > 14 and pt[14]:
+    out["park"] = pt[14]
   return out
 def map_data(where, html, vic_only=True):
   m=re.search(r'<script type="application/json" id="camp-map-data"([^>]*)>(.*?)</script>', html, re.S)
@@ -324,13 +326,17 @@ else:
     bad.append(("sitemap.xml", "missing trip-check"))
   if "/trip-check" in open(os.path.join(D, "llms.txt"), encoding="utf-8").read():
     bad.append(("llms.txt", "trip-check"))
+_qld_priv = os.path.isdir(os.path.join(D, "qld"))
+# Privacy names every state with an open digest. SA and TAS switch on together (release.signup in config/states).
+_five_priv = all(json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "states", _s + ".json"), encoding="utf-8")).get("release", {}).get("signup") is True for _s in ("sa", "tas"))
+_priv_date = "Last updated 19 November 2026" if _five_priv else ("Last updated 4 November 2026" if _qld_priv else "Last updated 27 October 2026")
+_priv_states = "Victoria, New South Wales, Queensland, South Australia and Tasmania" if _five_priv else ("Victoria, New South Wales and Queensland" if _qld_priv else "Victoria and New South Wales")
 priv_path = os.path.join(D, "privacy", "index.html")
 if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
 else:
   priv = open(priv_path, encoding="utf-8").read()
-  _qld_priv = os.path.isdir(os.path.join(D, "qld"))
-  for bit in ("Last updated 4 November 2026" if _qld_priv else "Last updated 27 October 2026", "campconditions@outlook.com", "Victoria, New South Wales and Queensland" if _qld_priv else "Victoria and New South Wales", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
+  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
     if bit not in priv: bad.append(("/privacy/", bit))
 for r, _, fs in os.walk(D):
   if draft_dir(r): continue
@@ -418,19 +424,22 @@ const mock = async (url, init) => {
   calls.push({ url, method: init.method, body: init.body });
   if (url.endsWith("/contacts")) return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  if (url.endsWith("/topics") && init.method === "PATCH") return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   return new Response("no", { status: 500 });
 };
 const ok = await confirmSubscription(env, email, mock);
-if (!ok.ok || calls.length !== 2 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
-if (calls[1].method !== "POST" || calls[1].body !== undefined) process.exit(1);
-if (!calls[1].url.endsWith(segmentPath(email, segment))) process.exit(1);
+if (!ok.ok || calls.length !== 3 || calls[0].method !== "POST" || !calls[0].body.includes('"unsubscribed":false')) process.exit(1);
+const segCall = calls.find((call) => String(call.url).endsWith(segmentPath(email, segment)));
+if (!segCall || segCall.method !== "POST" || segCall.body !== undefined) process.exit(1);
+const topicCall = calls.find((call) => String(call.url).endsWith("/contacts/reader%40example.com/topics"));
+if (!topicCall || topicCall.method !== "PATCH" || topicCall.body !== JSON.stringify([{ id: "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", subscription: "opt_in" }])) { console.error("confirm must opt in to the vic topic (bare array)"); process.exit(1); }
 calls.length = 0;
 const again = async (url) => {
   calls.push(url);
   return new Response(JSON.stringify({ name: "already_exists" }), { status: 409 });
 };
 const dup = await confirmSubscription(env, email, again);
-if (!dup.ok || calls.length !== 2) process.exit(1);
+if (!dup.ok || calls.length !== 3) process.exit(1);
 const restricted = { ok: false, status: 401, data: { name: "restricted_api_key", message: "This API key is restricted to only send emails." } };
 const msg = failureMessage(restricted);
 if (!msg.includes("can send mail but cannot save contacts") || msg.includes("502")) process.exit(1);
@@ -447,10 +456,11 @@ const mock2 = async (url, init) => {
     return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
   }
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
+  if (url.endsWith("/topics") && init.method === "PATCH") return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   return new Response("no", { status: 500 });
 };
 const retried = await confirmSubscription(envWithSecret, email, mock2);
-if (!retried.ok || calls2.length !== 3 || !calls2[0].body.includes("unsubscribe_token") || calls2[1].body.includes("unsubscribe_token")) process.exit(1);
+if (!retried.ok || calls2.length !== 4 || !calls2[0].body.includes("unsubscribe_token") || calls2[1].body.includes("unsubscribe_token")) process.exit(1);
 import { makeToken, readToken } from "./functions/_lib/token.js";
 const oldToken = await makeToken(email, "test-secret");
 const oldRead = await readToken(oldToken, "test-secret");
@@ -468,10 +478,12 @@ if (!nswOnly.ok) process.exit(1);
 if (callsNsw.some((call) => String(call.url).includes(segment))) process.exit(1);
 if (!callsNsw.some((call) => String(call.url).endsWith("/segments/nsw-segment") && call.method === "POST" && call.body === undefined)) process.exit(1);
 if (!callsNsw.some((call) => call.method === "PATCH" && call.body && call.body.includes('"states":"nsw"'))) process.exit(1);
+if (!callsNsw.some((call) => call.method === "PATCH" && String(call.url).endsWith("/topics") && call.body === JSON.stringify([{ id: "166c5fbd-9691-4dbc-9b62-b6c600b0e076", subscription: "opt_in" }]))) { console.error("nsw confirm must opt in to the nsw topic only"); process.exit(1); }
 const callsLost = [];
 const mockLost = async (url, init) => {
   callsLost.push({ url, method: init.method, body: init.body });
   if (url.endsWith("/contacts") && init.method === "POST") return new Response(JSON.stringify({ id: "c1" }), { status: 201 });
+  if (init.method === "PATCH" && url.endsWith("/topics")) return new Response(JSON.stringify({ id: "c1" }), { status: 200 });
   if (init.method === "PATCH") return new Response(JSON.stringify({ name: "validation_error" }), { status: 422 });
   if (url.endsWith("/segments/" + segment)) return new Response(JSON.stringify({ id: segment }), { status: 200 });
   return new Response("no", { status: 500 });
@@ -685,6 +697,8 @@ parks_sa_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "
 if parks_sa_check.returncode != 0: bad.append(("parks sa closures", "test_parks_sa.py failed"))
 one_list = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_one_list.py")], cwd=root)
 if one_list.returncode != 0: bad.append(("one-list", "test_one_list.py failed"))
+sa_tas = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_sa_tas_signup.py")], cwd=root)
+if sa_tas.returncode != 0: bad.append(("sa-tas signup", "test_sa_tas_signup.py failed"))
 trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)
 if trip_check.returncode != 0: bad.append(("trip-check", (trip_check.stderr or trip_check.stdout)[-400:]))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
@@ -1784,8 +1798,18 @@ if os.path.isfile(nsw_index):
       if not (0 <= blob.find("Been somewhere lately?") < blob.find(tip_phrase) < blob.find("Not an official warning service")):
         bad.append((label, "tip placement"))
     digest_total = camp_count(vic_draft) + camp_count(nsw_draft) + (camp_count(qld_draft) if qld_draft else 0)
-    held_digest_camps = sum(1 for c in feed["camps"] if "/sa/" in (c.get("url") or "") or "/tas/" in (c.get("url") or ""))
-    # South Australia and Tasmania have no digest while signup stays off.
+    held_digest_camps = 0
+    for _c in feed["camps"]:
+      _url = _c.get("url") or ""
+      for _slug in ("sa", "tas"):
+        if f"/{_slug}/" in _url and not states.digest_allowed(states.by_slug(_slug)):
+          held_digest_camps += 1
+          break
+    for _slug in ("sa", "tas"):
+      _extra = os.path.join(split, _slug, "digest.html")
+      if states.digest_allowed(states.by_slug(_slug)) and os.path.isfile(_extra):
+        digest_total += camp_count(open(_extra, encoding="utf-8").read())
+    # South Australia and Tasmania are left out of the total while release.digest is off.
     if digest_total != len(feed["camps"]) - held_digest_camps:
       bad.append(("digest states", f"{digest_total}+held {held_digest_camps}!={len(feed['camps'])}"))
   if "Spatial Services" not in nsw_html or "Creative Commons Attribution 4.0" not in nsw_html: bad.append(("nsw", "town attribution"))
@@ -2083,7 +2107,7 @@ if os.path.isfile(nsw_index):
     closed_html = open(os.path.join(D, "nsw", "camp", closed_npws[0]["slug"], "index.html"), encoding="utf-8").read()
     if "NPWS alert" not in closed_html or "badge closed" not in closed_html or "Official NPWS wording" not in closed_html or "Alert dated" not in closed_html: bad.append((closed_npws[0]["slug"], "closed page"))
   import contacts as _contacts
-  _npws_line = _npws_pages = 0
+  _npws_line = _npws_pages = _npws_web = 0
   _nsw_rest = [c for c in nsw_camps if c.get("category") == "Rest area"]
   _nsw_rest_ok = 0
   for camp in nsw_camps:
@@ -2093,6 +2117,12 @@ if os.path.isfile(nsw_index):
     html_page = open(page, encoding="utf-8").read()
     if camp.get("source") == "npws":
       _npws_pages += 1
+      _npws_site = re.findall(r'<a class="btn" href="([^"]+)"[^>]*>Website</a>', html_page)
+      if _npws_site:
+        if all(_u.startswith("https://www.nationalparks.nsw.gov.au/") for _u in _npws_site):
+          _npws_web += 1
+        else:
+          bad.append((camp["slug"], "npws website is not an official NPWS page")); break
       if 'href="tel:1300072757"' in html_page and _contacts.NPWS_LABEL in html_page and not re.search(r'href="tel:1300072757">Call 1300 072 757</a>(?! NSW National Parks info line)', html_page):
         _npws_line += 1
       else:
@@ -2106,6 +2136,8 @@ if os.path.isfile(nsw_index):
         _nsw_rest_ok += 1
       else:
         bad.append((camp["slug"], "nsw rest area contact"))
+  if _npws_web < 280:
+    bad.append(("nsw", "official NPWS park Website buttons %s, expected at least 280" % _npws_web))
   if _npws_line != _npws_pages or _npws_line < 700:
     bad.append(("nsw", "info line %s of %s" % (_npws_line, _npws_pages)))
   if _nsw_rest_ok != len(_nsw_rest):
@@ -2355,6 +2387,59 @@ _q_ev = qldc.traffic_events({"features": [
   {"geometry": {"type": "Point", "coordinates": [150.06, -24.95]}, "properties": {"event_type": "Flooding", "road_summary": {"road_name": "Test Rd", "locality": "Testa"}, "description": "Water over road"}},
   {"geometry": {"type": "Point", "coordinates": [150.06, -24.95]}, "properties": {"event_type": "Roadworks", "impact": {"impact_type": "Lane narrowing"}}}]})
 if len(_q_ev) != 1 or qldc.apply_traffic_events(_q_fc, _q_ev, 5) != 1: bad.append(("qld", "traffic events"))
+# Park names: distinctive phrase, whole words, and generic words on their own.
+if qldc.park_distinctive("Girraween National Park") != "girraween": bad.append(("qld", "girraween phrase"))
+if qldc.park_distinctive("Great Sandy National Park") != "great sandy": bad.append(("qld", "great sandy phrase"))
+if qldc.park_distinctive("Main Range National Park") != "main range": bad.append(("qld", "main range phrase"))
+if qldc.park_distinctive("Main Range Conservation Park") != "main range": bad.append(("qld", "main range cp phrase"))
+if qldc.park_distinctive("Hinchinbrook Island National Park") != "hinchinbrook island": bad.append(("qld", "hinchinbrook phrase"))
+if qldc.park_distinctive("Danbulla State Forest 1") != "danbulla": bad.append(("qld", "state forest number"))
+if qldc.park_distinctive("Apudthama National Park (Cape York Peninsula Aboriginal Land)") != "apudthama": bad.append(("qld", "cypal phrase"))
+if qldc.park_distinctive("Girramay National Park") != "girramay" or qldc.park_distinctive("Girringun National Park") != "girringun": bad.append(("qld", "girra neighbours"))
+if qldc.park_search_key(["Conondale National Park", "Imbil State Forest 1"]) != "conondale|imbil": bad.append(("qld", "two parks"))
+_phrase_cases = (
+    (["girraween"], "girraween", True),
+    (["girraween"], "girra", False),
+    (["girraween"], "Girraween", True),
+    (["girramay"], "girraween", False),
+    (["girringun"], "girraween", False),
+    (["great sandy"], "great sandy", True),
+    (["great sandy"], "sandy great", False),
+    (["main range"], "main range", True),
+    (["main range"], "range", False),
+    (["hinchinbrook island"], "hinchinbrook", True),
+    (["hinchinbrook island"], "island", False),
+    (["hinchinbrook island"], "islands", False),
+    (["girraween"], "national", False),
+    (["girraween"], "park", False),
+    (["girraween"], "national park", False),
+    (["mount barney"], "mount", False),
+    (["mount barney"], "barney", True),
+    (["mount barney"], "mount barney", True),
+)
+for _phrases, _query, _want in _phrase_cases:
+    if qldc.park_query_match(_phrases, _query) != _want: bad.append(("qld", "park query", _query, _want))
+if qldc.park_display_name(["Imbil State Forest 1", "Conondale National Park"], "Lake Borumba") != "Conondale National Park": bad.append(("qld", "prefer national park"))
+if qldc.park_display_name(["Girraween National Park"], "Girraween camping area") != "": bad.append(("qld", "name already has the park"))
+_castle_title = "Castle Rock Camp Area | CampConditions.au"
+_castle_desc = "Castle Rock Camp Area in Southern Queensland Country, Queensland. QPWS camping ground in the QSpatial tourist points layer. Closed only where a QPWS park alert applies. Fees and facilities are not in this layer."
+_castle_new = qldc.park_title_and_description(_castle_title, _castle_desc, "Castle Rock Camp Area", "Castle Rock Camp Area", ["Girraween National Park"])
+if _castle_new[0] != "Castle Rock Camp Area, Girraween National Park | CampConditions.au": bad.append(("qld", "castle title", _castle_new[0]))
+if not _castle_new[1].startswith("Castle Rock Camp Area, Girraween National Park in Southern Queensland Country, Queensland. "): bad.append(("qld", "castle meta", _castle_new[1]))
+if "Closed only where a QPWS park alert applies." not in _castle_new[1] or "QPWS camping ground in the QSpatial tourist points layer." not in _castle_new[1]: bad.append(("qld", "castle meta wording"))
+if qldc.park_title_and_description(_castle_title, _castle_desc, "Castle Rock Camp Area", "Castle Rock Camp Area", None) != (_castle_title, _castle_desc): bad.append(("qld", "no parks is a no-op"))
+_closed_title = "Some Camp — closed | CampConditions.au"
+_closed_desc = "Some Camp in Region, Queensland. Status: closed. Type: Rest area."
+_closed_new = qldc.park_title_and_description(_closed_title, _closed_desc, "Some Camp", "Some Camp", ["Girraween National Park"])
+if _closed_new[0] != "Some Camp, Girraween National Park — closed | CampConditions.au" or "Status: closed." not in _closed_new[1]: bad.append(("qld", "status wording kept", _closed_new))
+_long_name = "A" * 90
+_long_title = _long_name + " | CampConditions.au"
+_long_desc = _long_name + " in Region, Queensland."
+_long_new = qldc.park_title_and_description(_long_title, _long_desc, _long_name, _long_name, ["Girraween National Park"])
+if _long_new[0] != _long_title or not _long_new[1].startswith(_long_name + ", Girraween National Park in Region"): bad.append(("qld", "long title drops the park", _long_new))
+_js_generic = re.search(r"var PARK_GENERIC = \{([^}]+)\}", build_src)
+if not _js_generic or set(re.findall(r'"([a-z]+)"', _js_generic.group(1))) != set(qldc.PARK_GENERIC_WORDS): bad.append(("build.py", "park generic words"))
+if "pWords[at + k] !== qWords[k]" not in build_src or "nWords[j].indexOf(qWords[i]) === 0" not in build_src or "viaPark" not in build_src: bad.append(("build.py", "park search matching"))
 # Queensland pages, when the preview build includes them.
 if os.path.isfile(os.path.join(D, "qld", "index.html")):
   _q_feed = [c for c in feed["camps"] if "/qld/camp/" in (c.get("url") or "")]
@@ -2368,6 +2453,111 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
       # Visible text only: the shared closure script names NPWS for NSW estimated end dates.
       _t = re.sub(r"<script.*?</script>", "", open(_p, encoding="utf-8").read() if os.path.isfile(_p) else "", flags=re.S)
       if "NPWS" in _t.replace("QPWS", ""): bad.append(("qld", "NPWS wording on QPWS page", _c["slug"])); break
+  # /qld/ search also matches the distinctive park name. Camp names and towns stay as they were.
+  def _fold_q(value):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", (value or "").lower())).strip()
+  def _name_score(label, query):
+    folded_name, folded_query = _fold_q(label), _fold_q(query)
+    if len(folded_query) < 2 or not folded_name: return -1
+    if folded_name == folded_query: return 0
+    query_words, name_words = folded_query.split(" "), folded_name.split(" ")
+    partial = False
+    for word in query_words:
+      if any(part.startswith(word) for part in name_words):
+        continue
+      if word in folded_name:
+        partial = True
+        continue
+      return -1
+    if folded_name.startswith(folded_query): return 1
+    return 3 if partial else 2
+  _qld_pts = [expand_map_point(p) for p in json.load(open(os.path.join(D, "map-points", "qld.json"), encoding="utf-8"))]
+  _qld_towns = json.load(open(os.path.join(D, "qld-towns.json"), encoding="utf-8"))
+  def _park_line(slug):
+    _page = os.path.join(D, "qld", "camp", slug, "index.html")
+    if not os.path.isfile(_page): return ""
+    _match = re.search(r"<p>Park: (.*?)</p>", open(_page, encoding="utf-8").read())
+    return html.unescape(_match.group(1)) if _match else ""
+  def _shown_parks(slug, allowed):
+    """Park names on the page. QPWS pages have a Park line. Other camps name the park in the title."""
+    _line = _park_line(slug)
+    if _line:
+      return [part.strip() for part in _line.split(";") if part.strip()]
+    _page = os.path.join(D, "qld", "camp", slug, "index.html")
+    _html = open(_page, encoding="utf-8").read() if os.path.isfile(_page) else ""
+    _title_m = re.search(r"<title>(.*?)</title>", _html)
+    _title = html.unescape(_title_m.group(1)) if _title_m else ""
+    return [name for name in allowed if name in _title]
+  def _camp_hits(query, use_park):
+    found = []
+    for _camp in _qld_pts:
+      if _name_score(_camp.get("name") or "", query) >= 0:
+        found.append(_camp)
+      elif use_park and qldc.park_query_match((_camp.get("park") or "").split("|"), query):
+        found.append(_camp)
+    return found
+  def _expect_park(query, allowed, exact=None):
+    _before = _camp_hits(query, False)
+    _after = _camp_hits(query, True)
+    _slugs = [c["slug"] for c in _after]
+    if len(_slugs) != len(set(_slugs)): bad.append(("qld search", query, "duplicate"))
+    if exact is not None and len(_after) != exact: bad.append(("qld search", query, "count", len(_after), "before", len(_before)))
+    for _camp in _after:
+      _parts = _shown_parks(_camp["slug"], allowed)
+      if not _parts or any(part not in allowed for part in _parts):
+        bad.append(("qld search", query, _camp["slug"], _parts))
+        break
+    _covered = {c["slug"] for c in _after}
+    for _camp in _qld_pts:
+      _phrase = _camp.get("park") or ""
+      if _phrase and qldc.park_query_match(_phrase.split("|"), query) and _camp["slug"] not in _covered:
+        bad.append(("qld search", query, "missed", _camp["slug"]))
+        break
+  _expect_park("girraween", {"Girraween National Park"}, 13)
+  _expect_park("great sandy", {"Great Sandy National Park"})
+  _expect_park("main range", {"Main Range National Park", "Main Range Conservation Park"})
+  # Glen Rock is in Main Range Conservation Park. The distinctive name is the same phrase.
+  _mr_cp = [c["slug"] for c in _camp_hits("main range", True) if _park_line(c["slug"]) == "Main Range Conservation Park"]
+  if _mr_cp != ["glen-rock-camping-area"]: bad.append(("qld search", "main range conservation park", _mr_cp))
+  _expect_park("hinchinbrook", {"Hinchinbrook Island National Park"})
+  if _camp_hits("girraween", False) or _camp_hits("great sandy", False) or _camp_hits("main range", False) or _camp_hits("hinchinbrook", False):
+    bad.append(("qld search", "park queries already matched camp names"))
+  _girra_towns = [t["name"] for t in _qld_towns if _name_score(t.get("name") or "", "girraween") >= 0]
+  if "Girraween" not in _girra_towns: bad.append(("qld search", "Girraween town"))
+  if not any(_name_score(t.get("name") or "", "girra") >= 0 and t.get("name") == "Girraween" for t in _qld_towns):
+    bad.append(("qld search", "girra still matches the Girraween town"))
+  for _generic in ("national", "park", "island", "girra"):
+    _before_slugs = [c["slug"] for c in _camp_hits(_generic, False)]
+    _after_slugs = [c["slug"] for c in _camp_hits(_generic, True)]
+    if _before_slugs != _after_slugs: bad.append(("qld search", _generic, "park matches added", len(_after_slugs) - len(_before_slugs)))
+  _girr_after = {c["slug"] for c in _camp_hits("girraween", True)}
+  if any("girramay" in (_park_line(s) + s).lower() or "girringun" in (_park_line(s) + s).lower() for s in _girr_after):
+    bad.append(("qld search", "girraween mixed with girramay or girringun"))
+  _castle = open(os.path.join(D, "qld", "camp", "castle-rock-camp-area", "index.html"), encoding="utf-8").read()
+  if "<title>Castle Rock Camp Area, Girraween National Park | CampConditions.au</title>" not in _castle: bad.append(("castle-rock-camp-area", "title"))
+  if '<meta name="description" content="Castle Rock Camp Area, Girraween National Park in Southern Queensland Country, Queensland. QPWS camping ground in the QSpatial tourist points layer. Closed only where a QPWS park alert applies. Fees and facilities are not in this layer.">' not in _castle:
+    bad.append(("castle-rock-camp-area", "meta"))
+  if "<h1>Castle Rock Camp Area</h1>" not in _castle: bad.append(("castle-rock-camp-area", "h1"))
+  if "No QPWS closure alert names this camping area or closes its park." not in _castle: bad.append(("castle-rock-camp-area", "closure wording"))
+  if '"containedInPlace": {"@type": "AdministrativeArea", "name": "Southern Queensland Country, Queensland"}' not in _castle: bad.append(("castle-rock-camp-area", "json-ld place"))
+  for _camp in _qld_pts:
+    _page = os.path.join(D, "qld", "camp", _camp["slug"], "index.html")
+    if not os.path.isfile(_page):
+      continue
+    _html_page = open(_page, encoding="utf-8").read()
+    _title = html.unescape(re.search(r"<title>(.*?)</title>", _html_page).group(1))
+    _h1 = html.unescape(re.search(r"<h1>(.*?)</h1>", _html_page).group(1))
+    if _title.startswith(_h1 + ", ") and len(_title) > qldc.TITLE_PARK_LIMIT:
+      bad.append(("qld title length", _camp["slug"], len(_title)))
+      break
+  for _state_map in ("vic", "nsw", "sa", "tas"):
+    _raw_path = os.path.join(D, "map-points", _state_map + ".json")
+    if not os.path.isfile(_raw_path):
+      continue
+    _raw_pts = json.load(open(_raw_path, encoding="utf-8"))
+    if any(len(p) > 14 and p[14] for p in _raw_pts): bad.append((_state_map, "park field on a camp without parks"))
+  _qld_map_js = open(os.path.join(D, "map-qld.js"), encoding="utf-8").read()
+  if "function parkScore" not in _qld_map_js or "PARK_GENERIC" not in _qld_map_js: bad.append(("map-qld.js", "park search"))
   # QLD digest sign-up: home offers QLD unticked; QLD pages carry the form with QLD ticked and both digest links stay on the page.
   if 'name="states" value="qld"' not in home or 'name="states" value="qld" checked' in home: bad.append(("/", "qld signup state"))
   _q_pages = [os.path.join(D, "qld", "index.html")]
@@ -2378,11 +2568,11 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
     if 'id="digest-form"' not in _qh or 'name="states" value="qld" checked' not in _qh or 'name="states" value="vic" checked' in _qh or 'name="states" value="nsw" checked' in _qh: bad.append((_qp[len(D):], "qld signup form"))
     if 'class="digest-cta" href="#newsletter"' not in _qh or '<a href="#newsletter">Free digest</a>' not in _qh or _qh.count('class="banner-row"') != 2: bad.append((_qp[len(D):], "qld digest links"))
   _priv = open(os.path.join(D, "privacy", "index.html"), encoding="utf-8").read()
-  if "Victoria, New South Wales and Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
+  if _priv_states not in _priv or "Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
   _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
   if "apikey" in _q_src.lower(): bad.append(("qld", "api key in status.json"))
   import contacts as _q_contacts
-  _qgov_pages = 0
+  _qgov_pages = _qpws_web = 0
   _qld_rest = [c for c in _q_feed if c.get("category") == "Rest area"]
   _qld_rest_ok = 0
   for _c in _q_feed:
@@ -2401,14 +2591,23 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
         _qld_rest_ok += 1
       else:
         bad.append((_c["slug"], "qld rest area contact"))
+    if _c.get("source") == "qpws":
+      _q_site = re.findall(r'<a class="btn" href="([^"]+)"[^>]*>Website</a>', _t)
+      if _q_site:
+        if all(_u.startswith("https://parks.qld.gov.au/") for _u in _q_site):
+          _qpws_web += 1
+        else:
+          bad.append((_c["slug"], "qpws website is not an official QPWS page")); break
     if _c.get("source") == "qpws" and _q_contacts.QGOV_LABEL not in _t and not (_c.get("category") == "Rest area"):
       bad.append((_c["slug"], "QPWS page missing 13 QGOV")); break
   if _qld_rest_ok != len(_qld_rest):
     bad.append(("qld", "rest contacts %s of %s" % (_qld_rest_ok, len(_qld_rest))))
   if _qgov_pages < 1:
     bad.append(("qld", "no 13 QGOV pages"))
-  print("QLD contact pages: %s show 13 QGOV, %s rest areas gained road contacts" % (_qgov_pages, _qld_rest_ok))
-  print("NSW contact pages: %s show the NPWS info line, %s rest areas gained road contacts" % (_npws_line, _nsw_rest_ok))
+  if _qpws_web < 310:
+    bad.append(("qld", "official QPWS park Website buttons %s, expected at least 310" % _qpws_web))
+  print("QLD contact pages: %s show 13 QGOV, %s rest areas gained road contacts, %s QPWS official park Website buttons" % (_qgov_pages, _qld_rest_ok, _qpws_web))
+  print("NSW contact pages: %s show the NPWS info line, %s rest areas gained road contacts, %s NPWS official park Website buttons" % (_npws_line, _nsw_rest_ok, _npws_web))
 # Built pages: an unmapped camp says "No fire district mapped" (never "No Rating" for that),
 # and a fallback camp shows its district's official rating plus the boundary note.
 _unmapped_pages = _fallback_pages = 0
@@ -2505,8 +2704,8 @@ for _st, _slug, _fp in _town_pages:
   if _path not in sm: bad.append((_path, "sitemap")); break
   if f"<h1>Camping near " not in _html or "in a straight line" not in _html or "not by road" not in _html:
     bad.append((_path, "wording")); break
-  if _st in ("sa", "tas"):
-    # Signup stays off until that state's digest exists. The page shows the
+  if _st in ("sa", "tas") and not states.signup_allowed(states.by_slug(_st)):
+    # Signup stays off until release.signup is on. The page shows the
     # coming-soon line and does not post to /api/subscribe.
     _soon = "SA weekly email coming soon" if _st == "sa" else "Tas weekly email coming soon"
     if _soon not in _html or 'action="/api/subscribe"' in _html or 'name="states"' in _html:

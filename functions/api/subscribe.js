@@ -3,7 +3,7 @@
 //   RESEND_API_KEY (secret), CONFIRM_SECRET (secret, long random string),
 //   FROM_EMAIL = "CampConditions.au <digest@mail.campconditions.au>", SITE_URL e.g. https://campconditions.au,
 //   RESEND_SEGMENT_ID
-import { makeToken, makeUnsubscribeToken, EMAIL_RE, signupsReady, unsubscribeLink, listUnsubscribeHeaders, chosenStates, heldSignupStates, statePhrase, oneListMode, topicPlan, allSegmentId } from "../_lib/token.js";
+import { makeToken, makeUnsubscribeToken, EMAIL_RE, signupsReady, unsubscribeLink, listUnsubscribeHeaders, chosenStates, heldSignupStates, statePhrase, stateOpen, oneListMode, topicPlan, allSegmentId } from "../_lib/token.js";
 import { sitePage as page } from "../_lib/page.js";
 
 const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { "content-type": "text/plain; charset=utf-8", "cache-control": "no-store" } });
@@ -18,30 +18,41 @@ export function listEnrolment(env, states) {
   if (!oneListMode(env)) return { mode: "segments", ok: true, topics: [], missing: [], segmentId: "" };
   const plan = topicPlan(env, states);
   const segmentId = allSegmentId(env);
+  const open = chosenStates(states, env);
+  const topicOnly = open.length > 0 && open.every((slug) => slug === "sa" || slug === "tas");
   return {
     mode: "topics",
-    ok: Boolean(segmentId) && plan.missing.length === 0 && plan.topics.length > 0,
+    ok: plan.missing.length === 0 && plan.topics.length > 0 && (Boolean(segmentId) || topicOnly),
     topics: plan.topics,
     missing: plan.missing,
     segmentId,
   };
 }
 
-// Shared by the handler and tests. Held slugs are never enrolled.
-// A request that names only held states adds nobody and does not fall back to Victoria.
-export function signupChoice(rawStates, choosing) {
+// The longer sentence is only used once South Australia and Tasmania are both open.
+export function pickStateMessage(env) {
+  if (stateOpen(env, "sa") && stateOpen(env, "tas")) {
+    return "Choose Victoria, New South Wales, Queensland, South Australia, Tasmania, or any mix of them.";
+  }
+  return "Choose Victoria, New South Wales, Queensland, or any mix of them.";
+}
+
+// Shared by the handler and tests. Closed slugs are never enrolled.
+// A request that names only closed states adds nobody and does not fall back to Victoria.
+// env omitted keeps today's hold on South Australia, Tasmania and the ACT.
+export function signupChoice(rawStates, choosing, env) {
   if (!choosing) return { ok: true, states: ["vic"], explicit: false, enrol: ["vic"], reason: "" };
-  const picked = chosenStates(rawStates);
-  const held = heldSignupStates(rawStates);
+  const picked = chosenStates(rawStates, env);
+  const held = heldSignupStates(rawStates, env);
   if (!picked.length && held.length) return { ok: false, status: 400, states: [], enrol: [], reason: "not_open" };
   if (!picked.length) return { ok: false, status: 400, states: [], enrol: [], reason: "pick_state" };
   return { ok: true, states: picked, explicit: true, enrol: picked, reason: "" };
 }
 
-export function confirmationMessage(site, link, unsubscribeUrl, states = ["vic"], email = "") {
+export function confirmationMessage(site, link, unsubscribeUrl, states = ["vic"], email = "", env) {
   const privacy = `${String(site || "").replace(/\/$/, "")}/privacy/`;
   const unsub = unsubscribeUrl || `${String(site || "").replace(/\/$/, "")}/unsubscribe/`;
-  const picked = chosenStates(states);
+  const picked = chosenStates(states, env);
   const where = statePhrase(picked.length ? picked : ["vic"]);
   const address = String(email || "").trim();
   const ask = address
@@ -87,19 +98,19 @@ export async function onRequestPost({ request, env }) {
   const email = signup.email.toLowerCase();
   if (!EMAIL_RE.test(email)) return page("Check that address", "That doesn't look like an email address.", 400);
   const choosing = String(signup.choosing || "") === "1";
-  const choice = signupChoice(signup.states, choosing);
+  const choice = signupChoice(signup.states, choosing, env);
   if (!choice.ok && choice.reason === "not_open") {
     return page("Not open yet", "Those digests are not open. No address was added.", 400);
   }
-  if (!choice.ok) return page("Pick a state", "Choose Victoria, New South Wales, Queensland, or any mix of them.", 400);
+  if (!choice.ok) return page("Pick a state", pickStateMessage(env), 400);
   const states = choice.states;
   const explicit = choice.explicit;
   if (!listEnrolment(env, states).ok) return soon();
-  const token = explicit ? await makeToken(email, env.CONFIRM_SECRET, 60 * 60 * 48, states) : await makeToken(email, env.CONFIRM_SECRET);
+  const token = explicit ? await makeToken(email, env.CONFIRM_SECRET, 60 * 60 * 48, states, env) : await makeToken(email, env.CONFIRM_SECRET);
   const site = String(env.SITE_URL).replace(/\/$/, "");
   const link = `${site}/api/confirm?token=${encodeURIComponent(token)}`;
   const unsub = unsubscribeLink(site, email, await makeUnsubscribeToken(email, env.CONFIRM_SECRET));
-  const message = confirmationMessage(env.SITE_URL, link, unsub, states, email);
+  const message = confirmationMessage(env.SITE_URL, link, unsub, states, email, env);
   const day = new Date().toISOString().slice(0, 10);
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",

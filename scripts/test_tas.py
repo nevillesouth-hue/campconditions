@@ -35,13 +35,22 @@ def main():
     act = states.by_slug("act")
     expect(tas.get("enabled") is True, "tas enabled")
     expect(tas["release"]["public"] is True, "tas public")
-    expect(tas["release"]["signup"] is False and tas["release"]["digest"] is False, "no signup and no digest")
+    tas_on = tas["release"]["signup"] is True
+    if tas_on:
+        expect(tas["release"]["digest"] is True, "signup and digest switch on together")
+    else:
+        expect(tas["release"]["signup"] is False and tas["release"]["digest"] is False, "no signup and no digest")
     expect(states.public_build_allowed(tas) is True, "public build allowed")
-    expect(states.signup_allowed(tas) is False and states.digest_allowed(tas) is False, "signup and digest refused")
+    expect(states.signup_allowed(tas) is tas_on and states.digest_allowed(tas) is tas_on, "signup and digest follow the release flags")
     blocking = [gate for gate in tas["release"]["gates"] if gate.get("blocks_public", True) is not False]
     expect(blocking and all(gate.get("ok") is True for gate in blocking), "blocking tas gates are open")
-    segment = next(gate for gate in tas["release"]["gates"] if gate.get("id") == "digest_segment")
-    expect(segment.get("ok") is False and segment.get("blocks_public") is False, "tas signup segment stays off")
+    if tas_on:
+        topic = next((gate for gate in tas["release"]["gates"] if gate.get("id") == "digest_topic"), {})
+        expect(topic.get("ok") is True and topic.get("blocks_public") is False, "tas digest topic gate is open")
+        expect(not any(gate.get("id") == "digest_segment" for gate in tas["release"]["gates"]), "no tas segment gate once the topic is used")
+    else:
+        segment = next(gate for gate in tas["release"]["gates"] if gate.get("id") == "digest_segment")
+        expect(segment.get("ok") is False and segment.get("blocks_public") is False, "tas signup segment stays off")
     expect(act.get("enabled") is False and states.public_build_allowed(act) is False, "act stays off")
     expect([state["slug"] for state in states.enabled()] == ["vic", "nsw", "qld", "sa", "tas"], "enabled states include tas")
 
@@ -238,7 +247,7 @@ def main():
     expect("1300 827 727" not in falls_html and ">Call " not in falls_html, "council camp does not get the PWS line")
     expect(not ben.get("phone") and not falls.get("phone"), "the info line is not stored as the camp phone")
     expect(">Book</a>" not in ben_html and ">Email</a>" not in ben_html, "empty email and booking stay hidden")
-    expect(">Website</a>" not in ben_html and "Campground record:" in ben_html and ">theLIST</a>" in ben_html, "a PWS page keeps theLIST as the campground record")
+    expect('href="https://parks.tas.gov.au/explore-our-parks/ben-lomond-national-park">Website</a>' in ben_html and "Campground record:" in ben_html and ">theLIST</a>" in ben_html, "a PWS page shows its park Website and keeps theLIST as the campground record")
     council_sites = [camp for camp in camps if camp.get("tas_council")]
     pws_sites = [camp for camp in camps if not camp.get("tas_council")]
     with_button = 0
@@ -260,6 +269,12 @@ def main():
         with_button += 1
     expect(len(council_sites) == 11 and len(pws_sites) == 167, "11 council camps and 167 PWS camps")
     expect(with_website == 7, "7 council or Hydro websites")
+    pws_websites = [camp for camp in pws_sites if camp.get("website")]
+    expect(len(pws_websites) == 120, "120 PWS camps have a checked parks.tas.gov.au Website button (got %d)" % len(pws_websites))
+    for camp in pws_websites:
+        page = tas_alerts.html_block(camp)
+        expect(camp["website"].startswith("https://parks.tas.gov.au/explore-our-parks/"), "PWS website is an official park page " + camp["name"])
+        expect('class="btn" href="%s">Website</a>' % camp["website"] in page and contacts.PWS_LABEL in page, "PWS website button keeps the info line " + camp["name"])
     expect(with_button == 174, "174 Tasmania pages show a contact button")
     expect(tas_inventory.load_pws_links(os.path.join(ROOT, "missing-tas-pws-links.csv")) == {}, "a missing PWS link file adds nothing")
     link_file = tempfile.NamedTemporaryFile("w", suffix=".csv", delete=False, encoding="utf-8")
@@ -305,6 +320,25 @@ def main():
     expect("not camping" in nsw_rest.get("rest_note", "") and "overnight stay is allowed" not in nsw_rest.get("rest_note", "").lower(), "NSW rest-area note does not allow camping")
     expect(not nsw_osm.get("info_line") and not nsw_osm.get("road_line") and nsw_osm.get("phone") == "02 9999 0000", "other NSW camps keep their own phone")
     expect(not vic_rest.get("info_line") and not vic_rest.get("road_line") and not vic_rest.get("rest_note") and vic_rest.get("phone") == "13 1963", "Victoria rest areas are unchanged")
+    qpws_linked = {"source": "qpws", "category": "QPWS camping area", "source_ref": "111009000000852"}
+    qpws_unlinked = {"source": "qpws", "category": "QPWS camping area", "source_ref": "111009000001204"}
+    npws_linked = {"source": "npws", "category": "Camping Area", "source_ref": "N0001X-V0665-CG001"}
+    npws_own = {"source": "npws", "category": "Camping Area", "source_ref": "N0002X-V0148-CGPOL", "website": "https://example.org/own"}
+    osm_same_ref = {"source": "osm", "category": "Camp", "source_ref": "111009000000852"}
+    contacts.apply_state_contacts({"qld": [qpws_linked, qpws_unlinked, osm_same_ref], "nsw": [npws_linked, npws_own]})
+    expect(contacts.official_park_url("qld", "https://parks.qld.gov.au/parks/x") and not contacts.official_park_url("qld", "http://parks.qld.gov.au/parks/x"), "QPWS links must be https on parks.qld.gov.au")
+    expect(not contacts.official_park_url("nsw", "https://parks.qld.gov.au/parks/x") and not contacts.official_park_url("tas", "https://parks.tas.gov.au/x"), "park links are refused on another state's host")
+    added = contacts.apply_park_websites(
+        {"qld": [qpws_linked, qpws_unlinked, osm_same_ref], "nsw": [npws_linked, npws_own]},
+        {"qld": {"111009000000852": "https://parks.qld.gov.au/parks/danbulla/camping/fong-on-bay"},
+         "nsw": {"N0001X-V0665-CG001": "https://www.nationalparks.nsw.gov.au/camping-and-accommodation/campgrounds/bald-rock-campground-and-picnic-area",
+                 "N0002X-V0148-CGPOL": "https://www.nationalparks.nsw.gov.au/camping-and-accommodation/campgrounds/polblue-campground-picnic-area"}})
+    expect(added == {"qld": 1, "nsw": 1}, "park websites added only where mapped and empty")
+    expect(qpws_linked.get("website", "").startswith("https://parks.qld.gov.au/") and qpws_linked.get("info_line", {}).get("phone") == "13 74 68", "QPWS park website keeps the 13 QGOV line")
+    expect('href="https://parks.qld.gov.au/parks/danbulla/camping/fong-on-bay">Website</a>' in contacts.specific_html(qpws_linked), "QPWS park website renders a Website button")
+    expect(not qpws_unlinked.get("website") and not osm_same_ref.get("website"), "unmapped QPWS and non-QPWS camps get no park website")
+    expect(npws_linked.get("info_line", {}).get("phone") == "1300 072 757" and "nationalparks.nsw.gov.au" in npws_linked.get("website", ""), "NPWS park website keeps the NPWS info line")
+    expect(npws_own.get("website") == "https://example.org/own", "an existing website is not replaced")
     expect(tas_inventory.LIST_CREDIT in stumpys_html, "LIST attribution")
     osm = next(camp for camp in camps if camp.get("coordinate_source") == "OSM")
     listed = next(camp for camp in camps if camp.get("coordinate_source") != "OSM")
@@ -320,7 +354,7 @@ def main():
     soon = tas_signup.coming_soon_html()
     os.environ["RESEND_SEGMENT_TAS_ID"] = "do-not-create"
     try:
-        expect(tas_signup.forms_allowed() is False, "a segment variable does not open signup")
+        expect(tas_signup.forms_allowed() is tas_on, "a segment variable does not change signup; only release.signup does")
     finally:
         os.environ.pop("RESEND_SEGMENT_TAS_ID", None)
     expect(tas_signup.COMING_SOON in soon and "<form" not in soon and "/api/subscribe" not in soon, "coming soon line has no form")
@@ -343,7 +377,11 @@ def main():
     if os.path.isfile(home):
         page = open(home, encoding="utf-8").read()
         expect('href="/tas/"' in page and "Tasmania" in page, "built homepage lists Tasmania")
-        expect('value="tas"' not in page and 'value="act"' not in page, "signup does not offer tas or act")
+        expect('value="act"' not in page, "signup does not offer act")
+        if states.signup_allowed(states.by_slug("tas")):
+            expect('value="tas"' in page and 'value="tas" checked' not in page, "homepage offers TAS unticked")
+        else:
+            expect('value="tas"' not in page, "signup does not offer tas while the flag is off")
         expect(os.path.isdir(os.path.join(ROOT, "dist", "tas")), "built site has Tasmania pages")
         expect(not os.path.isdir(os.path.join(ROOT, "dist", "act")), "built site has no ACT pages")
 

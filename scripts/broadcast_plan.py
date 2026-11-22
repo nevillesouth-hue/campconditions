@@ -6,22 +6,26 @@ each state keeps its own segment and the body has no topic_id. With the flag
 on, every state uses the all-subscribers segment plus that state's topic.
 
 A body aimed at the all-subscribers segment with no topic_id is refused.
-South Australia is refused: there is no SA topic.
+South Australia and Tasmania are accepted only in one-list mode when the
+all-subscribers segment and that state's topic are both set.
 """
 import os
 
-STATE_ORDER = ("vic", "nsw", "qld")
+LEGACY_STATES = ("vic", "nsw", "qld")
+TOPIC_STATES = ("sa", "tas")
 TOPIC_ENV = {
     "vic": "RESEND_TOPIC_VIC_ID",
     "nsw": "RESEND_TOPIC_NSW_ID",
     "qld": "RESEND_TOPIC_QLD_ID",
+    "sa": "RESEND_TOPIC_SA_ID",
+    "tas": "RESEND_TOPIC_TAS_ID",
 }
 SEGMENT_ENV = {
     "vic": "RESEND_SEGMENT_ID",
     "nsw": "RESEND_SEGMENT_NSW_ID",
     "qld": "RESEND_SEGMENT_QLD_ID",
 }
-# Same fallback as functions/api/confirm.js. A segment id is not a secret.
+# Deleted 19 Nov 2026. Kept only so old references resolve; sends never use it.
 QLD_SEGMENT_FALLBACK = "2488900b-f026-44e8-9d74-098d38ef3468"
 _ON = {"1", "true", "on", "yes"}
 
@@ -38,7 +42,20 @@ def one_list_mode(env=None):
 
 
 def _topic_id(env, slug):
-    return str(env.get(TOPIC_ENV[slug]) or "").strip()
+    key = TOPIC_ENV.get(slug) or ""
+    if not key:
+        return ""
+    return str(env.get(key) or "").strip()
+
+
+def _legacy_segment(env, slug):
+    # Sends never use QLD_SEGMENT_FALLBACK: that segment was deleted on 19 Nov 2026.
+    if slug == "qld":
+        raw = str(env.get("RESEND_SEGMENT_QLD_ID") if env.get("RESEND_SEGMENT_QLD_ID") is not None else "").strip()
+        if raw.lower() in ("none", "deleted"):
+            return ""
+        return raw
+    return str(env.get(SEGMENT_ENV.get(slug) or "") or "").strip()
 
 
 def _all_segment(env):
@@ -49,13 +66,22 @@ def target(slug, env=None):
     """Segment and topic for one state. topic_id is empty while the flag is off."""
     provided = env if env is not None else os.environ
     state = str(slug or "").strip().lower()
-    if state not in STATE_ORDER:
+    if state in TOPIC_STATES:
+        segment = _all_segment(provided)
+        topic = _topic_id(provided, state)
+        if not one_list_mode(provided) or not segment or not topic:
+            return {"ok": False, "reason": "state_not_open", "segment_id": "", "topic_id": ""}
+        return {"ok": True, "reason": "", "segment_id": segment, "topic_id": topic}
+    if state not in LEGACY_STATES:
         return {"ok": False, "reason": "state_not_open", "segment_id": "", "topic_id": ""}
     if not one_list_mode(provided):
-        segment = str(provided.get(SEGMENT_ENV[state]) or "").strip()
-        if state == "qld" and not segment:
-            segment = QLD_SEGMENT_FALLBACK
+        segment = _legacy_segment(provided, state)
         if not segment:
+            # No live legacy segment: use the all-subscribers segment plus the state topic, or refuse.
+            all_id = _all_segment(provided)
+            topic = _topic_id(provided, state)
+            if all_id and topic:
+                return {"ok": True, "reason": "", "segment_id": all_id, "topic_id": topic}
             return {"ok": False, "reason": "segment_unset", "segment_id": "", "topic_id": ""}
         return {"ok": True, "reason": "", "segment_id": segment, "topic_id": ""}
     segment = _all_segment(provided)

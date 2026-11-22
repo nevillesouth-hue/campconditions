@@ -30,8 +30,10 @@ function sameHex(a, b) {
   return diff === 0;
 }
 
-export const STATE_ORDER = ["vic", "nsw", "qld"];
-const STATE_LABELS = { vic: "Victoria", nsw: "New South Wales", qld: "Queensland" };
+export const STATE_ORDER = ["vic", "nsw", "qld", "sa", "tas"];
+const STATE_LABELS = { vic: "Victoria", nsw: "New South Wales", qld: "Queensland", sa: "South Australia", tas: "Tasmania" };
+const ALWAYS_OPEN = ["vic", "nsw", "qld"];
+const TOPIC_ONLY = ["sa", "tas"];
 
 // Held until inventory, licence, fire, digest and regression gates pass.
 // chosenStates ignores these, so a crafted body cannot enrol them.
@@ -60,23 +62,45 @@ export function heldSignupPreview(slug) {
   return { slug, enrol: false, send: false, readsSegmentEnv: false, requiredEnv: key };
 }
 
-export function heldSignupStates(raw) {
+function listedSlugs(raw) {
   const list = Array.isArray(raw) ? raw : String(raw == null ? "" : raw).split(/[,\s]+/);
-  const have = new Set();
+  const have = [];
   for (const item of list) {
     const slug = String(item || "").trim().toLowerCase();
-    if (HELD_SIGNUP_STATES.includes(slug)) have.add(slug);
+    if (slug && !have.includes(slug)) have.push(slug);
+  }
+  return have;
+}
+
+// VIC, NSW and QLD are always open. SA and TAS open only when their flag is on
+// and the topic id is set. ACT stays closed. env omitted is every flag off.
+export function stateOpen(env, slug) {
+  const state = String(slug || "").trim().toLowerCase();
+  if (ALWAYS_OPEN.includes(state)) return true;
+  if (state === "sa") return flagOn(env && env.SIGNUP_OPEN_SA) && Boolean(topicId(env, "sa"));
+  if (state === "tas") return flagOn(env && env.SIGNUP_OPEN_TAS) && Boolean(topicId(env, "tas"));
+  return false;
+}
+
+export function heldSignupStates(raw, env) {
+  const have = new Set();
+  for (const slug of listedSlugs(raw)) {
+    if (HELD_SIGNUP_STATES.includes(slug) && !stateOpen(env, slug)) have.add(slug);
   }
   return HELD_SIGNUP_STATES.filter((slug) => have.has(slug));
 }
 
-export function chosenStates(raw) {
-  const list = Array.isArray(raw) ? raw : String(raw == null ? "" : raw).split(/[,\s]+/);
+export function chosenStates(raw, env) {
   const have = new Set();
-  for (const item of list) {
-    const slug = String(item || "").trim().toLowerCase();
-    if (STATE_ORDER.includes(slug)) have.add(slug);
+  for (const slug of listedSlugs(raw)) {
+    if (STATE_ORDER.includes(slug) && stateOpen(env, slug)) have.add(slug);
   }
+  return STATE_ORDER.filter((slug) => have.has(slug));
+}
+
+// Token payload states, in STATE_ORDER, including ones that are closed right now.
+function canonicalStates(raw) {
+  const have = new Set(listedSlugs(raw).filter((slug) => STATE_ORDER.includes(slug)));
   return STATE_ORDER.filter((slug) => have.has(slug));
 }
 
@@ -104,11 +128,13 @@ export function legacySegmentWrite(env) {
   return flagOn(env && env.SIGNUP_WRITE_LEGACY_SEGMENTS);
 }
 
-// Live state topics only. There is no SA topic: SA sign-up stays closed until Nev says otherwise.
+// Live state topics. SA and TAS stay closed until SIGNUP_OPEN_SA / SIGNUP_OPEN_TAS and the topic id are both set.
 export const TOPIC_ENV = {
   vic: "RESEND_TOPIC_VIC_ID",
   nsw: "RESEND_TOPIC_NSW_ID",
   qld: "RESEND_TOPIC_QLD_ID",
+  sa: "RESEND_TOPIC_SA_ID",
+  tas: "RESEND_TOPIC_TAS_ID",
 };
 
 // Same id confirm.js uses when RESEND_SEGMENT_QLD_ID is unset. A segment id is not a secret.
@@ -129,11 +155,11 @@ export function allSegmentId(env) {
 }
 
 // Opt-in topics for the states this confirmation is allowed to enrol.
-// Held states are already dropped by chosenStates, so they never get a topic.
+// Closed states are dropped by chosenStates, so they never get a topic.
 export function topicPlan(env, states) {
   const topics = [];
   const missing = [];
-  for (const slug of chosenStates(states)) {
+  for (const slug of chosenStates(states, env)) {
     const id = topicId(env, slug);
     if (!id) missing.push(slug);
     else topics.push({ id, subscription: "opt_in", slug });
@@ -141,15 +167,51 @@ export function topicPlan(env, states) {
   return { topics, missing };
 }
 
+// "none" or "deleted" means that legacy segment was removed. An empty value still uses the fallback.
+export function legacySegmentId(env, slug) {
+  const state = String(slug || "").trim().toLowerCase();
+  if (state === "qld") {
+    const raw = String(env && env.RESEND_SEGMENT_QLD_ID != null ? env.RESEND_SEGMENT_QLD_ID : "").trim();
+    if (/^(none|deleted)$/i.test(raw)) return "";
+    return raw || QLD_SEGMENT_FALLBACK;
+  }
+  const key = LEGACY_SEGMENT_ENV[state];
+  if (!key) return "";
+  return String((env && env[key]) || "").trim();
+}
+
+// Legacy segment for a send. Unlike legacySegmentId, Queensland has no built-in fallback here.
+function sendSegmentId(env, state) {
+  if (state === "qld") {
+    const raw = String(env && env.RESEND_SEGMENT_QLD_ID != null ? env.RESEND_SEGMENT_QLD_ID : "").trim();
+    return /^(none|deleted)$/i.test(raw) ? "" : raw;
+  }
+  return legacySegmentId(env, state);
+}
+
 export function broadcastTarget(env, slug) {
   const state = String(slug || "").trim().toLowerCase();
-  if (!STATE_ORDER.includes(state)) {
+  if (TOPIC_ONLY.includes(state)) {
+    const id = topicId(env, state);
+    const segmentId = allSegmentId(env);
+    if (!oneListMode(env) || !segmentId || !id) {
+      return { ok: false, reason: "state_not_open", segmentId: "", topicId: "" };
+    }
+    return { ok: true, reason: "", segmentId, topicId: id, oneList: true };
+  }
+  if (!ALWAYS_OPEN.includes(state)) {
     return { ok: false, reason: "state_not_open", segmentId: "", topicId: "" };
   }
   if (!oneListMode(env)) {
-    let segmentId = String((env && env[LEGACY_SEGMENT_ENV[state]]) || "").trim();
-    if (state === "qld" && !segmentId) segmentId = QLD_SEGMENT_FALLBACK;
-    if (!segmentId) return { ok: false, reason: "segment_unset", segmentId: "", topicId: "" };
+    // Sends never use the hard-coded Queensland id: that segment was deleted on 19 Nov 2026.
+    // A state with no live legacy segment goes to the all-subscribers segment plus its topic, or is refused.
+    const segmentId = sendSegmentId(env, state);
+    if (!segmentId) {
+      const all = allSegmentId(env);
+      const id = topicId(env, state);
+      if (all && id) return { ok: true, reason: "", segmentId: all, topicId: id, oneList: true };
+      return { ok: false, reason: "segment_unset", segmentId: "", topicId: "" };
+    }
     return { ok: true, reason: "", segmentId, topicId: "", oneList: false };
   }
   const segmentId = allSegmentId(env);
@@ -186,12 +248,12 @@ export function broadcastBody(env, slug, fields) {
   return { ok: true, reason: "", body };
 }
 
-export async function makeToken(email, secret, ttlSec = 60 * 60 * 48, states) {
+export async function makeToken(email, secret, ttlSec = 60 * 60 * 48, states, env) {
   const exp = Math.floor(Date.now() / 1000) + ttlSec;
   const normal = email.toLowerCase();
   let payload = `${normal}|${exp}`;
   if (arguments.length >= 4) {
-    const picked = chosenStates(states);
+    const picked = chosenStates(states, env);
     if (!picked.length) return "";
     payload = `${normal}|${exp}|${picked.join(",")}`;
   }
@@ -220,7 +282,7 @@ export function listUnsubscribeHeaders(url) {
   };
 }
 
-export async function readToken(token, secret) {
+export async function readToken(token, secret, env) {
   if (!token || !token.includes(".")) return null;
   const dot = token.indexOf(".");
   const body = token.slice(0, dot);
@@ -235,7 +297,11 @@ export async function readToken(token, secret) {
   const exp = Number(parts[1]);
   if (!EMAIL_RE.test(email) || !Number.isFinite(exp) || exp < Date.now() / 1000) return null;
   if (parts.length === 2) return { email, states: ["vic"], explicit: false };
-  const states = chosenStates(parts[2]);
+  const states = canonicalStates(parts[2]);
   if (!states.length || states.join(",") !== parts[2]) return null;
+  // A state that was open when the link was sent must still be open at confirm time.
+  if (states.some((slug) => !stateOpen(env, slug))) {
+    return { email, states, explicit: true, notOpen: true };
+  }
   return { email, states, explicit: true };
 }

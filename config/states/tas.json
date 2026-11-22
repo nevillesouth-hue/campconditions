@@ -103,9 +103,11 @@
     "roads_name": "Tasmanian roadworks"
   },
   "copy": {
-    "digest_subject": "",
-    "digest_intro": "",
-    "newsletter_h2": "",
+    "digest_subject": "Tasmania camps this week: {closed} closed",
+    "digest_intro": "G'day! Here's what's changed for Tasmanian camps and campgrounds, {date}.",
+    "digest_warnings": "Warnings change quickly, so we don't list them here. <a href=\"https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/\" style=\"color:#2f5d3a;\">Check the Tasmania Fire Service</a> and <a href=\"https://alert.tas.gov.au/\" style=\"color:#2f5d3a;\">TasALERT</a> before you go.",
+    "digest_footer": "Not an official warning service. Campground/site from theLIST © State of Tasmania (CC BY 3.0 AU). OpenStreetMap contributors (ODbL) where coordinates come from OpenStreetMap. Alerts: Parks and Wildlife Service. In an emergency call 000.<br>",
+    "newsletter_h2": "Get the free weekly Tasmania digest",
     "home_title": "Tasmania camp conditions — {count} sites | CampConditions.au",
     "home_description": "{count} camps across Tasmania, including Parks and Wildlife Service campgrounds and camps outside reserves. No current alert does not mean the camp is open, so check before you travel.",
     "home_h1": "Tasmania camp conditions",
@@ -135,8 +137,8 @@
   },
   "release": {
     "public": true,
-    "signup": false,
-    "digest": false,
+    "signup": true,
+    "digest": true,
     "live_html_parser": true,
     "live_fetch": false,
     "targets_are_not_permission_to_ship": true,
@@ -171,11 +173,10 @@
         "detail": "Pages link to Tasmanian roadworks. The State Growth layer is not ingested."
       },
       {
-        "id": "digest_segment",
-        "ok": false,
+        "id": "digest_topic",
+        "ok": true,
         "blocks_public": false,
-        "env": "RESEND_SEGMENT_TAS_ID",
-        "detail": "No Tasmania segment is created. Signup stays off. Pages say the weekly email is coming soon."
+        "detail": "SA/TAS use the all-subscribers segment plus a private opt_out topic"
       },
       {
         "id": "regression_activation",

@@ -52,9 +52,9 @@ export async function unsubscribeContact(env, email, doFetch = fetch) {
   if (!outcome.ok || !oneListMode(env)) return outcome;
   const topics = Object.keys(TOPIC_ENV).map((slug) => topicId(env, slug)).filter(Boolean);
   if (!topics.length) return outcome;
-  const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH", {
-    topics: topics.map((id) => ({ id, subscription: "opt_out" })),
-  }, doFetch);
+  // The body is a bare array of { id, subscription } (Resend REST and SDK). A { topics } wrapper is rejected.
+  const opted = await resend(env, `/contacts/${encodeURIComponent(email)}/topics`, "PATCH",
+    topics.map((id) => ({ id, subscription: "opt_out" })), doFetch);
   if (opted.ok || opted.status === 404) return outcome;
   return opted;
 }

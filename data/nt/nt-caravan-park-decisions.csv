@@ -1,0 +1,10 @@
+facility_id,name,place,decision,reason,source_url
+102,Mud Bay Campground,Barranyi (North Island) National Park,exclude,permit-only Aboriginal land. Barranyi (North Island) National Park requires a permit to enter.,https://parkbookings.nt.gov.au/Web/
+104,Paradice Bay Campground,Barranyi (North Island) National Park,exclude,permit-only Aboriginal land. Barranyi (North Island) National Park requires a permit to enter.,https://parkbookings.nt.gov.au/Web/
+182,Campground 1,Garig Gunak Barlu National Park,exclude,permit-only Aboriginal land. Garig Gunak Barlu National Park requires a permit to enter.,https://parkbookings.nt.gov.au/Web/
+183,Campground 2,Garig Gunak Barlu National Park,exclude,permit-only Aboriginal land. Garig Gunak Barlu National Park requires a permit to enter.,https://parkbookings.nt.gov.au/Web/
+184,Tag-along (TG) Campground,Garig Gunak Barlu National Park,exclude,permit-only Aboriginal land. Garig Gunak Barlu National Park requires a permit to enter.,https://parkbookings.nt.gov.au/Web/
+105,Tjuwaliyn Campground 1,Tjuwaliyn (Douglas) Hot Springs Nature Park,hold,No coordinates in the NT Parks booking response.,https://parkbookings.nt.gov.au/Web/
+117,Lorrngorl Campground,Giwining / Flora River Nature Park,hold,No coordinates in the NT Parks booking response.,https://parkbookings.nt.gov.au/Web/
+192,Camp Woollybutt Campground,Territory Wildlife Park,hold,No coordinates in the NT Parks booking response. Camp Woollybutt is at Territory Wildlife Park and is not confirmed for this list.,https://parkbookings.nt.gov.au/Web/
+196,Tjuwaliyn Campground 2,Tjuwaliyn (Douglas) Hot Springs Nature Park,hold,No coordinates in the NT Parks booking response.,https://parkbookings.nt.gov.au/Web/

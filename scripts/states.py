@@ -1,11 +1,13 @@
 """Load per-state configuration. Only enabled states are built.
 
 Victoria stays first so the shared map script and the top-level digest draft
-remain Victorian. Australian Capital Territory, South Australia and Tasmania
-can exist as config files before their release gates pass. Those files are not
-a public build, digest or signup. CAMPCONDITIONS_ENABLE cannot bypass a failed
-gate. CAMPCONDITIONS_PREVIEW=tas with CAMPCONDITIONS_OUT outside dist writes
-Tasmania pages for a local look, and does not enable the state.
+remain Victorian. Australian Capital Territory, South Australia, Tasmania and
+the Northern Territory can exist as config files before their release gates
+pass. Those files are not a public build, digest or signup.
+CAMPCONDITIONS_ENABLE cannot bypass a failed gate.
+CAMPCONDITIONS_PREVIEW=tas with CAMPCONDITIONS_OUT outside dist writes
+Tasmania pages for a local look, and does not enable the state. The same
+preview switch writes Northern Territory pages when the value is nt.
 """
 import html
 import json
@@ -90,7 +92,7 @@ def signup_allowed(state):
     return release.get("signup") is True
 
 
-SIGNUP_SLUGS = ("vic", "nsw", "qld", "sa", "tas")
+SIGNUP_SLUGS = ("vic", "nsw", "qld", "sa", "tas", "nt")
 
 
 def weekend_closures_line(region_name, state_name):

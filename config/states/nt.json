@@ -1,0 +1,170 @@
+{
+  "slug": "nt",
+  "name": "Northern Territory",
+  "adjective": "Northern Territory",
+  "abbrev": "NT",
+  "enabled": false,
+  "banner": {
+    "covering": "",
+    "coming": ""
+  },
+  "coverage_label": "NT Parks campgrounds from the NT Parks booking system. Commercial caravan, holiday and tourist parks are not part of this list.",
+  "credit": "Campground information: NT Parks (Northern Territory Government)",
+  "safety_html": "<div class=\"warn\">Campground locations and details come from the NT Parks booking system and may not be exact. Check with NT Parks and on the ground before you travel.</div>",
+  "licence": {
+    "attribution_form": "Campground information: NT Parks (Northern Territory Government)",
+    "attribution_confirmed": false,
+    "attribution_note": "TODO: NT Parks has not confirmed this attribution wording. Do not treat the placeholder as the approved credit.",
+    "permission": "Conditional permission from NT Parks (Lisa Lemcke, NT Government DLPE) on 23 November 2026 to use booking-system names, locations and status, to show the caution, and to use the amended coordinates.",
+    "photos": false,
+    "booking_prose": false
+  },
+  "fire": {
+    "mode": "link_out",
+    "authority": "NT Fire and Rescue",
+    "url": "https://www.pfes.nt.gov.au/fire-and-rescue-service",
+    "borrow_bom": false,
+    "source_resolved": true,
+    "machine_values": "none",
+    "unmapped_label": "Fire danger is not shown here. Check NT Fire and Rescue before you travel.",
+    "note": "The NT Fire and Rescue page is public. Bushfires NT did not connect and SecureNT returned 403, so those sites are not used. No Bureau of Meteorology feed."
+  },
+  "roads": {
+    "mode": "link_out",
+    "ingest": false,
+    "live_fetch": false
+  },
+  "files": {
+    "booking": "data/nt/nt-booking-camps.json",
+    "amended": "data/nt-amended-locations.csv",
+    "park_decisions": "data/nt/nt-caravan-park-decisions.csv"
+  },
+  "regions": {
+    "northern-territory": {
+      "name": "Northern Territory",
+      "blurb": "NT Parks campgrounds. Locations come from the NT Parks booking system and may not be exact."
+    }
+  },
+  "region_rules": [
+    {"id": "northern-territory"}
+  ],
+  "labels": {
+    "paid_book": "",
+    "book_ahead_note": "",
+    "book_ahead_with": "",
+    "type_filter": "NT Parks",
+    "agency": "NT Parks",
+    "phone": "",
+    "official_short": "NT Parks",
+    "park_category": "NT Parks campground",
+    "closure_status": "Closed"
+  },
+  "map": {
+    "fallback_lat": -19.5,
+    "fallback_lon": 133.5,
+    "fallback_zoom": 5
+  },
+  "sources": {
+    "nt_parks_booking": {
+      "url": "https://parkbookings.nt.gov.au/Web/",
+      "live_fetch": false,
+      "note": "The public build does not fetch the booking system. Camp names, coordinates and status are the saved 23 November 2026 search."
+    },
+    "nt_fire": {
+      "url": "https://www.pfes.nt.gov.au/fire-and-rescue-service",
+      "live_fetch": false,
+      "machine_parser": false
+    }
+  },
+  "links": {
+    "conditions": "https://parkbookings.nt.gov.au/Web/",
+    "conditions_name": "NT Parks booking system",
+    "emergency": "https://www.pfes.nt.gov.au/fire-and-rescue-service",
+    "emergency_name": "NT Fire and Rescue"
+  },
+  "copy": {
+    "digest_subject": "Northern Territory camps this week: {closed} closed",
+    "digest_intro": "G'day! Here's what's changed for Northern Territory camps and campgrounds, {date}.",
+    "digest_warnings": "Warnings change quickly, so we don't list them here. <a href=\"https://www.pfes.nt.gov.au/fire-and-rescue-service\" style=\"color:#2f5d3a;\">Check NT Fire and Rescue</a> before you go.",
+    "digest_footer": "Not an official warning service. Campground information: NT Parks (Northern Territory Government). In an emergency call 000.<br>",
+    "newsletter_h2": "Get the free weekly Northern Territory digest",
+    "home_title": "Northern Territory camp conditions — {count} sites | CampConditions.au",
+    "home_description": "{count} NT Parks campgrounds. Locations come from the NT Parks booking system and may not be exact. Check with NT Parks before you travel.",
+    "home_h1": "Northern Territory camp conditions",
+    "home_intro": "<strong>{count}</strong> NT Parks campgrounds. Locations come from the NT Parks booking system and may not be exact. Check with NT Parks and on the ground before you travel.",
+    "home_map": "Map of Northern Territory campgrounds",
+    "home_weather": "Check <a href=\"https://www.pfes.nt.gov.au/fire-and-rescue-service\">NT Fire and Rescue</a> before you travel.",
+    "website_description": "{count} NT Parks campgrounds. Locations come from the NT Parks booking system and may not be exact.",
+    "state_title": "Northern Territory campground conditions — {count} sites | CampConditions.au",
+    "state_description": "{count} NT Parks campgrounds. Locations come from the NT Parks booking system and may not be exact. Check with NT Parks before you travel.",
+    "state_h1": "Northern Territory",
+    "state_intro": "<strong>{count}</strong> NT Parks campgrounds. Locations come from the NT Parks booking system and may not be exact. Check with NT Parks and on the ground before you travel.",
+    "region_title": "{name} camps and campgrounds — {count} sites | CampConditions.au",
+    "region_description": "{count} camps in {name}. {blurb}",
+    "region_list_name": "Campgrounds in {name}",
+    "osm_place": "{name} in the Northern Territory. Check with NT Parks before you travel.",
+    "official_place": "{name} in the Northern Territory. NT Parks campground. Check with NT Parks before you travel.",
+    "osm_source_line": "Campground information: NT Parks (Northern Territory Government).",
+    "place_admin": "Northern Territory",
+    "feed_region": "Northern Territory, Australia",
+    "feed_disclaimer": "Not an official warning service. Campground locations and details come from the NT Parks booking system and may not be exact. Check with NT Parks and on the ground before you travel. Fire danger is a link to NT Fire and Rescue.",
+    "footer_short": "Northern Territory: Campground information: NT Parks (Northern Territory Government).",
+    "about_sources": "<li>Campgrounds: Campground information: NT Parks (Northern Territory Government).</li><li>Fire: <a href=\"https://www.pfes.nt.gov.au/fire-and-rescue-service\">NT Fire and Rescue</a>.</li>",
+    "about_tail": "Campground locations and details come from the NT Parks booking system and may not be exact. Check with NT Parks and on the ground before you travel.",
+    "llms_intro": "Conditions for {count} NT Parks campgrounds. Locations come from the NT Parks booking system and may not be exact. Fire danger is a link to NT Fire and Rescue. Not an official warning service.",
+    "llms_closures": "A booking status is not a promise the camp is open. Check with NT Parks and on the ground before you travel. Fire danger is a link to NT Fire and Rescue.",
+    "directions_note": "Check NT Fire and Rescue before you travel."
+  },
+  "release": {
+    "public": false,
+    "signup": false,
+    "digest": false,
+    "region_enabled": false,
+    "live_html_parser": false,
+    "live_fetch": false,
+    "targets_are_not_permission_to_ship": true,
+    "code_holds": [
+      "functions/_lib/token.js HELD_SIGNUP_STATES",
+      "functions/_lib/token.js REGION_ENABLED",
+      "scripts/states.py public_build_allowed"
+    ],
+    "gates": [
+      {
+        "id": "inventory_audit",
+        "ok": true,
+        "detail": "The saved booking search lists NT Parks campgrounds. Permit-only Aboriginal land is left out. Camps with no booking coordinates are left out. Commercial caravan parks were not in the booking list."
+      },
+      {
+        "id": "attribution_confirmed",
+        "ok": false,
+        "detail": "TODO: attribution wording is a placeholder until NT Parks confirms it. attribution_confirmed is false."
+      },
+      {
+        "id": "amended_coordinates",
+        "ok": false,
+        "detail": "NT Parks amended coordinates are applied only when the name matches a booking-system campground. Unmatched names are not applied."
+      },
+      {
+        "id": "caravan_park_keep",
+        "ok": true,
+        "detail": "Commercial caravan, holiday and tourist parks stay out. None were in the booking list."
+      },
+      {
+        "id": "fire_source_resolved",
+        "ok": true,
+        "detail": "Pages link to NT Fire and Rescue. No Bureau of Meteorology feed."
+      },
+      {
+        "id": "digest_topic",
+        "ok": false,
+        "blocks_public": false,
+        "detail": "Signup and the digest stay off while the region flag is off. No NT topic or segment is created."
+      },
+      {
+        "id": "regression_activation",
+        "ok": false,
+        "detail": "The Northern Territory is not in the public build. Victoria, New South Wales, Queensland, South Australia and Tasmania stay as they are."
+      }
+    ]
+  }
+}

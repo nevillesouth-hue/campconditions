@@ -208,12 +208,17 @@ class Client:
             raise RuntimeError("unexpected post")
         if method == "PATCH" and not bare.rstrip("/").endswith("/topics"):
             raise RuntimeError("unexpected patch")
-        if not isinstance(body, dict):
-            return
-        if "unsubscribed" in body:
+        if isinstance(body, dict) and "unsubscribed" in body:
             raise RuntimeError("refusing to change unsubscribed")
-        for topic in body.get("topics") or []:
-            if topic.get("subscription") != "opt_in":
+        # confirm.js sends a bare array. A {"topics": [...]} wrapper is the old shape.
+        if isinstance(body, list):
+            topics = body
+        elif isinstance(body, dict):
+            topics = body.get("topics") or []
+        else:
+            topics = []
+        for topic in topics:
+            if not isinstance(topic, dict) or topic.get("subscription") != "opt_in":
                 self.opt_outs_sent += 1
                 raise RuntimeError("refusing to opt out")
 
@@ -585,12 +590,11 @@ def apply_topics(client, rows, topic_ids, errors):
         missing = row.get("missing_topics") or []
         if row.get("topic_read_failed") or not missing:
             continue
-        body = {
-            "topics": [
-                {"id": topic_ids[slug], "subscription": "opt_in"}
-                for slug in STATE_ORDER if slug in missing
-            ]
-        }
+        # Same body as the sign-up topics PATCH: a bare array of { id, subscription }.
+        body = [
+            {"id": topic_ids[slug], "subscription": "opt_in"}
+            for slug in STATE_ORDER if slug in missing
+        ]
         status, _data = client.call(
             "PATCH",
             "/contacts/%s/topics" % urllib.parse.quote(contact_id, safe=""),

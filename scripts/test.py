@@ -243,7 +243,7 @@ for r, _, fs in os.walk(D):
         # One official camping rule mentions fire-danger days. That is not a VicEmergency feed.
         rel = os.path.join(r, f)
         # Victoria camp rules may mention fire-danger days. NSW pages quote the RFS district rating; QLD pages quote the BoM one.
-        shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}", f"{os.sep}summer{os.sep}")))
+        shared_ok = national and (os.path.dirname(rel) == D and f in ("index.html", "status.json", "llms.txt", "404.html") or any(bit in rel for bit in (f"{os.sep}about{os.sep}", f"{os.sep}privacy{os.sep}", f"{os.sep}terms{os.sep}", f"{os.sep}report{os.sep}", f"{os.sep}unsubscribe{os.sep}", f"{os.sep}summer{os.sep}", f"{os.sep}fire-season{os.sep}")))
         # CFA district ratings are an official feed. The old ban was the VicEmergency warning text.
         cfa_ok = needle == "fire danger" and ("cfa.vic.gov.au" in blob or "country fire authority" in blob)
         if needle == "fire danger" and (f"{os.sep}vic{os.sep}camp{os.sep}" in rel or f"{os.sep}nsw{os.sep}" in rel or f"{os.sep}qld{os.sep}" in rel or f"{os.sep}sa{os.sep}" in rel or f"{os.sep}tas{os.sep}" in rel or f == "parksvic-flags.json" or shared_ok or cfa_ok):
@@ -701,6 +701,63 @@ sa_tas = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_sa_
 if sa_tas.returncode != 0: bad.append(("sa-tas signup", "test_sa_tas_signup.py failed"))
 trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)
 if trip_check.returncode != 0: bad.append(("trip-check", (trip_check.stderr or trip_check.stdout)[-400:]))
+back_js = subprocess.run(["node", os.path.join(root, "scripts", "test_back.mjs")], cwd=root, capture_output=True, text=True)
+if back_js.returncode != 0: bad.append(("back link", (back_js.stderr or back_js.stdout)[-500:]))
+_BACK_MARK = '<p class="camp-back" id="camp-back" hidden><a class="back-map" href=""></a></p>'
+_back_names_path = os.path.join(D, "back-names.json")
+_back_script_path = os.path.join(D, "back.js")
+if not os.path.isfile(_back_names_path) or not os.path.isfile(_back_script_path):
+  bad.append(("back link", "missing script or names"))
+else:
+  _back_names = json.load(open(_back_names_path, encoding="utf-8"))
+  _back_script = open(_back_script_path, encoding="utf-8").read()
+  _names_v = hashlib.sha256(open(_back_names_path, "rb").read()).hexdigest()[:8]
+  _script_v = asset_hash("/back.js")
+  if _back_names.get("/") != "the map" or _back_names.get("/vic/") != "Victoria" or _back_names.get("/nsw/") != "New South Wales" or _back_names.get("/qld/") != "Queensland" or _back_names.get("/sa/") != "South Australia" or _back_names.get("/tas/") != "Tasmania":
+    bad.append(("back link", "state names"))
+  if _back_names.get("/vic/grampians-south-west/") != "Grampians & South West":
+    bad.append(("back link", "region name"))
+  if _back_names.get("/closures-this-weekend/") != "Closures this weekend" or _back_names.get("/trip-check/") != "Trip Check":
+    bad.append(("back link", "named pages"))
+  if f'/back-names.json?v={_names_v}' not in _back_script or "__BACK_NAMES_URL__" in _back_script:
+    bad.append(("back link", "names url"))
+  if f"/back.js\n  Cache-Control: public, max-age=31536000, immutable" not in open(os.path.join(D, "_headers"), encoding="utf-8").read():
+    bad.append(("back link", "script cache"))
+  _camp_pages = 0
+  _town_pages = 0
+  for _dir, _sub, _files in os.walk(D):
+    if draft_dir(_dir) or "index.html" not in _files: continue
+    _rel = os.path.relpath(_dir, D).replace(os.sep, "/")
+    _html = open(os.path.join(_dir, "index.html"), encoding="utf-8").read()
+    _is_camp = bool(re.fullmatch(r"[a-z]{2,3}/camp/[^/]+", _rel))
+    if _is_camp:
+      _camp_pages += 1
+      if _BACK_MARK not in _html or _html.find(_BACK_MARK) > _html.find("<h1>") or f'src="/back.js?v={_script_v}"' not in _html or "p.camp-back[hidden]{display:none !important}" not in _html:
+        bad.append(("/" + _rel + "/", "back link markup")); break
+      if '<p class="muted"><a href="/">Home</a>' in _html or "All camps in " in _html:
+        bad.append(("/" + _rel + "/", "breadcrumb changed")); break
+      _h1 = re.search(r"<h1>(.*?)</h1>", _html)
+      _key = "/" + _rel + "/"
+      if not _h1 or html.unescape(_h1.group(1)) != _back_names.get(_key):
+        bad.append((_key, "back name", None if not _h1 else html.unescape(_h1.group(1)), _back_names.get(_key))); break
+      _crumb = re.search(r'<p class="muted"><a href="/[a-z]{2,3}/">', _html)
+      if not _crumb or _html.find(_crumb.group(0)) < _html.find(_BACK_MARK):
+        bad.append((_key, "crumb")); break
+    else:
+      if 'id="camp-back"' in _html or 'src="/back.js' in _html or "p.camp-back" in _html:
+        bad.append(("/" + _rel + "/", "back link on non-camp")); break
+      if re.fullmatch(r"[a-z]{2,3}/near/[^/]+", _rel):
+        _town_pages += 1
+        _h1 = re.search(r"<h1>(.*?)</h1>", _html)
+        _want = "Camps near " + html.unescape(_h1.group(1)).replace("Camping near ", "", 1) if _h1 else ""
+        if _back_names.get("/" + _rel + "/") != _want:
+          bad.append(("/" + _rel + "/", "town back name", _want, _back_names.get("/" + _rel + "/"))); break
+  if _camp_pages < 1000: bad.append(("back link", f"only {_camp_pages} camp pages"))
+  if _town_pages < 1: bad.append(("back link", "no town names"))
+  for _slug in ("act", "nt"):
+    if os.path.isdir(os.path.join(D, _slug)): bad.append(("back link", _slug + " built"))
+  if 'class="back-map" href="/">← Back to map' not in open(os.path.join(D, "report", "index.html"), encoding="utf-8").read():
+    bad.append(("back link", "report page"))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in about: bad.append(("credit", "footer or about"))
@@ -1907,6 +1964,56 @@ if os.path.isfile(nsw_index):
     bad.append(("/summer/", "print nav"))
   if "DRAFT" in summer or "PREVIEW" in summer or 'href="http://' in summer:
     bad.append(("/summer/", "wording or insecure link"))
+  if 'href="/fire-season/"' not in summer or "Fire season" not in summer:
+    bad.append(("/summer/", "fire season link"))
+  fire_season_path = os.path.join(D, "fire-season", "index.html")
+  fire_season = open(fire_season_path, encoding="utf-8").read() if os.path.isfile(fire_season_path) else ""
+  if not fire_season:
+    bad.append(("/fire-season/", "missing"))
+  else:
+    fire_head = fire_season.split("<main>", 1)[0]
+    fire_main = fire_season.split("<main>", 1)[-1].split("</main>", 1)[0]
+    if fire_season.count('class="banner-row"') != 2 or 'href="/fire-season/"' in fire_head:
+      bad.append(("/fire-season/", "header"))
+    if '<link rel="canonical" href="https://campconditions.au/fire-season/"' not in fire_season:
+      bad.append(("/fire-season/", "canonical"))
+    if 'property="og:title"' not in fire_season or 'property="og:image"' not in fire_season:
+      bad.append(("/fire-season/", "og"))
+    if "<h1>Fire season</h1>" not in fire_main or "Not an official warning service." not in fire_main:
+      bad.append(("/fire-season/", "disclaimer"))
+    if "Check the official sources linked on each page before you travel." not in fire_main:
+      bad.append(("/fire-season/", "check before travel"))
+    if "No fire district mapped" not in fire_main or "That sentence is not a fire danger rating." not in fire_main:
+      bad.append(("/fire-season/", "unmapped wording"))
+    if "No Rating" not in fire_main:
+      bad.append(("/fire-season/", "official No Rating level"))
+    for link in (
+      "https://www.afdrs.com.au/",
+      "https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/total-fire-bans-fire-danger-ratings",
+      "https://www.cfa.vic.gov.au/warnings-and-restrictions/fire-bans-ratings-and-restrictions/can-i-or-cant-i",
+      "https://emergency.vic.gov.au/respond/",
+      "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans",
+      "https://www.rfs.nsw.gov.au/fire-information/fdr-and-tobans/total-fire-ban-rules",
+      "https://www.nsw.gov.au/emergency/hazards-near-me-app",
+      "https://www.fire.qld.gov.au/safety-education/using-fire-outdoors/fire-bans-and-restrictions",
+      "https://reg.bom.gov.au/qld/forecasts/fire-danger-ratings.shtml",
+      "https://www.bom.gov.au/resources/learn-and-explore/fire-weather-knowledge-centre/fire-weather-services",
+      "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/total-fire-bans-ratings/",
+      "https://www.cfs.sa.gov.au/warnings-restrictions/restrictions/what-can-i-do/",
+      "https://www.fire.tas.gov.au/total-fire-bans-fire-permits-burn-registrations/",
+      "https://www.fire.tas.gov.au/about/rules-during-fire-permit-periods-and-total-fire-bans/",
+      "https://alert.tas.gov.au/",
+    ):
+      if f'href="{link}"' not in fire_main:
+        bad.append(("/fire-season/", "missing link", link))
+    if "<loc>https://campconditions.au/fire-season/</loc>" not in sitemap_xml:
+      bad.append(("sitemap", "/fire-season/ missing"))
+    if "/fire-season/*\n  Cache-Control: no-cache" not in open(os.path.join(D, "_headers"), encoding="utf-8").read():
+      bad.append(("_headers", "/fire-season/"))
+    _fs_ld = [json.loads(m) for m in re.findall(r'<script type="application/ld\+json">(.*?)</script>', fire_season, re.S)]
+    _fs_types = [b.get("@type") for b in _fs_ld]
+    if "WebPage" not in _fs_types or "BreadcrumbList" not in _fs_types:
+      bad.append(("/fire-season/", "json-ld", _fs_types))
   pdf_path = os.path.join(D, "summer-camp-check-kit.pdf")
   pdf_bytes = open(pdf_path, "rb").read() if os.path.isfile(pdf_path) else b""
   if len(re.findall(rb"/Type\s*/Page(?!s)", pdf_bytes)) != 1:

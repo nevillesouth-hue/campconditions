@@ -37,7 +37,9 @@
   "files": {
     "booking": "data/nt/nt-booking-camps.json",
     "amended": "data/nt-amended-locations.csv",
-    "park_decisions": "data/nt/nt-caravan-park-decisions.csv"
+    "park_decisions": "data/nt/nt-caravan-park-decisions.csv",
+    "radar": "data/nt/nt-radar-rest-areas.json",
+    "council": "data/nt/nt-council-camps.csv"
   },
   "regions": {
     "northern-territory": {
@@ -74,6 +76,21 @@
       "url": "https://www.pfes.nt.gov.au/fire-and-rescue-service",
       "live_fetch": false,
       "machine_parser": false
+    },
+    "radar_rest_areas": {
+      "url": "https://spatial.infrastructure.gov.au/server/rest/services/Hosted/RADAR_Curated_Prod_restareas/FeatureServer/1",
+      "live_fetch": false,
+      "layer_requested": 0,
+      "layer_used": 1,
+      "copyright": "State and Territories of the Commonwealth of Australia",
+      "licence": "not specified",
+      "attribution": "Rest areas: National Formal Rest Area dataset, Department of Infrastructure. Copyright: State and Territories of the Commonwealth of Australia.",
+      "note": "Layer 0 returned 404. Layer 1 is the rest area list. data.gov.au lists this dataset with licence not specified. The NT road rest stops page returned 403, so camping status was not read from that page."
+    },
+    "council_camps": {
+      "live_fetch": false,
+      "attribution": "Council camps: the council page named on each camp.",
+      "note": "Council pages that were readable. Central Desert Regional Council robots.txt disallows the site, so it was not crawled past the homepage."
     }
   },
   "links": {

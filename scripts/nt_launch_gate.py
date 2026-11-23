@@ -51,12 +51,18 @@ def _inventory():
         counted["booking"] == 106
         and counted["published"] == 97
         and counted["excluded"] == 5
-        and counted["held"] == 4
+        and counted["held"] == 216
         and types["NT Parks campground"] == 97
+        and types["Rest area"] == 0
         and types["Free"] == 0
         and types["Donation"] == 0
         and types["Council showground"] == 0
         and types["Council or community caravan park"] == 0
+        and types["Community"] == 0
+        and counted["held_by_reason"].get("status_unconfirmed") == 211
+        and counted["held_by_reason"].get("no_coordinates") == 5
+        and counted["osm_only"] == 0
+        and all(camp.get("source") == "nt" for camp in nt_inventory.load_camps())
         and counted["in_season"] == 85
         and counted["out_of_season"] == 12
         and counted["osm_only"] == 0
@@ -71,7 +77,9 @@ def _inventory():
         "106 booking campgrounds. 97 published NT Parks campgrounds "
         "(85 in season, 12 out of season). 5 permit-only Aboriginal land campgrounds left out. "
         "4 left out because the booking response has no coordinates. "
-        "Free 0, donation 0, council showground 0, council or community caravan park 0. "
+        "211 rest areas are held because camping status was not confirmed. "
+        "1 council showground is held because the page has no coordinates. "
+        "Free 0, donation 0, council showground published 0, community 0. "
         "No OpenStreetMap-only records."
     )
     if not ok:
@@ -130,6 +138,25 @@ def _attribution():
     if confirmed and text != nt_inventory.ATTRIBUTION:
         reason = "attribution_confirmed is true but the credit text changed"
     return _check("attribution_confirmed", ok, reason)
+
+
+def _extra_attribution():
+    state = states.by_slug("nt")
+    sources = state.get("sources") or {}
+    radar = sources.get("radar_rest_areas") or {}
+    council = sources.get("council_camps") or {}
+    ok = (
+        radar.get("attribution") == nt_inventory.RADAR_ATTRIBUTION
+        and radar.get("copyright") == "State and Territories of the Commonwealth of Australia"
+        and radar.get("licence") == "not specified"
+        and council.get("attribution") == nt_inventory.COUNCIL_ATTRIBUTION
+        and "TODO" not in (radar.get("attribution") or "")
+        and "TODO" not in (council.get("attribution") or "")
+    )
+    reason = "Rest area and council attribution are recorded. The rest area licence is the copyright line the service states, and data.gov.au lists the licence as not specified."
+    if not ok:
+        reason = "a new source is missing its attribution"
+    return _check("extra_source_attribution", ok, reason)
 
 
 def _fire():
@@ -258,6 +285,7 @@ def evaluate(dist, preview=None):
         _caravan(),
         _amended(),
         _attribution(),
+        _extra_attribution(),
         _fire(),
         _signup(),
         _public(dist),

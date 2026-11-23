@@ -8,6 +8,7 @@ Nothing here is fetched at build time.
 """
 import csv
 import json
+import math
 import os
 import re
 
@@ -22,6 +23,12 @@ CAUTION = (
     "Check with NT Parks and on the ground before you travel."
 )
 BOOKING_URL = "https://parkbookings.nt.gov.au/Web/"
+RADAR_ATTRIBUTION = (
+    "Rest areas: National Formal Rest Area dataset, Department of Infrastructure. "
+    "Copyright: State and Territories of the Commonwealth of Australia."
+)
+COUNCIL_ATTRIBUTION = "Council camps: the council page named on each camp."
+REST_STATUS_PAGE = "https://nt.gov.au/driving/safety/road-rest-stops-in-nt"
 FETCHED = "2026-11-23"
 STATUS_NIGHT = "25 November 2026"
 PERMIT_PLACES = {
@@ -49,7 +56,7 @@ def _paths():
             raise SystemExit("NT config is missing files.%s" % key)
         return rel if os.path.isabs(rel) else os.path.join(ROOT, rel)
 
-    return one("booking"), one("amended"), one("park_decisions")
+    return one("booking"), one("amended"), one("park_decisions"), one("radar"), one("council")
 
 
 def _read_csv(path):
@@ -110,7 +117,7 @@ def parks_without_keep(camps):
 
 
 def load_decisions():
-    _booking, _amended, path = _paths()
+    _booking, _amended, path, _radar, _council = _paths()
     rows = _read_csv(path)
     allowed = {"keep", "exclude", "hold"}
     found = {}
@@ -128,7 +135,7 @@ def load_decisions():
 
 
 def load_amended():
-    _booking, path, _decisions = _paths()
+    _booking, path, _decisions, _radar, _council = _paths()
     rows = []
     seen = set()
     for row in _read_csv(path):
@@ -161,10 +168,97 @@ def _number(value):
 
 
 def load_booking():
-    path, _amended, _decisions = _paths()
+    path, _amended, _decisions, _radar, _council = _paths()
     with open(path, encoding="utf-8") as handle:
         doc = json.load(handle)
     return doc.get("campgrounds") or []
+
+
+def _km(lon1, lat1, lon2, lat2):
+    radius = 6371.0
+    phi1, phi2 = math.radians(lat1), math.radians(lat2)
+    dphi = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    hav = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlon / 2) ** 2
+    return 2 * radius * math.asin(min(1.0, math.sqrt(hav)))
+
+
+def _near_park(lon, lat, parks):
+    best = None
+    for park in parks:
+        if park.get("lat") is None or park.get("lon") is None:
+            continue
+        dist = _km(lon, lat, park["lon"], park["lat"])
+        if best is None or dist < best[0]:
+            best = (dist, park)
+    if best and best[0] <= 0.3:
+        return best[1].get("name") or "", round(best[0], 3)
+    return "", None
+
+
+def load_radar():
+    _booking, _amended, _decisions, path, _council = _paths()
+    with open(path, encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def load_council_rows():
+    _booking, _amended, _decisions, _radar, path = _paths()
+    return _read_csv(path)
+
+
+def extra_holds(parks):
+    """Rest areas and council camps that are not published.
+
+    The NT rest-stop page was blocked. RADAR has no overnight-camping field,
+    so every rest area stays out. A council camp with no coordinates stays out.
+    """
+    holds = []
+    for row in load_radar().get("rest_areas") or []:
+        name = (row.get("name") or "").strip() or "Rest area"
+        lon, lat = _number(row.get("lon")), _number(row.get("lat"))
+        near_name, near_km = ("", None)
+        if lon is not None and lat is not None:
+            near_name, near_km = _near_park(lon, lat, parks)
+        reason = "Camping status was not confirmed. The NT road rest stops page returned 403, and the rest area dataset does not say overnight camping is allowed."
+        if near_name:
+            reason += " It is also within 300 m of %s." % near_name
+        holds.append({
+            "id": "NT-RADAR-%s" % row.get("radar_id"),
+            "name": name,
+            "place": (row.get("road_name") or "").strip(),
+            "decision": "hold",
+            "reason": reason,
+            "reason_code": "status_unconfirmed",
+            "source": "radar",
+            "category": "Rest area",
+            "lat": lat,
+            "lon": lon,
+            "near_park": near_name,
+            "near_km": near_km,
+            "attribution": RADAR_ATTRIBUTION,
+        })
+    for row in load_council_rows():
+        choice = (row.get("decision") or "").strip()
+        if choice == "publish":
+            continue
+        holds.append({
+            "id": "NT-COUNCIL-%s" % _slug(row.get("name")),
+            "name": (row.get("name") or "").strip(),
+            "place": (row.get("place") or "").strip(),
+            "decision": choice or "hold",
+            "reason": (row.get("reason") or "").strip(),
+            "reason_code": (row.get("reason_code") or "no_coordinates").strip(),
+            "source": "council",
+            "category": (row.get("category") or "").strip(),
+            "lat": _number(row.get("lat")),
+            "lon": _number(row.get("lon")),
+            "near_park": "",
+            "near_km": None,
+            "attribution": COUNCIL_ATTRIBUTION,
+            "source_url": (row.get("source_url") or "").strip(),
+        })
+    return holds
 
 
 def amended_report(records=None):
@@ -230,6 +324,8 @@ def load_camps(seen=None):
                 "place": place,
                 "decision": choice,
                 "reason": (decision.get("reason") or "").strip(),
+                "reason_code": "permit_land" if choice == "exclude" else "no_coordinates",
+                "source": "booking",
                 "lat": lat,
                 "lon": lon,
             })
@@ -289,7 +385,7 @@ def load_camps(seen=None):
             "fee_type": "",
         })
     load_camps.excluded = excluded
-    load_camps.held = held
+    load_camps.held = held + extra_holds(camps)
     load_camps.amended = report
     return camps
 
@@ -304,14 +400,26 @@ def summary(camps=None):
         camps = load_camps()
     types = {
         "NT Parks campground": 0,
+        "Rest area": 0,
         "Free": 0,
         "Donation": 0,
         "Council showground": 0,
         "Council or community caravan park": 0,
+        "Community": 0,
     }
+    by_source = {}
     for camp in camps:
         if camp.get("category") in types:
             types[camp["category"]] += 1
+        source = camp.get("source") or ""
+        by_source[source] = by_source.get(source, 0) + 1
+    held_reasons = {}
+    held_sources = {}
+    for row in load_camps.held:
+        code = row.get("reason_code") or "other"
+        held_reasons[code] = held_reasons.get(code, 0) + 1
+        source = row.get("source") or "booking"
+        held_sources[source] = held_sources.get(source, 0) + 1
     report = load_camps.amended
     return {
         "booking": len(load_booking()),
@@ -319,11 +427,14 @@ def summary(camps=None):
         "excluded": len(load_camps.excluded),
         "held": len(load_camps.held),
         "by_type": types,
+        "by_source": by_source,
+        "held_by_reason": held_reasons,
+        "held_by_source": held_sources,
         "in_season": sum(1 for camp in camps if camp.get("in_season")),
         "out_of_season": sum(1 for camp in camps if not camp.get("in_season")),
         "amended_matched": [row["name"] for row in report.get("matched") or []],
         "amended_missed": [row["name"] for row in report.get("missed") or []],
-        "osm_only": 0,
+        "osm_only": sum(1 for row in load_camps.held if row.get("reason_code") == "osm_only"),
         "commercial_published": parks_without_keep(camps),
     }
 

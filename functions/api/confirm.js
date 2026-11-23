@@ -13,7 +13,12 @@ const soon = () => new Response("Sign-ups open soon", { status: 503, headers: { 
 
 // Resend "Queensland digest" segment. A segment id is not a secret (it only works with the API key).
 // RESEND_SEGMENT_QLD_ID overrides it when set on the Pages project.
+// Confirm no longer uses this as the fallback when RESEND_SEGMENT_QLD_ID is unset.
+// Unsubscribe still removes it in that case.
 export const QLD_SEGMENT_ID = "2488900b-f026-44e8-9d74-098d38ef3468";
+// All-subscribers segment used when a Queensland confirm has no RESEND_SEGMENT_QLD_ID.
+// RESEND_SEGMENT_ALL_ID overrides it. A segment id is not a secret.
+export const ALL_SEGMENT_FALLBACK = "0b7dd9b9-7cfc-47e3-86fe-51bcf0e56235";
 
 export function qldSegmentId(env) {
   return legacySegmentId(env, "qld");
@@ -57,19 +62,23 @@ export function existingStates(result, env) {
 
 // Segment ids this confirmation would touch. South Australia and Tasmania are topic-only.
 // A request that names only closed states does not fall back to the Victoria segment.
+// No chosen state follows sign-up (signupChoice): Victoria. It does not join the deleted Queensland segment.
 export function segmentPlan(env, states, recordStates) {
   const picked = chosenStates(states, env);
   const held = heldSignupStates(states, env);
   const sa = { send: false, reason: "not_used", segmentId: "", calledResend: false };
-  if (!picked.length && held.length) return { enrol: [], refuse: "not_open", segmentIds: [], sa };
+  if (!picked.length && held.length) return { enrol: [], refuse: "not_open", segmentIds: [], sa, allInsteadOfQld: false };
   const want = picked.length ? picked : ["vic"];
   const segmentIds = [];
   if (!recordStates || want.includes("vic")) segmentIds.push(env.RESEND_SEGMENT_ID);
   const nswId = String((env && env.RESEND_SEGMENT_NSW_ID) || "").trim();
   if (recordStates && want.includes("nsw") && nswId) segmentIds.push(nswId);
+  const qldConfigured = String(env && env.RESEND_SEGMENT_QLD_ID != null ? env.RESEND_SEGMENT_QLD_ID : "").trim();
   const qldId = qldSegmentId(env);
-  if (recordStates && want.includes("qld") && qldId) segmentIds.push(qldId);
-  return { enrol: want, refuse: "", segmentIds, sa };
+  // An empty id used to write QLD_SEGMENT_ID. That segment was deleted. "none" and "deleted" still skip the write.
+  const allInsteadOfQld = Boolean(recordStates && want.includes("qld") && !qldConfigured);
+  if (recordStates && want.includes("qld") && qldId && qldConfigured) segmentIds.push(qldId);
+  return { enrol: want, refuse: "", segmentIds, sa, allInsteadOfQld };
 }
 
 function notOpen() {
@@ -113,6 +122,14 @@ async function addAllSegment(env, email, doFetch) {
   return { ...added, ok: true };
 }
 
+// Queensland confirm with no segment id. Joins the all-subscribers segment and does not add a topic.
+async function addFallbackAllSegment(env, email, doFetch) {
+  const allId = allSegmentId(env) || ALL_SEGMENT_FALLBACK;
+  const added = await resend(env, segmentPath(email, allId), "POST", undefined, doFetch);
+  if (!added.ok && added.status !== 409) return added;
+  return { ...added, ok: true };
+}
+
 // Legacy segment writes. 404 means that segment is already gone, so the confirm continues.
 async function addLegacySegments(env, email, doFetch, segmentIds, created) {
   const ids = (segmentIds || []).filter(Boolean);
@@ -139,7 +156,9 @@ async function syncStates(env, email, doFetch, want, created) {
 // 409 means that step already happened. states is stored only when the confirmation
 // link named the states. A missing contact property must not undo the signup.
 // NSW joins RESEND_SEGMENT_NSW_ID when that variable is set, and is not added to the Victoria segment.
-// QLD joins the Queensland digest segment (qldSegmentId), and is not added to the Victoria segment.
+// QLD joins RESEND_SEGMENT_QLD_ID when that variable is set, and is not added to the Victoria segment.
+// An empty Queensland segment id joins the all-subscribers segment instead of the deleted Queensland segment.
+// That fallback does not add a topic. Only the states already chosen are opted in.
 // A Queensland id of none or deleted skips that write. A 404 on a legacy segment does not fail the confirm.
 // South Australia and Tasmania are topic-only: no segment is created for them.
 // When a VIC, NSW or QLD topic id is set, the contact is also opted into that topic.
@@ -162,6 +181,10 @@ async function confirmLegacy(env, email, doFetch, states, recordStates) {
   const topics = chosenTopicOptIns(env, want);
   const opted = await patchTopics(env, email, doFetch, topics);
   if (!opted.ok) return opted;
+  if (plan.allInsteadOfQld) {
+    const added = await addFallbackAllSegment(env, email, doFetch);
+    if (!added.ok) return added;
+  }
   if (want.some((slug) => slug === "sa" || slug === "tas")) {
     const added = await addAllSegment(env, email, doFetch);
     if (!added.ok) return added;

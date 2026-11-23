@@ -138,7 +138,9 @@ class Api:
             }, {}
         if bare.startswith("/contacts/") and bare.endswith("/topics") and method == "PATCH":
             contact = self.contacts[bare.split("/")[2]]
-            for topic in payload["topics"]:
+            if not isinstance(payload, list):
+                raise AssertionError("topic patch must be a bare array")
+            for topic in payload:
                 if topic["subscription"] != "opt_in":
                     raise AssertionError("opt out was sent")
                 contact["topics"][topic["id"]] = topic["subscription"]
@@ -260,7 +262,8 @@ def test_migration():
     expect("diffs_after: vic=0 nsw=0 qld=0\n" in text, "apply topics leaves no diff")
     expect("planned_topic_opt_ins: vic=60 nsw=34 qld=7\n" in text, "apply reports the plan it carried out")
     bodies = [json.loads(body) for method, path, body, _headers in api.calls if method == "PATCH"]
-    opted = [topic for payload in bodies for topic in payload["topics"]]
+    expect(all(isinstance(payload, list) for payload in bodies), "topic patches use the sign-up bare array")
+    opted = [topic for payload in bodies for topic in payload]
     expect(len(opted) == 101 and all(topic["subscription"] == "opt_in" for topic in opted), "101 opt-ins and no opt-outs")
     expect(not any(method == "POST" for method, _path in methods(api)), "topic apply does not add segments")
     code, text, _err = capture(["--apply", "topics", "--out", out], armed, api, Clock())
@@ -294,7 +297,13 @@ def test_edges():
     code, text, err = capture(["--apply-topics", "--out", out], env, api, Clock())
     expect(code == 0 and "live_writes: 1\n" in text, "partial opt-in writes once: " + err[-200:])
     patches = [json.loads(body) for method, _path, body, _headers in api.calls if method == "PATCH"]
-    expect(len(patches) == 1 and patches[0]["topics"] == [{"id": "topic-nsw", "subscription": "opt_in"}], "partial patch is the missing topic only")
+    expect(patches == [[{"id": "topic-nsw", "subscription": "opt_in"}]], "partial patch is a bare array of the missing topic only")
+    client = resend_one_list.Client(key, api.transport, Clock().sleep, Clock().clock)
+    try:
+        client.guard("PATCH", "/contacts/c0001/topics", [{"id": "topic-nsw", "subscription": "opt_out"}])
+        expect(False, "bare-array opt_out must be refused")
+    except RuntimeError as exc:
+        expect("opt out" in str(exc) and client.opt_outs_sent == 1, "bare-array opt_out is refused")
     code, text, _err = capture(["--apply-topics", "--out", out], env, api, Clock())
     expect(code == 0 and "live_writes: 0\n" in text, "partial second run writes nothing")
 

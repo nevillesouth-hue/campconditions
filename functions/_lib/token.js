@@ -124,6 +124,7 @@ export function oneListMode(env) {
 
 // While the all-subscribers segment is being proved, confirm also writes the old
 // per-state segments. Off unless set. Ignored while ONE_LIST_MODE is off.
+// This will be turned off later.
 export function legacySegmentWrite(env) {
   return flagOn(env && env.SIGNUP_WRITE_LEGACY_SEGMENTS);
 }
@@ -137,7 +138,8 @@ export const TOPIC_ENV = {
   tas: "RESEND_TOPIC_TAS_ID",
 };
 
-// Same id confirm.js uses when RESEND_SEGMENT_QLD_ID is unset. A segment id is not a secret.
+// Deleted 19 Nov 2026. Unsubscribe still removes it when RESEND_SEGMENT_QLD_ID is unset.
+// Confirm does not write it. A segment id is not a secret.
 const QLD_SEGMENT_FALLBACK = "2488900b-f026-44e8-9d74-098d38ef3468";
 const LEGACY_SEGMENT_ENV = {
   vic: "RESEND_SEGMENT_ID",

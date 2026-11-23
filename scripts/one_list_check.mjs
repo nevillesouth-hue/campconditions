@@ -1,4 +1,4 @@
-import { confirmSubscription, QLD_SEGMENT_ID } from "../functions/api/confirm.js";
+import { confirmSubscription, QLD_SEGMENT_ID, ALL_SEGMENT_FALLBACK } from "../functions/api/confirm.js";
 import { listEnrolment, signupChoice } from "../functions/api/subscribe.js";
 import { unsubscribeContact } from "../functions/api/unsubscribe.js";
 import { broadcastBody, guardBroadcast, makeToken, oneListMode, readToken, stateOpen, topicPlan } from "../functions/_lib/token.js";
@@ -257,6 +257,42 @@ assert(pickStateMessage(openBoth) === "Choose Victoria, New South Wales, Queensl
   assert(calls.some((call) => call.body && call.body.includes('"states":"qld"')), "queensland none still stores the state");
 }
 {
+  // No chosen state follows sign-up: Victoria. It does not use the deleted Queensland segment.
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(withoutTopics({ RESEND_SEGMENT_QLD_ID: "" }), email, fetch, [], false);
+  assert(result.ok, "no state confirms");
+  assert(calls.some((call) => call.url.endsWith("/segments/" + vicSegment) && call.method === "POST"), "no state joins Victoria, same as sign-up");
+  assert(!calls.some((call) => call.url.includes(QLD_SEGMENT_ID) || call.url.includes(ALL_SEGMENT_FALLBACK) || call.url.includes("/segments/" + ALL)), "no state does not fall back to Queensland or the all segment");
+  const topic = calls.find((call) => call.url.endsWith("/topics"));
+  assert(Array.isArray(jsonBody(topic)) && jsonBody(topic).length === 1 && jsonBody(topic)[0].id === "7911f74b-59eb-4c9c-ba63-e6c8f344d6f7", "no state opts into Victoria only");
+}
+{
+  // Empty Queensland segment id joins the all segment. The fallback adds no extra topic.
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(withoutTopics({ RESEND_SEGMENT_QLD_ID: "", RESEND_SEGMENT_ALL_ID: "" }), email, fetch, ["qld"], true);
+  assert(result.ok, "missing queensland segment confirms");
+  assert(!calls.some((call) => call.url.includes(QLD_SEGMENT_ID) || call.url.includes(vicSegment)), "missing queensland segment does not use the deleted segment or Victoria");
+  assert(calls.some((call) => call.method === "POST" && call.url.endsWith("/segments/" + ALL_SEGMENT_FALLBACK) && call.body === undefined), "missing queensland segment joins the all segment");
+  const topic = calls.find((call) => call.url.endsWith("/topics"));
+  assert(JSON.stringify(jsonBody(topic)) === JSON.stringify([{ id: "268e2f38-88e7-4d84-8e35-b6a05823100c", subscription: "opt_in" }]), "only the chosen Queensland topic is opted in");
+}
+{
+  const { calls, fetch } = recorder(() => okResponse());
+  const result = await confirmSubscription(withoutTopics({ RESEND_SEGMENT_QLD_ID: "" }), email, fetch, ["qld"], true);
+  assert(result.ok, "configured all segment is used");
+  assert(calls.some((call) => call.method === "POST" && call.url.endsWith("/segments/" + ALL)), "env all segment wins over the fallback id");
+  assert(!calls.some((call) => call.url.includes(ALL_SEGMENT_FALLBACK) || call.url.includes(QLD_SEGMENT_ID)), "fallback id and deleted segment stay unused");
+}
+{
+  const { calls, fetch } = recorder(() => okResponse());
+  const env = base({ ONE_LIST_MODE: "1", SIGNUP_WRITE_LEGACY_SEGMENTS: "1", RESEND_SEGMENT_QLD_ID: "" });
+  const result = await confirmSubscription(env, email, fetch, ["qld"], true);
+  assert(result.ok, "one-list qld without a segment id confirms");
+  assert(jsonBody(calls[0]).segments[0].id === ALL, "one-list still joins the all segment");
+  assert(!calls.some((call) => call.url.includes(QLD_SEGMENT_ID)), "legacy flag does not revive the deleted segment");
+  assert(jsonBody(calls[0]).topics.length === 1 && jsonBody(calls[0]).topics[0].id === TOPICS.qld, "one-list still opts into only the chosen topic");
+}
+{
   const { calls, fetch } = recorder(() => new Response("{}", { status: 200 }));
   const gone = await unsubscribeContact(withoutTopics({ RESEND_SEGMENT_QLD_ID: "deleted", RESEND_SEGMENT_NSW_ID: "" }), email, fetch);
   assert(gone.ok && calls.length === 2, "unsubscribe skips a deleted Queensland segment");
@@ -297,6 +333,7 @@ assert(pickStateMessage(openBoth) === "Choose Victoria, New South Wales, Queensl
   assert(on.calls[0].body.includes('"unsubscribed":true'), "one-list still unsubscribes the whole list");
   assert(on.calls.some((call) => call.method === "DELETE" && call.url.includes("nsw-segment")), "old NSW segment still removed");
   const topicCall = on.calls.find((call) => call.url.endsWith("/topics"));
+  assert(Array.isArray(jsonBody(topicCall)), "unsubscribe topic body is the same bare array the sign-up path sends");
   const opted = jsonBody(topicCall).map((topic) => topic.subscription + ":" + topic.id).sort();
   assert(opted.join(",") === ["opt_out:topic-sa", "opt_out:" + TOPICS.nsw, "opt_out:" + TOPICS.qld, "opt_out:" + TOPICS.vic].sort().join(","), "configured topics including SA are opted out");
   assert(!on.calls.some((call) => call.url.includes("sa-segment")), "unsubscribe does not write an SA segment");

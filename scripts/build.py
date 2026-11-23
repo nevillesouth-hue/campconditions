@@ -1620,6 +1620,11 @@ def map_script_src():
     return versioned_url("/map.js")
 def leaflet_foot(cluster=False):
     return LEAFLET_JS + (CLUSTER_JS if cluster else "") + f'<script src="{map_script_src()}" defer></script>'
+BACK_SCRIPT = '<script src="/back.js" defer></script>'
+CAMP_BACK_CSS = '<style>p.camp-back[hidden]{display:none !important}p.camp-back a.back-map{display:inline-block;max-width:100%;height:auto;white-space:normal;line-height:1.3;touch-action:manipulation}</style>'
+def camp_back_html():
+    """Hidden until back.js sees a same-site referrer. No script: the page is unchanged."""
+    return '<p class="camp-back" id="camp-back" hidden><a class="back-map" href=""></a></p>'
 def camp_url(c):
     return f"/{c.get('state_slug') or SLUG}/camp/{c['slug']}/"
 CAMPER_REPORTS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "data", "camper-reports.json")
@@ -3484,14 +3489,14 @@ def emit_state(state, camps, include_home):
             posted = feed_iso(cl.get("source_published")) or NOW.isoformat()
             lds.append({"@context": "https://schema.org", "@type": "SpecialAnnouncement", "name": f"Closure: {c['name']}", "text": cl.get("desc") or cl.get("reason") or "This campground is recorded as closed.", "datePosted": posted, "spatialCoverage": {"@type": "Place", "name": c["name"]}, "url": f"{SITE}{camp_path}"})
         page(camp_path, title, desc,
-         f"""{camp_crumb}<h1>{e(page_name)}</h1>{near_line(c)}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
+         f"""{camp_back_html()}{camp_crumb}<h1>{e(page_name)}</h1>{near_line(c)}<p class="status-line" data-camp="{e(c['slug'])}">{badge(c)} <span class="muted" id="checked-line">Checked {STAMP}</span></p>{fire_line(c)}
 {inline_signup("closed" if c["status"] == "closed" else "camp", rn, c)}
 {vicemergency_button(c)}
 {map_block([c], f"Map of {c['name']}", small=True)}{directions(c)}
 {condition}{SAFETY}{info}
 {nearby_camps_html(c, camp_index)}
 <p class="muted">Location: {c['lat']}, {c['lon']} · <a href="https://www.google.com/maps?q={c['lat']},{c['lon']}">Open in maps</a>{(' · <a href="%s">BOM forecast</a>' % LINKS['bom_forecast']) if str(LINKS.get('bom_forecast') or '').startswith('https://') else ''} · {dated}</p>
-{camper_reports(c)}{visitor_report_box(c)}{news_section()}""", lds, head=leaflet_head(False), foot=leaflet_foot(False))
+{camper_reports(c)}{visitor_report_box(c)}{news_section()}""", lds, head=leaflet_head(False) + CAMP_BACK_CSS, foot=leaflet_foot(False) + BACK_SCRIPT)
 multi_state = len(statecfg.enabled()) > 1
 emit_state(primary, by_state[primary["slug"]], not multi_state)
 for state in statecfg.page_states():
@@ -4130,6 +4135,76 @@ def headers_text():
     parts += ["/site.webmanifest", "  Cache-Control: no-cache", ""]
     parts += ["/map-points/*", "  Cache-Control: public, max-age=86400", ""]
     return "\n".join(parts)
+def back_name_map():
+    """Short names for the camp-page back link. Unknown paths fall back in back.js."""
+    names = {
+        "/": "the map",
+        "/closures-this-weekend/": "Closures this weekend",
+        "/trip-check/": "Trip Check",
+        "/faq/": "FAQ",
+        "/about/": "About",
+        "/about-the-data/": "About the data",
+        "/fire-season/": "Fire season",
+        "/summer/": "Summer Camp Check Kit",
+        "/report/": "Report conditions",
+        "/privacy/": "Privacy",
+        "/terms/": "Terms",
+        "/support/": "Support",
+        "/unsubscribe/": "Unsubscribe",
+    }
+    for state in statecfg.page_states():
+        slug = state["slug"]
+        names[f"/{slug}/"] = state["name"]
+        for key, region_name, _blurb in statecfg.regions(state):
+            names[f"/{slug}/{key}/"] = region_name
+        for camp in by_state.get(slug) or []:
+            label = camp.get("page_name") or camp.get("name") or ""
+            if camp.get("slug") and label:
+                names[f"/{slug}/camp/{camp['slug']}/"] = label
+    for town in TOWN_PAGES:
+        label = town.get("label") or town.get("name") or ""
+        if town.get("url") and label:
+            names[town["url"]] = "Camps near " + label
+    return names
+def write_back_link():
+    """Write the path map and script, then stamp ?v= on camp pages.
+
+    Camp HTML is written earlier, before this file exists, so the script tag
+    is still unversioned. The hash is filled in once the bytes are final.
+    """
+    blob = json.dumps(back_name_map(), ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    with open(os.path.join(OUT, "back-names.json"), "wb") as handle:
+        handle.write(blob)
+    names_v = hashlib.sha256(blob).hexdigest()[:8]
+    src = open(os.path.join(ROOT, "assets", "back.js"), encoding="utf-8").read()
+    if src.count("__BACK_NAMES_URL__") != 1:
+        raise SystemExit("assets/back.js must contain __BACK_NAMES_URL__ once")
+    script = src.replace("__BACK_NAMES_URL__", f"/back-names.json?v={names_v}")
+    with open(os.path.join(OUT, "back.js"), "w", encoding="utf-8", newline="\n") as handle:
+        handle.write(script)
+    _ASSET_HASH.pop("/back.js", None)
+    version = asset_version("/back.js")
+    if not version:
+        raise SystemExit("back.js was not written")
+    stamped = f'src="/back.js?v={version}"'
+    camp_count = 0
+    for state in statecfg.page_states():
+        root = os.path.join(OUT, state["slug"], "camp")
+        if not os.path.isdir(root):
+            continue
+        for slug in os.listdir(root):
+            fp = os.path.join(root, slug, "index.html")
+            if not os.path.isfile(fp):
+                continue
+            html_text = open(fp, encoding="utf-8").read()
+            updated, n = re.subn(r'src="/back.js(?:\?v=[0-9a-fA-F]+)?"', stamped, html_text, count=1)
+            if n != 1 or 'id="camp-back"' not in updated:
+                raise SystemExit(f"camp page missing back link: {fp}")
+            if updated != html_text:
+                open(fp, "w", encoding="utf-8", newline="\n").write(updated)
+            camp_count += 1
+    print(f"Back link: {camp_count} camp pages, names v={names_v}, script v={version}")
+write_back_link()
 open(os.path.join(OUT, "_headers"), "w", encoding="utf-8").write(headers_text())
 def slug_redirect_lines():
     """301s for camp slugs that changed in correction batches."""

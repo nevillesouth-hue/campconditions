@@ -788,7 +788,7 @@ def _tally(camps):
     }
 
 
-def load_camps(seen=None, moment=None):
+def load_camps(seen=None, moment=None, live_notices=None):
     """Camp records in the same shape the site builder already renders.
 
     `seen` is the build-wide slug set. The public build does not call this
@@ -906,14 +906,22 @@ def load_camps(seen=None, moment=None):
     load_camps.duplicates_dropped = dropped + commercial_dropped
     notice_doc = _load_json(notice_path)
     moment = moment or dt.datetime.fromisoformat(notice_doc["as_of_adelaide"])
-    index = load_alerts_index()
-    current = drop_stale_notices(notice_doc["notices"], index)
+    if live_notices is None:
+        index = load_alerts_index()
+        current = drop_stale_notices(notice_doc["notices"], index)
+    else:
+        import parks_sa
+        current = parks_sa.catalogue_for(notice_doc["notices"], live_notices)
+    kept_urls = {str(notice.get("source_url") or "").rstrip("/") for notice in current}
     load_camps.dropped_notices = [
         notice.get("source_url") or ""
         for notice in notice_doc["notices"]
-        if notice not in current
+        if str(notice.get("source_url") or "").rstrip("/") not in kept_urls
     ]
     scored = act_sa_notices.evaluate_all(current, moment)
+    if live_notices is not None:
+        import parks_sa
+        parks_sa.adjust_scores(scored, current)
     originals = {notice["source_index"]: notice for notice in current}
     for camp in camps:
         _apply_notice(camp, scored["bookings"], scored["notices"], originals, moment)

@@ -49,8 +49,12 @@ def alerts_line(slug):
     when = info.get("updated") or ""
     checked = None
     if info.get("wording") == "checked":
-        import tas_alerts
-        checked = tas_alerts.checked_copy(info, NOW)
+        if info.get("reader") == "parks_sa":
+            import parks_sa
+            checked = parks_sa.checked_copy(info, NOW)
+        else:
+            import tas_alerts
+            checked = tas_alerts.checked_copy(info, NOW)
     stale_msg = (f"{label} may be out of date: the newest {agency} alert update is more than "
                  f"{ALERTS_STALE_DAYS} days old. Check the {agency} alerts page before you travel.")
     if checked:
@@ -678,19 +682,18 @@ for state in _page_states:
     bind(state)
     if state.get("slug") == "sa" and (state.get("files") or {}).get("official_inventory"):
         import sa_inventory
-        official = sa_inventory.load_camps(seen, moment=NOW)
-        index = sa_inventory.load_alerts_index()
-        # The build reads the committed closures index. fetched is when that
-        # snapshot was saved. It is not this build's clock, and it is not
-        # replaced with NOW, which would make the snapshot look freshly fetched.
-        SRC["parks_sa"] = {
-            "ok": True,
-            "url": index.get("url") or sa_inventory.ALERTS_INDEX_URL,
-            "snapshot": True,
-            "note": "Committed Parks SA closures index. fetched is when that snapshot was saved, not when this build ran.",
-        }
-        if index.get("fetched"):
-            SRC["parks_sa"]["fetched"] = index.get("fetched")
+        import parks_sa
+        # One GET of the closures index. A failure keeps the last good copy
+        # and must not fail the build. fetched stays at that earlier read.
+        live = parks_sa.load_for_build(LAST_GOOD_DIR, now=NOW)
+        if live.get("use_snapshot"):
+            official = sa_inventory.load_camps(seen, moment=NOW)
+        else:
+            official = sa_inventory.load_camps(seen, moment=NOW, live_notices=live.get("notices") or [])
+        SRC["parks_sa"] = parks_sa.source_status(live)
+        if not live.get("ok"):
+            print("FALLBACK: parks_sa %s" % (live.get("reason") or "last good copy"), file=sys.stderr)
+        ALERTS_UPDATED["sa"] = parks_sa.stamp(live)
         loaded.append((state, official, [], []))
         continue
     if state.get("slug") == "tas" and (state.get("files") or {}).get("inventory"):

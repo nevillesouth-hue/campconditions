@@ -390,7 +390,7 @@ def main():
     expect(all(item["read_by_signup"] is False for item in report["resend"]["variables"]), "segment vars unread")
     expect("licence_parks_esa" in report["blockers"]["act"], "act licence blocker")
     expect("licence_split" not in report["blockers"]["sa"], "sa licence split is accepted")
-    expect(("digest_segment" in report["blockers"]["sa"]) is (not sa_on) and "official_source_parser" in report["blockers"]["sa"], "signup blocker follows the flag and the live parser stays off")
+    expect(("digest_segment" in report["blockers"]["sa"]) is (not sa_on) and "official_source_parser" not in report["blockers"]["sa"], "signup blocker follows the flag and the live parser is on")
 
     preview_dir = tempfile.mkdtemp(prefix="act-sa-preview-")
     proc = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", "act_sa_preview.py"), "--out", preview_dir], cwd=ROOT, capture_output=True, text=True)

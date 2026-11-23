@@ -698,6 +698,11 @@ for state in _page_states:
         official = tas_inventory.load_camps(seen)
         loaded.append((state, official, [], []))
         continue
+    if state.get("slug") == "nt" and (state.get("files") or {}).get("booking"):
+        import nt_inventory
+        official = nt_inventory.load_camps(seen)
+        loaded.append((state, official, [], []))
+        continue
     CAT_LABEL["park_campground"] = PV_LABEL
     visitor = (STATE.get("sources") or {}).get("npws_visitor_areas") or {}
     if visitor.get("url") and visitor.get("camping_subtype") not in (None, ""):
@@ -1717,7 +1722,7 @@ def region_label(c):
     return names.get(c.get("region") or "", "")
 region_label.cache = {}
 _STATUS_CODE = {"open": "o", "check": "k", "closed": "x"}
-_STATE_CODE = {"vic": "v", "nsw": "n", "qld": "q", "sa": "s", "tas": "t"}
+_STATE_CODE = {"vic": "v", "nsw": "n", "qld": "q", "sa": "s", "tas": "t", "nt": "u"}
 def _flag_cell(c, field):
     value = c.get(field)
     if value is True: return 1
@@ -1771,7 +1776,7 @@ def map_points_object(c):
     if cl.get("outdated"): pt["note"] = "Closure record may be outdated"
     if len(statecfg.enabled()) > 1:
         slug = c.get("state_slug") or SLUG
-        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales", "qld": "Queensland", "sa": "South Australia", "tas": "Tasmania"}.get(slug, slug)
+        pt["stateName"] = {"vic": "Victoria", "nsw": "New South Wales", "qld": "Queensland", "sa": "South Australia", "tas": "Tasmania", "nt": "Northern Territory"}.get(slug, slug)
     if (c.get("state_slug") or SLUG) in ("nsw", "qld"):
         label = region_label(c)
         if label:
@@ -1842,9 +1847,12 @@ def directions(c):
     # not lat/lng or zoom, so this opens the main map.
     roads = LINKS.get("roads") or ""
     road_label = "Check Live Traffic NSW" if (LINKS.get("roads_name") or "") == "Live Traffic NSW" else ("Check QLDTraffic" if (LINKS.get("roads_name") or "") == "QLDTraffic" else "Check road closures")
+    road_link = ""
+    if str(roads).startswith("https://"):
+        road_link = f' <a class="btn" href="{roads}" target="_blank" rel="noopener noreferrer">{road_label}</a>'
     return (f'<p><a class="btn" href="{e(url)}">Directions in Google Maps</a> '
-            f'<a class="btn" href="{toilets}" target="_blank" rel="noopener noreferrer">Find nearby toilets</a> '
-            f'<a class="btn" href="{roads}" target="_blank" rel="noopener noreferrer">{road_label}</a></p>'
+            f'<a class="btn" href="{toilets}" target="_blank" rel="noopener noreferrer">Find nearby toilets</a>'
+            f'{road_link}</p>'
             f'<p class="muted">{COPY.get("directions_note") or ""}</p>')
 MAP_JS = r"""(function () {
   var el = document.getElementById("camp-map");
@@ -2564,6 +2572,10 @@ def inline_signup(kind, region_name, camp=None):
         import tas_signup
         if not tas_signup.forms_allowed():
             return tas_signup.coming_soon_html()
+    if SLUG == "nt":
+        import nt_signup
+        if not nt_signup.forms_allowed():
+            return nt_signup.coming_soon_html()
     if not statecfg.signup_allowed(STATE):
         return ""
     state = STATE.get("abbrev") or STATE["name"]
@@ -2732,6 +2744,14 @@ def render_map_js(cluster="{showCoverageOnHover: false, maxClusterRadius: 42}", 
             'var stateName = {v: "Victoria", n: "New South Wales", s: "South Australia"};',
             'var stateName = {v: "Victoria", n: "New South Wales", s: "South Australia", t: "Tasmania"};',
         )
+    if (STATE or {}).get("slug") == "nt":
+        js = js.replace(
+            'var stateSlug = {v: "vic", n: "nsw", q: "qld", s: "sa", t: "tas"};',
+            'var stateSlug = {v: "vic", n: "nsw", q: "qld", s: "sa", t: "tas", u: "nt"};',
+        ).replace(
+            'var stateName = {v: "Victoria", n: "New South Wales", q: "Queensland", s: "South Australia", t: "Tasmania"};',
+            'var stateName = {v: "Victoria", n: "New South Wales", q: "Queensland", s: "South Australia", t: "Tasmania", u: "Northern Territory"};',
+        )
     return js
 def _qld_enabled():
     return any(state["slug"] == "qld" for state in statecfg.enabled())
@@ -2861,6 +2881,8 @@ by_reg = {k: [c for c in camps if c["region"] == k] for k in REGIONS}
 n_closed = sum(c["status"] == "closed" for c in camps); n_check = sum(c["status"] == "check" for c in camps)
 
 def list_note(c):
+    if c.get("source") == "nt":
+        return c.get("status_label") or ""
     if c.get("source") == "tas":
         return c.get("tas_list_note") or ""
     if c.get("source") == "osm":
@@ -2905,6 +2927,9 @@ def fire_line(c):
     if (c.get("state_slug") or SLUG) == "tas":
         import tas_fire
         return tas_fire.html_line(c)
+    if (c.get("state_slug") or SLUG) == "nt":
+        import nt_fire
+        return nt_fire.html_line(c)
     if c.get("sa_fire_mode") == "linkout" or (c.get("fire") or {}).get("authority") == "sa_cfs":
         import sa_fire
         return sa_fire.html_line(c)
@@ -3306,6 +3331,10 @@ def emit_state(state, camps, include_home):
             import tas_signup
             if not tas_signup.forms_allowed():
                 sa_note = tas_signup.coming_soon_html()
+        elif state.get("slug") == "nt":
+            import nt_signup
+            if not nt_signup.forms_allowed():
+                sa_note = nt_signup.coming_soon_html()
         state_body = f"<div class=\"page-head\"><h1>{COPY['state_h1']}</h1><p class=\"head-counts\"><span class=\"badge closed\" id=\"count-closed\">{n_closed} closed</span> <span class=\"badge check\" id=\"count-check\">{n_check} to check</span></p></div><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{town_section(chosen)}{notice_phase.windows_tag(camps)}"
         if not sa_note and multi:
             state_body += news_section()
@@ -3460,6 +3489,13 @@ def emit_state(state, camps, include_home):
             condition = "".join(bits)
             title = f"{page_name} — {label} | CampConditions.au"
             desc = f"{c['name']} in South Australia. {summary} This is not a confirmation the camp is open."
+            dated = c.get("attribution") or ""
+        elif c.get("source") == "nt":
+            import nt_inventory
+            condition = nt_inventory.html_block(c)
+            label = c.get("status_label") or "Check before you travel"
+            title = f"{page_name} — {label} | CampConditions.au"
+            desc = f"{c['name']} in the Northern Territory. {c.get('status_note') or label} Check with NT Parks before you travel."
             dated = c.get("attribution") or ""
         else:
             closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"

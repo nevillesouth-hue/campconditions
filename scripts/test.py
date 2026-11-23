@@ -683,6 +683,7 @@ if states.by_slug("vic").get("credit") != CREDIT: bad.append(("states", "credit"
 if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld", "sa", "tas"]: bad.append(("states", "enabled"))
 if not all(states.by_slug(_s).get("enabled") for _s in ("vic", "nsw", "qld")): bad.append(("states", "flags"))
 if states.by_slug("act").get("enabled"): bad.append(("states", "act enabled"))
+if states.by_slug("nt").get("enabled"): bad.append(("states", "nt enabled"))
 os.environ["CAMPCONDITIONS_ENABLE"] = "nsw"
 try:
   if [state["slug"] for state in states.enabled()] != ["vic", "nsw", "qld", "sa", "tas"]: bad.append(("states", "preview enable"))
@@ -693,6 +694,8 @@ act_sa = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_act
 if act_sa.returncode != 0: bad.append(("act-sa foundations", "test_act_sa.py failed"))
 tas_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_tas.py")], cwd=root)
 if tas_check.returncode != 0: bad.append(("tas foundations", "test_tas.py failed"))
+nt_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_nt.py")], cwd=root)
+if nt_check.returncode != 0: bad.append(("nt foundations", "test_nt.py failed"))
 one_list = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_one_list.py")], cwd=root)
 if one_list.returncode != 0: bad.append(("one-list", "test_one_list.py failed"))
 sa_tas = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_sa_tas_signup.py")], cwd=root)

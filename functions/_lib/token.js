@@ -39,9 +39,9 @@ const TOPIC_ONLY = ["sa", "tas"];
 // chosenStates ignores these, so a crafted body cannot enrol them.
 // Creating RESEND_SEGMENT_ACT_ID, RESEND_SEGMENT_SA_ID or RESEND_SEGMENT_TAS_ID must not change that.
 // Activation has to remove the slug here in the same change that opens the gate.
-export const HELD_SIGNUP_STATES = ["act", "sa", "tas"];
-// Region flags for signup and the digest send. SA and TAS stay false until a launch gate passes.
-export const REGION_ENABLED = { act: false, sa: false, tas: false };
+export const HELD_SIGNUP_STATES = ["act", "sa", "tas", "nt"];
+// Region flags for signup and the digest send. NT stays false. SA and TAS stay false here until their env flags are on.
+export const REGION_ENABLED = { act: false, sa: false, tas: false, nt: false };
 
 export function saDigestSend(env, regionEnabled = REGION_ENABLED.sa) {
   const segmentId = String((env && env.RESEND_SEGMENT_SA_ID) || "").trim();
@@ -53,6 +53,7 @@ export const HELD_SEGMENT_ENV = {
   act: "RESEND_SEGMENT_ACT_ID",
   sa: "RESEND_SEGMENT_SA_ID",
   tas: "RESEND_SEGMENT_TAS_ID",
+  nt: "RESEND_SEGMENT_NT_ID",
 };
 
 // Preview only. Names the env var a future activation would need and does not read it.

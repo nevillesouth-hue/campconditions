@@ -1,0 +1,2125 @@
+{
+  "fetched": "2026-11-23",
+  "source": "https://spatial.infrastructure.gov.au/server/rest/services/Hosted/RADAR_Curated_Prod_restareas/FeatureServer/1",
+  "layer_requested": 0,
+  "layer_used": 1,
+  "layer_note": "Layer 0 returned 404 Layer not found. Layer 1 is nfdh_restareas, the only feature layer.",
+  "query": "state='NT'",
+  "copyright": "State and Territories of the Commonwealth of Australia",
+  "licence": "not specified",
+  "licence_note": "The FeatureServer copyrightText is 'State and Territories of the Commonwealth of Australia'. data.gov.au lists National Formal Rest Areas with licence not specified.",
+  "camping_status_page": "https://nt.gov.au/driving/safety/road-rest-stops-in-nt",
+  "camping_status_page_result": "403",
+  "rest_areas": [
+    {
+      "radar_id": 9901,
+      "name": "10KM EAST OF SOUTH A",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA 10KM E OF STH ALLIGATO",
+      "lon": 132.61080000010202,
+      "lat": -12.634010000202112
+    },
+    {
+      "radar_id": 9897,
+      "name": "10KM EAST OF WILDMAN",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA 10KM E OF WILDMAN",
+      "lon": 132.11100000008835,
+      "lat": -12.815170000068079
+    },
+    {
+      "radar_id": 9871,
+      "name": "13KM EAST OF PRP 3",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 133.7116000004143,
+      "lat": -16.298439999770892
+    },
+    {
+      "radar_id": 9876,
+      "name": "13KM EAST OF TANUMBI",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 134.4890000000308,
+      "lat": -16.489749999831247
+    },
+    {
+      "radar_id": 9896,
+      "name": "15KM EAST OF POINT S",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA 15KM E OF POINT ST",
+      "lon": 131.93869999976206,
+      "lat": -12.8336100000972
+    },
+    {
+      "radar_id": 9860,
+      "name": "16KM FROM THE VICTOR",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK BAY",
+      "lon": 131.6432999995854,
+      "lat": -15.4231100001652
+    },
+    {
+      "radar_id": 9801,
+      "name": "1KM STH BONNEY WELL",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "OLD STUART HWY ACCESS RHS SDA",
+      "lon": 134.24819999987824,
+      "lat": -20.441059999700855
+    },
+    {
+      "radar_id": 9865,
+      "name": "1KM STH OF PRP 17",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK BAY",
+      "lon": 131.57920000012302,
+      "lat": -16.78705000014001
+    },
+    {
+      "radar_id": 9880,
+      "name": "24KM WEST OF BROADME",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 135.00189999978048,
+      "lat": -16.74536999975926
+    },
+    {
+      "radar_id": 9894,
+      "name": "2KM WEST OF MARY RIV",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "2KM WEST OF MARY RIVER",
+      "lon": 131.62955999961687,
+      "lat": -12.907420999644952
+    },
+    {
+      "radar_id": 9883,
+      "name": "2KM WEST OF PRP 14",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "GRAVEL",
+      "lon": 135.43210000032607,
+      "lat": -16.711140000124978
+    },
+    {
+      "radar_id": 9870,
+      "name": "2KM WEST OF PRP 2",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA GRAVEL",
+      "lon": 133.5517000002153,
+      "lat": -16.30073999983623
+    },
+    {
+      "radar_id": 9877,
+      "name": "2KM WEST OF TANUMBIR",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA GRAVEL",
+      "lon": 134.64380000025722,
+      "lat": -16.490109999659904
+    },
+    {
+      "radar_id": 9813,
+      "name": "37KM NORTH OF PALMER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "37KM NORTH OF PALMER RHS STA",
+      "lon": 133.3300999998541,
+      "lat": -24.45612000002825
+    },
+    {
+      "radar_id": 9900,
+      "name": "3KM WEST OF STH ALLI",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS SDA 3KM W OF STH ALLIGATOR",
+      "lon": 132.47819999991503,
+      "lat": -12.675090000077173
+    },
+    {
+      "radar_id": 9705,
+      "name": "41 MILE BORE",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "41 MILE BORE ROADSIDE STOP",
+      "lon": 134.8506999998518,
+      "lat": -19.320130000193835
+    },
+    {
+      "radar_id": 9888,
+      "name": "4KM EAST OF PRP 3",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "4KM WEST OF PRP 3",
+      "lon": 133.2010000004057,
+      "lat": -15.02367000022493
+    },
+    {
+      "radar_id": 9884,
+      "name": "4KM WEST OF LITTLE R",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 135.60279999962165,
+      "lat": -16.697370000335727
+    },
+    {
+      "radar_id": 9872,
+      "name": "4KM WEST OF PRP 4",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA GRAVEL 4KM W OF PRP4",
+      "lon": 133.8689000003983,
+      "lat": -16.336340000359346
+    },
+    {
+      "radar_id": 9727,
+      "name": "50KM WOLLONG WELL",
+      "road_name": "LURITJA ROAD",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "50KM WOLLONGWELL ROADSIDE STOP",
+      "lon": 132.30539999999664,
+      "lat": -24.77367999988164
+    },
+    {
+      "radar_id": 9879,
+      "name": "5KM EAST OF OCTOBER",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 134.89200000012343,
+      "lat": -16.66829000005908
+    },
+    {
+      "radar_id": 9898,
+      "name": "5KM EAST OF WEST ALL",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA 5KM E OF WEST ALL",
+      "lon": 132.21770000037904,
+      "lat": -12.782580000064913
+    },
+    {
+      "radar_id": 9866,
+      "name": "5KM NTH OF PRP 19",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "GRAVEL",
+      "lon": 131.40680000023767,
+      "lat": -16.99396999957725
+    },
+    {
+      "radar_id": 9863,
+      "name": "5KM STH OF PRP 9",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK BAY",
+      "lon": 131.98120000013293,
+      "lat": -16.142310000286734
+    },
+    {
+      "radar_id": 9895,
+      "name": "5KM WEST OF POINT ST",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA 5KM W OF POINT ST",
+      "lon": 131.7764000002629,
+      "lat": -12.856219999618109
+    },
+    {
+      "radar_id": 9862,
+      "name": "62 MILE BORE",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK BAY",
+      "lon": 131.77680000029602,
+      "lat": -15.75925999999285
+    },
+    {
+      "radar_id": 9861,
+      "name": "6KM SOUTH OF THE DEL",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "EAGLE BAY",
+      "lon": 131.68615700033166,
+      "lat": -15.65856799978477
+    },
+    {
+      "radar_id": 9881,
+      "name": "7KM WEST OF BROADMER",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 135.14819999975302,
+      "lat": -16.736069999701368
+    },
+    {
+      "radar_id": 9887,
+      "name": "8KM EAST OF STUART H",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA GRAVEL",
+      "lon": 133.1517999999299,
+      "lat": -15.006299999706583
+    },
+    {
+      "radar_id": 9882,
+      "name": "9KM EAST OF BROADMER",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 135.29740000041454,
+      "lat": -16.726920000238362
+    },
+    {
+      "radar_id": 9763,
+      "name": "ADELAIDE RIVER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "ADELAIDE RIVER ROADHOUSE LHS",
+      "lon": 131.10584999982655,
+      "lat": -13.239279999641315
+    },
+    {
+      "radar_id": 9764,
+      "name": "ADELAIDE RIVER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "ADELAIDE RIVER ROADHOUSE RHS",
+      "lon": 131.10347300009263,
+      "lat": -13.237638999948253
+    },
+    {
+      "radar_id": 9755,
+      "name": "ALAN KELLETT",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "ALAN KELLETT REST AREA RHS",
+      "lon": 129.11053279960257,
+      "lat": -16.058417290405995
+    },
+    {
+      "radar_id": 9772,
+      "name": "ALAN ROSS NORTH",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "3KM STH FERGUSSON BGE LHS SSA",
+      "lon": 131.9894400000958,
+      "lat": -14.093549999612652
+    },
+    {
+      "radar_id": 9773,
+      "name": "ALAN ROSS SOUTH",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "ALAN ROSS SOUTH RHS SSA",
+      "lon": 132.01432999986363,
+      "lat": -14.163629999956083
+    },
+    {
+      "radar_id": 9819,
+      "name": "ALEX WARNE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "43KM NORTH OF SA/NT LHS SDA",
+      "lon": 133.2230999999877,
+      "lat": -25.65188000032939
+    },
+    {
+      "radar_id": 9789,
+      "name": "ALLAN HODSDON",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "9KM STH OF CHARLES RHS SSA",
+      "lon": 133.44159999964344,
+      "lat": -17.032139999913944
+    },
+    {
+      "radar_id": 9805,
+      "name": "ALLWRIGHT",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "STIRLING SANDHILLS RHS SDA",
+      "lon": 133.68689999971895,
+      "lat": -21.758340000330495
+    },
+    {
+      "radar_id": 9855,
+      "name": "AMANDAS",
+      "road_name": "SANDOVER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "AMANDAS RHS USA",
+      "lon": 134.01343200000906,
+      "lat": -22.600273000266075
+    },
+    {
+      "radar_id": 9712,
+      "name": "AMBURLA",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "AMBURLA ROADSIDE STOP",
+      "lon": 132.91889999998156,
+      "lat": -23.27180999963449
+    },
+    {
+      "radar_id": 9714,
+      "name": "AMMAROO",
+      "road_name": "SANDOVER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "AMMAROO ROADSIDE STOP",
+      "lon": 135.2212339998375,
+      "lat": -21.74023200033117
+    },
+    {
+      "radar_id": 9874,
+      "name": "AMUNGEE MUNGEE T/O",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA GRAVEL",
+      "lon": 134.126737999795,
+      "lat": -16.423349000183677
+    },
+    {
+      "radar_id": 9742,
+      "name": "ATTACK CREEK",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "ATTACK CREEK REST AREA",
+      "lon": 134.14149999958764,
+      "lat": -19.02417999992102
+    },
+    {
+      "radar_id": 9828,
+      "name": "AVON",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "AVON LHS SSA",
+      "lon": 137.4527399996386,
+      "lat": -20.02355000037727
+    },
+    {
+      "radar_id": 9750,
+      "name": "AVON DOWNS",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "AVON DOWNS REST AREA",
+      "lon": 137.48900000021212,
+      "lat": -20.02444000037505
+    },
+    {
+      "radar_id": 9824,
+      "name": "BARRY CAVES",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "BARRY CAVES LHS SSA",
+      "lon": 136.63819999991492,
+      "lat": -19.98727999970572
+    },
+    {
+      "radar_id": 9736,
+      "name": "BATTEN CREEK",
+      "road_name": "NATHAN RIVER ROAD",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "BATTEN CK CAMP ROADSIDE STOP",
+      "lon": 135.7068899996516,
+      "lat": -16.303120000044107
+    },
+    {
+      "radar_id": 9729,
+      "name": "BEATRICE HILL WETLND",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "ROADSIDE STOP RHS USA",
+      "lon": 131.30960000028358,
+      "lat": -12.642310000024136
+    },
+    {
+      "radar_id": 9778,
+      "name": "BEND CAMP",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS SSA",
+      "lon": 132.7128417999616,
+      "lat": -14.688442069773888
+    },
+    {
+      "radar_id": 9734,
+      "name": "BLACK SWAMP",
+      "road_name": "LASSETER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "BLACK SWAMP ROADSIDE STOP LHS",
+      "lon": 131.9773000002596,
+      "lat": -25.265620000398982
+    },
+    {
+      "radar_id": 9700,
+      "name": "BONNEY WELL",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "BONNEY WELL ROADSIDE STOP RHS",
+      "lon": 134.24659999974594,
+      "lat": -20.42964000034555
+    },
+    {
+      "radar_id": 9857,
+      "name": "BOREE CREEK",
+      "road_name": "TABLELANDS HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "BOREE CREEK SOUTH",
+      "lon": 136.07119999973332,
+      "lat": -18.934980000382826
+    },
+    {
+      "radar_id": 9732,
+      "name": "BOXWOOD DAM",
+      "road_name": "LASSETER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "BOXWOOD DAM ROADSIDE STOP RHS",
+      "lon": 132.25046199986366,
+      "lat": -25.176821930019617
+    },
+    {
+      "radar_id": 9710,
+      "name": "BRADSHAW BRIDGE",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "BRADSHAW BRIDGE ROADSIDE STOP",
+      "lon": 130.40239999981335,
+      "lat": -15.614480000376425
+    },
+    {
+      "radar_id": 9738,
+      "name": "BRIDGE CREEK",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "BRIDGE CREEK",
+      "lon": 131.31359999971605,
+      "lat": -13.43625999958126
+    },
+    {
+      "radar_id": 9841,
+      "name": "BRUCE PEPPERILL",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "SADDLE CREEK RHS SSA",
+      "lon": 129.5121000002917,
+      "lat": -15.986279999928191
+    },
+    {
+      "radar_id": 9719,
+      "name": "BRUNETTE DOWNS",
+      "road_name": "TABLELANDS HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "BRUNNETTE DOWNS ROADSIDE STOP",
+      "lon": 135.97929999976836,
+      "lat": -18.47467000032855
+    },
+    {
+      "radar_id": 9835,
+      "name": "BUNTINE HWY MEMORIAL",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "BUNTINE COMMERATIVE PLAQUE",
+      "lon": 131.5708000003266,
+      "lat": -15.301419999835915
+    },
+    {
+      "radar_id": 9867,
+      "name": "CAMFIELD RIVER",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "GRAVEL",
+      "lon": 131.3015999996219,
+      "lat": -17.030510000115356
+    },
+    {
+      "radar_id": 9811,
+      "name": "CANNONBALL MEMORIAL",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "SEALED DUAL ACCESS",
+      "lon": 133.42079999971978,
+      "lat": -24.37242000014334
+    },
+    {
+      "radar_id": 9885,
+      "name": "CAPE CRAWFORD",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "CAPE CRAWFORD",
+      "lon": 135.72726049976652,
+      "lat": -16.68227350034962
+    },
+    {
+      "radar_id": 9702,
+      "name": "CENTRAL MT STUART",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "MT STUART RESV ROADSIDE STOP",
+      "lon": 133.49752500033858,
+      "lat": -21.960042999953817
+    },
+    {
+      "radar_id": 9846,
+      "name": "CH216.53",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TBA",
+      "lon": 132.22522790042623,
+      "lat": -22.54606736985989
+    },
+    {
+      "radar_id": 9849,
+      "name": "CH403",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA",
+      "lon": 131.31465300040048,
+      "lat": -22.029068999721954
+    },
+    {
+      "radar_id": 9850,
+      "name": "CH497",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA",
+      "lon": 130.51985200041835,
+      "lat": -20.760519999640128
+    },
+    {
+      "radar_id": 9844,
+      "name": "CH51.20KM",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TBA",
+      "lon": 133.37364179981614,
+      "lat": -23.50727129996311
+    },
+    {
+      "radar_id": 9782,
+      "name": "CH543.59",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TBA",
+      "lon": 133.4323257998367,
+      "lat": -15.930465160194434
+    },
+    {
+      "radar_id": 9794,
+      "name": "CH787.85KM",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TBA",
+      "lon": 133.71103339972697,
+      "lat": -18.005049359903083
+    },
+    {
+      "radar_id": 9852,
+      "name": "CH79.20KM",
+      "road_name": "PLENTY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TBA",
+      "lon": 134.32493980024142,
+      "lat": -22.971234010123123
+    },
+    {
+      "radar_id": 9799,
+      "name": "CHURCHILLS HEAD LHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "CHURCHILLS LHS SDA",
+      "lon": 134.13206999957126,
+      "lat": -18.957739999812652
+    },
+    {
+      "radar_id": 9798,
+      "name": "CHURCHILLS HEAD RHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "CHURCHILLS HEAD RHS SDA",
+      "lon": 134.13085000027885,
+      "lat": -18.955180000327537
+    },
+    {
+      "radar_id": 9704,
+      "name": "CONNORS WELL",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "CONNORS WELL ROADSIDE STOP",
+      "lon": 133.54400000002764,
+      "lat": -22.950750000260257
+    },
+    {
+      "radar_id": 9758,
+      "name": "COOLALINGA ROADHOUSE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "SEALED SINGLE ACCESS",
+      "lon": 131.04179999969463,
+      "lat": -12.522829999707419
+    },
+    {
+      "radar_id": 9698,
+      "name": "COOMALIE CREEK",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "COOMALIE CREEK ROADSIDE STOP",
+      "lon": 131.1222000000559,
+      "lat": -13.015290000055602
+    },
+    {
+      "radar_id": 9784,
+      "name": "DALY WATERS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "CARPENTARIA T/O RHS SDA",
+      "lon": 133.38469670036616,
+      "lat": -16.30069375980307
+    },
+    {
+      "radar_id": 9800,
+      "name": "DAVE BALDOCK",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "71KM OF WYCLIFFE WELL LHS",
+      "lon": 134.22129999989926,
+      "lat": -20.181139999666534
+    },
+    {
+      "radar_id": 9827,
+      "name": "DD SMITH",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "CH342.62KM RHS STA",
+      "lon": 137.1361999997797,
+      "lat": -20.00947999958927
+    },
+    {
+      "radar_id": 9748,
+      "name": "DESERT OAKS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "DESERT OAKS REST AREA",
+      "lon": 133.1964999995844,
+      "lat": -24.903370000316446
+    },
+    {
+      "radar_id": 9818,
+      "name": "DICK ROGERS LHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TPB CH 1709.70 LHS UDA",
+      "lon": 133.19226999999816,
+      "lat": -25.364039999923307
+    },
+    {
+      "radar_id": 9817,
+      "name": "DICK ROGERS RHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "76KM NORTH OF SA/NT RHS STA",
+      "lon": 133.1925289995659,
+      "lat": -25.359558000209518
+    },
+    {
+      "radar_id": 9786,
+      "name": "DINGO HILL LHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS SSA",
+      "lon": 133.38819999971852,
+      "lat": -16.457810000257304
+    },
+    {
+      "radar_id": 9785,
+      "name": "DINGO HILL RHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS SSA",
+      "lon": 133.38830000017597,
+      "lat": -16.45866000040234
+    },
+    {
+      "radar_id": 9777,
+      "name": "DINO BILATO",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS SSA",
+      "lon": 132.7125600002536,
+      "lat": -14.688629999972996
+    },
+    {
+      "radar_id": 9838,
+      "name": "DOUG FOSTER",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "FITZROY RIVERRHS SSA",
+      "lon": 130.89939999959543,
+      "lat": -15.621919999625474
+    },
+    {
+      "radar_id": 9842,
+      "name": "DUNCAN HWY WHISTLE",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "DUNCAN HWY WHISTLE RHS USA",
+      "lon": 129.11047000017766,
+      "lat": -16.058359999937544
+    },
+    {
+      "radar_id": 9787,
+      "name": "DUNMARRA ROADHOUSE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS SDA",
+      "lon": 133.41130000028156,
+      "lat": -16.678480000235844
+    },
+    {
+      "radar_id": 9711,
+      "name": "EAST BAINES",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "EAST BAINES ROADSIDE STOP LHS",
+      "lon": 130.0268000001902,
+      "lat": -15.765989999917402
+    },
+    {
+      "radar_id": 9840,
+      "name": "EAST BAINES",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "5KM EASTOF EAST BAINES RHS SSA",
+      "lon": 130.08080000016474,
+      "lat": -15.725400000259627
+    },
+    {
+      "radar_id": 9791,
+      "name": "ELLIOT",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "MURRANJI ST ELLIOT LHS SDA",
+      "lon": 133.5429000003858,
+      "lat": -17.552090000164913
+    },
+    {
+      "radar_id": 9890,
+      "name": "ELSEY",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "10KM EAST OF ELSEY RHS SSA",
+      "lon": 133.42460000003405,
+      "lat": -14.991930000284718
+    },
+    {
+      "radar_id": 9725,
+      "name": "ELSEY T/O",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "ELSEY ROADSIDE STOP RHS USA",
+      "lon": 133.34699999990434,
+      "lat": -14.984330000045755
+    },
+    {
+      "radar_id": 9767,
+      "name": "EMERALD SPRINGS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "EMERALD SPRINGS ROADHOUSE LHS",
+      "lon": 131.62910000020764,
+      "lat": -13.629860000364374
+    },
+    {
+      "radar_id": 9768,
+      "name": "EMERALD SPRINGS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "EMERALD SPRINGS ROADHOUSE RHS",
+      "lon": 131.62910000020764,
+      "lat": -13.629860000364374
+    },
+    {
+      "radar_id": 9810,
+      "name": "EWEN CLOUGH",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "7KM SOUTH OF JAMES RHS STA",
+      "lon": 133.43085999992297,
+      "lat": -24.287510000361532
+    },
+    {
+      "radar_id": 9893,
+      "name": "EX QUARANTINE STOP",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS SDA EX QUARANTINE STOP",
+      "lon": 131.2467000000221,
+      "lat": -12.607119999874016
+    },
+    {
+      "radar_id": 9892,
+      "name": "FARRARR",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "MAYHEY CREEK RHS SSA",
+      "lon": 133.80009069983993,
+      "lat": -14.898562689972296
+    },
+    {
+      "radar_id": 9747,
+      "name": "FINKE RIVER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "FINKE RIVER REST AREA",
+      "lon": 133.23830000034653,
+      "lat": -24.550600000283012
+    },
+    {
+      "radar_id": 9756,
+      "name": "FIZZER CREEK",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "FIZZER CREEK REST AREA",
+      "lon": 134.18945999978126,
+      "lat": -14.761050000060216
+    },
+    {
+      "radar_id": 9830,
+      "name": "FRANK (SMILER) NILON",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "KIAMA RHS SSA",
+      "lon": 137.77805000008817,
+      "lat": -19.998649999654205
+    },
+    {
+      "radar_id": 9820,
+      "name": "FRANK FIDLER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "12KM NORTH OF SA/NT RHS STA",
+      "lon": 133.25500000038028,
+      "lat": -25.903960000033944
+    },
+    {
+      "radar_id": 9706,
+      "name": "FREWENA",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "FREWENA ROADSIDE STOP LHS",
+      "lon": 135.4007620003483,
+      "lat": -19.433696000253523
+    },
+    {
+      "radar_id": 9718,
+      "name": "GINTIES",
+      "road_name": "LARAPINTA DRIVE",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "GINTIES ROADSIDE STOP RHS",
+      "lon": 131.40807999980458,
+      "lat": -24.05807000027277
+    },
+    {
+      "radar_id": 9728,
+      "name": "HARRIET CREEK",
+      "road_name": "KAKADU HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "HARRIET CK ROADSIDE STOP UDA",
+      "lon": 131.98397900044813,
+      "lat": -13.679247000324862
+    },
+    {
+      "radar_id": 9717,
+      "name": "HERMANNSBURG",
+      "road_name": "LARAPINTA DRIVE",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "HERMANNSBURG ROADSIDE STOP RHS",
+      "lon": 133.29379999999597,
+      "lat": -23.93167000015601
+    },
+    {
+      "radar_id": 9808,
+      "name": "IVAN WIESE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "2KM SOUTH OF PLENTY LHS STA",
+      "lon": 133.71470000022157,
+      "lat": -23.149700000292974
+    },
+    {
+      "radar_id": 9837,
+      "name": "JACK TAYLOR",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS SSA",
+      "lon": 131.28253799992282,
+      "lat": -15.574762000241835
+    },
+    {
+      "radar_id": 9839,
+      "name": "JOHN WHYTE",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "39KM WEST OF TIMBER LHS SSA",
+      "lon": 130.16359999982623,
+      "lat": -15.686939999725954
+    },
+    {
+      "radar_id": 9899,
+      "name": "KAKADU RANGER STATIO",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA KAKADU RANGER STATION",
+      "lon": 132.34499999967852,
+      "lat": -12.73737000009285
+    },
+    {
+      "radar_id": 9774,
+      "name": "KATHERINE ROADHOUSE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "KATHERINE TRUCK BAY LHS SSA",
+      "lon": 132.26626999976966,
+      "lat": -14.467630000035465
+    },
+    {
+      "radar_id": 9781,
+      "name": "KEVIN HOWLETT",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "WARLOCH PONDS RHS SSA",
+      "lon": 133.09595999962355,
+      "lat": -15.180559999915674
+    },
+    {
+      "radar_id": 9720,
+      "name": "KIANA",
+      "road_name": "TABLELANDS HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "KIANA ROADSIDE STOP RHS",
+      "lon": 135.6837855003256,
+      "lat": -17.528938660339296
+    },
+    {
+      "radar_id": 9739,
+      "name": "KING RIVER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "KING RIVER REST AREA",
+      "lon": 132.63229999963443,
+      "lat": -14.644300000035848
+    },
+    {
+      "radar_id": 9833,
+      "name": "KING RIVER",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "KING RIVER RHS SDA",
+      "lon": 132.0651000003346,
+      "lat": -14.711580000059058
+    },
+    {
+      "radar_id": 9775,
+      "name": "KING RIVER NORTH",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "KING RIVER 2KM BEFO LHS SSA",
+      "lon": 132.60799999987043,
+      "lat": -14.629700000269562
+    },
+    {
+      "radar_id": 9776,
+      "name": "KING RIVER SOUTH",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "2KM NORTH OF CENTRAL RHS SSA",
+      "lon": 132.64629999989393,
+      "lat": -14.652600000152137
+    },
+    {
+      "radar_id": 9709,
+      "name": "KING RIVER WEST",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "KING RIVER WEST ROADSIDE STOP",
+      "lon": 132.08750000039052,
+      "lat": -14.676099999817552
+    },
+    {
+      "radar_id": 9721,
+      "name": "KIRKIMBIE",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "KIRKIMBIE ROADSIDE STOP LHS",
+      "lon": 129.1355092002327,
+      "lat": -17.97630290006547
+    },
+    {
+      "radar_id": 9869,
+      "name": "KIRKIMBIE",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LSA SSA",
+      "lon": 129.15754900011427,
+      "lat": -17.966406999988557
+    },
+    {
+      "radar_id": 9822,
+      "name": "KITTLE",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "2KM EAST OF 41 MILE RHS STA",
+      "lon": 134.87610000015593,
+      "lat": -19.317120000171375
+    },
+    {
+      "radar_id": 9826,
+      "name": "KURT JOHANSSON",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "107KMEAST BARKLY HMSTD LHS STA",
+      "lon": 136.7017999997851,
+      "lat": -20.05476999982038
+    },
+    {
+      "radar_id": 9851,
+      "name": "LAJAMANU REST AREA",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHSUDA",
+      "lon": 129.69962900039081,
+      "lat": -19.959086000273405
+    },
+    {
+      "radar_id": 9716,
+      "name": "LAJAMANU T/O",
+      "road_name": "LAJAMANU ROAD",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "LAJAMANU ROADSIDE STOP RHS USA",
+      "lon": 129.69764199974588,
+      "lat": -19.958616000409187
+    },
+    {
+      "radar_id": 9715,
+      "name": "LAKE NASH",
+      "road_name": "SANDOVER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "LAKE NASH ROADSIDE STOP RHS",
+      "lon": 137.68393569966022,
+      "lat": -21.041029480002468
+    },
+    {
+      "radar_id": 9816,
+      "name": "LASSERTER HIGHWAY T/",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LASSERTER HIGHWAY LHS UDA",
+      "lon": 133.20259999963977,
+      "lat": -25.201210000358014
+    },
+    {
+      "radar_id": 9737,
+      "name": "LASSETER CAVE",
+      "road_name": "KUNAPULA ACCESS",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "700M SOUTH TJUKARURU ROAD RHS",
+      "lon": 129.39877299969098,
+      "lat": -25.01353400016638
+    },
+    {
+      "radar_id": 9886,
+      "name": "LEILA CREEK",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LEILA CREEK NORTH",
+      "lon": 135.83829999978505,
+      "lat": -16.62636000007498
+    },
+    {
+      "radar_id": 9812,
+      "name": "LEN TUIT",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "ORANGE CREEK CH1591KM LHS STA",
+      "lon": 133.40165000015716,
+      "lat": -24.389960000007715
+    },
+    {
+      "radar_id": 9751,
+      "name": "LIMESTONE CREEK",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "LIMESTONE CREEK RHS",
+      "lon": 131.91695300035747,
+      "lat": -14.82792900014484
+    },
+    {
+      "radar_id": 9762,
+      "name": "LITCHFIELD (ACACIA)",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "3KM SOUTH MANTON BRIDGE",
+      "lon": 131.14242000002142,
+      "lat": -12.859769999913535
+    },
+    {
+      "radar_id": 9832,
+      "name": "MANBULLOO",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "MANBULLOO RHS SDA",
+      "lon": 132.15867999989945,
+      "lat": -14.589560000346998
+    },
+    {
+      "radar_id": 9697,
+      "name": "MANTON RIVER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "MANTON RIVER ROADSIDE STOP RHS",
+      "lon": 131.13366500039774,
+      "lat": -12.835575999971123
+    },
+    {
+      "radar_id": 9815,
+      "name": "MARTIN",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "PRP207 LHS SDA",
+      "lon": 133.19479999989292,
+      "lat": -24.952999999753423
+    },
+    {
+      "radar_id": 9757,
+      "name": "MARY RIVER",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "MARY RIVER REST AREA RHS USA",
+      "lon": 131.6474000003737,
+      "lat": -12.906170000028453
+    },
+    {
+      "radar_id": 9780,
+      "name": "MATARANKA ROADHOUSE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "ELSEY STREET MATARANKA LHS SSA",
+      "lon": 133.06680000008643,
+      "lat": -14.922989999768319
+    },
+    {
+      "radar_id": 9779,
+      "name": "MATARANKA STATION",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "MATARANKA STATION LHS SSA",
+      "lon": 132.95379999972388,
+      "lat": -14.826819999794653
+    },
+    {
+      "radar_id": 9859,
+      "name": "MATCHBOX CREEK",
+      "road_name": "TABLELANDS HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA",
+      "lon": 135.72941000025648,
+      "lat": -17.148428999688278
+    },
+    {
+      "radar_id": 9752,
+      "name": "MATHISON CREEK",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "MATHISON CREEKREST AREA",
+      "lon": 131.6834630004053,
+      "lat": -15.139265999861376
+    },
+    {
+      "radar_id": 9809,
+      "name": "MCCONVILLE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "4KM NORTH OF ORANGE LHS STA",
+      "lon": 133.6912299997627,
+      "lat": -23.977710000266185
+    },
+    {
+      "radar_id": 9891,
+      "name": "MCCRACKEN",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RELOCATEDFROMCH56KM RHS SSA",
+      "lon": 133.65362019962646,
+      "lat": -14.915062940275451
+    },
+    {
+      "radar_id": 9746,
+      "name": "MOUNT POLHILL",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "60KM SOUTH OF ALICE SPRINGS",
+      "lon": 133.55889999991243,
+      "lat": -24.107630000093668
+    },
+    {
+      "radar_id": 9848,
+      "name": "MOYLE'S BORE",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA",
+      "lon": 131.29180300008275,
+      "lat": -21.980043000201647
+    },
+    {
+      "radar_id": 9797,
+      "name": "MUCKATY STATION",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS SSA",
+      "lon": 133.92150000025705,
+      "lat": -18.57702999966196
+    },
+    {
+      "radar_id": 9741,
+      "name": "NEWCASTLE WATERS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "NEWCASTLE WATERS REST AREA",
+      "lon": 133.43923399978013,
+      "lat": -17.374967000258856
+    },
+    {
+      "radar_id": 9790,
+      "name": "NEWCASTLE WATERS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK BAY",
+      "lon": 133.43929999990235,
+      "lat": -17.34819999991804
+    },
+    {
+      "radar_id": 9783,
+      "name": "NOEL HEALY",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS SSA",
+      "lon": 133.42743000040284,
+      "lat": -16.0621699998706
+    },
+    {
+      "radar_id": 9759,
+      "name": "NOONAMAH ROADHOUSE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "NOONAMAH ROADHOUSE LHS SSA",
+      "lon": 131.0735999996297,
+      "lat": -12.63296000003728
+    },
+    {
+      "radar_id": 9760,
+      "name": "NOONAMAH ROADHOUSE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "NOONAMAH ROADHOUSE RHS SSA",
+      "lon": 131.0735999996297,
+      "lat": -12.63296000003728
+    },
+    {
+      "radar_id": 9749,
+      "name": "NT/SA BORDER",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "NT/SA BORDER REST AREA",
+      "lon": 133.1972000000914,
+      "lat": -25.99816000018227
+    },
+    {
+      "radar_id": 9843,
+      "name": "NT/WA BORDER",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "NT/WA BORDER RHS SSA",
+      "lon": 129.0249000004218,
+      "lat": -15.988890000329121
+    },
+    {
+      "radar_id": 9723,
+      "name": "OCTOBER CREEK",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "OCTOBER CREEK ROADSIDE STOP",
+      "lon": 134.85909999964824,
+      "lat": -16.631419999642645
+    },
+    {
+      "radar_id": 9904,
+      "name": "OLD HARDSTAND",
+      "road_name": "LASSETER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS STA OLD HARDSTAND",
+      "lon": 132.77722999962842,
+      "lat": -25.22345999987769
+    },
+    {
+      "radar_id": 9856,
+      "name": "OOLLOO",
+      "road_name": "OOLLOO ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "OOLLOO ROAD LHS SSA",
+      "lon": 131.36916999968565,
+      "lat": -13.552104000009194
+    },
+    {
+      "radar_id": 9814,
+      "name": "PALMER RIVER BRIDGE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "PALMER RIVER BRIDGE RHS USA",
+      "lon": 133.18279999979882,
+      "lat": -24.738579999949184
+    },
+    {
+      "radar_id": 9836,
+      "name": "PECKHAM",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "INNESVALE BOTH SIDES SEALED",
+      "lon": 131.40370000043046,
+      "lat": -15.468050000206205
+    },
+    {
+      "radar_id": 9769,
+      "name": "PINE CREEK LHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "GANDYS GULLY RD LHS SSA",
+      "lon": 131.82649000031827,
+      "lat": -13.817330000096556
+    },
+    {
+      "radar_id": 9770,
+      "name": "PINE CREEK RHS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "GANDYS GULLY RD RHS SSA",
+      "lon": 131.82649000031827,
+      "lat": -13.817330000096556
+    },
+    {
+      "radar_id": 9730,
+      "name": "POINT STUART JUNCT",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "POINT STUART JUNCTION USA LHS",
+      "lon": 131.8284179996153,
+      "lat": -12.851062999624192
+    },
+    {
+      "radar_id": 9792,
+      "name": "POWELL CREEK",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS SSA",
+      "lon": 133.71373000027603,
+      "lat": -17.952390000122552
+    },
+    {
+      "radar_id": 9744,
+      "name": "PROWSE GAP",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "PROWSE GAP REST AREA",
+      "lon": 133.3296000002619,
+      "lat": -22.530280000220447
+    },
+    {
+      "radar_id": 9858,
+      "name": "PRP 21",
+      "road_name": "TABLELANDS HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK STOP",
+      "lon": 135.68070000022536,
+      "lat": -17.77170999972915
+    },
+    {
+      "radar_id": 9902,
+      "name": "PRP 22 DIST 7-15",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS UDA PRP22 DIST 7-15",
+      "lon": 132.7577000001242,
+      "lat": -12.65157000018133
+    },
+    {
+      "radar_id": 9889,
+      "name": "PRP 3 DIST 12-57",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA GRAVEL",
+      "lon": 133.28340000003416,
+      "lat": -15.00184999998165
+    },
+    {
+      "radar_id": 9873,
+      "name": "PRP 4 DIST 3-9",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 133.9704000002589,
+      "lat": -16.36005999962983
+    },
+    {
+      "radar_id": 9875,
+      "name": "PRP 6",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA GRAVEL",
+      "lon": 134.29360000003982,
+      "lat": -16.476220000151237
+    },
+    {
+      "radar_id": 9878,
+      "name": "PRP 8 DIST 16-76",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA GRAVEL",
+      "lon": 134.75777999971268,
+      "lat": -16.570550000224088
+    },
+    {
+      "radar_id": 9733,
+      "name": "RED CENTRE WAY SIGN",
+      "road_name": "LASSETER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "LURITJA CH108KM ROADSIDE STOP",
+      "lon": 132.18056000027178,
+      "lat": -25.172069999861534
+    },
+    {
+      "radar_id": 9713,
+      "name": "RENAHANS BORE",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "RENAHANS BORE ROADSIDE STOP",
+      "lon": 130.85011360005387,
+      "lat": -21.27833500028099
+    },
+    {
+      "radar_id": 9699,
+      "name": "RENNER SPRINGS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "RENNER SPRINGS ROADSIDE STOP",
+      "lon": 133.79548499964903,
+      "lat": -18.318817999661743
+    },
+    {
+      "radar_id": 9795,
+      "name": "RENNER SPRINGS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RENNER SPRINGS RHS SDA",
+      "lon": 133.79484399959148,
+      "lat": -18.318715999890657
+    },
+    {
+      "radar_id": 9796,
+      "name": "RENNER SPRINGS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RENNER SPRINGS LHS SDA",
+      "lon": 133.7951170003013,
+      "lat": -18.318591999736825
+    },
+    {
+      "radar_id": 9831,
+      "name": "RIVERVIEW",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RIVERVIEW VAN PARK LHS SSA",
+      "lon": 132.2575800004434,
+      "lat": -14.482759999907152
+    },
+    {
+      "radar_id": 9823,
+      "name": "ROCKHAMPTON",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "ROCKHAMPTOM LHS SDA",
+      "lon": 135.03230999964546,
+      "lat": -19.298159999932874
+    },
+    {
+      "radar_id": 9829,
+      "name": "ROCKLANDS",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS SSA",
+      "lon": 137.75230199962954,
+      "lat": -20.00451099982277
+    },
+    {
+      "radar_id": 9703,
+      "name": "RYANS WELL",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "RYANS WELL ROADSIDE STOP",
+      "lon": 133.38329999976247,
+      "lat": -22.719120000176435
+    },
+    {
+      "radar_id": 9754,
+      "name": "SADDLE CREEK",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "SADDLE CREEK REST AREA LHS",
+      "lon": 129.56110400005062,
+      "lat": -15.956246000220695
+    },
+    {
+      "radar_id": 9735,
+      "name": "SANDY VIEW",
+      "road_name": "LASSETER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "SANDY VIEW ROADSIDE STOP LHS",
+      "lon": 131.23089999961368,
+      "lat": -25.21996999980598
+    },
+    {
+      "radar_id": 9903,
+      "name": "SHELL SERVO INFORMAL",
+      "road_name": "LASSETER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA SHELL SERVO INF",
+      "lon": 133.19924000043986,
+      "lat": -25.199459999711905
+    },
+    {
+      "radar_id": 9788,
+      "name": "SID HAWKS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "9KM STH OF CHARLES LHS SDA",
+      "lon": 133.43669999968733,
+      "lat": -17.00355999978716
+    },
+    {
+      "radar_id": 9708,
+      "name": "SOUDAN",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "SOUDAN ROADSIDE STOP LHS",
+      "lon": 136.8757000002437,
+      "lat": -20.07430000023974
+    },
+    {
+      "radar_id": 9731,
+      "name": "SOUTH ALLIGATOR",
+      "road_name": "ARNHEM HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "ROADSIDE STOP LHS UDA",
+      "lon": 132.47750780037794,
+      "lat": -12.675853319867509
+    },
+    {
+      "radar_id": 9807,
+      "name": "SOUTH NATIVE GAP",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS STA",
+      "lon": 133.43474459997745,
+      "lat": -22.824596420102036
+    },
+    {
+      "radar_id": 9793,
+      "name": "SPARE ASSET ID TO US",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TBA",
+      "lon": 133.71102410036713,
+      "lat": -17.998406709967977
+    },
+    {
+      "radar_id": 9803,
+      "name": "STAN CAWOOD",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "5KM NTH TAYLOR CREEK LHS SDA",
+      "lon": 134.14180000006158,
+      "lat": -21.194430000080597
+    },
+    {
+      "radar_id": 9804,
+      "name": "STIRLING",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "STIRLING LHS STA",
+      "lon": 133.75306800001715,
+      "lat": -21.61093652974954
+    },
+    {
+      "radar_id": 9696,
+      "name": "STRAUSS HERITAGE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "STRAUSS HERITAGE",
+      "lon": 131.0772030003005,
+      "lat": -12.65694300032565
+    },
+    {
+      "radar_id": 9761,
+      "name": "STRAUSS HERITAGE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "MOBILE VENDORS ZONE RHS SLS",
+      "lon": 131.07709699999526,
+      "lat": -12.655618000221331
+    },
+    {
+      "radar_id": 9753,
+      "name": "SULLIVANS CREEK",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "SULLIVANS CREEK CAMPGROUND SSA",
+      "lon": 131.27428100024156,
+      "lat": -15.586746999710298
+    },
+    {
+      "radar_id": 9743,
+      "name": "TAYLOR CREEK",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "TAYOR CREEK REST AREA",
+      "lon": 134.11610000018186,
+      "lat": -21.24594000026101
+    },
+    {
+      "radar_id": 9724,
+      "name": "THE LOOKOUT",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "THE LOOKOUT ROADSIDE STOP LHS",
+      "lon": 135.36710000034006,
+      "lat": -16.704709999718435
+    },
+    {
+      "radar_id": 9726,
+      "name": "THE ROCKS",
+      "road_name": "ROPER HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "THE ROCKS ROADSIDE STOP RHSUSA",
+      "lon": 133.70840000014968,
+      "lat": -14.912529999897451
+    },
+    {
+      "radar_id": 9806,
+      "name": "TI-TREE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS STA",
+      "lon": 133.41609999978022,
+      "lat": -22.12967000028063
+    },
+    {
+      "radar_id": 9864,
+      "name": "TOP SPRINGS",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "SEALED DUAL ACCESS",
+      "lon": 131.79729999974563,
+      "lat": -16.544339999850564
+    },
+    {
+      "radar_id": 9745,
+      "name": "TROPIC OF CAPRICORN",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "TROPIC OF CAPRICORN MARKER RHS",
+      "lon": 133.83290000011587,
+      "lat": -23.44114999969105
+    },
+    {
+      "radar_id": 9906,
+      "name": "TRUCK CENTRAL",
+      "road_name": "QUAD CRESCENT",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK CENTRAL HARDSTAND",
+      "lon": 130.93999600006038,
+      "lat": -12.45832100041761
+    },
+    {
+      "radar_id": 9771,
+      "name": "TRUCK PARKING BAY",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS USA",
+      "lon": 131.9077660000154,
+      "lat": -13.96620475026113
+    },
+    {
+      "radar_id": 9845,
+      "name": "TRUCK PARKING BAY",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS STA TRUCK PARKING",
+      "lon": 132.85292870018796,
+      "lat": -23.198209590251764
+    },
+    {
+      "radar_id": 9853,
+      "name": "TRUCK PARKING BAY",
+      "road_name": "PLENTY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS STA TRUCK PARKING",
+      "lon": 135.13547999995862,
+      "lat": -22.921510000364037
+    },
+    {
+      "radar_id": 9854,
+      "name": "TRUCK PARKING BAY",
+      "road_name": "PLENTY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS STA TRUCK PARKING",
+      "lon": 137.92484999965293,
+      "lat": -22.274440000413588
+    },
+    {
+      "radar_id": 9905,
+      "name": "TRUCK PARKING BAY",
+      "road_name": "LASSETER HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS STA TRUCK PARKING",
+      "lon": 132.20088999984216,
+      "lat": -25.1759000002929
+    },
+    {
+      "radar_id": 9821,
+      "name": "TRUCK PARKING CH1784",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TBP CH1784.98 RHS SDA",
+      "lon": 133.19994000004854,
+      "lat": -25.99243999977669
+    },
+    {
+      "radar_id": 9722,
+      "name": "UN-NAMED",
+      "road_name": "CARPENTARIA HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "UN-NAMED ROADSIDE STOP RHS",
+      "lon": 134.1939000003281,
+      "lat": -16.448679999758827
+    },
+    {
+      "radar_id": 9847,
+      "name": "VAUGHAN SPRINGS",
+      "road_name": "TANAMI ROAD",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS USA",
+      "lon": 131.55751279977028,
+      "lat": -22.203336000365983
+    },
+    {
+      "radar_id": 9740,
+      "name": "WARLOCH PONDS",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "REST AREA",
+      "comments": "WARLOCH PONDS",
+      "lon": 133.1136000003638,
+      "lat": -15.233520000212977
+    },
+    {
+      "radar_id": 9701,
+      "name": "WAUCHOPE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "WAUCHOPE ROADSIDE STOP",
+      "lon": 134.2220210003228,
+      "lat": -20.640800999681346
+    },
+    {
+      "radar_id": 9802,
+      "name": "WAUCHOPE",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK PARKING BAY LHS SSA",
+      "lon": 134.2222940001342,
+      "lat": -20.64083800010321
+    },
+    {
+      "radar_id": 9868,
+      "name": "WAVE HILL / VRD BOUN",
+      "road_name": "BUNTINE HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "TRUCK BAY",
+      "lon": 131.131900000409,
+      "lat": -17.273479999849776
+    },
+    {
+      "radar_id": 9765,
+      "name": "WEAVERS CUT NORTH",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "SEALED DOUBLE ACCESS",
+      "lon": 131.27520000013345,
+      "lat": -13.399779999704032
+    },
+    {
+      "radar_id": 9766,
+      "name": "WEAVERS CUT SOUTH",
+      "road_name": "STUART HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "SEALED DOUBLE ACCESS",
+      "lon": 131.27869999997372,
+      "lat": -13.40206000036553
+    },
+    {
+      "radar_id": 9825,
+      "name": "WEST RANKEN",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "LHS UDA",
+      "lon": 136.7017999997851,
+      "lat": -20.05476999982038
+    },
+    {
+      "radar_id": 9834,
+      "name": "WILLEROO",
+      "road_name": "VICTORIA HIGHWAY",
+      "locality": "",
+      "provider_type": "TRUCK PARKING BAY",
+      "comments": "RHS SDA",
+      "lon": 131.5911130001786,
+      "lat": -15.26241200025433
+    },
+    {
+      "radar_id": 9707,
+      "name": "WONARAH",
+      "road_name": "BARKLY HIGHWAY",
+      "locality": "",
+      "provider_type": "ROADSIDE STOP",
+      "comments": "WONARAH ROADSIDE STOP LHS",
+      "lon": 136.15409999985224,
+      "lat": -19.84431000028193
+    }
+  ]
+}

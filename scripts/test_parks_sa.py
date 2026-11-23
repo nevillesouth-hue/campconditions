@@ -12,6 +12,7 @@ os.chdir(ROOT)
 
 import act_sa_notices
 import parks_sa
+import sa_inventory
 
 FAILURES = []
 CHECKS = 0
@@ -63,15 +64,23 @@ def main():
 
     during, _current = bookings_at(parsed, moment)
     pines = by_link["ngarkat-conservation-park-16"]
-    expect(pines.get("camp_ids") == ["73212", "73213"], "ngarkat seasonal closure names The Pines and The Gums")
-    expect(pines["start"].startswith("2026-11-01") and pines["end"].startswith("2027-04-01"), "the pines and the gums are closed outside 1 April to 31 October")
+    expect(not pines.get("camp_ids"), "the pines and the gums are held, so the notice does not attach them")
+    expect("73212" in parks_sa.held_booking_ids() and "73213" in parks_sa.held_booking_ids() and "73195" in parks_sa.held_booking_ids(), "ngarkat pines and gums, and danggali, have no coordinates")
+    expect(pines["start"].startswith("2026-11-01") and pines["end"].startswith("2027-04-01"), "the seasonal window is outside 1 April to 31 October")
     expect(by_link["morialta-conservation-park-53"].get("camp_ids") is None, "a morialta walk and track closure names no campground")
     expect(by_link["blackwood-forest-recreation-park"].get("camp_ids") is None, "a blackwood plantation closure names no campground")
     chowilla = by_link["chowilla-regional-reserve-and-danggali-conservation-park-and-wilderness-protection-area"]
     expect(chowilla.get("camp_ids") is None and chowilla["start"].startswith("2026-11-20") and chowilla["end"].startswith("2026-11-27"), "chowilla and danggali pest closure is 20 to 26 Nov and names no campground")
     expect(during.get("67320") == "closed" and during.get("69837") == "closed", "mambray and baroota are closed during the window")
-    expect(during.get("73212") == "closed" and during.get("73213") == "closed", "the pines and the gums are closed on 18 Nov")
+    expect(during.get("73212") != "closed" and during.get("73213") != "closed", "the pines and the gums stay held")
+    expect(during.get("73195") != "closed", "danggali stays held")
     expect(during.get("71627") is None, "little dip's gums is not the ngarkat gums")
+    published_ids = {
+        item
+        for camp in sa_inventory.load_camps(set(), moment=moment, live_notices=parsed)
+        for item in camp.get("booking_ids") or []
+    }
+    expect("73212" not in published_ids and "73213" not in published_ids and "73195" not in published_ids, "held ngarkat and danggali camps are not published")
     expect(during.get("73218") == "expired_not_open", "box flat is not closed after 6am on 18 Nov")
     expect(during.get("73157") is None, "grindells is not closed once its notice leaves the page")
     expect(during.get("67710") is None and during.get("72075") is None, "aroona and acraman traps stay off the wrong parks")

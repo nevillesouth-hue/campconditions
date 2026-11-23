@@ -116,13 +116,8 @@ def needs_javascript(page, notices):
     return "javascript is required" in low or "enable javascript" in low
 
 
-def published_camps():
-    """Official Parks SA campgrounds a new notice can name.
-
-    Held camps stay in this list. A notice can name The Pines or The Gums
-    even when those campgrounds have no published coordinate. Park overlap
-    still keeps Little Dip's Gums off a Ngarkat notice.
-    """
+def _camp_rows():
+    """Official campgrounds. Held rows have no coordinates and no published page."""
     global _CAMPS
     if _CAMPS is not None:
         return _CAMPS
@@ -145,6 +140,18 @@ def published_camps():
             })
     _CAMPS = rows
     return _CAMPS
+
+
+def published_camps():
+    """Campgrounds a new notice may close. Held camps, including Ngarkat's
+    Pines and Gums and Danggali, stay out: they have no coordinates and no page.
+    """
+    return [row for row in _camp_rows() if row["published"]]
+
+
+def held_booking_ids():
+    """Booking ids with no published coordinate. A notice must not close these."""
+    return {row["booking_id"] for row in _camp_rows() if not row["published"]}
 
 
 def catalogue_for(notices, live_rows):
@@ -204,6 +211,8 @@ def adjust_scores(scored, notices):
             if not booking_id or booking_id in act_sa_notices.FORBIDDEN.get(notice.get("source_index"), set()):
                 continue
             if _trap(booking_id, " ".join(notice.get("parks") or [])):
+                continue
+            if booking_id in held_booking_ids():
                 continue
             current = bookings.get(booking_id)
             if current in (None, "unknown", "not_a_camp_closure", "expired_not_open", "not_in_window"):
@@ -439,10 +448,11 @@ def _stored(row):
             stored[key] = value
     if (row or {}).get("open_ended") is True and not (stored["start"] and stored["end"]):
         stored["open_ended"] = True
+    held = held_booking_ids()
     camps = []
     for item in (row or {}).get("camp_ids") or []:
         booking_id = str(item or "")
-        if booking_id.isdigit() and booking_id not in camps and not _trap(booking_id, park):
+        if booking_id.isdigit() and booking_id not in camps and booking_id not in held and not _trap(booking_id, park):
             camps.append(booking_id)
     if camps:
         stored["camp_ids"] = camps
@@ -642,6 +652,8 @@ def _named_camps(sentence, park, camps):
         return []
     found = []
     for camp in camps or []:
+        if not camp.get("published"):
+            continue
         if _trap(camp["booking_id"], park):
             continue
         if not _park_overlap(park, camp.get("park") or ""):
@@ -694,8 +706,9 @@ def _apply_live_window(notice, live):
 
 
 def _synthetic(row, source_index):
+    held = held_booking_ids()
     ids = [str(item) for item in (row or {}).get("camp_ids") or []]
-    ids = [item for item in ids if item and not _trap(item, row.get("park") or "")]
+    ids = [item for item in ids if item and item not in held and not _trap(item, row.get("park") or "")]
     start = str((row or {}).get("start") or "")
     end = str((row or {}).get("end") or "")
     if not ids or not ((start and end) or row.get("open_ended")):

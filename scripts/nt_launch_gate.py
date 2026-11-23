@@ -49,17 +49,21 @@ def _inventory():
     types = counted["by_type"]
     ok = (
         counted["booking"] == 106
-        and counted["published"] == 97
+        and         counted["published"] == 122
         and counted["excluded"] == 5
-        and counted["held"] == 216
+        and counted["held"] == 208
         and types["NT Parks campground"] == 97
-        and types["Rest area"] == 0
+        and types["Rest area"] == 25
         and types["Free"] == 0
         and types["Donation"] == 0
         and types["Council showground"] == 0
         and types["Council or community caravan park"] == 0
         and types["Community"] == 0
-        and counted["held_by_reason"].get("status_unconfirmed") == 211
+        and counted["held_by_reason"].get("no_camping_statement") == 199
+        and counted["held_by_reason"].get("unmatched") == 1
+        and counted["held_by_reason"].get("duplicate_park") == 1
+        and counted["held_by_reason"].get("temporarily_closed") == 1
+        and counted["held_by_reason"].get("camping_not_permitted") == 1
         and counted["held_by_reason"].get("no_coordinates") == 5
         and counted["osm_only"] == 0
         and all(camp.get("source") == "nt" for camp in nt_inventory.load_camps())
@@ -76,9 +80,10 @@ def _inventory():
     reason = (
         "106 booking campgrounds. 97 published NT Parks campgrounds "
         "(85 in season, 12 out of season). 5 permit-only Aboriginal land campgrounds left out. "
-        "4 left out because the booking response has no coordinates. "
-        "211 rest areas are held because camping status was not confirmed. "
-        "1 council showground is held because the page has no coordinates. "
+        "25 rest areas with 24 hour overnight camping are published. "
+        "Devils Marbles is held because it does not match a rest-area point. "
+        "Sullivan Campground is not added again because it is the NT Parks camp. "
+        "Katherine Showgrounds stays out because the page has no coordinates. "
         "Free 0, donation 0, council showground published 0, community 0. "
         "No OpenStreetMap-only records."
     )
@@ -147,6 +152,7 @@ def _extra_attribution():
     council = sources.get("council_camps") or {}
     ok = (
         radar.get("attribution") == nt_inventory.RADAR_ATTRIBUTION
+        and radar.get("status_attribution") == nt_inventory.REST_STATUS_ATTRIBUTION
         and radar.get("copyright") == "State and Territories of the Commonwealth of Australia"
         and radar.get("licence") == "not specified"
         and council.get("attribution") == nt_inventory.COUNCIL_ATTRIBUTION
@@ -264,7 +270,7 @@ def _pages(preview):
             if camp_page or state_page:
                 if nt_inventory.CAUTION not in text:
                     missing_caution.append(rel)
-            if camp_page and nt_inventory.ATTRIBUTION not in text:
+            if camp_page and nt_inventory.ATTRIBUTION not in text and nt_inventory.REST_STATUS_ATTRIBUTION not in text:
                 missing_credit.append(rel)
             if 'href="/nt/">Northern Territory</a> › <a href="/nt/northern-territory/">Northern Territory</a>' in text:
                 crumbs.append(rel)

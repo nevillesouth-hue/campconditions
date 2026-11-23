@@ -39,7 +39,8 @@
     "amended": "data/nt-amended-locations.csv",
     "park_decisions": "data/nt/nt-caravan-park-decisions.csv",
     "radar": "data/nt/nt-radar-rest-areas.json",
-    "council": "data/nt/nt-council-camps.csv"
+    "council": "data/nt/nt-council-camps.csv",
+    "rest_stops": "data/nt/nt-gov-rest-stops-snapshot.md"
   },
   "regions": {
     "northern-territory": {
@@ -85,7 +86,8 @@
       "copyright": "State and Territories of the Commonwealth of Australia",
       "licence": "not specified",
       "attribution": "Rest areas: National Formal Rest Area dataset, Department of Infrastructure. Copyright: State and Territories of the Commonwealth of Australia.",
-      "note": "Layer 0 returned 404. Layer 1 is the rest area list. data.gov.au lists this dataset with licence not specified. The NT road rest stops page returned 403, so camping status was not read from that page."
+      "status_attribution": "Rest stop camping status: NT Government, nt.gov.au (Road rest stops in NT)",
+      "note": "Layer 0 returned 404. Layer 1 is the rest area list. data.gov.au lists this dataset with licence not specified. Camping status is the saved NT Government road rest stops page from 23 Nov 2026."
     },
     "council_camps": {
       "live_fetch": false,

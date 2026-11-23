@@ -27,6 +27,7 @@ RADAR_ATTRIBUTION = (
     "Rest areas: National Formal Rest Area dataset, Department of Infrastructure. "
     "Copyright: State and Territories of the Commonwealth of Australia."
 )
+REST_STATUS_ATTRIBUTION = "Rest stop camping status: NT Government, nt.gov.au (Road rest stops in NT)"
 COUNCIL_ATTRIBUTION = "Council camps: the council page named on each camp."
 REST_STATUS_PAGE = "https://nt.gov.au/driving/safety/road-rest-stops-in-nt"
 FETCHED = "2026-11-23"
@@ -183,7 +184,7 @@ def _km(lon1, lat1, lon2, lat2):
     return 2 * radius * math.asin(min(1.0, math.sqrt(hav)))
 
 
-def _near_park(lon, lat, parks):
+def _near_park(lon, lat, parks, limit_km=0.3):
     best = None
     for park in parks:
         if park.get("lat") is None or park.get("lon") is None:
@@ -191,7 +192,7 @@ def _near_park(lon, lat, parks):
         dist = _km(lon, lat, park["lon"], park["lat"])
         if best is None or dist < best[0]:
             best = (dist, park)
-    if best and best[0] <= 0.3:
+    if best and best[0] <= limit_km:
         return best[1].get("name") or "", round(best[0], 3)
     return "", None
 
@@ -210,34 +211,11 @@ def load_council_rows():
 def extra_holds(parks):
     """Rest areas and council camps that are not published.
 
-    The NT rest-stop page was blocked. RADAR has no overnight-camping field,
-    so every rest area stays out. A council camp with no coordinates stays out.
+    Overnight stops that match a rest-area point are returned separately and
+    published by load_camps. Everything else on the page or in the dataset stays out.
     """
-    holds = []
-    for row in load_radar().get("rest_areas") or []:
-        name = (row.get("name") or "").strip() or "Rest area"
-        lon, lat = _number(row.get("lon")), _number(row.get("lat"))
-        near_name, near_km = ("", None)
-        if lon is not None and lat is not None:
-            near_name, near_km = _near_park(lon, lat, parks)
-        reason = "Camping status was not confirmed. The NT road rest stops page returned 403, and the rest area dataset does not say overnight camping is allowed."
-        if near_name:
-            reason += " It is also within 300 m of %s." % near_name
-        holds.append({
-            "id": "NT-RADAR-%s" % row.get("radar_id"),
-            "name": name,
-            "place": (row.get("road_name") or "").strip(),
-            "decision": "hold",
-            "reason": reason,
-            "reason_code": "status_unconfirmed",
-            "source": "radar",
-            "category": "Rest area",
-            "lat": lat,
-            "lon": lon,
-            "near_park": near_name,
-            "near_km": near_km,
-            "attribution": RADAR_ATTRIBUTION,
-        })
+    import nt_rest_stops
+    _published, holds = nt_rest_stops.match_stops(parks)
     for row in load_council_rows():
         choice = (row.get("decision") or "").strip()
         if choice == "publish":
@@ -335,6 +313,9 @@ def load_camps(seen=None):
         else:
             park_decision = ""
         label, note = _status(row)
+        import nt_rest_stops
+        if nt_rest_stops.fees_apply_to_park(name):
+            note += " Camping fees apply."
         amended = amended_by_id.get(ident)
         if amended:
             lat, lon = amended["lat"], amended["lon"]
@@ -358,6 +339,7 @@ def load_camps(seen=None):
             "status": "check",
             "status_label": label,
             "status_note": note,
+            "fee_type": "paid" if nt_rest_stops.fees_apply_to_park(name) else "",
             "closure": None,
             "upcoming_closure": None,
             "access": "",
@@ -382,7 +364,44 @@ def load_camps(seen=None):
             "source_url": BOOKING_URL,
             "attribution": ATTRIBUTION,
             "park_decision": park_decision,
-            "fee_type": "",
+        })
+    import nt_rest_stops
+    for row in nt_rest_stops.match_stops(camps)[0]:
+        camps.append({
+            "slug": _unique_slug(row["name"], slug_seen, str(row["radar_id"])),
+            "id": "NT-RADAR-%s" % row["radar_id"],
+            "name": row["name"],
+            "lat": row["lat"],
+            "lon": row["lon"],
+            "coord_source": "radar",
+            "region": REGION,
+            "status": "check",
+            "status_label": "Overnight camping",
+            "status_note": row["status_note"],
+            "fee_type": "paid" if row["fees"] else "free",
+            "max_stay": row["max_stay"],
+            "closure": None,
+            "upcoming_closure": None,
+            "access": "",
+            "about": "Rest area on the %s." % row["road"].title(),
+            "camping": "",
+            "caravans": "",
+            "site_class": "Rest area",
+            "dis_access": None,
+            "managed_by": "",
+            "phone": "",
+            "data_date": FETCHED,
+            "nearby_closures": [],
+            "source": "nt",
+            "category": "Rest area",
+            "state_slug": "nt",
+            "needs_review": False,
+            "place": row["road"].title(),
+            "in_season": True,
+            "website": "",
+            "source_url": "https://nt.gov.au/driving/safety/road-rest-stops-in-nt",
+            "attribution": row["attribution"],
+            "park_decision": "",
         })
     load_camps.excluded = excluded
     load_camps.held = held + extra_holds(camps)
@@ -430,8 +449,8 @@ def summary(camps=None):
         "by_source": by_source,
         "held_by_reason": held_reasons,
         "held_by_source": held_sources,
-        "in_season": sum(1 for camp in camps if camp.get("in_season")),
-        "out_of_season": sum(1 for camp in camps if not camp.get("in_season")),
+        "in_season": sum(1 for camp in camps if camp.get("category") == CATEGORY and camp.get("in_season")),
+        "out_of_season": sum(1 for camp in camps if camp.get("category") == CATEGORY and not camp.get("in_season")),
         "amended_matched": [row["name"] for row in report.get("matched") or []],
         "amended_missed": [row["name"] for row in report.get("missed") or []],
         "osm_only": sum(1 for row in load_camps.held if row.get("reason_code") == "osm_only"),
@@ -441,10 +460,22 @@ def summary(camps=None):
 
 def html_block(camp):
     import html
+    if camp.get("category") == "Rest area":
+        bits = [
+            "<p><strong>%s.</strong> %s</p>" % (html.escape(camp.get("status_label") or ""), html.escape(camp.get("status_note") or "")),
+            "<p><strong>Max stay: %s</strong></p>" % html.escape(camp.get("max_stay") or "24 hours"),
+        ]
+        if camp.get("fee_type") == "paid":
+            bits.append("<p><strong>Fees apply.</strong></p>")
+        bits.append("<p>Road: %s</p>" % html.escape(camp.get("place") or ""))
+        bits.append('<p class="muted">%s</p>' % html.escape(camp.get("attribution") or ""))
+        return "".join(bits)
     bits = [
         "<p><strong>%s.</strong> %s</p>" % (html.escape(camp.get("status_label") or ""), html.escape(camp.get("status_note") or "")),
         "<p>Park: %s</p>" % html.escape(camp.get("place") or ""),
     ]
+    if camp.get("fee_type") == "paid":
+        bits.append("<p><strong>Fees apply.</strong></p>")
     if camp.get("phone"):
         bits.append("<p>Phone: %s</p>" % html.escape(camp["phone"]))
     bits.append('<p>Camp record: <a href="%s">NT Parks booking system</a></p>' % html.escape(BOOKING_URL))

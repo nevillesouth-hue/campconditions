@@ -699,6 +699,63 @@ sa_tas = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_sa_
 if sa_tas.returncode != 0: bad.append(("sa-tas signup", "test_sa_tas_signup.py failed"))
 trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)
 if trip_check.returncode != 0: bad.append(("trip-check", (trip_check.stderr or trip_check.stdout)[-400:]))
+back_js = subprocess.run(["node", os.path.join(root, "scripts", "test_back.mjs")], cwd=root, capture_output=True, text=True)
+if back_js.returncode != 0: bad.append(("back link", (back_js.stderr or back_js.stdout)[-500:]))
+_BACK_MARK = '<p class="camp-back" id="camp-back" hidden><a class="back-map" href=""></a></p>'
+_back_names_path = os.path.join(D, "back-names.json")
+_back_script_path = os.path.join(D, "back.js")
+if not os.path.isfile(_back_names_path) or not os.path.isfile(_back_script_path):
+  bad.append(("back link", "missing script or names"))
+else:
+  _back_names = json.load(open(_back_names_path, encoding="utf-8"))
+  _back_script = open(_back_script_path, encoding="utf-8").read()
+  _names_v = hashlib.sha256(open(_back_names_path, "rb").read()).hexdigest()[:8]
+  _script_v = asset_hash("/back.js")
+  if _back_names.get("/") != "the map" or _back_names.get("/vic/") != "Victoria" or _back_names.get("/nsw/") != "New South Wales" or _back_names.get("/qld/") != "Queensland" or _back_names.get("/sa/") != "South Australia" or _back_names.get("/tas/") != "Tasmania":
+    bad.append(("back link", "state names"))
+  if _back_names.get("/vic/grampians-south-west/") != "Grampians & South West":
+    bad.append(("back link", "region name"))
+  if _back_names.get("/closures-this-weekend/") != "Closures this weekend" or _back_names.get("/trip-check/") != "Trip Check":
+    bad.append(("back link", "named pages"))
+  if f'/back-names.json?v={_names_v}' not in _back_script or "__BACK_NAMES_URL__" in _back_script:
+    bad.append(("back link", "names url"))
+  if f"/back.js\n  Cache-Control: public, max-age=31536000, immutable" not in open(os.path.join(D, "_headers"), encoding="utf-8").read():
+    bad.append(("back link", "script cache"))
+  _camp_pages = 0
+  _town_pages = 0
+  for _dir, _sub, _files in os.walk(D):
+    if draft_dir(_dir) or "index.html" not in _files: continue
+    _rel = os.path.relpath(_dir, D).replace(os.sep, "/")
+    _html = open(os.path.join(_dir, "index.html"), encoding="utf-8").read()
+    _is_camp = bool(re.fullmatch(r"[a-z]{2,3}/camp/[^/]+", _rel))
+    if _is_camp:
+      _camp_pages += 1
+      if _BACK_MARK not in _html or _html.find(_BACK_MARK) > _html.find("<h1>") or f'src="/back.js?v={_script_v}"' not in _html or "p.camp-back[hidden]{display:none !important}" not in _html:
+        bad.append(("/" + _rel + "/", "back link markup")); break
+      if '<p class="muted"><a href="/">Home</a>' in _html or "All camps in " in _html:
+        bad.append(("/" + _rel + "/", "breadcrumb changed")); break
+      _h1 = re.search(r"<h1>(.*?)</h1>", _html)
+      _key = "/" + _rel + "/"
+      if not _h1 or html.unescape(_h1.group(1)) != _back_names.get(_key):
+        bad.append((_key, "back name", None if not _h1 else html.unescape(_h1.group(1)), _back_names.get(_key))); break
+      _crumb = re.search(r'<p class="muted"><a href="/[a-z]{2,3}/">', _html)
+      if not _crumb or _html.find(_crumb.group(0)) < _html.find(_BACK_MARK):
+        bad.append((_key, "crumb")); break
+    else:
+      if 'id="camp-back"' in _html or 'src="/back.js' in _html or "p.camp-back" in _html:
+        bad.append(("/" + _rel + "/", "back link on non-camp")); break
+      if re.fullmatch(r"[a-z]{2,3}/near/[^/]+", _rel):
+        _town_pages += 1
+        _h1 = re.search(r"<h1>(.*?)</h1>", _html)
+        _want = "Camps near " + html.unescape(_h1.group(1)).replace("Camping near ", "", 1) if _h1 else ""
+        if _back_names.get("/" + _rel + "/") != _want:
+          bad.append(("/" + _rel + "/", "town back name", _want, _back_names.get("/" + _rel + "/"))); break
+  if _camp_pages < 1000: bad.append(("back link", f"only {_camp_pages} camp pages"))
+  if _town_pages < 1: bad.append(("back link", "no town names"))
+  for _slug in ("act", "nt"):
+    if os.path.isdir(os.path.join(D, _slug)): bad.append(("back link", _slug + " built"))
+  if 'class="back-map" href="/">← Back to map' not in open(os.path.join(D, "report", "index.html"), encoding="utf-8").read():
+    bad.append(("back link", "report page"))
 if "Queensland and Queensland" in open(os.path.join(D, "index.html"), encoding="utf-8").read(): bad.append(("home", "state names repeated"))
 about = open(os.path.join(D, "about", "index.html"), encoding="utf-8").read()
 if CREDIT not in about: bad.append(("credit", "footer or about"))

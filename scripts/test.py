@@ -676,7 +676,21 @@ if unsub_api.returncode != 0:
 CREDIT = "Campground and town data © OpenStreetMap contributors (ODbL); Campground details from DataVic and Explore Outdoors © State of Victoria (DEECA), CC BY 4.0, and Parks Victoria."
 sys.path.insert(0, os.path.join(root, "scripts"))
 import states
+import seo
 import facts as _stay_facts
+def _visible_text(fragment):
+  return re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", fragment or ""))).strip()
+def _warning_kept(page_html, safety_html):
+  """A .warn box still has this disclaimer text and every original link."""
+  want = _visible_text(safety_html)
+  if not want:
+    return False
+  hrefs = re.findall(r'href="([^"]+)"', safety_html or "")
+  main = page_html.split("<main>", 1)[-1].split("</main>", 1)[0]
+  for box in re.findall(r'<div class="warn"[^>]*>.*?</div>', main, re.S):
+    if _visible_text(box) == want and all(('href="%s"' % href) in box for href in hrefs):
+      return True
+  return False
 for _raw, _want in (("3 (72 hours)", "3 nights (72 hours)"), ("1 (24 hours)", "1 night (24 hours)"), ("2", "2 nights"), ("72 hours", "72 hours")):
   if _stay_facts.stay_label(_raw) != _want: bad.append(("stay label", _raw, _stay_facts.stay_label(_raw)))
 if re.search(r"Max stay: \d+ \(\d+ hours\)", open(os.path.join(D, "nsw", "camp", "lions-park-bulahdelah", "index.html"), encoding="utf-8").read()): bad.append(("lions-park-bulahdelah", "stay nights"))
@@ -876,6 +890,8 @@ for _state in ("vic", "nsw", "qld", "sa", "tas"):
   )
   if any(bit not in _html for bit in _need) or _html.count('class="banner-row"') != 2 or _html.find("</header>") > _html.find('id="visitor-report"'):
     bad.append((_sample["slug"], "visitor report form"))
+  if not _warning_kept(_html, states.by_slug(_state).get("safety_html") or ""):
+    bad.append((_sample["slug"], "state disclaimer"))
 _reports = json.load(open(os.path.join(root, "data", "camper-reports.json"), encoding="utf-8"))
 for _state, _camps in _reports.items():
   if str(_state).startswith("_") or not isinstance(_camps, dict): continue
@@ -3077,9 +3093,41 @@ else:
   for _slug in ("vic", "nsw", "qld", "sa", "tas"):
     if f'href="/{_slug}/camp/' not in _home_static.group(0):
       bad.append(("seo", "home static missing", _slug))
+_home_main = home.split("<main>", 1)[-1].split("</main>", 1)[0]
+_national = seo.national_disclaimer()
+_home_warns = re.findall(r'<div class="warn"[^>]*>.*?</div>', _home_main, re.S)
+_national_at = _home_main.find(_national)
+if _home_warns != [_national] or not (0 <= _home_main.find('id="camp-map"') < _national_at < _home_main.find('id="newsletter"')):
+  bad.append(("seo", "home disclaimer", _home_warns))
+for _state in states.enabled():
+  if _warning_kept(home, _state.get("safety_html") or ""):
+    bad.append(("seo", "home stacked disclaimer", _state.get("slug")))
+_about_main = about.split("<main>", 1)[-1].split("</main>", 1)[0]
+if seo.national_disclaimer() in about or _about_main.count('<div class="warn">') != len(states.enabled()):
+  bad.append(("seo", "about disclaimer count", _about_main.count('<div class="warn">')))
+for _state in states.enabled():
+  _labelled = seo.about_warning(_state)
+  if not _warning_kept(about, _labelled):
+    bad.append(("seo", "about disclaimer", _state.get("slug")))
+  for _href in re.findall(r'href="([^"]+)"', _state.get("safety_html") or ""):
+    if ('href="%s"' % _href) not in about:
+      bad.append(("seo", "about warning link", _state.get("slug"), _href))
+  for _href in re.findall(r'href="(https://[^"]+)"', (_state.get("copy") or {}).get("about_sources") or ""):
+    if ('href="%s"' % _href) not in about:
+      bad.append(("seo", "about source link", _state.get("slug"), _href))
+for _labelled_box in (
+  '<div class="warn"><strong>South Australia.</strong> No current notice does not mean the camp is open, so check before you travel.</div>',
+  '<div class="warn"><strong>Tasmania.</strong> No current alert does not mean the camp is open, so check before you travel.</div>',
+):
+  if _labelled_box not in _about_main:
+    bad.append(("seo", "about state label", _labelled_box[:48]))
+if '<div class="warn">No current notice does not mean the camp is open, so check before you travel.</div>' in about or '<div class="warn">No current alert does not mean the camp is open, so check before you travel.</div>' in about:
+  bad.append(("seo", "about unlabelled sa/tas"))
 _DISCLAIMER = "This is not a confirmation the camp is open"
 for _slug in ("vic", "nsw", "qld", "sa", "tas"):
   _hub = open(os.path.join(D, _slug, "index.html"), encoding="utf-8").read()
+  if not _warning_kept(_hub, states.by_slug(_slug).get("safety_html") or "") or seo.national_disclaimer() in _hub:
+    bad.append(("seo", _slug, "state disclaimer"))
   _section = re.search(r'<section class="static-camps" data-static-camps="(closed|sample)".*?</section>', _hub, re.S)
   if not _section:
     bad.append(("seo", _slug, "static section"))

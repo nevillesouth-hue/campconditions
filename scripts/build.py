@@ -3676,7 +3676,8 @@ if multi_state:
             seen_types.add(label)
     _n = [state["name"] for state in statecfg.enabled()]
     names = _n[0] if len(_n) == 1 else ", ".join(_n[:-1]) + " and " + _n[-1]
-    safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
+    # One national box under the map. State hubs and camp pages keep safety_html.
+    safety = seo.national_disclaimer()
     browse = _browse_links()
     write_home_map_js()
     NATIONAL_TOTAL = len(all_rows)
@@ -3846,7 +3847,8 @@ def about_body():
         lead = 'CampConditions.au is a free digest of campground conditions in Victoria and New South Wales, built for motorhomers, caravanners and campers by the team behind the YouTube channel <a href="https://www.youtube.com/@OptimumQuestforBigThings">Optimum Quest for Big Things</a>.'
         nsw = statecfg.by_slug("nsw")
         nsw_copy = nsw.get("copy") or {}
-        safety = "".join(state.get("safety_html") or "" for state in statecfg.enabled())
+        # Each state's warning stays. A box that never names the state gets a label.
+        safety = "".join(seo.about_warning(state) for state in statecfg.enabled())
         roads += '<p>Every New South Wales camp page has a Check Live Traffic NSW button. It opens <a href="https://www.livetraffic.com/">Live Traffic NSW</a>. Road-closure data is not copied onto this site.</p>'
         sources = (
             '<h2>Sources</h2><h3 id="vic-sources">Victoria</h3><p>' + e(CREDIT) + "</p><ul>" + COPY["about_sources"] + "</ul>"

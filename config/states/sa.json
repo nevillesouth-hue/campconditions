@@ -156,7 +156,17 @@
     "llms_intro": "Current conditions for {count} camps in South Australia: Parks SA campgrounds and council and community camps. A camp is closed, partial, upcoming or unknown only where a Parks SA notice says so. No current notice does not mean the camp is open. Fire danger is a link to the SA Country Fire Service. Not an official warning service.",
     "llms_closures": "Closures come from the Parks SA closures and alerts page. A camp is closed only where a notice covers that campground and the date window is current. Fire danger and total fire bans are linked to the SA Country Fire Service ratings page. A total fire ban does not close a camp. Do not treat a page with no current notice as open.",
     "directions_note": "Check the SA Country Fire Service and official road conditions before you travel.",
-    "outdated_html": ""
+    "outdated_html": "",
+    "faq": [
+      {
+        "q": "Does no current notice mean a South Australian camp is open?",
+        "a": "No. A camp is closed, partial, upcoming or unknown only where a Parks SA notice says so. No current notice does not mean the camp is open, so check before you travel."
+      },
+      {
+        "q": "How often are South Australian camp pages updated?",
+        "a": "The site rebuilds from the Parks SA closures and alerts page several times a day. Each page shows when it was checked. Fire danger is a link to the SA Country Fire Service. A total fire ban does not close a camp."
+      }
+    ]
   },
   "release": {
     "public": true,

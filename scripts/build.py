@@ -10,6 +10,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import contacts
 import facts
 import notice_phase
+import seo
 import states as statecfg
 import town_pages
 SITE = "https://campconditions.au"
@@ -967,7 +968,7 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .inline-signup-box{background:#f3f7f1;border:1px solid #cfdcc9;border-left:4px solid #2f5d3a;border-radius:8px;padding:.7rem .9rem;margin:.8rem 0}.inline-signup-box.closed{background:#fbf1f0;border-color:#e5c6c3;border-left-color:#b71c1c}.inline-signup-box p{margin:0 0 .45rem}.inline-signup-box .inline-signup-small{margin:.35rem 0 0;font-size:.82rem}.inline-signup-box .signup-row button{min-height:44px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
-.card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}.near-table{min-width:34rem}.town-links{margin:.2rem 0 1rem;padding-left:1.2rem}.town-links li{margin:.25rem 0}.near-camps{list-style:none;margin:.4rem 0 1rem;padding:0}.near-camps li{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.55rem .7rem;margin:0 0 .45rem}.near-camps .badge{margin:0 .35rem}.near-note{display:block;color:#444;font-size:.88rem;margin-top:.25rem}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
+.card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}.near-table{min-width:34rem}.town-links{margin:.2rem 0 1rem;padding-left:1.2rem}.town-links li{margin:.25rem 0}.static-camps{margin:1rem 0 .4rem}.static-camps h2{font-size:1.25rem;margin:.2rem 0 .35rem}.static-camp-links{list-style:none;margin:.2rem 0 .5rem;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.15rem .9rem}.static-camp-links li{margin:0;line-height:1.35}.static-camp-links a{color:var(--g);font-weight:600}.static-camp-links .badge{margin-left:.35rem}.static-camp-more{margin:.15rem 0 .4rem}.near-camps{list-style:none;margin:.4rem 0 1rem;padding:0}.near-camps li{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.55rem .7rem;margin:0 0 .45rem}.near-camps .badge{margin:0 .35rem}.near-note{display:block;color:#444;font-size:.88rem;margin-top:.25rem}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
 .box{background:#fff;border:2px dashed var(--o);border-radius:10px;padding:1rem;margin:1rem 0}input,textarea,select,button{font:inherit;padding:.45rem;border:1px solid #bbb;border-radius:6px}button{background:var(--o);color:#fff;border:0;cursor:pointer}
 .visitor-report{display:flex;flex-direction:column;align-items:stretch;gap:.7rem;max-width:32rem;margin:.35rem 0 0}
 .vr-field{display:flex;flex-direction:column;gap:.15rem}
@@ -2457,7 +2458,42 @@ def closure_div(camp, inner, class_name=""):
     """Closure block. The build-time words stay for browsers without JavaScript."""
     cls = f' class="{class_name}"' if class_name else ""
     return f'<div{cls} id="camp-closure"{notice_phase.notice_attr(camp)}>{inner}</div>'
-def crumbs(items): return {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": i+1, "name": n, "item": SITE+u} for i, (n, u) in enumerate(items)]}
+def crumbs(items):
+    """BreadcrumbList JSON-LD. Every item has a name and an absolute item URL."""
+    return seo.breadcrumb_list(items, SITE)
+def crumb_nav(items):
+    """Visible trail for the same items. The current page is text, not a link.
+
+    Home stays in the JSON-LD only. Camp pages already start the visible trail
+    at the state, and a Home link there is rejected by the back-link checks.
+    """
+    visible = list(items or [])
+    if len(visible) > 1 and visible[0][1] == "/" and str(visible[0][0]).strip() == "Home":
+        visible = visible[1:]
+    bits = []
+    last = len(visible) - 1
+    for i, (name, url) in enumerate(visible):
+        label = e(name)
+        if i == last:
+            bits.append(label)
+        else:
+            bits.append(f'<a href="{e(url)}">{label}</a>')
+    return '<p class="muted">' + " › ".join(bits) + "</p>"
+def hub_jsonld(path, description, faq_items):
+    """WebSite, Organization and FAQPage, matching the Victoria hub."""
+    blocks = [
+        {"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + path, "inLanguage": "en-AU", "description": description},
+        {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
+    ]
+    entities = []
+    for item in faq_items or []:
+        question = str(item.get("q") or "").strip()
+        answer = str(item.get("a") or "").strip()
+        if question and answer:
+            entities.append({"@type": "Question", "name": question, "acceptedAnswer": {"@type": "Answer", "text": answer}})
+    if entities:
+        blocks.append({"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": entities})
+    return blocks
 NEWS = """<section class="box" id="newsletter"><h2>__NEWSLETTER_H2__</h2><p>Every Thursday: what's closed, which roads are shut, and what campers are reporting — region by region. We'll email a confirmation link first; you're not on the list until you click it.</p>
 <form id="digest-form" class="signup" action="/api/subscribe" method="post"><label for="digest-email">Your email</label><div class="signup-row"><input id="digest-email" type="email" name="email" required placeholder="you@example.com" autocomplete="email"> <button type="submit">Subscribe</button></div></form>
 <div id="digest-note" class="notice" role="alert" aria-live="assertive" tabindex="-1" hidden></div>
@@ -3194,7 +3230,12 @@ def town_section(chosen):
         rows = by.get(key) or []
         if not rows:
             continue
-        parts.append(f'<h3><a href="/{SLUG}/{key}/">{e(name)}</a></h3><ul class="town-links">{_town_items(rows)}</ul>')
+        # A region named for the whole state (South Australia, Tasmania) would
+        # repeat the h1. The town list still sits under "Camping near a town".
+        heading = ""
+        if name.strip().casefold() != (STATE.get("name") or "").strip().casefold():
+            heading = f'<h3><a href="/{SLUG}/{key}/">{e(name)}</a></h3>'
+        parts.append(f'{heading}<ul class="town-links">{_town_items(rows)}</ul>')
     return "".join(parts)
 def town_links_for_region(key, chosen):
     rows = [t for t in chosen if t.get("region") == key]
@@ -3227,7 +3268,7 @@ def write_town_page(town, index):
     others = town.get("siblings") or []
     sibling_html = f'<h2>Other towns in {e(region_name)}</h2><ul class="town-links">{_town_items(others)}</ul>' if others and region_name else ""
     crumbs_items = [("Home", "/"), (STATE["name"], f"/{SLUG}/")]
-    if region_name:
+    if region_name and region_name.strip().casefold() != (STATE.get("name") or "").strip().casefold():
         crumbs_items.append((region_name, f"/{SLUG}/{region_key}/"))
     crumbs_items.append((f"Camping near {label}", town["url"]))
     item_list = {"@context": "https://schema.org", "@type": "ItemList", "name": f"Camping near {label}",
@@ -3241,15 +3282,122 @@ def write_town_page(town, index):
     if region_name:
         place_ld["containedInPlace"] = {"@type": "AdministrativeArea", "name": region_name}
     page(town["url"], f"Camping near {label}, {STATE['name']} | CampConditions.au", plain,
-         f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a>'
-         + (f' › <a href="/{SLUG}/{region_key}/">{e(region_name)}</a>' if region_name else "")
-         + f'</p><h1>Camping near {e(label)}</h1><p>{e(plain)}</p>{region_html}'
+         f'{crumb_nav(crumbs_items)}<h1>Camping near {e(label)}</h1><p>{e(plain)}</p>{region_html}'
          f'{inline_signup("town", label)}'
          f'{map_block(lst, f"Map of camps within {town_pages.RADIUS_KM:g} km of {label}", external=SLUG + "-near-" + town["slug"])}'
          f'{SAFETY}'
          f'<div class="table-wrap"><table id="camp-list" class="near-table"><thead><tr><th>Campground</th><th>Straight-line</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead>'
          f'<tbody>{rows}</tbody></table></div>{sibling_html}{news_section()}',
          [crumbs(crumbs_items), item_list, place_ld], head=leaflet_head(True), foot=leaflet_foot(True))
+def _static_more_links():
+    """Region pages already list every camp. One link, or one per region."""
+    links = []
+    state_name = (STATE.get("name") or "").strip()
+    for key, (name, _blurb) in REGIONS.items():
+        label = f"View all {name} campgrounds" if name.strip().casefold() == state_name.casefold() else name
+        links.append(f'<a href="/{SLUG}/{key}/">{e(label)}</a>')
+    if not links:
+        return ""
+    if len(links) == 1:
+        return links[0] + "."
+    return "View all on the region pages: " + ", ".join(links) + "."
+def _static_camp_items(camps, place_for):
+    items = []
+    for camp in camps:
+        label = camp.get("page_name") or camp.get("name") or ""
+        bits = [f'<a href="{camp_url(camp)}">{e(label)}</a>']
+        if camp.get("status") == "closed":
+            bits.append('<span class="badge closed">Closed</span>')
+        place = place_for(camp)
+        if place:
+            bits.append(f'<span class="muted">{e(place)}</span>')
+        items.append("<li>" + " ".join(bits) + "</li>")
+    return "".join(items)
+def static_camp_section(camps):
+    """Real /camp/ links on a state hub. Closed camps first, capped. A short sample when none are closed."""
+    shown, mode, total_closed = seo.pick_hub_camps(camps)
+    if not shown:
+        return ""
+    state_name = STATE.get("name") or ""
+    if mode == "closed":
+        heading = "Closed campgrounds"
+        if total_closed > len(shown):
+            intro = f"{total_closed} campgrounds are recorded as closed. {len(shown)} are listed here."
+        elif total_closed == 1:
+            intro = "1 campground is recorded as closed."
+        else:
+            intro = f"{total_closed} campgrounds are recorded as closed."
+    else:
+        heading = "Campgrounds"
+        intro = f"No confirmed closures in {state_name} in this build. A few campgrounds:"
+    def place_for(camp):
+        region = REGIONS.get(camp.get("region") or "", ("", ""))[0]
+        if region and region.casefold() != state_name.casefold():
+            return region
+        return ""
+    more = _static_more_links()
+    more_html = f'<p class="muted static-camp-more">{more}</p>' if more else ""
+    heading_id = f"static-camps-{SLUG}"
+    return (
+        f'<section class="static-camps" data-static-camps="{mode}" aria-labelledby="{heading_id}">'
+        f'<h2 id="{heading_id}">{heading}</h2>'
+        f'<p class="muted">{e(intro)}</p>'
+        f'<ul class="static-camp-links">{_static_camp_items(shown, place_for)}</ul>'
+        f"{more_html}</section>"
+    )
+def national_static_section():
+    """A short cross-state list on the homepage. Closed camps come first."""
+    groups = [(state.get("name") or "", state["slug"], by_state.get(state["slug"]) or []) for state in statecfg.enabled()]
+    rows = seo.pick_home_camps(groups)
+    if not rows:
+        return ""
+    closed_flags = [camp.get("status") == "closed" for _name, camp in rows]
+    if all(closed_flags):
+        heading, intro = "Closed campgrounds", "Closed in this build. Each state page lists every campground."
+    elif any(closed_flags):
+        heading, intro = "Campgrounds", "Closed camps are listed first. Each state page lists every campground."
+    else:
+        heading, intro = "Campgrounds", "A few campgrounds from each state. Each state page lists every campground."
+    items = []
+    for state_name, camp in rows:
+        label = camp.get("page_name") or camp.get("name") or ""
+        bits = [f'<a href="{camp_url(camp)}">{e(label)}</a>']
+        if camp.get("status") == "closed":
+            bits.append('<span class="badge closed">Closed</span>')
+        bits.append(f'<span class="muted">{e(state_name)}</span>')
+        items.append("<li>" + " ".join(bits) + "</li>")
+    return (
+        '<section class="static-camps" data-static-camps="home" aria-labelledby="static-camps-home">'
+        f"<h2 id=\"static-camps-home\">{heading}</h2>"
+        f'<p class="muted">{e(intro)}</p>'
+        f'<ul class="static-camp-links">{"".join(items)}</ul>'
+        "</section>"
+    )
+def apply_closed_meta(camp, title, region_name):
+    """Closed camps lead with status, park or region, and dates. No open disclaimer."""
+    if camp.get("status") != "closed":
+        return title, None
+    record = camp.get("closure") or {}
+    end_spoken, end_label = "", "Reopens"
+    if record.get("reopen"):
+        end_spoken = spoken_day(record["reopen"], record.get("reopen_time"))
+    elif record.get("end"):
+        end_spoken = spoken_day(record["end"], record.get("end_time"))
+        end_label = "Until"
+    desc = seo.closed_meta(
+        camp.get("name") or "",
+        STATE.get("name") or "",
+        region_name,
+        seo.park_label(camp),
+        seo.closed_summary(camp),
+        start_spoken=spoken_day(record["start"], record.get("start_time")) if record.get("start") else "",
+        end_spoken=end_spoken,
+        end_label=end_label,
+        weekly=weekly_when(record) if record.get("closed_days") else "",
+    )
+    if "is it open?" in title:
+        title = title.replace(" campground — is it open? Conditions today", " — Closed")
+    return title, desc
 def emit_state(state, camps, include_home):
     """Write one state's pages. Home is the Victoria page, so only the primary state includes it."""
     bind(state)
@@ -3283,15 +3431,13 @@ def emit_state(state, camps, include_home):
     n_dv = len(camps) - n_osm
     reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/{SLUG}/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
     home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
-    faq_entities = [{"@type": "Question", "name": item.get("q") or "", "acceptedAnswer": {"@type": "Answer", "text": item.get("a") or ""}} for item in COPY.get("faq") or []]
     def full_home(path, on_home):
         plan_link = '<p class="muted"><a href="https://campconditions.au/closures-this-weekend/">Planning this weekend?</a></p>' if path != "/" else ""
-        home_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + path, "inLanguage": "en-AU", "description": COPY["website_description"].format(count=len(camps))},
-                   {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
-                   {"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": faq_entities}]
+        home_ld = hub_jsonld(path, COPY["website_description"].format(count=len(camps)), COPY.get("faq"))
         page(path, COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
          f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>{plan_link}
 {map_block(camps, COPY["home_map"], external=SLUG)}{SAFETY}<h2>Regions</h2><div class="grid">{reg_cards}</div>
+{static_camp_section(camps)}
 <p>{COPY["home_weather"]}</p>{town_section(chosen)}{news_section()}{notice_phase.windows_tag(camps)}""", home_ld, head=leaflet_head(True), foot=leaflet_foot(True), on_home=on_home)
     multi = len(statecfg.enabled()) > 1
     state_is_home = multi and state.get("slug") == primary["slug"] and not include_home
@@ -3309,11 +3455,13 @@ def emit_state(state, camps, include_home):
             import tas_signup
             if not tas_signup.forms_allowed():
                 sa_note = tas_signup.coming_soon_html()
-        state_body = f"<div class=\"page-head\"><h1>{COPY['state_h1']}</h1><p class=\"head-counts\"><span class=\"badge closed\" id=\"count-closed\">{n_closed} closed</span> <span class=\"badge check\" id=\"count-check\">{n_check} to check</span></p></div><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{town_section(chosen)}{notice_phase.windows_tag(camps)}"
+        state_body = f"<div class=\"page-head\"><h1>{COPY['state_h1']}</h1><p class=\"head-counts\"><span class=\"badge closed\" id=\"count-closed\">{n_closed} closed</span> <span class=\"badge check\" id=\"count-check\">{n_check} to check</span></p></div><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{static_camp_section(camps)}{town_section(chosen)}{notice_phase.windows_tag(camps)}"
         if not sa_note and multi:
             state_body += news_section()
+        state_ld = hub_jsonld(f"/{SLUG}/", COPY["website_description"].format(count=len(camps)), COPY.get("faq"))
+        state_ld.append(crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")]))
         page(f"/{SLUG}/", COPY["state_title"].format(count=len(camps)), COPY["state_description"].format(count=len(camps)),
-             state_body, [crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])], head=leaflet_head(True), foot=leaflet_foot(True))
+             state_body, state_ld, head=leaflet_head(True), foot=leaflet_foot(True))
     for town in chosen:
         write_town_page(town, camp_index)
     for k, (n, d) in REGIONS.items():
@@ -3321,11 +3469,11 @@ def emit_state(state, camps, include_home):
         rows = "".join(f'<tr {row_attrs(c)}><td><a href="{camp_url(c)}">{e(c["name"])}</a></td><td>{e(c.get("category") or "")}</td><td class="camp-badge">{badge(c)}</td><td class="camp-note">{e(list_note(c))}</td></tr>' for c in sorted(lst, key=lambda c: ({"closed":0,"check":1,"open":2}[c["status"]], c["name"])))
         il = {"@context": "https://schema.org", "@type": "ItemList", "name": COPY["region_list_name"].format(name=n), "numberOfItems": len(lst), "itemListElement": [{"@type": "ListItem", "position": i+1, "url": f"{SITE}{camp_url(c)}", "name": c["name"]} for i, c in enumerate(lst)]}
         if n.strip().casefold() == (STATE.get("name") or "").strip().casefold():
-            region_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a></p>'
-            region_ld = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/")])
+            region_items = [("Home", "/"), (STATE["name"], f"/{SLUG}/"), (f"{n} campgrounds", f"/{SLUG}/{k}/")]
         else:
-            region_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › {e(n)}</p>'
-            region_ld = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")])
+            region_items = [("Home", "/"), (STATE["name"], f"/{SLUG}/"), (n, f"/{SLUG}/{k}/")]
+        region_crumb = crumb_nav(region_items)
+        region_ld = crumbs(region_items)
         page(f"/{SLUG}/{k}/", COPY["region_title"].format(name=n, count=len(lst)), COPY["region_description"].format(count=len(lst), name=n, blurb=d),
              f'{region_crumb}<h1>{e(n)} campgrounds</h1><p>{e(d)} <strong>{len(lst)}</strong> sites.</p>{town_links_for_region(k, chosen)}{inline_signup("region", n)}{map_block(lst, f"Map of {n} campgrounds", external=SLUG + "-" + k)}{SAFETY}<table id="camp-list"><thead><tr><th>Campground</th><th>Type</th><th>Status</th><th>Notes</th></tr></thead><tbody>{rows or "<tr><td colspan=4>No campgrounds listed.</td></tr>"}</tbody></table>{news_section()}',
              [region_ld, il], head=leaflet_head(True), foot=leaflet_foot(True))
@@ -3436,7 +3584,7 @@ def emit_state(state, camps, include_home):
             label = c.get("status_label") or "No current alert"
             title = f"{page_name} — {label} | CampConditions.au"
             summary = c.get("tas_list_note") or label
-            desc = f"{c['name']} in Tasmania. {summary} This is not a confirmation the camp is open."
+            desc = seo.with_disclaimer(c["name"], "Tasmania", summary)
             dated = c.get("attribution") or ""
         elif c.get("source") in ("parks_sa", "sa_operator", "council", "tourism", "operator"):
             label = c.get("status_label") or "No current notice"
@@ -3462,7 +3610,7 @@ def emit_state(state, camps, include_home):
             bits.append(f'<p class="muted">{e(c.get("attribution") or "")}</p>')
             condition = "".join(bits)
             title = f"{page_name} — {label} | CampConditions.au"
-            desc = f"{c['name']} in South Australia. {summary} This is not a confirmation the camp is open."
+            desc = seo.with_disclaimer(c["name"], "South Australia", summary)
             dated = c.get("attribution") or ""
         else:
             closure = "".join(parts) or "<p>No closure is recorded for this campground, and no road or track closures were found within 5 km.</p>"
@@ -3474,18 +3622,22 @@ def emit_state(state, camps, include_home):
             import qld_conditions
             title, desc = qld_conditions.park_title_and_description(
                 title, desc, c.get("name") or "", c.get("page_name") or c.get("name") or "", c.get("parks"))
+        if c.get("status") == "closed":
+            title, closed_desc = apply_closed_meta(c, title, rn)
+            if closed_desc:
+                desc = closed_desc
         camp_path = camp_url(c)
         camp_ld = {"@context": "https://schema.org", "@type": "Campground", "name": c["name"], "url": f"{SITE}{camp_path}", "description": (c.get("description") or c["about"] or desc)[:300],
                    "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lon"]}, "address": {"@type": "PostalAddress", "addressRegion": STATE.get("abbrev") or "", "addressCountry": "AU"},
                    "containedInPlace": {"@type": "AdministrativeArea", "name": COPY["place_admin"].format(region=rn)}, "publicAccess": c["status"] != "closed", "identifier": str(c["id"])}
         if rn.strip().casefold() == (STATE.get("name") or "").strip().casefold():
-            camp_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a></p>'
-            camp_ld_crumbs = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (c["name"], camp_path)])
+            camp_items = [("Home", "/"), (STATE["name"], f"/{SLUG}/"), (c["name"], camp_path)]
             admin_name = STATE["name"]
         else:
-            camp_crumb = f'<p class="muted"><a href="/{SLUG}/">{e(STATE["name"])}</a> › <a href="/{SLUG}/{c["region"]}/">{e(rn)}</a></p>'
-            camp_ld_crumbs = crumbs([("Home", "/"), (STATE["name"], f"/{SLUG}/"), (rn, f"/{SLUG}/{c['region']}/"), (c["name"], camp_path)])
+            camp_items = [("Home", "/"), (STATE["name"], f"/{SLUG}/"), (rn, f"/{SLUG}/{c['region']}/"), (c["name"], camp_path)]
             admin_name = COPY["place_admin"].format(region=rn)
+        camp_crumb = crumb_nav(camp_items)
+        camp_ld_crumbs = crumbs(camp_items)
         camp_ld["containedInPlace"]["name"] = admin_name
         lds = [camp_ld, camp_ld_crumbs]
         if cl:
@@ -3530,10 +3682,10 @@ if multi_state:
     NATIONAL_TOTAL = len(all_rows)
     national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in {names}, with the rest of Australia coming soon."},
                    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
-    page("/", "Camp conditions | CampConditions.au",
+    page("/", f"Camp conditions and closures for {_state_codes()} | CampConditions.au",
          f"Closures and camp conditions for {len(all_rows)} campgrounds in {names}, with the rest of Australia coming soon.",
          f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}, with the rest of Australia coming soon.</p>{notice_phase.windows_tag(all_rows)}
-{map_block(all_rows, f"Map of {names} campgrounds", types=tuple(type_labels), external="home")}{safety}{browse}{news_section("Get the free weekly digest", "")}""",
+{map_block(all_rows, f"Map of {names} campgrounds", types=tuple(type_labels), external="home")}{safety}{national_static_section()}{browse}{news_section("Get the free weekly digest", "")}""",
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + f'<script src="{versioned_url("/map-home.js")}" defer></script>', on_home=True)
 
 
@@ -3586,8 +3738,12 @@ document.getElementById("unsub-form").addEventListener("submit", async (ev) => {
 });
 </script>""")
 # Listed in the sitemap only. Not added to the nav, footer or llms.txt. The address and the sitemap are the ways in.
-page("/trip-check/", "Trip Check waitlist",
-     "This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.",
+_trip_desc = "This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription."
+_trip_ld = {"@context": "https://schema.org", "@type": "WebPage", "name": "Trip Check waitlist",
+            "url": SITE + "/trip-check/", "description": _trip_desc, "inLanguage": "en-AU",
+            "isPartOf": {"@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/"}}
+page("/trip-check/", "Trip Check waitlist | CampConditions.au",
+     _trip_desc,
      """<h1>Trip Check waitlist</h1>
 <p>Trip Check is a planned add-on for CampConditions.au. You would enter the camps or towns you plan to stay at, and the dates, and we would check each night against the same closure data we already publish. You would get a printable trip pack, and an email if a camp on your dates changes status before or during the trip. You can edit the trip with a private link if your dates or stops change.</p>
 <p>This page is a waitlist only. Nobody is charged, and joining does not create a booking or a subscription.</p>
@@ -3617,6 +3773,7 @@ page("/trip-check/", "Trip Check waitlist",
 <label class="consent"><input type="checkbox" name="consent" value="yes" required> I understand this is a waitlist, not a purchase. CampConditions.au can email me at this address about Trip Check. I can ask to be removed at any time.</label>
 <button type="submit">Join the waitlist</button>
 </form>""",
+     [_trip_ld],
      head="""<style>
 .trip-form input[type=email],.trip-form input[type=text]{width:100%;font-size:1.05rem;padding:.85rem .9rem;min-height:48px}
 .trip-form .signup-row{margin:0 0 .85rem}

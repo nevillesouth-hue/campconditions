@@ -310,7 +310,9 @@ else:
   ):
     if bit not in trip:
       bad.append(("/trip-check/", bit))
-  if "<title>Trip Check waitlist</title>" not in trip: bad.append(("/trip-check/", "title"))
+  if "<title>Trip Check waitlist | CampConditions.au</title>" not in trip: bad.append(("/trip-check/", "title"))
+  if '"@type": "WebPage"' not in trip or '"name": "Trip Check waitlist"' not in trip or '"url": "https://campconditions.au/trip-check/"' not in trip:
+    bad.append(("/trip-check/", "webpage json-ld"))
   if 'action="/api/subscribe"' in trip_main or "stripe" in trip_main.lower() or 'name="card"' in trip_main: bad.append(("/trip-check/", "payment or digest form"))
   if 'href="/privacy/"' not in trip: bad.append(("/trip-check/", "privacy link"))
   for r, _, fs in os.walk(D):
@@ -704,6 +706,10 @@ sa_tas = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_sa_
 if sa_tas.returncode != 0: bad.append(("sa-tas signup", "test_sa_tas_signup.py failed"))
 trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)
 if trip_check.returncode != 0: bad.append(("trip-check", (trip_check.stderr or trip_check.stdout)[-400:]))
+seo_unit = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_seo.py")], cwd=root, capture_output=True, text=True)
+if seo_unit.returncode != 0: bad.append(("seo unit", (seo_unit.stderr or seo_unit.stdout)[-500:]))
+pages_robots = subprocess.run(["node", os.path.join(root, "scripts", "test_pages_robots.mjs")], cwd=root, capture_output=True, text=True)
+if pages_robots.returncode != 0: bad.append(("pages robots", (pages_robots.stderr or pages_robots.stdout)[-500:]))
 back_js = subprocess.run(["node", os.path.join(root, "scripts", "test_back.mjs")], cwd=root, capture_output=True, text=True)
 if back_js.returncode != 0: bad.append(("back link", (back_js.stderr or back_js.stdout)[-500:]))
 _BACK_MARK = '<p class="camp-back" id="camp-back" hidden><a class="back-map" href=""></a></p>'
@@ -3021,6 +3027,161 @@ def check_npws_reserves_budget(bad):
   if nsw._query(dead, "rfs_fire_areas", "https://example.test/rfs", "firearea") is not None:
     bad.append(("rfs_fire_areas", "query still retries or falls back"))
 
+def _check_crumbs(path, html_text, bad):
+  for block in _ld_blocks(html_text):
+    if block.get("@type") != "BreadcrumbList":
+      continue
+    elements = block.get("itemListElement") or []
+    if not elements:
+      bad.append(("seo", path, "empty breadcrumbs"))
+      return
+    for item in elements:
+      name = str(item.get("name") or "").strip()
+      node = item.get("item")
+      url = node_name = ""
+      if isinstance(node, dict):
+        url = str(node.get("url") or node.get("@id") or "")
+        node_name = str(node.get("name") or "").strip()
+      elif isinstance(node, str):
+        url = node
+        node_name = name
+      if not name or name.lower() == "unnamed item" or not node_name or node_name.lower() == "unnamed item":
+        bad.append(("seo", path, "unnamed breadcrumb", item.get("position"), name))
+        return
+      if not url.startswith("https://campconditions.au/"):
+        bad.append(("seo", path, "breadcrumb url", url))
+        return
+      if isinstance(node, dict) and node_name != name:
+        bad.append(("seo", path, "breadcrumb name mismatch", name, node_name))
+        return
+_home_title = re.search(r"<title>(.*?)</title>", home)
+_home_want = f"Camp conditions and closures for {_codes} | CampConditions.au"
+if not _home_title or html.unescape(_home_title.group(1)) != _home_want:
+  bad.append(("seo", "home title", _home_title.group(1) if _home_title else ""))
+if "noindex" in home.split("</head>", 1)[0].lower():
+  bad.append(("seo", "home noindex"))
+if 'id="camp-map"' not in home or 'id="newsletter"' not in home or 'id="digest-form"' not in home:
+  bad.append(("seo", "home map or digest"))
+_home_static = re.search(r'<section class="static-camps" data-static-camps="home".*?</section>', home, re.S)
+if not _home_static:
+  bad.append(("seo", "home static camps"))
+else:
+  _seen_other = False
+  for _li in re.findall(r"<li>(.*?)</li>", _home_static.group(0), re.S):
+    if "badge closed" in _li:
+      if _seen_other:
+        bad.append(("seo", "home closed after other"))
+        break
+    else:
+      _seen_other = True
+  for _slug in ("vic", "nsw", "qld", "sa", "tas"):
+    if f'href="/{_slug}/camp/' not in _home_static.group(0):
+      bad.append(("seo", "home static missing", _slug))
+_DISCLAIMER = "This is not a confirmation the camp is open"
+for _slug in ("vic", "nsw", "qld", "sa", "tas"):
+  _hub = open(os.path.join(D, _slug, "index.html"), encoding="utf-8").read()
+  _section = re.search(r'<section class="static-camps" data-static-camps="(closed|sample)".*?</section>', _hub, re.S)
+  if not _section:
+    bad.append(("seo", _slug, "static section"))
+    continue
+  _hrefs = re.findall(r'<a href="(/%s/camp/[^"]+/)"' % _slug, _section.group(0))
+  if not _hrefs or len(_hrefs) > 12:
+    bad.append(("seo", _slug, "camp links", len(_hrefs)))
+  _state_camps = [c for c in feed["camps"] if f"/{_slug}/camp/" in (c.get("url") or "")]
+  _closed_urls = {c["url"].replace("https://campconditions.au", "") for c in _state_camps if c.get("status") == "closed"}
+  if _closed_urls:
+    if _section.group(1) != "closed" or any(href not in _closed_urls for href in _hrefs):
+      bad.append(("seo", _slug, "closed list", _section.group(1), len(_hrefs), len(_closed_urls)))
+    _labels = [html.unescape(part) for part in re.findall(r'<a href="/%s/camp/[^"]+/">([^<]+)</a>' % _slug, _section.group(0))]
+    if _labels != sorted(_labels, key=str.casefold):
+      bad.append(("seo", _slug, "closed order"))
+  elif _section.group(1) != "sample" or len(_hrefs) > 8:
+    bad.append(("seo", _slug, "sample list", _section.group(1), len(_hrefs)))
+  _types = [b.get("@type") for b in _ld_blocks(_hub)]
+  for _need in ("WebSite", "Organization", "FAQPage"):
+    if _need not in _types:
+      bad.append(("seo", _slug, "json-ld", _need, _types))
+  _faq = next((b for b in _ld_blocks(_hub) if b.get("@type") == "FAQPage"), {})
+  _questions = _faq.get("mainEntity") or []
+  if not _questions or any(not q.get("name") or not ((q.get("acceptedAnswer") or {}).get("text")) for q in _questions):
+    bad.append(("seo", _slug, "faq"))
+  if 'id="camp-map"' not in _hub:
+    bad.append(("seo", _slug, "map"))
+  if _slug in ("sa", "tas"):
+    _state_name = "South Australia" if _slug == "sa" else "Tasmania"
+    for _h3 in re.findall(r"<h3[^>]*>(.*?)</h3>", _hub, re.S):
+      _text = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", _h3))).strip()
+      if _text == _state_name:
+        bad.append(("seo", _slug, "redundant h3"))
+  _check_crumbs(f"/{_slug}/", _hub, bad)
+_closed_seen = 0
+for _camp in feed["camps"]:
+  _url = _camp.get("url") or ""
+  if "/camp/" not in _url:
+    continue
+  _parts = _url.split("/")
+  _state = _parts[3] if len(_parts) > 3 else ""
+  if _camp.get("status") != "closed" and _state not in ("sa", "tas"):
+    continue
+  _rel = _url.split("campconditions.au", 1)[-1].strip("/")
+  _fp = os.path.join(D, _rel, "index.html")
+  if not os.path.isfile(_fp):
+    bad.append(("seo", "missing camp", _rel))
+    continue
+  _page = open(_fp, encoding="utf-8").read()
+  _meta_m = re.search(r'<meta name="description" content="([^"]*)"', _page)
+  _title_m = re.search(r"<title>(.*?)</title>", _page)
+  if not _meta_m:
+    bad.append(("seo", "meta", _rel))
+    continue
+  _meta = html.unescape(_meta_m.group(1))
+  _title = html.unescape(_title_m.group(1)) if _title_m else ""
+  if _camp.get("status") == "closed":
+    _closed_seen += 1
+    if _DISCLAIMER in _meta or not re.search(r"\bis closed\b", _meta) or "is it open?" in _title or "No Rating" in _meta:
+      bad.append(("seo", "closed meta", _rel, _title, _meta[:240]))
+      break
+  elif _DISCLAIMER not in _meta or _meta.find(_DISCLAIMER) < 2 or _meta[_meta.find(_DISCLAIMER) - 2:_meta.find(_DISCLAIMER)] != ". ":
+    bad.append(("seo", "check meta", _rel, _meta[:240]))
+    break
+if _closed_seen < 1:
+  bad.append(("seo", "no closed camp pages checked"))
+_open = next((c for c in feed["camps"] if c.get("status") == "open" and "/vic/camp/" in (c.get("url") or "")), None)
+if _open:
+  _open_rel = _open["url"].split("campconditions.au", 1)[-1].strip("/")
+  _open_html = open(os.path.join(D, _open_rel, "index.html"), encoding="utf-8").read()
+  _open_meta = html.unescape(re.search(r'<meta name="description" content="([^"]*)"', _open_html).group(1))
+  if _DISCLAIMER in _open_meta or not _open_meta.endswith(".") or "  " in _open_meta:
+    bad.append(("seo", "open meta", _open.get("slug"), _open_meta[:240]))
+_headers_txt = open(os.path.join(D, "_headers"), encoding="utf-8").read()
+if re.search(r"(?i)noindex|x-robots-tag", _headers_txt):
+  bad.append(("seo", "_headers robots"))
+if not os.path.isfile(os.path.join(root, "functions", "_middleware.js")):
+  bad.append(("seo", "middleware missing"))
+_crumb_n = 0
+_crumb_failed = False
+for _dirpath, _dirnames, _filenames in os.walk(D):
+  if _crumb_failed:
+    break
+  for _filename in _filenames:
+    if _filename != "index.html":
+      continue
+    _fp = os.path.join(_dirpath, _filename)
+    with open(_fp, encoding="utf-8") as _handle:
+      _html_text = _handle.read()
+    if "BreadcrumbList" not in _html_text:
+      continue
+    _rel = "/" + os.path.relpath(_fp, D).replace(os.sep, "/")
+    if _rel.endswith("/index.html"):
+      _rel = _rel[: -len("index.html")]
+    _before = len(bad)
+    _check_crumbs(_rel, _html_text, bad)
+    if len(bad) != _before:
+      _crumb_failed = True
+      break
+    _crumb_n += 1
+if _crumb_n < 100:
+  bad.append(("seo", "breadcrumb pages", _crumb_n))
 check_npws_reserves_budget(bad)
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do

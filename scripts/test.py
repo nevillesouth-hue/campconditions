@@ -1086,15 +1086,27 @@ named = [s for s in merged if re.search(r"[A-Za-z0-9]", (s.get("name") or ""))]
 border_dupes = {"hinches-beach-campsite", "paradise-beach-campsite", "sandy-beach-campsite", "top-end-beach-campsite", "willis-campground-w198711455"}
 if border_dupes & {c.get("slug") for c in osm}: bad.append(("osm", "border duplicate kept"))
 if len(named) - len(osm) != len(border_dupes): bad.append(("osm", f"built {len(osm)} overlay {len(named)}"))
+# Victorian OSM category baselines as of the 24 Nov 2026 refresh (162ad73 / PR #90).
+# Earlier exact-count updates, each data drift rather than a code change:
+# Free 1096 -> 1095: weekly OSM refresh 862df30 (10 Nov 2026) dropped one free VIC camp.
+# Showground 40 -> 39, Donation 11 -> 12: OSM refresh 28825196 (17 Nov 2026) reclassified Merino Showgrounds as a donation reserve.
+# Free 1095 -> 1094, Donation 12 -> 13: OSM refresh 162ad73 (24 Nov 2026) reclassified Piangil Rest Area as a donation site.
+# These are not exact equality checks. Ordinary weekly OSM drift must not break the
+# build. Every published camp must use a label in OSM_VIC_COUNTS; the Victorian OSM
+# total must stay within ±2% of OSM_VIC_TOTAL; and no single category may move by
+# more than max(5% of its baseline, 10 camps).
+OSM_VIC_COUNTS = {"Free": 1094, "Camping area": 5, "Council park": 76, "Showground": 39, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 13, "Pub stay": 6, "Council park (leased)": 8}
+OSM_VIC_TOTAL = 1320  # sum of OSM_VIC_COUNTS
 labels = {c.get("category") for c in osm}
-if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
-# Free 1096 -> 1095: weekly OSM refresh 862df30 (10 Nov 2026) dropped one free VIC camp (data drift, not a code change).
-# Showground 40 -> 39, Donation 11 -> 12: OSM refresh 28825196 (17 Nov 2026) reclassified Merino Showgrounds as a donation reserve (data drift, not a code change).
-# Free 1095 -> 1094, Donation 12 -> 13: OSM refresh 162ad73 (24 Nov 2026) reclassified Piangil Rest Area as a donation site (data drift, not a code change).
-expect_counts = {"Free": 1094, "Camping area": 5, "Council park": 76, "Showground": 39, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 13, "Pub stay": 6, "Council park (leased)": 8}
+if labels - set(OSM_VIC_COUNTS): bad.append(("osm", labels))
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
-if got_counts != expect_counts: bad.append(("osm", got_counts))
+if abs(len(osm) - OSM_VIC_TOTAL) > OSM_VIC_TOTAL * 0.02:
+  bad.append(("osm", "total", len(osm), OSM_VIC_TOTAL))
+for label, baseline in OSM_VIC_COUNTS.items():
+  got = got_counts.get(label, 0)
+  if abs(got - baseline) > max(baseline * 0.05, 10):
+    bad.append(("osm", label, got, baseline))
 if sum(1 for c in osm if c.get("needs_review")) != sum(1 for c in osm if c.get("needs_review") is True): bad.append(("osm", "review flag"))
 if not any(c.get("needs_review") is False for c in osm): bad.append(("osm", "no confirmed sites"))
 if any(classify.CHAIN.search(s.get("name") or "") for s in fresh): bad.append(("osm data", "chain name kept"))

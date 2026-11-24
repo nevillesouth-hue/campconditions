@@ -3886,22 +3886,25 @@ def about_body():
 {sources}"""
 page("/about/", "About CampConditions.au", "Who we are and where our data comes from.", about_body())
 privacy_who = COPY["privacy_who"]
-privacy_date = "16 October 2026"
 if len(statecfg.enabled()) > 1:
     privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
-    privacy_date = "27 October 2026"
-    if _qld_enabled():
-        privacy_date = "4 November 2026"
     if _signup_open("sa") and _signup_open("tas"):
         privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria, New South Wales, Queensland, South Australia and Tasmania. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
-        privacy_date = "19 November 2026"
-page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address.",
- f"<h1>Privacy</h1><p>Last updated {privacy_date}.</p>\n<h2>Who we are</h2><p>{privacy_who}</p>\n" + """<h2>What we collect</h2><p>If you sign up, we collect your email address and the date and time of your sign-up and confirmation. We don't use tracking cookies. Cloudflare, which hosts this site, may log basic technical data such as your IP address for security.</p>
-<h2>Why we collect it</h2><p>We use your email only to send the digest and service emails about your subscription, such as the confirmation message.</p>
-<h2>Sharing</h2><p>We never sell, rent or share your email, except with service providers who process it for us: Resend (email delivery) and Cloudflare (hosting). Your data may be stored or processed outside Australia.</p>
+# Policy text follows Lex's legal review of 25 Nov 2026 (section 5.4), trimmed to what the
+# site and the consent-retention job actually record. Change this date when the text changes.
+privacy_date = "25 November 2026"
+page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address and other personal information.",
+ f"<h1>Privacy</h1><p>Last updated {privacy_date}.</p>\n<h2>Who we are</h2><p>{privacy_who}</p>\n" + """<h2>What we collect</h2><p>If you subscribe to the digest: nothing is stored until you click the confirmation link. Then we keep your email address, the states you choose, and the date and time you confirmed. If you unsubscribe, we record the date we first see that you have unsubscribed. We don't record your IP address with your subscription.</p>
+<p>If you join the Trip Check waitlist: your email address, first name, the states you're interested in, and the date and time you confirmed.</p>
+<p>If you email us a camper report: your email address and anything in the report, including your name if you give it.</p>
+<p>If you leave a tip: Stripe collects your payment details, and we receive your name, email and the amount but never your card number.</p>
+<p>Our emails don't track opens or clicks. We don't use tracking cookies. Cloudflare, which hosts this site, may log technical data such as IP addresses for security, and our analytics don't use cookies.</p>
+<h2>Why we collect it</h2><p>To send the emails you asked for, run the waitlist, check and publish camper reports, process tips, keep the site secure and meet our legal obligations, including proving that you agreed to our emails.</p>
+<h2>Who we share it with</h2><p>Only the services we use to run CampConditions: Resend (email delivery and our subscriber list; emails are sent from Japan and account data is stored in the United States), Cloudflare (hosting and analytics), Stripe (payments), Microsoft Outlook (our inbox, including camper report emails) and Google Drive (business records, including any backup of the subscriber list). These providers may store data outside Australia, including in Japan and the United States. We don't sell, rent or swap your personal information. If you send a camper report, we publish the report and, if you give it, your first name and initial, but never your email address.</p>
 <h2>Double opt-in</h2><p>Signing up is double opt-in. We email you a confirmation link, and you are not on the list until you click it.</p>
-<h2>Unsubscribe, access, correction and deletion</h2><p id="unsubscribe">Every email includes an unsubscribe link. You can unsubscribe any time on the <a href="/unsubscribe/">unsubscribe page</a>. To ask for access, a correction, or deletion, email <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>
-<h2>How long we keep it</h2><p>We keep your email while you are subscribed. After you unsubscribe, or after you ask us to delete it, we delete it within 30 days.</p>
+<h2>Unsubscribe, access, correction and deletion</h2><p id="unsubscribe">Every email includes an unsubscribe link. You can unsubscribe any time with the link in any email or on our <a href="/unsubscribe/">unsubscribe page</a>; it takes effect immediately. To leave the waitlist, have a report removed, or ask for access, correction or deletion, email <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>
+<h2>How long we keep it</h2><p>We keep your email address while you are subscribed. We delete your email address and preferences within 30 days after you unsubscribe or ask us to delete them, including from any backup copies of the list. We keep two limited records. First, a coded version of your email address (a keyed hash) on our do-not-email list, so we don't email you again by mistake. Second, a record of when you confirmed and when you stopped our emails, linked only to that keyed hash. We keep the consent record for 6 years after the last email we sent you, because that's how long Australia's spam regulator (ACMA) has to start court action under the Spam Act 2003, and then delete it automatically.</p>
+<p>We delete camper report emails within 12 months and take published reports down after 12 months, or sooner if you ask. We keep tip records for as long as tax law requires.</p>
 <h2>Complaints</h2><p>If you have a complaint, email us. You can also contact the Office of the Australian Information Commissioner (OAIC) at <a href="https://www.oaic.gov.au/">oaic.gov.au</a>.</p>
 <h2>Changes to this policy</h2><p>If we change this policy, we will update this page and the date at the top.</p>""")
 def terms_body():
@@ -4446,7 +4449,7 @@ urls += [town["url"] for town in TOWN_PAGES]
 # lastmod is the build date for pages built from live data. Pages whose text only
 # changes with a code edit carry the date of that edit, so crawlers are not told
 # they changed every three hours.
-STATIC_LASTMOD = {"/privacy/": "2026-10-27", "/terms/": "2026-10-27", "/faq/": "2026-11-01", "/summer/": "2026-11-16", "/fire-season/": "2026-11-19"}
+STATIC_LASTMOD = {"/privacy/": "2026-11-25", "/terms/": "2026-10-27", "/faq/": "2026-11-01", "/summer/": "2026-11-16", "/fire-season/": "2026-11-19"}
 def lastmod(u):
     fixed = STATIC_LASTMOD.get(u)
     return fixed if fixed and fixed <= NOW.date().isoformat() else NOW.date().isoformat()

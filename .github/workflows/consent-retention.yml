@@ -1,0 +1,49 @@
+name: Delete unsubscribed contacts (consent retention)
+# Deletes Resend contacts within the 30 days /privacy/ promises after someone unsubscribes,
+# keeping only a keyed-hash consent record in a private Cloudflare KV namespace.
+# See scripts/consent_retention.py and docs/consent-retention.md.
+#
+# Ships DISABLED. Every run is a dry run that prints counts only, until BOTH:
+#   - repository variable RETENTION_DELETE is set to "enabled" (Settings > Secrets and variables > Actions > Variables), and
+#   - the secrets below exist.
+# Logs never show an email address, a hash or a contact id.
+on:
+  schedule:
+    - cron: "40 16 * * *"   # daily 16:40 UTC = 3:40am AEDT
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: consent-retention
+  cancel-in-progress: false
+jobs:
+  retention:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests (no network)
+        run: python3 scripts/test_consent_retention.py
+      - name: Dry run (counts only)
+        env:
+          RESEND_API_KEY: ${{ secrets.RETENTION_RESEND_API_KEY }}
+          CONSENT_HMAC_KEY: ${{ secrets.CONSENT_HMAC_KEY }}
+          CONSENT_STORE: ${{ secrets.CONSENT_KV_NAMESPACE_ID != '' && 'kv' || '' }}
+          CONSENT_KV_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CONSENT_KV_NAMESPACE_ID: ${{ secrets.CONSENT_KV_NAMESPACE_ID }}
+          CONSENT_KV_TOKEN: ${{ secrets.CONSENT_KV_TOKEN }}
+        run: python3 scripts/consent_retention.py
+      - name: Delete due contacts
+        if: ${{ vars.RETENTION_DELETE == 'enabled' && github.ref == 'refs/heads/main' }}
+        env:
+          RETENTION_DELETE: ${{ vars.RETENTION_DELETE }}
+          RESEND_API_KEY: ${{ secrets.RETENTION_RESEND_API_KEY }}
+          CONSENT_HMAC_KEY: ${{ secrets.CONSENT_HMAC_KEY }}
+          CONSENT_STORE: kv
+          CONSENT_KV_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CONSENT_KV_NAMESPACE_ID: ${{ secrets.CONSENT_KV_NAMESPACE_ID }}
+          CONSENT_KV_TOKEN: ${{ secrets.CONSENT_KV_TOKEN }}
+        run: python3 scripts/consent_retention.py --apply

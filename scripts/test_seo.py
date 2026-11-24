@@ -138,6 +138,46 @@ expect([name for name, _camp in home] == ["Victoria", "South Australia", "South 
 expect(home[0][1]["status"] == "closed", "home closed first")
 expect(all("/" not in pair[0] for pair in home), "names")
 
+box = seo.national_disclaimer()
+expect(box.count('<div class="warn">') == 1 and box.endswith("</div>"), "one national box " + box)
+expect("<strong>Not an official warning service.</strong>" in box, "strong lead")
+expect(
+    'href="' + seo.BOM_WARNINGS_URL + '" target="_blank" rel="noopener noreferrer">Bureau of Meteorology warnings</a>' in box,
+    "bom link",
+)
+expect('<a href="/about/">About</a>' in box and '<a href="tel:000">000</a>' in box, "about and 000")
+expect("CampConditions does not republish live emergency warnings, and no listed alert does not mean a camp is open." in box, "core")
+expect(box == seo.national_disclaimer(), "stable")
+for state_name in (
+    "Victoria", "New South Wales", "Queensland", "South Australia", "Tasmania",
+    "Western Australia", "Northern Territory", "Australian Capital Territory",
+):
+    expect(state_name not in box, "national box names " + state_name)
+
+vic_html = (
+    '<div class="warn"><strong>Not an official warning service.</strong> '
+    'Check <a href="https://emergency.vic.gov.au/respond/">VicEmergency</a> '
+    'and warnings for Victoria. Call <a href="tel:000">000</a>.</div>'
+)
+expect(seo.about_warning({"name": "Victoria", "safety_html": vic_html}) == vic_html, "labelled state stays")
+sa_html = '<div class="warn">No current notice does not mean the camp is open, so check before you travel.</div>'
+sa_out = seo.about_warning({"name": "South Australia", "safety_html": sa_html})
+expect(
+    sa_out == '<div class="warn"><strong>South Australia.</strong> No current notice does not mean the camp is open, so check before you travel.</div>',
+    "sa label " + sa_out,
+)
+tas_html = '<div class="warn">No current alert does not mean the camp is open, so check before you travel.</div>'
+tas_out = seo.about_warning({"name": "Tasmania", "safety_html": tas_html})
+expect(
+    tas_out == '<div class="warn"><strong>Tasmania.</strong> No current alert does not mean the camp is open, so check before you travel.</div>',
+    "tas label " + tas_out,
+)
+linked = '<div class="warn">Check <a href="https://example.test/warn">the agency</a> before you travel.</div>'
+linked_out = seo.about_warning({"name": "Example", "safety_html": linked})
+expect('href="https://example.test/warn"' in linked_out and "the agency" in linked_out, "label keeps the link " + linked_out)
+expect(linked_out.startswith('<div class="warn"><strong>Example.</strong> '), "label position")
+expect(seo.about_warning({"name": "Victoria", "safety_html": ""}) == "", "empty warning")
+
 if failures:
     print("\n".join(failures))
     raise SystemExit(1)

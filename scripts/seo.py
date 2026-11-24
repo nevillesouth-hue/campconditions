@@ -1,8 +1,9 @@
 """On-page SEO helpers used by the static build.
 
-Breadcrumb JSON-LD, closed-camp meta descriptions, and which camps a hub
-lists as real HTML links. No network and no page templates.
+Breadcrumb JSON-LD, closed-camp meta descriptions, which camps a hub
+lists as real HTML links, and the shared warning lines. No network.
 """
+import html
 import re
 
 OPEN_DISCLAIMER = "This is not a confirmation the camp is open."
@@ -248,3 +249,32 @@ def pick_home_camps(groups, per=2, cap=12):
         for camp in shown:
             dest.append((state_name, camp))
     return (closed_rows + sample_rows)[:cap]
+
+
+BOM_WARNINGS_URL = "https://www.bom.gov.au/weather-and-climate/warnings-and-alerts"
+
+
+def national_disclaimer():
+    """One homepage warning. It names no state, so a new launch adds no box."""
+    return (
+        '<div class="warn"><strong>Not an official warning service.</strong> '
+        "CampConditions does not republish live emergency warnings, and no listed alert does not mean a camp is open. "
+        "Always check your state's official fire, emergency, parks and road agencies and "
+        f'<a href="{BOM_WARNINGS_URL}" target="_blank" rel="noopener noreferrer">Bureau of Meteorology warnings</a> '
+        'before you travel. See each state page or <a href="/about/">About</a> for state agency links. '
+        'In an emergency call <a href="tel:000">000</a>.</div>'
+    )
+
+
+def about_warning(state):
+    """Keep a state's own warning. Name the state when the box never does."""
+    block = str((state or {}).get("safety_html") or "")
+    name = re.sub(r"\s+", " ", str((state or {}).get("name") or "")).strip()
+    visible = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", block))
+    if not block or not name or name.casefold() in visible.casefold():
+        return block
+    prefix = '<div class="warn">'
+    if not block.startswith(prefix):
+        return block
+    label = "<strong>" + html.escape(name) + ".</strong> "
+    return prefix + label + block[len(prefix):]

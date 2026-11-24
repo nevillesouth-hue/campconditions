@@ -339,7 +339,7 @@ if not os.path.isfile(priv_path):
 else:
   priv = open(priv_path, encoding="utf-8").read()
   for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "don't sell, rent or swap", "Changes to this policy",
-              "Trip Check waitlist", "first name", "camper report", "Stripe", "never your card number", "don't track opens or clicks",
+              "Trip Check waitlist", "first name", "camper report", "Stripe", "never your full card number", "last four digits", "don't track opens or clicks",
               "sent from Japan", "stored in the United States", "keyed hash", "6 years after the last email", "backup copies of the list",
               "date and time you confirmed", "12 months"):
     if bit not in priv: bad.append(("/privacy/", bit))

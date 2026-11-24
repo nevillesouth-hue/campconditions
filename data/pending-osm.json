@@ -1,7 +1,7 @@
 {
  "note": "OpenStreetMap camps left off the map. A new id is published only after it has a record in manual-corrections.json.",
- "generated": "2026-11-16T19:24:30Z",
- "count": 14,
+ "generated": "2026-11-24T04:10:11Z",
+ "count": 21,
  "sites": [
   {
    "id": "n11569682042",
@@ -57,6 +57,47 @@
    }
   },
   {
+   "id": "n14388517107",
+   "name": "Manangatang Racecourse - Event Only",
+   "lat": -35.046339,
+   "lon": 142.885228,
+   "tags": {
+    "access": "yes",
+    "camp_site": "basic",
+    "name": "Manangatang Racecourse - Event Only",
+    "note": "based on \"Camping\" sign at this location. Walk across railway track to showers etc but likely overwhelmed during event",
+    "tourism": "camp_site",
+    "website": "https://country.racing.com/manangatang"
+   }
+  },
+  {
+   "id": "n14404953574",
+   "name": "Mia Mia Recreation Reserve",
+   "lat": -36.996729,
+   "lon": 144.572642,
+   "tags": {
+    "access": "yes",
+    "camp_site": "standard",
+    "caravans": "yes",
+    "name": "Mia Mia Recreation Reserve",
+    "power_supply": "no",
+    "shower": "no",
+    "toilets": "yes",
+    "tourism": "camp_site",
+    "wheelchair": "no"
+   }
+  },
+  {
+   "id": "n14405087464",
+   "name": "Mitchells Flat Camping Area",
+   "lat": -37.300245,
+   "lon": 146.361702,
+   "tags": {
+    "name": "Mitchells Flat Camping Area",
+    "tourism": "camp_site"
+   }
+  },
+  {
    "id": "n9587512132",
    "name": "Mount Taylor",
    "lat": -37.703091,
@@ -106,6 +147,40 @@
    }
   },
   {
+   "id": "w1580275255",
+   "name": "Reddas Park Brim",
+   "lat": -36.076594,
+   "lon": 142.405594,
+   "tags": {
+    "access": "yes",
+    "camp_site": "serviced",
+    "caravans": "yes",
+    "description": "Pay at donation box, pub or general store",
+    "dog": "leashed",
+    "fee": "yes",
+    "name": "Reddas Park Brim",
+    "note": "approx boundary - finger signs",
+    "payment:donation_box": "yes",
+    "power_supply": "yes",
+    "shower": "yes",
+    "tents": "yes",
+    "toilets": "yes",
+    "tourism": "camp_site"
+   }
+  },
+  {
+   "id": "w220415142",
+   "name": "Sea Lake Caravan Park",
+   "lat": -35.503055,
+   "lon": 142.847315,
+   "tags": {
+    "name": "Sea Lake Caravan Park",
+    "phone": "+61 472 547 705",
+    "tourism": "camp_site"
+   },
+   "duplicate": "likely duplicate of n1808392100 Sea Lake Caravan & Camping Park, 110 m"
+  },
+  {
    "id": "w36843934",
    "name": "Four Mile Beach Campsite",
    "lat": -36.132311,
@@ -136,6 +211,14 @@
    "note": "missing id, needs remap"
   },
   {
+   "id": "n13425548085",
+   "name": "Mitchells Flat Camping Area",
+   "lat": -37.30299,
+   "lon": 146.353843,
+   "tags": {},
+   "note": "missing id, needs remap"
+  },
+  {
    "id": "n14050367327",
    "name": "Schulzes Beach Camping Area",
    "lat": -36.04563,
@@ -156,6 +239,14 @@
    "name": "Pyramid Hill Caravan Park",
    "lat": -36.05528,
    "lon": 144.125,
+   "tags": {},
+   "note": "missing id, needs remap"
+  },
+  {
+   "id": "n1808392100",
+   "name": "Sea Lake Caravan & Camping Park",
+   "lat": -35.503169,
+   "lon": 142.846109,
    "tags": {},
    "note": "missing id, needs remap"
   },

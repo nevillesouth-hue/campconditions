@@ -1090,7 +1090,8 @@ labels = {c.get("category") for c in osm}
 if labels - {"Free", "Camping area", "Donation", "Showground", "Council park", "Council park (leased)", "Rest area", "Pub stay", "Paid – Parks Victoria (book ahead)"}: bad.append(("osm", labels))
 # Free 1096 -> 1095: weekly OSM refresh 862df30 (10 Nov 2026) dropped one free VIC camp (data drift, not a code change).
 # Showground 40 -> 39, Donation 11 -> 12: OSM refresh 28825196 (17 Nov 2026) reclassified Merino Showgrounds as a donation reserve (data drift, not a code change).
-expect_counts = {"Free": 1095, "Camping area": 5, "Council park": 76, "Showground": 39, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 12, "Pub stay": 6, "Council park (leased)": 8}
+# Free 1095 -> 1094, Donation 12 -> 13: OSM refresh 162ad73 (24 Nov 2026) reclassified Piangil Rest Area as a donation site (data drift, not a code change).
+expect_counts = {"Free": 1094, "Camping area": 5, "Council park": 76, "Showground": 39, "Paid – Parks Victoria (book ahead)": 55, "Rest area": 24, "Donation": 13, "Pub stay": 6, "Council park (leased)": 8}
 got_counts = {}
 for camp in osm: got_counts[camp.get("category")] = got_counts.get(camp.get("category"), 0) + 1
 if got_counts != expect_counts: bad.append(("osm", got_counts))

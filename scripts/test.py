@@ -1764,6 +1764,9 @@ if farley_found["closed"] != ["In the interest of visitor safety, this area is c
   bad.append(("check_parksvic", "farley " + repr(farley_found["closed"])))
 if check_parksvic.site_phrase("Farley Bend Camping Area Site 2") != "farley bend":
   bad.append(("check_parksvic", "farley phrase"))
+cubby_note = "Department of Energy, Environment and Climate Action have informed Parks Victoria that Cubby's Camp and adjoining sections of the Great South West Walk, located within Cobboboonee Forest Park, are temporarily closed. It is unknown when the site and sections of walking track will be reopened."
+if not check_parksvic.wording_closes_camp(cubby_note, "Cubby's Camp"):
+  bad.append(("check_parksvic", "cubby temporarily closed"))
 if check_parksvic.site_phrase("O'Tooles Flat") != "otooles flat":
   bad.append(("check_parksvic", "otoole phrase"))
 otoole_html = """

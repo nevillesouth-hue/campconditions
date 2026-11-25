@@ -67,7 +67,8 @@ for f in ["sitemap.xml","robots.txt","llms.txt","status.json"]: assert os.path.i
 json.load(open(os.path.join(D,"status.json")))
 sm=re.findall(r"<loc>https://campconditions.au(.*?)</loc>",open(os.path.join(D,"sitemap.xml")).read())
 for u in sm:
-  if not os.path.isfile(os.path.join(D,u.lstrip("/"),"index.html")): bad.append(("sitemap",u))
+  rel = u.lstrip("/")
+  if not (os.path.isfile(os.path.join(D, rel, "index.html")) or os.path.isfile(os.path.join(D, rel))): bad.append(("sitemap",u))
 feed=json.load(open(os.path.join(D,"status.json")))
 vic_feed=[c for c in feed["camps"] if "/vic/camp/" in c.get("url","")]
 _STATUS_FROM = {"o": "open", "k": "check", "x": "closed"}
@@ -3299,6 +3300,9 @@ def _check_crumbs(path, html_text, bad):
     if not elements:
       bad.append(("seo", path, "empty breadcrumbs"))
       return
+    if not str(block.get("name") or "").strip() or str(block.get("name") or "").strip().lower() == "unnamed item":
+      bad.append(("seo", path, "unnamed breadcrumb list"))
+      return
     for item in elements:
       name = str(item.get("name") or "").strip()
       node = item.get("item")
@@ -3322,6 +3326,42 @@ _home_title = re.search(r"<title>(.*?)</title>", home)
 _home_want = f"Camp conditions and closures for {_codes} | CampConditions.au"
 if not _home_title or html.unescape(_home_title.group(1)) != _home_want:
   bad.append(("seo", "home title", _home_title.group(1) if _home_title else ""))
+_home_main_early = home.split("<main>", 1)[-1].split("</main>", 1)[0]
+_intro_m = re.search(r"<p><a href=\"/closures-this-weekend/\">Closures</a> and camp conditions for <strong>\d+</strong> campgrounds in (.*?)</p>", _home_main_early)
+if not _intro_m:
+  bad.append(("seo", "home intro links"))
+else:
+  for _slug, _name in (("vic", "Victoria"), ("nsw", "New South Wales"), ("qld", "Queensland"), ("sa", "South Australia"), ("tas", "Tasmania")):
+    if f'<a href="/{_slug}/">{_name}</a>' not in _intro_m.group(1):
+      bad.append(("seo", "home state link", _slug))
+_about_plain = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", re.search(r"<h1>(.*?)</h1>", about, re.S).group(1)))).strip() if re.search(r"<h1>", about) else ""
+_about_title = html.unescape(re.search(r"<title>(.*?)</title>", about).group(1)) if re.search(r"<title>", about) else ""
+_about_desc = html.unescape(re.search(r'<meta name="description" content="([^"]*)"', about).group(1)) if re.search(r'name="description"', about) else ""
+if not _about_plain.startswith("CampConditions.au is a free digest of campground conditions in Victoria, New South Wales, Queensland, South Australia and Tasmania"):
+  bad.append(("seo", "about h1", _about_plain[:180]))
+if _about_title != _about_plain or _about_desc != _about_plain:
+  bad.append(("seo", "about title or description", _about_title[:120], _about_desc[:120]))
+if "Who we are and where our data comes from." in about:
+  bad.append(("seo", "about old description"))
+for _url in ("https://www.youtube.com/@OptimumQuestforBigThings", "https://x.com/CampConditions", "https://www.facebook.com/profile.php?id=61595649879828"):
+  if _url not in home or _url not in about:
+    bad.append(("seo", "sameAs", _url))
+def _dataset_blocks(text):
+  return [b for b in _ld_blocks(text) if b.get("@type") == "Dataset" and b.get("url") == "https://campconditions.au/status.json"]
+for _label, _text in (("home", home), ("about", about)):
+  _sets = _dataset_blocks(_text)
+  if len(_sets) != 1 or _sets[0].get("license") or "about-the-data" not in str(_sets[0].get("usageInfo") or "") or "every three hours" not in _sets[0].get("description", ""):
+    bad.append(("seo", "status dataset", _label))
+if "/llms.txt" not in sm:
+  bad.append(("sitemap", "llms.txt"))
+_sa_hub = open(os.path.join(D, "sa", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "sa", "index.html")) else ""
+_hub = re.search(r'<p class="muted hub-links">(.*?)</p>', _sa_hub)
+if not _hub or 'href="/closures-this-weekend/"' not in _hub.group(1) or 'href="/tas/"' not in _hub.group(1) or ">TAS</a>" not in _hub.group(1) or 'href="/sa/"' in _hub.group(1):
+  bad.append(("seo", "sa hub links", None if not _hub else _hub.group(1)[:240]))
+_wk_states = open(os.path.join(D, "closures-this-weekend", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "closures-this-weekend", "index.html")) else ""
+for _slug, _name in (("nsw", "New South Wales"), ("qld", "Queensland"), ("sa", "South Australia"), ("tas", "Tasmania")):
+  if f'<a href="/{_slug}/">{_name}</a>' not in _wk_states:
+    bad.append(("seo", "closures state", _slug))
 if "noindex" in home.split("</head>", 1)[0].lower():
   bad.append(("seo", "home noindex"))
 if 'id="camp-map"' not in home or 'id="newsletter"' not in home or 'id="digest-form"' not in home:

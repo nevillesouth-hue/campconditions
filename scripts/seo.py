@@ -165,10 +165,13 @@ def with_disclaimer(name, place, summary):
 
 
 def breadcrumb_list(items, site="https://campconditions.au"):
-    """BreadcrumbList where every ListItem has a name and an item URL.
+    """BreadcrumbList where every ListItem has its own name.
 
-    `item` is a WebPage with `@id`, `url` and `name`. Google's URL Inspection
-    reports "Unnamed item" when the name is only a sibling of a bare URL string.
+    Google's URL Inspection labels a crumb "Unnamed item" when that ListItem
+    has no name of its own. Nesting the name on a WebPage does not give the
+    ListItem a name. `item` is the absolute page URL, which is the shape
+    Google's breadcrumb docs require, and the list itself is named after the
+    last crumb so the list is not an unnamed item either.
     """
     site = str(site or "").rstrip("/")
     elements = []
@@ -185,16 +188,13 @@ def breadcrumb_list(items, site="https://campconditions.au"):
             "@type": "ListItem",
             "position": index,
             "name": label,
-            "item": {
-                "@type": "WebPage",
-                "@id": absolute,
-                "url": absolute,
-                "name": label,
-            },
+            "item": absolute,
         })
+    list_name = elements[-1]["name"] if elements else "Home"
     return {
         "@context": "https://schema.org",
         "@type": "BreadcrumbList",
+        "name": list_name,
         "itemListElement": elements,
     }
 

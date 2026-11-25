@@ -349,7 +349,12 @@ def closure_end(text, today=None):
 def wording_closes_camp(wording, camp_name=""):
     """A reservoir, basin or reopening note does not close the campground."""
     text = wording or ""
-    if re.search(r"\bre-?opened\b", text, re.I) and not re.search(r"\b(?:remains?|is|are|will be)\s+closed\b", text, re.I):
+    closed_now = re.search(
+        r"\b(?:remains?|is|are|will be)\s+(?:temporarily\s+|currently\s+)?closed\b|\btemporarily closed\b",
+        text,
+        re.I,
+    )
+    if re.search(r"\bre-?opened\b", text, re.I) and not closed_now:
         return False
     facility = re.search(r"\b(?:reservoir|basin)\b", text, re.I)
     if facility and not CAMP_RE.search(text):

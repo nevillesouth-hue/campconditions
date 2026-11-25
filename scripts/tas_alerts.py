@@ -3,7 +3,9 @@
 
 One fetch of the alerts page per build. The stored record is the headline,
 the affected park names, the link back to that page, and start and end dates
-when the page states them. The alert body is not kept. A closure whose start
+when the page states them. The alert body is not kept. Dates are passed
+through to the digest so vague headlines can show official start and end
+days. A closure whose start
 is still ahead is upcoming, not closed. A failed fetch reuses the last good
 record and is marked stale.
 """
@@ -28,7 +30,7 @@ UPCOMING_LABEL = "Upcoming closure"
 NO_ALERT_LABEL = "No current alert"
 HOBART = ZoneInfo("Australia/Hobart")
 DATE_FIELDS = ("start", "start_time", "end", "end_time")
-STORED_FIELDS = {"headline", "parks", "link", "reviewed", *DATE_FIELDS}
+STORED_FIELDS = {"headline", "parks", "link", "reviewed", "detail", *DATE_FIELDS}
 _MONTHS = {
     "january": 1, "february": 2, "march": 3, "april": 4, "may": 5, "june": 6,
     "july": 7, "august": 8, "september": 9, "october": 10, "november": 11, "december": 12,
@@ -678,12 +680,16 @@ def save_last_good(directory, alerts, fetched):
 
 
 def _stored_alert(row):
-    """Headline, parks, link and parsed dates. Never the alert body."""
+    """Headline, parks, link, official detail and parsed dates. Not raw HTML."""
     headline = str((row or {}).get("headline") or "").strip()
     if not headline:
         return None
     parks = [str(name).strip() for name in (row or {}).get("parks") or [] if str(name).strip()]
     stored = {"headline": headline, "parks": parks, "link": ALERTS_URL}
+    detail = re.sub(r"<[^>]+>", "", str((row or {}).get("detail") or ""))
+    detail = re.sub(r"\s+", " ", html.unescape(detail)).strip()
+    if detail:
+        stored["detail"] = detail[:600]
     reviewed = str((row or {}).get("reviewed") or "")
     if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}", reviewed):
         stored["reviewed"] = reviewed
@@ -732,17 +738,13 @@ def fetch_alerts(fetch_text, directory, now=None):
 
 
 def digest_document(result):
-    """Headline, park names and the alerts link. The alert body is not stored."""
+    """Headline, parks, official detail, dates and the alerts link for the digest."""
     alerts = []
     for alert in (result or {}).get("alerts") or []:
         stored = _stored_alert(alert)
         if not stored:
             continue
-        alerts.append({
-            "headline": stored["headline"],
-            "parks": stored.get("parks") or [],
-            "link": stored.get("link") or ALERTS_URL,
-        })
+        alerts.append(stored)
     return {"alerts": alerts, "link": ALERTS_URL, "fetched": str((result or {}).get("fetched") or "")}
 
 

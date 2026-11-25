@@ -139,7 +139,7 @@ def test_switch_on_shape():
     digest.write_digest(sa, rows, None, when, when.isoformat(), dest)
     html = open(os.path.join(dest, "digest.html"), encoding="utf-8").read()
     text = open(os.path.join(dest, "digest.txt"), encoding="utf-8").read()
-    for bit in ("Newly closed", "Reopened", "Closed, by region", "Coming up", "Chip in", "Forward to a mate", "{{{EMAIL}}}", "{{{unsubscribe_token}}}"):
+    for bit in ("Newly closed", "Reopened", "Closed, by region", "Coming up", "Chip in", "Tell a mate about CampConditions", "{{{RESEND_UNSUBSCRIBE_URL}}}"):
         expect(bit in html, "SA digest has " + bit)
     expect("Do not send" not in html and "Do not send" not in text, "SA digest has no do-not-send line")
     expect("Fire danger and Total Fire Ban" not in html and "cfs.sa.gov.au" in html, "SA digest links out and does not list a rating")
@@ -158,7 +158,7 @@ def test_switch_on_shape():
     digest.write_digest(tas, tas_rows, None, when, when.isoformat(), tas_dest, alerts)
     tas_html = open(os.path.join(tas_dest, "digest.html"), encoding="utf-8").read()
     tas_text = open(os.path.join(tas_dest, "digest.txt"), encoding="utf-8").read()
-    for bit in ("Newly closed", "Reopened", "Closed, by region", "Park alerts this week", "Road closed", "Freycinet National Park", "Parks and Wildlife Service alerts", "{{{EMAIL}}}", "{{{unsubscribe_token}}}", "Chip in"):
+    for bit in ("Newly closed", "Reopened", "Closed, by region", "Park alerts this week", "Road closed", "Freycinet National Park", "Parks and Wildlife Service alerts", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Chip in"):
         expect(bit in tas_html, "TAS digest has " + bit)
     expect("Do not send" not in tas_html and "Do not send" not in tas_text, "TAS digest has no do-not-send line")
     expect("fire.tas.gov.au" in tas_html and "alert.tas.gov.au" in tas_html, "TAS warnings are links")

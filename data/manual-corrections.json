@@ -15869,9 +15869,14 @@
   "website": "https://www.parks.vic.gov.au/places-to-see/sites/o'toole-flat-camping-area",
   "access_notes": "Eildon-Jamieson Road only; 4WD with small set-ups recommended, not long or towing vehicles",
   "needs_review": true,
-  "source_note": "PV site page: re-opened; vehicle access from Eildon-Jamieson Road only; for self-sufficient visitors; 4WD with small set-ups recommended; fireplaces temporarily removed, no solid-fuel fires (gas/electric only); no dogs, generators or horses.",
+  "source_note": "Parks Victoria O'Toole Flat Camping Area page, checked 26 Nov 2026: Gap Track and O'Toole Flat are closed during bridge construction works, expected to be finished by mid-December. Earlier 19 Oct note that the site had re-opened is superseded by this closure.",
   "description": "O'Toole Flat: small camping area in Lake Eildon National Park for self-sufficient visitors, reached from Eildon-Jamieson Road. Best for 4WDs with small set-ups. No dogs or generators; fireplaces are temporarily removed, so no wood fires.",
-  "checked_date": "2026-10-19"
+  "checked_date": "2026-11-26",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/o'toole-flat-camping-area",
+   "wording": "Construction of a replacement bridge on Gap Track over O’Toole Creek began in mid-October and is expected to be finished by mid-December. During this time, the section of Gap Track, between Pinnacle Track and Eildon-Jameson Road, is closed. The O’Toole Flat Camping Area accessed by this section of Gap Track is also closed.",
+   "checked_date": "2026-11-26"
+  }
  },
  "n2852358828": {
   "fee_type": "free",
@@ -15902,9 +15907,24 @@
   "checked_date": "2026-10-19"
  },
  "n1808392132": {
-  "exclude": true,
-  "exclude_reason": "PV Cobboboonee page: Surry Ridge Campground closed (no toilets); overnight camping not permitted, picnic ground is day use only. Re-check later.",
-  "checked_date": "2026-10-19"
+  "new": true,
+  "name": "Surry Ridge Campground",
+  "lat": -38.18389,
+  "lon": 141.50417,
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/cobboboonee-national-park",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/cobboboonee-national-park",
+  "source_note": "Official Parks Victoria closure is listed on the Cobboboonee National Park page (no separate site page). Coordinates are the existing OSM node n1808392132 (previously excluded). Official notices also spell this Surrey Ridge.",
+  "description": "Campground in Cobboboonee National Park. Parks Victoria says overnight camping is not permitted while the campground is closed due to lack of toilet facilities; the picnic ground remains open for day visitors.",
+  "category": "free",
+  "dogs": "no",
+  "needs_review": false,
+  "checked_date": "2026-11-26",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/cobboboonee-national-park",
+   "wording": "Surry Ridge Campground in Cobboboonee National Park is closed due to lack of toilet facilities. Camping overnight is not permitted at Surry Ridge campground. The Surry Ridge picnic ground is available for day visitor use.",
+   "checked_date": "2026-11-26"
+  }
  },
  "w386943409": {
   "dogs": "no",
@@ -16828,5 +16848,75 @@
   "exclude": true,
   "exclude_reason": "Towong Reserve is in New South Wales (operator Snowy Valleys Council) and is listed on the NSW site.",
   "checked_date": "2026-11-02"
+ },
+ "n1490233468": {
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/the-fortress-hike-in-camp",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-fortress-hike-in-camp",
+  "source_note": "Official Parks Victoria name is The Fortress Hike-in Camp (Victoria Range Remote and Natural Area, Grampians). Official page coordinates (-37.311300, 142.305652) match this OSM node within 15 m. Existing page name and slug are kept so the URL does not change.",
+  "checked_date": "2026-11-26",
+  "needs_review": false,
+  "dogs": "no",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/the-fortress-hike-in-camp",
+   "wording": "The Fortress Walk and The Fortress Hike-in Camp remain closed to visitors due to track damage from the 2024/25 summer bushfires.",
+   "checked_date": "2026-11-26"
+  }
+ },
+ "new:cubbys-camp-cobboboonee-forest-park": {
+  "new": true,
+  "name": "Cubby's Camp",
+  "lat": -38.237541,
+  "lon": 141.594859,
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---cubbys-camping-area",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---cubbys-camping-area",
+  "description": "Great South West Walk camping area in Cobboboonee Forest Park.",
+  "category": "free",
+  "dogs": "no",
+  "needs_review": false,
+  "checked_date": "2026-11-26",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---cubbys-camping-area",
+   "wording": "Department of Energy, Environment and Climate Action have informed Parks Victoria that Cubby's Camp and adjoining sections of the Great South West Walk, located within Cobboboonee Forest Park, are temporarily closed. It is unknown when the site and sections of walking track will be reopened.",
+   "checked_date": "2026-11-26"
+  }
+ },
+ "new:cut-out-camp-cobboboonee-national-park": {
+  "new": true,
+  "name": "Cut-Out Camp",
+  "lat": -38.185055,
+  "lon": 141.499339,
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---cut-out-camping-area",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---cut-out-camping-area",
+  "description": "Great South West Walk camping area on the eastern fringe of Cobboboonee National Park.",
+  "category": "free",
+  "dogs": "no",
+  "needs_review": false,
+  "checked_date": "2026-11-26",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/sites/great-south-west-walk---cut-out-camping-area",
+   "wording": "Works are underway to repair damage to Ralphs Bridge. Cut-Out Camp is closed to visitors for the duration of the works which are expected to conclude 12 February 2027.",
+   "checked_date": "2026-11-26"
+  }
+ },
+ "new:stockyard-campground-wilsons-promontory-national-park": {
+  "new": true,
+  "name": "Stockyard Campground",
+  "lat": -38.8597471,
+  "lon": 146.2448452,
+  "operator": "Parks Victoria",
+  "website": "https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/where-to-stay/stockyard-picnic-area",
+  "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/where-to-stay/stockyard-picnic-area",
+  "description": "Stockyard campground and picnic area near the Wilsons Promontory National Park entrance. Parks Victoria says camping is currently not permitted.",
+  "category": "free",
+  "needs_review": false,
+  "checked_date": "2026-11-26",
+  "closed_override": {
+   "source_url": "https://www.parks.vic.gov.au/places-to-see/parks/wilsons-promontory-national-park/where-to-stay/stockyard-picnic-area",
+   "wording": "Stockyard Campground and Toilet Block are closed until further notice.",
+   "checked_date": "2026-11-26"
+  }
  }
 }

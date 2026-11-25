@@ -7,6 +7,7 @@ empty.
 """
 import datetime as dt
 import html
+import digest_layout
 import json
 import os
 
@@ -96,7 +97,7 @@ def render(camps, generated, previous=None):
     copy = (states.by_slug("sa").get("copy") or {})
     closed, partial, upcoming, reopened = _groups(camps, previous)
     date = generated.strftime("%-d %B %Y")
-    subject = copy["digest_subject"].format(closed=len(closed))
+    subject = digest_layout.plain_subject(copy["digest_subject"].format(closed=len(closed)))
     style = "font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:22px;color:#222222;"
 
     def h2(title):
@@ -121,11 +122,11 @@ def render(camps, generated, previous=None):
         para(fire_summary(camps)),
         para(copy.get("digest_warnings") or ""),
         para('<strong>Been somewhere lately?</strong> <a href="https://campconditions.au/report/" style="color:#2f5d3a;">Report conditions</a> — how full, road access, water and phone coverage.'),
-        para('<strong>The digests stay free.</strong> If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty.<br><a href="https://campconditions.au/support" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.'),
+        para(digest_layout.tip_block_html()),
     ]
     foot = (copy.get("digest_footer") or "") + (
         'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
-        '<a href="https://campconditions.au/unsubscribe/" style="color:#666666;">Unsubscribe</a>'
+        + ('<a href="%s" style="color:#666666;">Unsubscribe from this digest</a>' % digest_layout.unsubscribe_href())
     )
     body = "".join(rows) + '<tr><td style="%sfont-size:12px;line-height:18px;color:#666666;padding-top:24px;">%s</td></tr>' % (style, foot)
     doc = """<!DOCTYPE html><html lang="en-AU"><head><meta charset="utf-8"><title>%s</title></head>
@@ -137,6 +138,7 @@ def render(camps, generated, previous=None):
 %s</table></td></tr></table></body></html>""" % (_esc(subject), style, body)
     text = doc[doc.index("<body"):]
     text = text.replace("<br>", "\n")
+    text = __import__("re").sub(r'<a href="https://campconditions.au/support/?"[^>]*>(.*?)</a>', r"\1", text)
     text = html.unescape(__import__("re").sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", text))
     text = __import__("re").sub(r"</tr>", "\n", text)
     text = __import__("re").sub(r"<[^>]+>", "", text)

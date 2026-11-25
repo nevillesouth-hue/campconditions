@@ -66,6 +66,8 @@ def site_phrase(name):
     too, so a camp named after its park matches the park's campground alert.
     """
     head = (name or "").split("(")[0].split(" - ")[0]
+    # Drop apostrophes first, same as _fold, so "O'Tooles Flat" matches "O'Toole Flat".
+    head = re.sub(r"['\u2019]", "", head)
     head = re.sub(r"\bsite\s+\d+\b", " ", head, flags=re.I)
     head = re.sub(r"\b(campgrounds?|camping areas?|camping sites?|bush camps?|picnic(?: and camping)? areas?|camps?)\b", " ", head, flags=re.I)
     phrase = re.sub(r"[^a-z0-9]+", " ", head.lower()).strip()

@@ -331,15 +331,20 @@ else:
 _qld_priv = os.path.isdir(os.path.join(D, "qld"))
 # Privacy names every state with an open digest. SA and TAS switch on together (release.signup in config/states).
 _five_priv = all(json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "states", _s + ".json"), encoding="utf-8")).get("release", {}).get("signup") is True for _s in ("sa", "tas"))
-_priv_date = "Last updated 19 November 2026" if _five_priv else ("Last updated 4 November 2026" if _qld_priv else "Last updated 27 October 2026")
+_priv_date = "Last updated 25 November 2026"
 _priv_states = "Victoria, New South Wales, Queensland, South Australia and Tasmania" if _five_priv else ("Victoria, New South Wales and Queensland" if _qld_priv else "Victoria and New South Wales")
 priv_path = os.path.join(D, "privacy", "index.html")
 if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
 else:
   priv = open(priv_path, encoding="utf-8").read()
-  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "never sell, rent or share", "Changes to this policy"):
+  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "don't sell, rent or swap", "Changes to this policy",
+              "Trip Check waitlist", "first name", "camper report", "Stripe", "never your full card number", "last four digits", "don't track opens or clicks",
+              "sent from Japan", "stored in the United States", "keyed hash", "6 years after the last email", "backup copies of the list",
+              "date and time you confirmed", "12 months"):
     if bit not in priv: bad.append(("/privacy/", bit))
+  for gone in ("date and time of your sign-up", "form you used", "version of the wording", "anonymous", "de-identified"):
+    if gone in priv: bad.append(("/privacy/", "must not claim: " + gone))
 for r, _, fs in os.walk(D):
   if draft_dir(r): continue
   for f in fs:
@@ -716,6 +721,8 @@ parks_sa_check = subprocess.run([sys.executable, os.path.join(root, "scripts", "
 if parks_sa_check.returncode != 0: bad.append(("parks sa closures", "test_parks_sa.py failed"))
 one_list = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_one_list.py")], cwd=root)
 if one_list.returncode != 0: bad.append(("one-list", "test_one_list.py failed"))
+consent_ret = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_consent_retention.py")], cwd=root)
+if consent_ret.returncode != 0: bad.append(("consent retention", "test_consent_retention.py failed"))
 sa_tas = subprocess.run([sys.executable, os.path.join(root, "scripts", "test_sa_tas_signup.py")], cwd=root)
 if sa_tas.returncode != 0: bad.append(("sa-tas signup", "test_sa_tas_signup.py failed"))
 trip_check = subprocess.run(["node", os.path.join(root, "scripts", "test_trip_check.mjs")], cwd=root, capture_output=True, text=True)

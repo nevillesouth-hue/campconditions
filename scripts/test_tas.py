@@ -139,7 +139,7 @@ def main():
     sample_html = open(os.path.join(ROOT, "data", "tas", "fixtures", "alerts-sample.html"), encoding="utf-8").read()
     parsed = tas_alerts.parse_html(sample_html)
     expect("SECRET" not in json.dumps(parsed), "alert body is not stored")
-    expect(all(set(row) <= tas_alerts.STORED_FIELDS for row in parsed), "stored fields are headline, parks, link and dates")
+    expect(all(set(row) <= tas_alerts.STORED_FIELDS for row in parsed), "stored fields stay within the allowed set")
     bay = {
         "name": "Sample Bay Campground No 1",
         "aliases": ["Sample Bay 1", "Sample Bay No 1"],

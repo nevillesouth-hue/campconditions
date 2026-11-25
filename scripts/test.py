@@ -1,16 +1,18 @@
 import gzip,os,re,json,sys,html,math,subprocess,tempfile,urllib.parse,hashlib
 def tip_presentation(label, html_blob, txt_blob, bad):
-  """Approved digest tip presentation (HTML + plain text)."""
+  """Approved digest tip presentation (HTML + plain text). Chip in appears once, in the tip block."""
   if '<strong>Been somewhere lately?</strong>' not in html_blob: bad.append((label, "bold report"))
   if '<strong>The digests stay free.</strong> If they’re useful' not in html_blob or html_blob.count("<strong>The digests stay free") != 1: bad.append((label, "bold tip opener"))
-  if '<br><a href="https://campconditions.au/support" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.' not in html_blob: bad.append((label, "chip in link"))
-  if html_blob.count("campconditions.au/support") != 2 or ">https://campconditions.au/support" in html_blob or "→ Chip in" in html_blob or "campconditions.au/support/" in html_blob: bad.append((label, "support url visible"))
-  for bit in ("Free every Thursday.", "Forward to a mate", "Chip in</a> (optional)", "Know someone heading bush this summer?", 'href="https://campconditions.au/"', ">campconditions.au</a> to get these free updates every Thursday.", "mailto:?subject="):
+  if '<br><a href="https://campconditions.au/support/" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.' not in html_blob: bad.append((label, "chip in link"))
+  if html_blob.count("campconditions.au/support") != 1 or ">https://campconditions.au/support" in html_blob or "→ Chip in" in html_blob: bad.append((label, "support url visible"))
+  if "Chip in</a> (optional)" in html_blob: bad.append((label, "chip in twice"))
+  for bit in ("Free every Thursday.", "Tell a mate about CampConditions", "What matters this weekend", "Know someone heading bush this summer?", 'href="https://campconditions.au/"', ">campconditions.au</a> to get these free updates every Thursday.", "mailto:?subject="):
     if bit not in html_blob: bad.append((label, bit))
   if txt_blob:
     if "\nChip in $5, $10 or $20\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
     if "mailto:" in txt_blob: bad.append((label + " txt", "mailto"))
-    for bit in ("Free every Thursday.", "Forward to a mate", "Chip in (optional)", "Know someone heading bush this summer?", "campconditions.au (https://campconditions.au/)"):
+    if "Chip in (optional)" in txt_blob: bad.append((label + " txt", "chip in twice"))
+    for bit in ("Free every Thursday.", "Tell a mate about CampConditions", "What matters this weekend", "Know someone heading bush this summer?", "campconditions.au (https://campconditions.au/)"):
       if bit not in txt_blob: bad.append((label + " txt", bit))
   for blob, chip in ((html_blob, "Chip in</a> $5, $10 or $20"), (txt_blob, "Chip in $5, $10 or $20")):
     if not blob: continue
@@ -367,18 +369,17 @@ if digest.returncode != 0:
 else:
   for name in ("digest.html", "digest.txt"):
     blob = open(os.path.join(draft, name), encoding="utf-8").read()
-    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}", "Unsubscribe"):
+    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe"):
       if bit not in blob: bad.append((name, bit))
+    if "https://campconditions.au/unsubscribe/" in blob or "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}" in blob:
+      bad.append((name, "form unsubscribe link"))
   if 'src="https://campconditions.au/assets/brand/logo-160.png"' not in open(os.path.join(draft, "digest.html"), encoding="utf-8").read():
     bad.append(("digest.html", "logo"))
-    if "mailto:campconditions@outlook.com?subject=Unsubscribe" in blob or "{{{RESEND_UNSUBSCRIBE_URL}}}" in blob:
-      bad.append((name, "old unsubscribe link"))
   meta = json.load(open(os.path.join(draft, "meta.json"), encoding="utf-8"))
   headers = meta.get("headers") or {}
-  if headers.get("List-Unsubscribe") != "<https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}&t={{{unsubscribe_token}}}>":
-    bad.append(("digest meta", "List-Unsubscribe"))
-  if headers.get("List-Unsubscribe-Post") != "List-Unsubscribe=One-Click":
-    bad.append(("digest meta", "List-Unsubscribe-Post"))
+  # Resend Broadcasts attach List-Unsubscribe itself. Do not put a form URL or merge tag in headers.
+  if "campconditions.au/unsubscribe" in json.dumps(headers):
+    bad.append(("digest meta", "form unsubscribe header"))
   tip_html = open(os.path.join(draft, "digest.html"), encoding="utf-8").read()
   tip_txt = open(os.path.join(draft, "digest.txt"), encoding="utf-8").read()
   tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
@@ -1154,15 +1155,32 @@ if townmod.place_rank({"place": "town", "name": "Bendigo"}) != 0 or townmod.plac
 if townmod.place_rank({"place": "isolated_dwelling", "name": "X"}) is not None: bad.append(("towns", "skip"))
 before = os.path.getmtime(corr_path)
 corrections = json.load(open(corr_path, encoding="utf-8"))
-if not isinstance(corrections, dict) or len(corrections) != 1336 or "drop" in corrections or "overrides" in corrections:
+if not isinstance(corrections, dict) or len(corrections) != 1340 or "drop" in corrections or "overrides" in corrections:
   bad.append(("corrections", "shape"))
-if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 221: bad.append(("corrections", "exclusions"))
+if sum(1 for v in corrections.values() if isinstance(v, dict) and v.get("exclude")) != 220: bad.append(("corrections", "exclusions"))
 if corrections.get("w1474028458", {}).get("exclude") is not True or "no-private-caravan-parks" not in str(corrections.get("w1474028458", {}).get("exclude_reason")):
   bad.append(("corrections", "browns water holes"))
 if corrections.get("w204763505", {}).get("name") != "Wye River Beachfront Campground":
   bad.append(("corrections", "wye river way"))
-if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 500:
+if sum(1 for k, v in corrections.items() if str(k).startswith("new:") and isinstance(v, dict) and not v.get("exclude") and "lat" in v and "lon" in v) != 503:
   bad.append(("corrections", "new sites"))
+for _key, _name in (
+  ("new:cubbys-camp-cobboboonee-forest-park", "Cubby's Camp"),
+  ("new:cut-out-camp-cobboboonee-national-park", "Cut-Out Camp"),
+  ("new:stockyard-campground-wilsons-promontory-national-park", "Stockyard Campground"),
+  ("n1808392132", "Surry Ridge Campground"),
+):
+  _row = corrections.get(_key) or {}
+  if _row.get("name") != _name or _row.get("exclude") or "lat" not in _row or "lon" not in _row:
+    bad.append(("corrections", _key))
+  if str(_row.get("label") or "").lower() == "no rating":
+    bad.append(("corrections", "no rating", _key))
+  if not (_row.get("closed_override") or {}).get("wording"):
+    bad.append(("corrections", "missing closure", _key))
+if not (corrections.get("n3900592581") or {}).get("closed_override"):
+  bad.append(("corrections", "otoole override"))
+if not (corrections.get("n1490233468") or {}).get("closed_override"):
+  bad.append(("corrections", "fortress override"))
 import facts
 if facts.melbourne_iso("2026-12-23T13:00:00Z") != "2026-12-24": bad.append(("facts", "ingrams reopen"))
 if facts.melbourne_iso("2027-01-31T13:00:00Z") != "2027-02-01": bad.append(("facts", "pine start"))
@@ -1746,6 +1764,52 @@ if farley_found["closed"] != ["In the interest of visitor safety, this area is c
   bad.append(("check_parksvic", "farley " + repr(farley_found["closed"])))
 if check_parksvic.site_phrase("Farley Bend Camping Area Site 2") != "farley bend":
   bad.append(("check_parksvic", "farley phrase"))
+if check_parksvic.site_phrase("O'Tooles Flat") != "otooles flat":
+  bad.append(("check_parksvic", "otoole phrase"))
+otoole_html = """
+<div class="change-of-conditions__item">
+  <h3 class="change-of-conditions__title-text">Gap Track &amp; O’Toole Flat Camping Area is closed during bridge construction works</h3>
+  <div class="change-of-conditions__content"><p>The O’Toole Flat Camping Area is closed during bridge construction works. Works are expected to be finished by mid-December.</p></div>
+</div>
+"""
+if not check_parksvic._phrase_in(check_parksvic.site_phrase("O'Tooles Flat"), "Gap Track & O’Toole Flat Camping Area is closed"):
+  bad.append(("check_parksvic", "otoole phrase_in"))
+otoole_found = check_parksvic.classify_html(otoole_html, "O'Tooles Flat")
+if not otoole_found["closed"]:
+  bad.append(("check_parksvic", "otoole not closed " + repr(otoole_found)))
+gippsland_found = check_parksvic.classify_html(otoole_html, "Little OTooles")
+if gippsland_found["closed"]:
+  bad.append(("check_parksvic", "little otooles wrongly closed"))
+import digest_layout
+if digest_layout.plain_subject("VIC weekend: wet Fri &amp; Sat, fine Sun, 10 closures") != "VIC weekend: wet Fri & Sat, fine Sun, 10 closures":
+  bad.append(("digest_layout", "subject entities"))
+if digest_layout.plain_subject("VIC weekend: wet Fri & Sat, fine Sun, 10 closures") != "VIC weekend: wet Fri & Sat, fine Sun, 10 closures":
+  bad.append(("digest_layout", "plain ampersand"))
+if not digest_layout.subject_is_plain("wet Fri & Sat") or digest_layout.subject_is_plain("wet Fri &amp; Sat"):
+  bad.append(("digest_layout", "plain check"))
+if digest_layout.unsubscribe_href() != "{{{RESEND_UNSUBSCRIBE_URL}}}":
+  bad.append(("digest_layout", "unsub href"))
+if digest_layout.uses_resend_unsubscribe('<a href="https://campconditions.au/unsubscribe/">Unsubscribe</a>'):
+  bad.append(("digest_layout", "form url accepted"))
+if not digest_layout.uses_resend_unsubscribe('<a href="{{{RESEND_UNSUBSCRIBE_URL}}}">Unsubscribe from this digest</a>'):
+  bad.append(("digest_layout", "merge tag rejected"))
+
+if digest_layout.collapse_weather_lines([
+    "Adelaide: sunny, tops of 28–32°",
+    "Fleurieu: sunny, tops of 28–32°",
+    "Riverland: showers, 4–25 mm",
+    "Limestone Coast: showers, 4–25 mm",
+]) != [
+    "Adelaide and Fleurieu: sunny, tops of 28–32°",
+    "Riverland and Limestone Coast: showers, 4–25 mm",
+]:
+  bad.append(("digest_layout", "collapse weather"))
+if digest_layout.SA_FLOOD_CAVEAT_SLOT != "after_closures_before_weather":
+  bad.append(("digest_layout", "innamincka slot"))
+if "Chip in" in digest_layout.top_line_html("mailto:x"):
+  bad.append(("digest_layout", "top line still has chip in"))
+if digest_layout.tip_block_html().count(">Chip in<") != 1 or "Chip in</a> (optional)" in digest_layout.tip_block_html():
+  bad.append(("digest_layout", "tip block chip in count"))
 if not check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see/sites/desert-discovery-walk---kiata-to-mallee-camp"):
   bad.append(("check_parksvic", "camp url"))
 if check_parksvic.campground_url("https://www.parks.vic.gov.au/places-to-see/parks/little-desert-national-park"):

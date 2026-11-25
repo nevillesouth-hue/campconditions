@@ -369,7 +369,7 @@ if digest.returncode != 0:
 else:
   for name in ("digest.html", "digest.txt"):
     blob = open(os.path.join(draft, name), encoding="utf-8").read()
-    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe"):
+    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe from this digest"):
       if bit not in blob: bad.append((name, bit))
     if "https://campconditions.au/unsubscribe/" in blob or "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}" in blob:
       bad.append((name, "form unsubscribe link"))

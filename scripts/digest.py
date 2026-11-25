@@ -132,7 +132,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest, alerts
     unsub = digest_layout.unsubscribe_href()
     foot = (copy["digest_footer"]
             + f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
-            + f'<a href="{unsub}" style="color:#666666;">Unsubscribe</a>')
+            + f'<a href="{unsub}" style="color:#666666;">Unsubscribe from this digest</a>')
     body = "".join(body_rows) + f'<tr><td style="{style}font-size:12px;line-height:18px;color:#666666;padding-top:24px;">{foot}</td></tr>'
     doc = f"""<!DOCTYPE html><html lang="en-AU"><head><meta charset="utf-8"><title>{e(subject)}</title></head>
 <body style="margin:0;background:#fbfaf6;"><div style="display:none;max-height:0;overflow:hidden;">{e(preview)}</div>
@@ -141,7 +141,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest, alerts
 <tr><td style="padding-top:16px;"><img src="https://campconditions.au/assets/brand/logo-160.png" width="77" height="77" alt="CampConditions.au" style="display:block;border:0;"></td></tr>
 <tr><td style="{style}font-size:22px;line-height:28px;font-weight:bold;color:#2f5d3a;padding-top:8px;">CampConditions.au</td></tr>
 {body}</table></td></tr></table></body></html>"""
-    txt = re.sub(r"<br>", "\n", doc[doc.index("<body"):]); txt = re.sub(r'<a href="mailto:[^"]*"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="https://campconditions.au/support"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", txt)
+    txt = re.sub(r"<br>", "\n", doc[doc.index("<body"):]); txt = re.sub(r'<a href="mailto:[^"]*"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="https://campconditions.au/support/?"[^>]*>(.*?)</a>', r"\1", txt); txt = re.sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", txt)
     txt = re.sub(r"</tr>", "\n", txt); txt = html.unescape(re.sub(r"<[^>]+>", "", txt)); txt = re.sub(r"\n\s*\n+", "\n\n", txt).strip()
     os.makedirs(dest, exist_ok=True)
     open(os.path.join(dest, "digest.html"), "w", encoding="utf-8").write(doc)

@@ -138,6 +138,7 @@ def render(camps, generated, previous=None):
 %s</table></td></tr></table></body></html>""" % (_esc(subject), style, body)
     text = doc[doc.index("<body"):]
     text = text.replace("<br>", "\n")
+    text = __import__("re").sub(r'<a href="https://campconditions.au/support/?"[^>]*>(.*?)</a>', r"\1", text)
     text = html.unescape(__import__("re").sub(r'<a href="([^"]*)"[^>]*>(.*?)</a>', r"\2 (\1)", text))
     text = __import__("re").sub(r"</tr>", "\n", text)
     text = __import__("re").sub(r"<[^>]+>", "", text)

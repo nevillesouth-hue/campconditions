@@ -1425,6 +1425,36 @@ if nswcond.closure_for(_reserve("Towarri National Park", "NP"), "Washpools campg
     bad.append(("alerts", "washpools exempt"))
 if not nswcond.keys_match("Alexander's Hut campground", "Alexanders Hut campground"):
     bad.append(("alerts", "apostrophe"))
+if not nswcond.keys_match("Mungo Main Camp campground", "Main campground"):
+    bad.append(("alerts", "mungo main campground"))
+if nswcond.keys_match("Some Other campground", "Main campground"):
+    bad.append(("alerts", "main campground over-match"))
+# Upcoming NPWS closures say "All parts will be closed" rather than "are closed".
+_mungo_api = json.dumps({"AlertsMeta": {"LocationAlerts": [
+    {"ContentDataFeedItemId": "mc", "Name": "Main campground", "Type": "Campground", "ParentName": "Mungo National Park"},
+    {"ContentDataFeedItemId": "bc", "Name": "Belah campground", "Type": "Campground", "ParentName": "Mungo National Park"},
+]}, "Alerts": [
+    _api_alert("Closure", "Upcoming emergency closure today due to storms and severe weather",
+               "This area is closed due to forecast severe weather conditions.",
+               "Some parts of [Mungo National Park](/visit-a-park/parks/mungo-national-park)",
+               [("Park", "Mungo National Park", False, "Some parts will be closed.", "mp"),
+                ("Campground", "Main campground", True, "All parts will be closed.", "mc"),
+                ("Campground", "Belah campground", True, "All parts will be closed.", "bc")],
+               start="2026-11-26T03:00:00", end="2026-11-30T03:00:00", status="Upcoming"),
+]}).encode()
+_mungo_items, _ = nswcond.parse_api(_mungo_api)
+_mungo_idx = nswcond.index_closures(_mungo_items, [_reserve("Mungo National Park", "NP")])
+_mungo_morning = __import__("datetime").datetime(2026, 11, 26, 6, 0, tzinfo=facts.MELBOURNE)
+_mungo_afternoon = __import__("datetime").datetime(2026, 11, 26, 15, 0, tzinfo=facts.MELBOURNE)
+for _camp in ("Mungo Main Camp campground", "Belah campground"):
+    _hit = nswcond.lookup_closure(_mungo_idx, _reserve("Mungo National Park", "NP"), _camp, _mungo_morning)
+    if not _hit or _hit.get("kind") != "upcoming" or _hit.get("start") != "2026-11-26":
+        bad.append(("alerts api", "mungo upcoming " + _camp, _hit))
+    _hit = nswcond.lookup_closure(_mungo_idx, _reserve("Mungo National Park", "NP"), _camp, _mungo_afternoon)
+    if not _hit or _hit.get("kind") != "current":
+        bad.append(("alerts api", "mungo current " + _camp, _hit))
+if nswcond.lookup_closure(_mungo_idx, _reserve("Mungo National Park", "NP"), "Vigars Well picnic area", _mungo_afternoon):
+    bad.append(("alerts api", "mungo picnic closed as a camp"))
 _near = {"title": "Edge National Park", "title_norm": "edge national park", "name_norm": "edge", "abbrev": "np", "prep": nswcond._prepare([[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]])}
 _grid = nswcond._index([_near])
 if not nswcond.reserves_at(_grid, -0.0004, 0.5) or nswcond.reserves_at(_grid, -0.002, 0.5):
@@ -2086,8 +2116,18 @@ if os.path.isfile(nsw_index):
                "/tas/camp/new-pelion-hut-tas-list-cs-62194 /tas/camp/new-pelion-hut/ 301",
                "/tas/camp/waterfall-valley-hut-tas-list-cs-62192/ /tas/camp/waterfall-valley-hut/ 301",
                "/tas/camp/windermere-hut-tas-list-cs-62186 /tas/camp/windermere-hut/ 301",
-               "/tas/camp/wild-dog-creek-campsite-tas-list-cs-62066/ /tas/camp/wild-dog-creek-campsite/ 301"):
+               "/tas/camp/wild-dog-creek-campsite-tas-list-cs-62066/ /tas/camp/wild-dog-creek-campsite/ 301",
+               "/nsw/camp/proposed-comeroo-camping-area/ /nsw/camp/comeroo-campground/ 301",
+               "/qld/camp/carter-creek-camping-area-n8084810873/ /qld/camp/carter-creek-camping-area/ 301"):
     if line not in redirects: bad.append(("_redirects", line))
+  if os.path.isdir(os.path.join(D, "nsw", "camp", "proposed-comeroo-camping-area")):
+    bad.append(("comeroo", "old proposed slug still built"))
+  if not os.path.isfile(os.path.join(D, "nsw", "camp", "comeroo-campground", "index.html")):
+    bad.append(("comeroo", "renamed page missing"))
+  if os.path.isdir(os.path.join(D, "qld", "camp", "carter-creek-camping-area-n8084810873")):
+    bad.append(("carter creek", "osm duplicate still built"))
+  if not os.path.isfile(os.path.join(D, "qld", "camp", "carter-creek-camping-area", "index.html")):
+    bad.append(("carter creek", "qpws page missing"))
   terms = open(os.path.join(D, "terms", "index.html"), encoding="utf-8").read()
   if "Terms of use" not in terms or "as is, without warranty" not in terms or "Victoria." not in terms or "New South Wales." not in terms or "governing law" in terms.lower(): bad.append(("terms", "wording"))
   if "NPWS" not in about or "NSW Rural Fire Service" not in about or "Spatial Services" not in about or "livetraffic.com" not in about: bad.append(("about", "nsw credits"))
@@ -2441,6 +2481,12 @@ for _c in feed["camps"]:
     if _c.get("status") == "closed" and not _rec.get("reopen"):
         _href = urllib.parse.urlparse(_c.get("url") or "").path
         if _href and f'href="{_href}"' not in _wk: bad.append(("/closures-this-weekend/", "missing closed camp", _c.get("slug")))
+# Weekday-only and Friday-ending closures must not read as closed for the weekend.
+for _slug in ("flea-creek-campground", "lake-eckerboon-campground", "princess-hills-camping-area",
+              "wairuna-camping-area", "wairuna-campground"):
+    _row = next((c for c in feed["camps"] if c.get("slug") == _slug), None)
+    if _row and f'/camp/{_slug}/' in _wk:
+        bad.append(("/closures-this-weekend/", "weekday or friday-ending still listed", _slug))
 # NPWS clock times are kept beside the ISO dates and spoken on the camp page.
 if (_b1 or {}).get("start_time") != "14:00" or (_b1 or {}).get("reopen_time") != "10:00":
     bad.append(("alerts", "berlang clock", _b1))
@@ -2492,6 +2538,120 @@ if _q_sum["closed"] != 1 or _q_sum["upcoming"] != 1: bad.append(("qld", "summary
 # 'up to and including' is inclusive, and ordinals are read.
 _q_t = qldc.timing("The camping area is closed from 1 November up to and including 29th of November 2026.", _q_now)
 if _q_t.get("reopen") != "2026-11-30": bad.append(("qld", "inclusive end", _q_t))
+# Listed camping areas, including OSM name variants, and camps kept open.
+_q_riny_estates = qldc.estate_records({"estates": [
+    {"name": "Rinyirru (Lakefield) National Park (CYPAL)", "type": "National Park", "rings": _sq(144.0, -14.8)},
+]})
+_q_riny_desc = (
+    "Queensland Parks and Wildlife Service will close the following camping and day-use areas in "
+    "Rinyirru (Lakefield) National Park (CYPAL) from 1 November 2026 until the start of the annual "
+    "wet season closure on 1 December 2026 for management purposes.\n"
+    "Welcome Waterhole camping area\nSix Mile Lagoon camping area\nTwelve Mile Lagoon camping area\n"
+    "The following camping areas will remain open up to and including 30 November 2026 "
+    "(closed from 1 December 2026 for the annual wet season closure):\n"
+    "Kalpowar crossing camping area\nOld Laura camping area"
+)
+_q_riny_items = qldc.parse_rss(_q_rss([
+    ("Temporary closure of listed camping and day-use areas: Rinyirru (Lakefield) National Park (CYPAL)",
+     _q_riny_desc, "Rinyirru (Lakefield) National Park (CYPAL)"),
+]))
+# The fixture already has the list in the description, as after a page enrich.
+_q_riny_items[0]["desc"] = _q_riny_desc
+_q_riny_now = _qdt.datetime(2026, 11, 26, 8, 0, tzinfo=qldc.BRISBANE)
+_q_riny_camps = [
+    {"name": "Welcome Waterhole Camping Area", "lat": -14.75, "lon": 144.05, "status": "check", "source": "osm"},
+    {"name": "Six Mile Waterhole Camping Area", "lat": -14.76, "lon": 144.06, "status": "check", "source": "osm"},
+    {"name": "Twelve Mile Lagoon Camping Area", "lat": -14.77, "lon": 144.07, "status": "check", "source": "osm"},
+    {"name": "Kalpowar Crossing", "lat": -14.78, "lon": 144.08, "status": "check", "source": "osm"},
+]
+qldc.apply_alert_items(_q_riny_camps, _q_riny_estates, _q_riny_items, _q_riny_now)
+for _c in _q_riny_camps[:3]:
+    if _c["status"] != "closed" or (_c.get("closure") or {}).get("reopen") != "2026-12-01":
+        bad.append(("qld", "listed rinyirru", _c["name"], _c.get("status"), _c.get("closure")))
+if _q_riny_camps[3]["status"] != "check" or _q_riny_camps[3].get("closure"):
+    bad.append(("qld", "kalpowar remains open", _q_riny_camps[3].get("status"), _q_riny_camps[3].get("closure")))
+# Halifax camping area 2 is named in the sentence "Camping area 2 at ... is closed".
+_q_hal_estates = qldc.estate_records({"estates": [
+    {"name": "Halifax Bay Wetlands National Park", "type": "National Park", "rings": _sq(146.5, -18.8)},
+]})
+_q_hal_items = qldc.parse_rss(_q_rss([
+    ("Camping area closure: Camping area 2, Halifax Bay Wetlands National Park",
+     "Camping area 2 at Halifax Bay Wetlands National Park is closed.",
+     "Halifax Bay Wetlands National Park"),
+]))
+_q_hal_camps = [
+    {"name": "Halifax Bay Wetland National Park camping area 1", "lat": -18.75, "lon": 146.55, "status": "check", "source": "osm"},
+    {"name": "Halifax Bay Wetland National Park camping area 2", "lat": -18.76, "lon": 146.56, "status": "check", "source": "osm"},
+]
+qldc.apply_alert_items(_q_hal_camps, _q_hal_estates, _q_hal_items, _q_riny_now)
+if _q_hal_camps[0]["status"] != "check" or _q_hal_camps[0].get("closure"):
+    bad.append(("qld", "halifax area 1 closed"))
+if _q_hal_camps[1]["status"] != "closed":
+    bad.append(("qld", "halifax area 2 not closed", _q_hal_camps[1].get("status")))
+# Middle Creek and Broadwater: list / entire-park wording as on the official pages.
+_q_eur_estates = qldc.estate_records({"estates": [
+    {"name": "Eurimbula National Park", "type": "National Park", "rings": _sq(151.5, -24.1)},
+]})
+_q_mid_desc = (
+    "Due to recent rainfall, sections of Middle Creek Road have deteriorated and become impassable. "
+    "As a result, the following areas will be closed between the 20th October and the 16th December 2026:\n"
+    "Middle Creek Campground\nMiddle Creek Road\nTanti Road"
+)
+_q_mid_items = qldc.parse_rss(_q_rss([
+    ("Closure of Middle Creek Road until further notice.", _q_mid_desc, "Eurimbula National Park"),
+]))
+_q_mid_items[0]["desc"] = _q_mid_desc
+_q_mid_camps = [{"name": "Middle Creek Camping Area", "lat": -24.05, "lon": 151.55, "status": "check", "source": "qpws"}]
+qldc.apply_alert_items(_q_mid_camps, _q_eur_estates, _q_mid_items, _q_riny_now)
+if _q_mid_camps[0]["status"] != "closed":
+    bad.append(("qld", "middle creek not closed", _q_mid_camps[0].get("status"), _q_mid_camps[0].get("closure")))
+_q_aber_estates = qldc.estate_records({"estates": [
+    {"name": "Broadwater, Abergowrie State Forest", "type": "State Forest", "rings": _sq(145.9, -18.4)},
+]})
+_q_aber_desc = (
+    "Closure status: Entire park is closed to the public\n"
+    "Entire park closure due to vandalism\n"
+    "Broadwater camping and day-use area is currently closed due significant vandalism in July 2026. "
+    "This closure includes:\nBroadwater day-use area\nBroadwater camping area."
+)
+_q_aber_items = qldc.parse_rss(_q_rss([
+    ("Temporary park closure: Broadwater, Abergowrie State Forest",
+     "Please see below update for current information:",
+     "Broadwater, Abergowrie State Forest"),
+]))
+_q_aber_items[0]["desc"] = _q_aber_desc
+_q_aber_camps = [{"name": "Broadwater Camping Area", "lat": -18.35, "lon": 145.95, "status": "check", "source": "qpws"}]
+qldc.apply_alert_items(_q_aber_camps, _q_aber_estates, _q_aber_items, _q_riny_now)
+if _q_aber_camps[0]["status"] != "closed":
+    bad.append(("qld", "abergowrie broadwater not closed", _q_aber_camps[0].get("status")))
+# Short RSS wording needs the official page; a page fetch fills the list.
+_q_short = qldc.parse_rss(_q_rss([
+    ("Temporary closure of listed camping and day-use areas: Rinyirru (Lakefield) National Park (CYPAL)",
+     "Queensland Parks and Wildlife Service will close the following camping and day-use areas in "
+     "Rinyirru (Lakefield) National Park (CYPAL) from 1 November 2026 until the start of the annual "
+     "wet season closure on 1 December 2026 for management purposes.",
+     "Rinyirru (Lakefield) National Park (CYPAL)"),
+]))[0]
+if not qldc.alert_needs_page(_q_short):
+    bad.append(("qld", "short listed alert should need the page"))
+_q_page = (
+    "<html><body><p>This alert applies to the following park: Rinyirru (Lakefield) National Park (CYPAL)</p>"
+    "<p>Queensland Parks and Wildlife Service will close the following camping and day-use areas "
+    "from 1 November 2026 until the start of the annual wet season closure on 1 December 2026.</p>"
+    "<ul><li>Welcome Waterhole camping area</li><li>Six Mile Lagoon camping area</li></ul>"
+    "<p>The following camping areas will remain open up to and including 30 November 2026:</p>"
+    "<ul><li>Kalpowar crossing camping area</li></ul>"
+    "<p>Important information about maps</p></body></html>"
+)
+if "Welcome Waterhole camping area" not in qldc.alert_page_text(_q_page):
+    bad.append(("qld", "alert page text missed list"))
+_q_fetched = []
+def _q_fetch(name, url, headers=None):
+    _q_fetched.append(url)
+    return _q_page
+qldc.enrich_alert_pages([_q_short], _q_fetch)
+if not _q_short.get("page_enriched") or "Welcome Waterhole camping area" not in _q_short["desc"]:
+    bad.append(("qld", "enrich did not fill listed camps"))
 # Permit-only council areas are excluded by default and kept only by the flag.
 _q_state = {"permit_only_areas": {"include_permit_only_areas": False, "lgas": ["Testshire Aboriginal Shire"]}}
 _q_lga = {"regions": [{"name": "Testshire Aboriginal Shire", "rings": _sq(142.0, -12.0)}, {"name": "Open Regional", "rings": _sq(150.0, -25.0)}]}

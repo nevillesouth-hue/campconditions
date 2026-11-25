@@ -63,7 +63,8 @@
    "note": "NPWS Visitor Area layer. Camping areas only (SubtypeCD 5001) are fetched when this state is built. Day use areas and cemeteries are not. CC BY. The layer has no fee, facility or closure fields.",
    "name_fixes": {
     "Sunburt Beach campground": "Sunburnt Beach campground",
-    "Alegboia campground": "Algeboia campground"
+    "Alegboia campground": "Algeboia campground",
+    "Proposed Comeroo Camping Area": "Comeroo campground"
    }
   },
   "nsw_suburbs": {

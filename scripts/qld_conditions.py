@@ -529,6 +529,10 @@ def whole_park_sentence(item, estate):
         keys = {nc.norm(v) for v in expand_park(subject)} | {loose_key(v) for v in expand_park(subject)}
         if estate["title_norm"] in keys or (estate["loose"] and estate["loose"] in keys):
             return sentence
+    # QPWS marks some alerts "Entire park is closed to the public" in the
+    # page body without repeating the park name in that sentence.
+    if re.search(r"\bentire park is closed\b|\bentire park closure\b", item.get("desc") or "", re.I):
+        return "Entire park is closed to the public."
     return ""
 
 
@@ -555,6 +559,30 @@ _FACILITY_WORDS = {"track", "tracks", "road", "roads", "trail", "trails", "walk"
 _CAMP_AFTER = r"(?:camping|campgrounds?|camps?|bush camping)\b"
 
 
+
+def _soft_stem(text):
+    """Fold common QPWS/OSM naming variants so a match is not missed.
+
+    Six Mile Waterhole is Six Mile Lagoon in some records. Halifax Bay
+    Wetland and Wetlands are the same park.
+    """
+    text = nc.norm(text)
+    text = re.sub(r"\bwetlands\b", "wetland", text)
+    text = re.sub(r"\b(waterholes?|lagoons?|lakes?)\b", "water", text)
+    return text
+
+
+def _numbered_camping_area(text, camp_name):
+    """'Camping area 2 at Halifax Bay Wetlands National Park' names camping area 2."""
+    match = re.search(r"^(.*?)\s+(camping areas?|campgrounds?)\s+(\d+)$", nc.norm(camp_name))
+    if not match:
+        return False
+    park, number = _soft_stem(match.group(1)), match.group(3)
+    hay = _soft_stem(text)
+    return bool(re.search(r"\b(?:camping areas?|campgrounds?)\s+" + re.escape(number) + r"\b", hay)
+                and park and re.search(r"\b" + re.escape(park) + r"\b", hay))
+
+
 def names_camp(text, camp_name):
     """True when the text names this camp next to a camp word.
 
@@ -570,6 +598,25 @@ def names_camp(text, camp_name):
     for key in _key_words(camp_name):
         for match in re.finditer(r"(?<= )" + re.escape(key) + r"(?= )", hay):
             rest = hay[match.end():]
+            filler = re.match(r" ([a-z0-9']+)", rest)
+            if filler and filler.group(1) not in _FACILITY_WORDS and filler.group(1) not in ("and", "or") and \
+                    not re.match(_CAMP_AFTER, filler.group(1)):
+                rest = rest[filler.end():]
+            joined = re.match(r" (?:and|or) (?:[a-z0-9']+ ){1,4}?(?=" + _CAMP_AFTER + ")", rest)
+            if joined:
+                rest = rest[joined.end() - 1:]
+            if re.match(r" " + _CAMP_AFTER, rest):
+                return True
+    if _numbered_camping_area(text, camp_name):
+        return True
+    # Same keys after waterhole/lagoon/lake and wetland/wetlands folding.
+    hay_soft = " " + _soft_stem(text) + " "
+    for key in _key_words(camp_name):
+        soft = _soft_stem(key)
+        if len(soft.replace(" ", "")) < 4:
+            continue
+        for match in re.finditer(r"(?<= )" + re.escape(soft) + r"(?= )", hay_soft):
+            rest = hay_soft[match.end():]
             filler = re.match(r" ([a-z0-9']+)", rest)
             if filler and filler.group(1) not in _FACILITY_WORDS and filler.group(1) not in ("and", "or") and \
                     not re.match(_CAMP_AFTER, filler.group(1)):
@@ -596,6 +643,127 @@ def named_camp_text(item, camp_name):
                 re.search(r"\bclosed\b|\bclosure\b|\bwill close\b", sentence, re.I) and not _NOT_CAMP_CLOSURE.search(sentence):
             return sentence
     return ""
+
+
+
+
+def camps_same(camp_name, piece):
+    """True when a listed official name is this camp, including feature aliases."""
+    if not piece or not camp_name:
+        return False
+    if nc.keys_match(camp_name, piece) or nc.keys_match(_soft_stem(camp_name), _soft_stem(piece)):
+        return True
+    return names_camp(piece, camp_name)
+
+
+_FOLLOWING_CLOSED = re.compile(
+    r"(?:will close the following|the following (?:camping(?: and day-use)?|campgrounds?|areas?) will be closed)\b",
+    re.I)
+_REMAIN_OPEN = re.compile(r"the following camping areas will remain open\b", re.I)
+_LIST_STOP = re.compile(
+    r"^(?:visitors are advised|please |all camp |for campers|should you|important information|"
+    r"the park will|construction |queensland parks)\b",
+    re.I)
+_NEEDS_PAGE = re.compile(
+    r"\bthe following (?:camping|campgrounds?|day-use|areas?)\b|"
+    r"\bplease see below\b|"
+    r"\blisted below\b",
+    re.I)
+ALERT_PAGE_CAP = 40
+
+
+def _list_names(chunk):
+    """Camp-like names from a QPWS 'following areas' block."""
+    if ":" in chunk[:120]:
+        chunk = chunk.split(":", 1)[1]
+    found = []
+    for line in re.split(r"[\n;]+", chunk):
+        line = re.sub(r"\s+", " ", line).strip(" .;-")
+        if not line:
+            continue
+        if _LIST_STOP.search(line) or re.search(r"\b(refund|online account|monitor park alerts)\b", line, re.I):
+            break
+        if len(line) > 90:
+            continue
+        line = re.sub(r"\s+and day-use areas?$", "", line, flags=re.I)
+        if line and line not in found:
+            found.append(line)
+    return found
+
+
+def listed_camp_block(desc):
+    """Names closed, then names kept open, from a 'following areas' list."""
+    text = desc or ""
+    start = _FOLLOWING_CLOSED.search(text)
+    if not start:
+        return [], []
+    rest = text[start.end():]
+    opened = _REMAIN_OPEN.search(rest)
+    closed_part = rest[:opened.start()] if opened else rest
+    open_part = rest[opened.end():] if opened else ""
+    return _list_names(closed_part), _list_names(open_part)
+
+
+def alert_needs_page(item):
+    """True when the RSS description defers the named camps to the alert page."""
+    blob = f"{item.get('title') or ''} {item.get('desc') or ''}"
+    if not _NEEDS_PAGE.search(blob):
+        return False
+    closed, opened = listed_camp_block(item.get("desc") or "")
+    return not (closed or opened)
+
+
+def alert_page_text(html):
+    """Plain text of the official QPWS alert body, with list items on their own lines."""
+    if not html:
+        return ""
+    if isinstance(html, bytes):
+        html = html.decode("utf-8", "replace")
+    text = re.sub(r"(?is)<script[^>]*>.*?</script>", " ", html)
+    text = re.sub(r"(?is)<style[^>]*>.*?</style>", " ", text)
+    text = re.sub(r"(?i)<br\s*/?>", "\n", text)
+    text = re.sub(r"(?i)</(?:p|div|li|tr|h[1-6])>", "\n", text)
+    text = re.sub(r"(?i)<li[^>]*>", "\n", text)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = html_lib.unescape(text).replace("\xa0", " ")
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n[ \t]+", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    start = re.search(r"This alert applies to the following park:", text)
+    if not start:
+        start = re.search(r"Closure status:", text)
+    if start:
+        text = text[start.start():]
+    end = re.search(r"Important information about maps", text)
+    if end:
+        text = text[:end.start()]
+    return text.strip()
+
+
+def enrich_alert_pages(items, fetch_text, cap=ALERT_PAGE_CAP):
+    """Fill in RSS items whose description omits the listed camping areas.
+
+    The QPWS RSS often stops at 'the following camping areas' or 'please see
+    below' and leaves the names on the alert page. A fetch failure leaves the
+    RSS text in place.
+    """
+    if not fetch_text:
+        return 0
+    fetched = 0
+    for item in items:
+        if fetched >= cap or not alert_needs_page(item):
+            continue
+        link = item.get("link") or ""
+        if not link.startswith("https://parks.qld.gov.au/"):
+            continue
+        payload = fetch_text("qpws_alert_page", link, BROWSER_HEADERS)
+        body = alert_page_text(payload)
+        if body:
+            item["desc"] = body
+            item["page_enriched"] = True
+        fetched += 1
+    return fetched
+
 
 
 _UP_TO = re.compile(r"\bup to and including\b", re.I)
@@ -636,13 +804,25 @@ def closure_candidates(camp, items, estates_for_camp, now=None):
         parks = [estate for estate in estates_for_camp if item_in_park(item, estate)]
         if not parks:
             continue
+        closed_names, open_names = listed_camp_block(item.get("desc") or "")
+        camp_name = camp.get("name") or ""
+        if any(camps_same(camp_name, name) for name in open_names):
+            # "The following camping areas will remain open" beats the listed closure.
+            continue
         text = ""
-        for estate in parks:
-            text = whole_park_sentence(item, estate)
-            if text:
-                break
+        if any(camps_same(camp_name, name) for name in closed_names):
+            # Time the listed closure by the preamble only. A later sentence
+            # that names the camp can also contain the remain-open dates.
+            desc = item.get("desc") or ""
+            opened = _REMAIN_OPEN.search(desc)
+            text = desc[:opened.start()] if opened else desc
         if not text:
-            text = named_camp_text(item, camp.get("name") or "")
+            for estate in parks:
+                text = whole_park_sentence(item, estate)
+                if text:
+                    break
+        if not text:
+            text = named_camp_text(item, camp_name)
         if not text:
             continue
         timed = timing(text, now)
@@ -928,6 +1108,9 @@ def apply(camps, state, fetch_json, fetch_text, src_log=None, now=None):
             items = parse_rss(payload)
             estates = estate_records(_load(files.get("estates")))
             if items and estates:
+                enriched = enrich_alert_pages(items, fetch_text)
+                if enriched:
+                    print(f"QPWS alert pages fetched for listed-camp wording: {enriched}")
                 updated = nc.rss_built(payload)
                 page = rss_src.get("page") or QPWS_ALERTS_PAGE
                 for camp in camps:

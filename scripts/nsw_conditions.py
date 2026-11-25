@@ -196,7 +196,7 @@ _API_HEADING = {
     "hazard reduction burn": "Fires",
     "notice": "Other planned events",
 }
-_ALL_CLOSED = re.compile(r"all parts are closed", re.I)
+_ALL_CLOSED = re.compile(r"all parts (?:are|will be) closed", re.I)
 # NPWS titles a closure "Upcoming closure today due to ..." before it starts and
 # does not always retitle it once the window opens (Flea Creek, 2 Nov 2026).
 _UPCOMING_TITLE = re.compile(r"^upcoming closure (?:today|tomorrow|in \d+ days?)\s+", re.I)
@@ -613,6 +613,10 @@ def _keys_match_one(camp_name, piece):
     if camp.startswith(place + " "):
         rest = [word for word in camp[len(place):].split() if word not in _GENERIC_WORDS]
         return not rest
+    # NPWS often records the principal camp as "Main campground" while the
+    # visitor-area layer still has the park name in front (Mungo Main Camp).
+    if place == "main" and camp.endswith(" main"):
+        return True
     return False
 
 

@@ -4232,4 +4232,10 @@
   "source_url": "https://rubyvalecaravanpark.com.au/",
   "checked_date": "2026-11-13"
  }
+,
+ "n8084810873": {
+  "exclude": true,
+  "exclude_reason": "OpenStreetMap duplicate of the official QPWS Carter Creek Camping Area page (carter-creek-camping-area). The OSM point is about 4.6 km north of the QPWS record; keep the QPWS page and 301 the old slug.",
+  "checked_date": "2026-11-26"
+ }
 }

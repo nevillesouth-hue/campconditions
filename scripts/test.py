@@ -2546,6 +2546,7 @@ _q_riny_desc = (
     "Queensland Parks and Wildlife Service will close the following camping and day-use areas in "
     "Rinyirru (Lakefield) National Park (CYPAL) from 1 November 2026 until the start of the annual "
     "wet season closure on 1 December 2026 for management purposes.\n"
+    "Visitors are advised that there will be no access for camping, day-use or fishing at these areas during this period:\n"
     "Welcome Waterhole camping area\nSix Mile Lagoon camping area\nTwelve Mile Lagoon camping area\n"
     "The following camping areas will remain open up to and including 30 November 2026 "
     "(closed from 1 December 2026 for the annual wet season closure):\n"

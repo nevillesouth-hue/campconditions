@@ -674,15 +674,18 @@ ALERT_PAGE_CAP = 40
 
 def _list_names(chunk):
     """Camp-like names from a QPWS 'following areas' block."""
-    if ":" in chunk[:120]:
-        chunk = chunk.split(":", 1)[1]
     found = []
     for line in re.split(r"[\n;]+", chunk):
         line = re.sub(r"\s+", " ", line).strip(" .;-")
         if not line:
             continue
-        if _LIST_STOP.search(line) or re.search(r"\b(refund|online account|monitor park alerts)\b", line, re.I):
+        # "Visitors are advised ... during this period:" introduces the list;
+        # stop only once names have started, or on refunds/contact wording.
+        if re.search(r"\b(refund|online account|monitor park alerts)\b", line, re.I) or (
+                _LIST_STOP.search(line) and found):
             break
+        if line.endswith(":") or (len(line) > 90 and not found):
+            continue
         if len(line) > 90:
             continue
         line = re.sub(r"\s+and day-use areas?$", "", line, flags=re.I)

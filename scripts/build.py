@@ -14,6 +14,11 @@ import seo
 import states as statecfg
 import town_pages
 SITE = "https://campconditions.au"
+ORG_SAME_AS = (
+    "https://www.youtube.com/@OptimumQuestforBigThings",
+    "https://x.com/CampConditions",
+    "https://www.facebook.com/profile.php?id=61595649879828",
+)
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _OUT_ENV = (os.environ.get("CAMPCONDITIONS_OUT") or "").strip()
 OUT = os.path.abspath(_OUT_ENV if os.path.isabs(_OUT_ENV) else os.path.join(ROOT, _OUT_ENV)) if _OUT_ENV else os.path.join(ROOT, "dist")
@@ -961,7 +966,7 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 @media (max-width:370px){nav{gap:.08rem .2rem}nav a{font-size:.64rem}}
 @media (max-width:430px){.nav-x{display:none}}
 @media (max-width:359px){.digest-cta{padding:.1rem .28rem;gap:.12rem;font-size:.68rem}.digest-icon{width:12px;height:12px}.digest-cta-narrow{display:none}.digest-cta-mini{display:inline}}
-main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}
+main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem 0}.muted{color:#666;font-size:.9rem}.hub-links{white-space:nowrap;max-width:100%;overflow-x:auto}
 .page-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.35rem .75rem;margin:.1rem 0 .15rem}
 .page-head h1{margin:0;flex:1 1 auto}.head-counts{margin:0;display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
@@ -1527,6 +1532,25 @@ FRESH_JS = r"""<script>
   }
 })();
 </script>""".replace("__PV_LABEL__", PV_LABEL).replace("__BOOK_NOTE__", LABELS.get("book_ahead_note") or "").replace("__COC__", LINKS.get("conditions") or "").replace("__CONDITIONS_NAME__", LINKS.get("conditions_name") or "").replace("__PHONE__", LABELS.get("phone") or "").replace("__SLUG__", SLUG)
+def link_footer_state(line, state):
+    """Link the state name already in the credit line. No new words.
+
+    Victoria's tests require the literal opening "Victoria: DataVic, Explore
+    Outdoors and Parks Victoria", so that occurrence stays text and the later
+    "State of Victoria" is the link.
+    """
+    name = state.get("name") or ""
+    slug = state.get("slug") or ""
+    if not name or not slug or "<a " in line[:80]:
+        return line
+    link = f'<a href="/{slug}/">{e(name)}</a>'
+    if slug == "vic" and "State of Victoria" in line:
+        return line.replace("State of Victoria", "State of " + link, 1)
+    if line.startswith(name):
+        return link + line[len(name):]
+    if name in line:
+        return line.replace(name, link, 1)
+    return line
 def footer_credits(shared=False):
     """One short credit line per state. The full wording stays on About."""
     if shared:
@@ -1539,7 +1563,7 @@ def footer_credits(shared=False):
     for state in rows:
         line = (state.get("copy") or {}).get("footer_short") or ""
         if line:
-            blocks.append(f"<p>{line}</p>")
+            blocks.append(f"<p>{link_footer_state(line, state)}</p>")
     return "\n".join(blocks)
 def footer(shared=False, credits=True):
     # credits=False on pages that publish no camp data. /support/ is one of those.
@@ -2483,7 +2507,7 @@ def hub_jsonld(path, description, faq_items):
     """WebSite, Organization and FAQPage, matching the Victoria hub."""
     blocks = [
         {"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + path, "inLanguage": "en-AU", "description": description},
-        {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]},
+        {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": list(ORG_SAME_AS)},
     ]
     entities = []
     for item in faq_items or []:
@@ -2802,6 +2826,43 @@ def _browse_links():
     else:
         body = ", ".join(links[:-1]) + " or " + links[-1]
     return f"<p>Browse {body}.</p>"
+def linked_state_list():
+    """The enabled state names, in the same order, each linked to its hub."""
+    links = [f'<a href="/{state["slug"]}/">{e(state["name"])}</a>' for state in statecfg.enabled()]
+    if len(links) <= 1:
+        return "".join(links)
+    if len(links) == 2:
+        return " and ".join(links)
+    return ", ".join(links[:-1]) + " and " + links[-1]
+def weekend_line(current_slug=""):
+    """Existing one-line link. Other states use the nav abbreviations so the line does not wrap."""
+    bits = ['<a href="/closures-this-weekend/">Planning this weekend?</a>']
+    for state in statecfg.enabled():
+        if state.get("slug") == current_slug:
+            continue
+        label = state.get("abbrev") or state.get("name") or ""
+        bits.append(f'<a href="/{state["slug"]}/" title="{e(state.get("name") or label)}">{e(label)}</a>')
+    return '<p class="muted hub-links">' + " · ".join(bits) + "</p>"
+def plain_fragment(fragment):
+    """Visible text of an HTML fragment, with tags removed."""
+    text = re.sub(r"<[^>]+>", "", str(fragment or ""))
+    return re.sub(r"\s+", " ", html.unescape(text)).strip()
+def link_plain_state_names(fragment):
+    """Link state names that are already written. Markup is left as it is."""
+    parts = re.split(r"(<[^>]+>)", str(fragment or ""))
+    states = sorted(statecfg.enabled(), key=lambda state: len(state.get("name") or ""), reverse=True)
+    out = []
+    for part in parts:
+        if part.startswith("<"):
+            out.append(part)
+            continue
+        for state in states:
+            name = state.get("name") or ""
+            slug = state.get("slug") or ""
+            if name and slug and name in part:
+                part = part.replace(name, f'<a href="/{slug}/">{e(name)}</a>', 1)
+        out.append(part)
+    return "".join(out)
 _QPWS_JS = (
     ('if (upOsm && upOsm.desc && upOsm.source_url && String(upOsm.source_url).indexOf("nationalparks.nsw.gov.au") !== -1) {',
      'var osmAg = String((upOsm && upOsm.source_url) || "").indexOf("parks.qld.gov.au") !== -1 ? "QPWS" : "NPWS";\n'
@@ -3432,7 +3493,7 @@ def emit_state(state, camps, include_home):
     reg_cards = "".join(f'<div class="card" data-region="{k}"><a href="/{SLUG}/{k}/">{e(n)}</a><p class="muted region-counts">{len(by_reg[k])} campgrounds · {sum(c["status"]=="closed" for c in by_reg[k])} closed · {sum(c["status"]=="check" for c in by_reg[k])} to check</p><p>{e(d)}</p></div>' for k, (n, d) in REGIONS.items())
     home_counts = {"count": len(camps), "osm": n_osm, "official": n_dv}
     def full_home(path, on_home):
-        plan_link = '<p class="muted"><a href="https://campconditions.au/closures-this-weekend/">Planning this weekend?</a></p>' if path != "/" else ""
+        plan_link = weekend_line(SLUG) if path != "/" else ""
         home_ld = hub_jsonld(path, COPY["website_description"].format(count=len(camps)), COPY.get("faq"))
         page(path, COPY["home_title"].format(count=len(camps)), COPY["home_description"].format(**home_counts),
          f"""<div class="page-head"><h1>{COPY["home_h1"]}</h1><p class="head-counts"><span class="badge closed" id="count-closed">{n_closed} closed</span> <span class="badge check" id="count-check">{n_check} to check</span></p></div><p>{COPY["home_intro"].format(**home_counts)}</p>{plan_link}
@@ -3455,7 +3516,7 @@ def emit_state(state, camps, include_home):
             import tas_signup
             if not tas_signup.forms_allowed():
                 sa_note = tas_signup.coming_soon_html()
-        state_body = f"<div class=\"page-head\"><h1>{COPY['state_h1']}</h1><p class=\"head-counts\"><span class=\"badge closed\" id=\"count-closed\">{n_closed} closed</span> <span class=\"badge check\" id=\"count-check\">{n_check} to check</span></p></div><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}<p class=\"muted\"><a href=\"https://campconditions.au/closures-this-weekend/\">Planning this weekend?</a></p>{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{static_camp_section(camps)}{town_section(chosen)}{notice_phase.windows_tag(camps)}"
+        state_body = f"<div class=\"page-head\"><h1>{COPY['state_h1']}</h1><p class=\"head-counts\"><span class=\"badge closed\" id=\"count-closed\">{n_closed} closed</span> <span class=\"badge check\" id=\"count-check\">{n_check} to check</span></p></div><p>{COPY['state_intro'].format(count=len(camps))}</p>{sa_note}{weekend_line(SLUG)}{map_block(camps, COPY['home_map'], external=SLUG)}{SAFETY}<div class='grid'>{reg_cards}</div>{static_camp_section(camps)}{town_section(chosen)}{notice_phase.windows_tag(camps)}"
         if not sa_note and multi:
             state_body += news_section()
         state_ld = hub_jsonld(f"/{SLUG}/", COPY["website_description"].format(count=len(camps)), COPY.get("faq"))
@@ -3682,10 +3743,10 @@ if multi_state:
     write_home_map_js()
     NATIONAL_TOTAL = len(all_rows)
     national_ld = [{"@context": "https://schema.org", "@type": "WebSite", "name": "CampConditions.au", "url": SITE + "/", "inLanguage": "en-AU", "description": f"Camp and campground conditions for {len(all_rows)} sites in {names}, with the rest of Australia coming soon."},
-                   {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": ["https://www.youtube.com/@OptimumQuestforBigThings"]}]
+                   {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": list(ORG_SAME_AS)}]
     page("/", f"Camp conditions and closures for {_state_codes()} | CampConditions.au",
          f"Closures and camp conditions for {len(all_rows)} campgrounds in {names}, with the rest of Australia coming soon.",
-         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p>Closures and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {e(names)}, with the rest of Australia coming soon.</p>{notice_phase.windows_tag(all_rows)}
+         f"""<div class="page-head"><h1>Camp conditions</h1><p class="head-counts"><span class="badge closed" id="count-closed">{home_closed} closed</span> <span class="badge check" id="count-check">{home_check} to check</span></p></div><p><a href="/closures-this-weekend/">Closures</a> and camp conditions for <strong>{len(all_rows)}</strong> campgrounds in {linked_state_list()}, with the rest of Australia coming soon.</p>{notice_phase.windows_tag(all_rows)}
 {map_block(all_rows, f"Map of {names} campgrounds", types=tuple(type_labels), external="home")}{safety}{national_static_section()}{browse}{news_section("Get the free weekly digest", "")}""",
          national_ld, head=leaflet_head(True), foot=LEAFLET_JS + CLUSTER_JS + f'<script src="{versioned_url("/map-home.js")}" defer></script>', on_home=True)
 
@@ -3880,11 +3941,14 @@ def about_body():
             roads += "<p>" + (tas_copy.get("directions_note") or "Check the Tasmania Fire Service, TasALERT and Tasmanian roadworks before you travel.") + "</p>"
             sources += ('<h3 id="tas-sources">Tasmania</h3><ul>' + (tas_copy.get("about_sources") or "") + "</ul>"
                         + "<p>" + (tas_copy.get("about_tail") or "") + "</p>")
-    return f"""<h1>About</h1><p>{lead}</p><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
+    about_body.plain = plain_fragment(lead)
+    lead = link_plain_state_names(lead)
+    return f"""<h1>{lead}</h1><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>{roads}
 {sources}"""
-page("/about/", "About CampConditions.au", "Who we are and where our data comes from.", about_body())
+_about_html = about_body()
+page("/about/", about_body.plain, about_body.plain, _about_html)
 privacy_who = COPY["privacy_who"]
 if len(statecfg.enabled()) > 1:
     privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
@@ -4073,6 +4137,62 @@ def data_page():
     page("/about-the-data/", "About the data | CampConditions.au", "Sources, update times and coverage for " + _enabled_names() + " campground conditions on CampConditions.au, with the rest of Australia coming soon.",
          body, [dataset, crumbs([("Home", "/"), ("About the data", "/about-the-data/")])])
 data_page()
+def status_feed_dataset():
+    """Dataset for /status.json. Sources and cadence are the ones this build uses.
+
+    The feed mixes licences, so this does not set a single license. Attribution
+    stays on /about-the-data/. The source sentence is the one already used on
+    the FAQ, not a new claim.
+    """
+    sources = (
+        "Victoria: DataVic Recreation Sites and Explore Outdoors (DEECA), Parks Victoria / DEECA MapShare closures and CFA fire danger ratings. "
+        "New South Wales: the NPWS Visitor Area layer, the NPWS alerts and closures data and NSW RFS fire danger ratings. "
+        + ("Queensland: QPWS camping grounds from the QSpatial tourist points layer, the QPWS park alerts RSS and Bureau of Meteorology fire danger ratings. " if _qld_enabled() else "")
+        + ("South Australia: Parks SA campgrounds and notices, council and community camps, and the SA Country Fire Service ratings page linked from each camp. " if _sa_enabled() else "")
+        + ("Tasmania: Parks and Wildlife Service campgrounds, camps outside reserves, and links to the Tasmania Fire Service and TasALERT. " if _tas_enabled() else "")
+        + "Extra campgrounds come from OpenStreetMap."
+    )
+    description = re.sub(r"\s+", " ", " ".join([
+        "Machine-readable campground status for " + _enabled_names() + ".",
+        sources,
+        UPDATE_CADENCE,
+        "Attribution for each source is on " + SITE + "/about-the-data/.",
+    ])).strip()
+    return {
+        "@context": "https://schema.org",
+        "@type": "Dataset",
+        "name": "CampConditions.au status feed",
+        "url": SITE + "/status.json",
+        "description": description,
+        "inLanguage": "en-AU",
+        "isAccessibleForFree": True,
+        "dateModified": NOW.isoformat(),
+        "creator": {"@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": list(ORG_SAME_AS)},
+        "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": SITE + "/status.json"}],
+        "usageInfo": SITE + "/about-the-data/",
+        "creditText": "Attribution for each source is on " + SITE + "/about-the-data/.",
+    }
+def insert_jsonld(url_path, blocks):
+    if url_path == "/":
+        fp = os.path.join(OUT, "index.html")
+    elif url_path.endswith("/"):
+        fp = os.path.join(OUT, url_path.strip("/"), "index.html")
+    else:
+        fp = os.path.join(OUT, url_path.lstrip("/"))
+    html_text = open(fp, encoding="utf-8").read()
+    snippet = "".join(ld(block) for block in blocks)
+    if snippet in html_text:
+        return
+    updated = html_text.replace("</head>", snippet + "</head>", 1)
+    if updated == html_text:
+        raise SystemExit("JSON-LD insert failed: " + url_path)
+    open(fp, "w", encoding="utf-8").write(updated)
+insert_jsonld("/", [status_feed_dataset()])
+insert_jsonld("/about/", [
+    {"@context": "https://schema.org", "@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": list(ORG_SAME_AS)},
+    status_feed_dataset(),
+])
+insert_jsonld("/about-the-data/", [status_feed_dataset()])
 def weekend_window(now):
     """This Saturday 00:00 to Monday 00:00 (Melbourne) on a weekend, otherwise the next one.
     The window never starts before now, so a closure that already ended is left out."""
@@ -4138,7 +4258,7 @@ def weekend_page():
     for state in statecfg.enabled():
         bind(state)
         mine = [(c, rec, up) for s, c, rec, up in rows if s["slug"] == state["slug"]]
-        parts.append(f'<h2 id="{SLUG}">{e(state["name"])} ({len(mine)})</h2>')
+        parts.append(f'<h2 id="{SLUG}"><a href="/{SLUG}/">{e(state["name"])}</a> ({len(mine)})</h2>')
         if not mine:
             parts.append("<p>No campground closures are recorded for this weekend.</p>")
             continue
@@ -4435,7 +4555,7 @@ open(os.path.join(OUT, "_redirects"), "w", encoding="utf-8").write("""/contact /
 /nsw/nsw /nsw/ 301
 /nsw/nsw/ /nsw/ 301
 """ + "".join(line + "\n" for line in slug_redirect_lines()))
-urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/", "/summer/", "/fire-season/", "/trip-check/"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
+urls = ["/", f"/{SLUG}/", "/report/", "/about/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/privacy/", "/terms/", "/unsubscribe/", "/support/", "/summer/", "/fire-season/", "/trip-check/", "/llms.txt"] + [f"/{SLUG}/{k}/" for k in REGIONS] + [camp_url(c) for c in home_camps]
 if len(statecfg.enabled()) > 1:
     for state in statecfg.enabled():
         if state["slug"] == primary["slug"]:

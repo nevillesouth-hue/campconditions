@@ -92,22 +92,23 @@ crumbs = seo.breadcrumb_list([
     ("Dandos", "/vic/camp/dandos/"),
 ])
 expect(crumbs["@type"] == "BreadcrumbList", "type")
+expect(crumbs.get("name") == "Dandos", "list name " + str(crumbs.get("name")))
 items = crumbs["itemListElement"]
 expect(len(items) == 4, "four crumbs")
 for item in items:
     expect(item.get("name") and item["name"] != "Unnamed item", "name " + str(item))
-    node = item.get("item") or {}
-    expect(node.get("name") == item["name"], "item name " + str(item))
-    expect(str(node.get("@id") or "").startswith("https://campconditions.au/"), "id " + str(node))
-    expect(node.get("url") == node.get("@id"), "url " + str(node))
-expect(items[0]["item"]["url"] == "https://campconditions.au/", items[0])
+    expect(isinstance(item.get("item"), str), "item url " + str(item))
+    expect(str(item.get("item") or "").startswith("https://campconditions.au/"), "url " + str(item))
+expect(items[0]["item"] == "https://campconditions.au/", items[0])
 expect(items[3]["name"] == "Dandos", items[3])
-expect(items[3]["item"]["url"] == "https://campconditions.au/vic/camp/dandos/", items[3])
+expect(items[3]["item"] == "https://campconditions.au/vic/camp/dandos/", items[3])
 
 unnamed = seo.breadcrumb_list([("", "/"), ("  Unnamed item  ", "/vic/high-country/")])
+expect(unnamed["name"] == "Page", unnamed.get("name"))
 expect(unnamed["itemListElement"][0]["name"] == "Home", unnamed)
+expect(unnamed["itemListElement"][0]["item"] == "https://campconditions.au/", unnamed)
 expect(unnamed["itemListElement"][1]["name"] == "Page", unnamed)
-expect(unnamed["itemListElement"][1]["item"]["name"] == "Page", unnamed)
+expect(unnamed["itemListElement"][1]["item"] == "https://campconditions.au/vic/high-country/", unnamed)
 
 closed_camps = [{"name": "B", "status": "closed", "region": "a"}, {"name": "A", "status": "closed", "region": "a"}]
 closed_camps += [{"name": "Open " + str(i), "status": "open", "region": "a"} for i in range(5)]

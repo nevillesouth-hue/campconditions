@@ -2847,6 +2847,17 @@ def plain_fragment(fragment):
     """Visible text of an HTML fragment, with tags removed."""
     text = re.sub(r"<[^>]+>", "", str(fragment or ""))
     return re.sub(r"\s+", " ", html.unescape(text)).strip()
+def about_title(plain):
+    """First clause of the About lead, for the document title only.
+
+    Other pages end with " | CampConditions.au". This clause already starts
+    with that name, so the suffix is left off.
+    """
+    text = plain_fragment(plain)
+    for marker in (", with the rest of Australia coming soon", ", built for"):
+        if marker in text:
+            return text.split(marker, 1)[0]
+    return text
 def link_plain_state_names(fragment):
     """Link state names that are already written. Markup is left as it is."""
     parts = re.split(r"(<[^>]+>)", str(fragment or ""))
@@ -3948,7 +3959,7 @@ def about_body():
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>{roads}
 {sources}"""
 _about_html = about_body()
-page("/about/", about_body.plain, about_body.plain, _about_html)
+page("/about/", about_title(about_body.plain), about_body.plain, _about_html)
 privacy_who = COPY["privacy_who"]
 if len(statecfg.enabled()) > 1:
     privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'

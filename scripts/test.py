@@ -3337,10 +3337,17 @@ else:
 _about_plain = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", re.search(r"<h1>(.*?)</h1>", about, re.S).group(1)))).strip() if re.search(r"<h1>", about) else ""
 _about_title = html.unescape(re.search(r"<title>(.*?)</title>", about).group(1)) if re.search(r"<title>", about) else ""
 _about_desc = html.unescape(re.search(r'<meta name="description" content="([^"]*)"', about).group(1)) if re.search(r'name="description"', about) else ""
-if not _about_plain.startswith("CampConditions.au is a free digest of campground conditions in Victoria, New South Wales, Queensland, South Australia and Tasmania"):
+_about_head = about.split("</head>", 1)[0]
+_about_og = html.unescape(re.search(r'property="og:title" content="([^"]*)"', _about_head).group(1)) if re.search(r'property="og:title"', _about_head) else ""
+_about_tw = html.unescape(re.search(r'name="twitter:title" content="([^"]*)"', _about_head).group(1)) if re.search(r'name="twitter:title"', _about_head) else ""
+_about_og_desc = html.unescape(re.search(r'property="og:description" content="([^"]*)"', _about_head).group(1)) if re.search(r'property="og:description"', _about_head) else ""
+_about_want = "CampConditions.au is a free digest of campground conditions in Victoria, New South Wales, Queensland, South Australia and Tasmania"
+if not _about_plain.startswith(_about_want):
   bad.append(("seo", "about h1", _about_plain[:180]))
-if _about_title != _about_plain or _about_desc != _about_plain:
-  bad.append(("seo", "about title or description", _about_title[:120], _about_desc[:120]))
+if _about_desc != _about_plain or _about_og_desc != _about_plain:
+  bad.append(("seo", "about description", _about_desc[:120]))
+if _about_title != _about_want or _about_og != _about_want or _about_tw != _about_want or _about_title.endswith("| CampConditions.au"):
+  bad.append(("seo", "about title", _about_title, _about_og, _about_tw))
 if "Who we are and where our data comes from." in about:
   bad.append(("seo", "about old description"))
 for _url in ("https://www.youtube.com/@OptimumQuestforBigThings", "https://x.com/CampConditions", "https://www.facebook.com/profile.php?id=61595649879828"):

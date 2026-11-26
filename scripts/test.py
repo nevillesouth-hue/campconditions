@@ -334,14 +334,14 @@ else:
 _qld_priv = os.path.isdir(os.path.join(D, "qld"))
 # Privacy names every state with an open digest. SA and TAS switch on together (release.signup in config/states).
 _five_priv = all(json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "config", "states", _s + ".json"), encoding="utf-8")).get("release", {}).get("signup") is True for _s in ("sa", "tas"))
-_priv_date = "Last updated 25 November 2026"
+_priv_date = "Last updated 27 November 2026"
 _priv_states = "Victoria, New South Wales, Queensland, South Australia and Tasmania" if _five_priv else ("Victoria, New South Wales and Queensland" if _qld_priv else "Victoria and New South Wales")
 priv_path = os.path.join(D, "privacy", "index.html")
 if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
 else:
   priv = open(priv_path, encoding="utf-8").read()
-  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "don't sell, rent or swap", "Changes to this policy",
+  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "Camp Conditions, a registered business name", "We publish a free weekly digest", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "don't sell, rent or swap", "Changes to this policy",
               "Trip Check waitlist", "first name", "camper report", "Stripe", "never your full card number", "last four digits", "don't track opens or clicks",
               "sent from Japan", "stored in the United States", "keyed hash", "6 years after the last email", "backup copies of the list",
               "date and time you confirmed", "12 months"):
@@ -370,7 +370,7 @@ if digest.returncode != 0:
 else:
   for name in ("digest.html", "digest.txt"):
     blob = open(os.path.join(draft, name), encoding="utf-8").read()
-    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe from this digest"):
+    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe from this digest", "Sent by Camp Conditions, the registered business behind CampConditions.au."):
       if bit not in blob: bad.append((name, bit))
     if "https://campconditions.au/unsubscribe/" in blob or "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}" in blob:
       bad.append((name, "form unsubscribe link"))
@@ -933,6 +933,10 @@ if "Victorian camp conditions and closures" in home: bad.append(("/", "old share
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
 if "/site.webmanifest" not in not_found or "og-image-vic-nsw-qld-sa-tas.png?v=20261110" not in not_found: bad.append(("404", "icons"))
 if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404", "newsletter button"))
+if "© 2026 Camp Conditions · CampConditions.au" not in home: bad.append(("/", "business-name footer"))
+if "© 2026 Camp Conditions · CampConditions.au" not in not_found: bad.append(("404", "business-name footer"))
+if "© CampConditions.au ·" in home or "© CampConditions.au ·" in not_found: bad.append(("/", "old copyright footer"))
+if "CampConditions.au is run by Camp Conditions, a registered Australian business name." not in about: bad.append(("about", "business-name sentence"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
 manifest = json.load(open(os.path.join(D, "site.webmanifest"), encoding="utf-8"))

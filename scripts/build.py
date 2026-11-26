@@ -1569,7 +1569,7 @@ def footer(shared=False, credits=True):
     # credits=False on pages that publish no camp data. /support/ is one of those.
     block = footer_credits(shared) if credits else ""
     return f"""<footer>{block}
-<p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © CampConditions.au · <a href="/about/">About</a> · <a href="/support/">Chip in</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
+<p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © 2026 Camp Conditions · CampConditions.au · <a href="/about/">About</a> · <a href="/support/">Chip in</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
 """ + notice_phase.NOTICE_JS + f"""
 {_qpws_js(FRESH_JS) if _qld_enabled() else FRESH_JS}"""
@@ -3952,6 +3952,7 @@ def about_body():
             roads += "<p>" + (tas_copy.get("directions_note") or "Check the Tasmania Fire Service, TasALERT and Tasmanian roadworks before you travel.") + "</p>"
             sources += ('<h3 id="tas-sources">Tasmania</h3><ul>' + (tas_copy.get("about_sources") or "") + "</ul>"
                         + "<p>" + (tas_copy.get("about_tail") or "") + "</p>")
+    lead += " CampConditions.au is run by Camp Conditions, a registered Australian business name."
     about_body.plain = plain_fragment(lead)
     lead = link_plain_state_names(lead)
     return f"""<h1>{lead}</h1><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
@@ -3962,12 +3963,12 @@ _about_html = about_body()
 page("/about/", about_title(about_body.plain), about_body.plain, _about_html)
 privacy_who = COPY["privacy_who"]
 if len(statecfg.enabled()) > 1:
-    privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
+    privacy_who = 'CampConditions.au is operated by Camp Conditions, a registered business name. We publish a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
     if _signup_open("sa") and _signup_open("tas"):
-        privacy_who = 'CampConditions.au publishes a free weekly digest of campground conditions for Victoria, New South Wales, Queensland, South Australia and Tasmania. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
+        privacy_who = 'CampConditions.au is operated by Camp Conditions, a registered business name. We publish a free weekly digest of campground conditions for Victoria, New South Wales, Queensland, South Australia and Tasmania. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
 # Policy text follows Lex's legal review of 25 Nov 2026 (section 5.4), trimmed to what the
 # site and the consent-retention job actually record. Change this date when the text changes.
-privacy_date = "25 November 2026"
+privacy_date = "27 November 2026"
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address and other personal information.",
  f"<h1>Privacy</h1><p>Last updated {privacy_date}.</p>\n<h2>Who we are</h2><p>{privacy_who}</p>\n" + """<h2>What we collect</h2><p>If you subscribe to the digest: nothing is stored until you click the confirmation link. Then we keep your email address, the states you choose, and the date and time you confirmed. If you unsubscribe, we record the date we first see that you have unsubscribed. We don't record your IP address with your subscription.</p>
 <p>If you join the Trip Check waitlist: your email address, first name, the states you're interested in, and the date and time you confirmed.</p>
@@ -4635,7 +4636,7 @@ Built {STAMP}.
 """)
 open(os.path.join(OUT, "404.html"), "w").write(stamp_local_assets(external_blank(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
 {banner()}
-<main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer>{footer_credits(len(statecfg.enabled()) > 1)}<p>© CampConditions.au · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer></body></html>""")))
+<main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer>{footer_credits(len(statecfg.enabled()) > 1)}<p>© 2026 Camp Conditions · CampConditions.au · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer></body></html>""")))
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter
 n_osm = sum(c.get("source") == "osm" for c in camps)

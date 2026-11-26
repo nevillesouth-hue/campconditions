@@ -127,6 +127,7 @@ def render(camps, generated, previous=None):
     foot = (copy.get("digest_footer") or "") + (
         'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
         + ('<a href="%s" style="color:#666666;">Unsubscribe from this digest</a>' % digest_layout.unsubscribe_href())
+        + '<br>Sent by Camp Conditions, the registered business behind CampConditions.au.'
     )
     body = "".join(rows) + '<tr><td style="%sfont-size:12px;line-height:18px;color:#666666;padding-top:24px;">%s</td></tr>' % (style, foot)
     doc = """<!DOCTYPE html><html lang="en-AU"><head><meta charset="utf-8"><title>%s</title></head>

@@ -10,7 +10,7 @@ cache is kept between builds, so each build only refreshes pages older than a
 day, oldest first. A page the budget did not reach uses its cached copy if it is
 under STALE_TTL old. Writes dist/parksvic-flags.json. Never changes a camp's status.
 """
-import hashlib, html, json, os, re, time, urllib.error, urllib.request
+import hashlib, html, json, os, re, sys, threading, time, urllib.error, urllib.request
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
 
@@ -19,7 +19,8 @@ CORRECTIONS = os.path.join(ROOT, "data", "manual-corrections.json")
 CACHE_DIR = os.path.join(ROOT, "data", ".parksvic-cache")
 USER_AGENT = "CampConditions.au closure checker (+https://campconditions.au; campconditions@outlook.com)"
 GAP_SECONDS = 1.0
-REQUEST_TIMEOUT = 20
+REQUEST_TIMEOUT = 30  # hard limit per attempt, including a slow read
+FETCH_ATTEMPTS = 2  # one retry
 OVERALL_SECONDS = int(os.environ.get("PARKSVIC_FETCH_SECONDS") or 50 * 60)
 CACHE_TTL = timedelta(hours=24)
 STALE_TTL = timedelta(hours=72)
@@ -514,22 +515,70 @@ def _cache_put(url, row, now):
     os.replace(tmp, path)
 
 
-def fetch_page(url, now):
+def _cache_last_good(url, now):
+    """The last cached copy that was a real page (no error), up to STALE_TTL old."""
+    row = _cache_get(url, now, STALE_TTL)
+    if row is None or row.get("error") or not row.get("html"):
+        return None
+    return row
+
+
+def _open_once(req, timeout):
+    """One request with a hard overall limit. urlopen's timeout only covers each
+    socket wait, so a page that trickles in can otherwise block for ever."""
+    box = {}
+
+    def work():
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                box["status"] = getattr(response, "status", 200)
+                box["html"] = response.read().decode("utf-8", "replace")
+        except BaseException as exc:  # handed back to the caller below
+            box["exc"] = exc
+
+    worker = threading.Thread(target=work, daemon=True)
+    worker.start()
+    worker.join(timeout)
+    if worker.is_alive():
+        raise TimeoutError(f"no complete response within {timeout}s")
+    if "exc" in box:
+        raise box["exc"]
+    return box["status"], box["html"]
+
+
+def fetch_page(url, now, opener=None, attempts=FETCH_ATTEMPTS, timeout=REQUEST_TIMEOUT):
+    """Fetch one page, or reuse a cached copy under a day old.
+
+    Each attempt is limited to `timeout` seconds and a failed attempt is retried
+    once. If both fail (timeout or network error, not an HTTP answer), the last
+    good cached page is kept, so its flags stay as they were, and a warning is
+    logged. opener is a test hook.
+    """
     cached = _cache_get(url, now)
     if cached is not None:
         cached["cached"] = True
         return cached
+    opener = opener or _open_once
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "text/html"})
     row = {"error": "", "html": "", "status": None, "cached": False}
-    try:
-        with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as response:
-            row["status"] = getattr(response, "status", 200)
-            row["html"] = response.read().decode("utf-8", "replace")
-    except urllib.error.HTTPError as exc:
-        row["status"] = exc.code
-        row["error"] = str(exc.code)
-    except Exception as exc:
-        row["error"] = str(exc)[:200] or exc.__class__.__name__
+    for attempt in range(1, attempts + 1):
+        row = {"error": "", "html": "", "status": None, "cached": False}
+        try:
+            row["status"], row["html"] = opener(req, timeout)
+            break
+        except urllib.error.HTTPError as exc:
+            row["status"] = exc.code
+            row["error"] = str(exc.code)
+            break
+        except Exception as exc:
+            row["error"] = str(exc)[:200] or exc.__class__.__name__
+    if row["error"] and row["status"] is None:
+        last_good = _cache_last_good(url, now)
+        if last_good is not None:
+            print(f"WARN parksvic: {url} failed {attempts} times ({row['error']}); keeping the last good copy from {last_good.get('fetched')}", file=sys.stderr)
+            last_good["cached"] = True
+            return last_good
+        print(f"WARN parksvic: {url} failed {attempts} times ({row['error']}); no last good copy", file=sys.stderr)
     _cache_put(url, row, now)
     return row
 

@@ -1958,6 +1958,46 @@ error_count = check_parksvic.write_flags([sample_camp], sample_dest, fetcher=lam
 error_doc = json.load(open(sample_dest, encoding="utf-8"))
 if error_count != 0 or not error_doc["errors"] or error_doc["errors"][0].get("error") != "403":
   bad.append(("check_parksvic", "403"))
+# A Parks Victoria page that hangs: each attempt stops at the timeout, it is tried twice,
+# then the last good cached page is kept so its flags stay the same. Nothing is blanked.
+import time as _pv_time, urllib.request as _pv_req
+from datetime import datetime as _pv_dt, timedelta as _pv_td
+_pv_cache_dir, _pv_urlopen = check_parksvic.CACHE_DIR, _pv_req.urlopen
+_pv_calls = []
+def _pv_hang(*_a, **_k):
+  _pv_calls.append(1)
+  _pv_time.sleep(2)
+  raise OSError("still hanging")
+try:
+  check_parksvic.CACHE_DIR = tempfile.mkdtemp()
+  _pv_now = _pv_dt.now(check_parksvic.MELBOURNE)
+  _pv_fields = json.load(open(check_parksvic.CORRECTIONS, encoding="utf-8"))[sample_camp["osm_id"]]
+  _pv_urls = check_parksvic.urls_in(_pv_fields) or check_parksvic.urls_in(_pv_fields, check_parksvic.park_url)
+  for _u in _pv_urls:
+    check_parksvic._cache_put(_u, {"status": 200, "error": "", "html": sample_html}, _pv_now - _pv_td(hours=30))
+  _pv_req.urlopen = _pv_hang
+  _pv_start = _pv_time.monotonic()
+  _pv_row = check_parksvic.fetch_page(_pv_urls[0], _pv_now, timeout=0.2)
+  _pv_took = _pv_time.monotonic() - _pv_start
+  if _pv_took > 1.5 or len(_pv_calls) != 2:
+    bad.append(("check_parksvic", f"hang not cut off with one retry ({_pv_took:.1f}s, {len(_pv_calls)} attempts)"))
+  if _pv_row.get("error") or _pv_row.get("html") != sample_html:
+    bad.append(("check_parksvic", "hang did not keep the last good page"))
+  if (check_parksvic._cache_get(_pv_urls[0], _pv_now, check_parksvic.STALE_TTL) or {}).get("html") != sample_html:
+    bad.append(("check_parksvic", "hang overwrote the last good cached page"))
+  _pv_dest = os.path.join(tempfile.mkdtemp(), "parksvic-flags.json")
+  _pv_count = check_parksvic.write_flags([sample_camp], _pv_dest, fetcher=lambda u: check_parksvic.fetch_page(u, _pv_now, timeout=0.2), sleeper=lambda _n: None, overall_seconds=60)
+  _pv_doc = json.load(open(_pv_dest, encoding="utf-8"))
+  if _pv_count != sample_count or [f.get("sentence") for f in _pv_doc["flags"]] != [sample_flag.get("sentence")] or any(r.get("error") for r in _pv_doc["errors"]):
+    bad.append(("check_parksvic", "hang changed the flags " + repr(_pv_doc["flags"])))
+  # No last good copy: the page is listed as an error, nothing raises.
+  _pv_none = check_parksvic.fetch_page("https://www.parks.vic.gov.au/example-no-cache", _pv_now, timeout=0.2)
+  if not _pv_none.get("error") or _pv_none.get("html"):
+    bad.append(("check_parksvic", "hang without cache"))
+except Exception as _pv_exc:
+  bad.append(("check_parksvic", "hang test raised " + repr(_pv_exc)))
+finally:
+  check_parksvic.CACHE_DIR, _pv_req.urlopen = _pv_cache_dir, _pv_urlopen
 if "20 18 * * 1" not in refresh: bad.append(("refresh-osm.yml", "weekly schedule"))
 if "feature/more-sites" in wf or "17 */3 * * *" not in wf: bad.append(("build-deploy.yml", "production schedule"))
 if "CAMPCONDITIONS_ENABLE" in wf: bad.append(("build-deploy.yml", "preview enable"))

@@ -1147,11 +1147,11 @@ def state_nav(national=False):
     return (f'<details class="state-pick"><summary aria-label="State: {label}">{e(abbrev)} '
             f'{caret}</summary>'
             f'<div class="state-menu">{"".join(options)}</div></details>')
-# Chip-in strip in the header's top row (Nev, 27 Nov 2026). No-gift wording from Lex's review, section 11.3.
-# It sits in space the logo already reserves, so the header does not grow. No gift is mentioned until Stripe is ready.
-CHIP_STRIP = ('<a class="chip-strip" href="/support/" aria-label="Free for everyone. Help keep it that way: Chip in">'
-              '<span class="cs-long">Free for everyone. Help keep it that way: <strong>Chip in</strong> ›</span>'
-              '<span class="cs-short">Free for everyone · <strong>Chip in</strong> if it helps ›</span></a>')
+# Chip-in strip in the header's top row (Nev, 27 Nov 2026). Gift wording from Lex's review, section 11.3.
+# It sits in space the logo already reserves, so the header does not grow.
+CHIP_STRIP = ('<a class="chip-strip" href="/support/" aria-label="Free for everyone. Chip in and get a thank-you gift">'
+              '<span class="cs-long">Free for everyone. <strong>Chip in</strong> and get a thank-you gift ›</span>'
+              '<span class="cs-short">Free for everyone · <strong>Chip in</strong>, get a thank-you gift ›</span></a>')
 # Business identity (Nev approved showing the ABN, 27 Nov 2026). Small print is Lex's section 11.3 text,
 # limited to the sentences that do not mention the thank-you gift.
 ABN = "35 589 319 392"
@@ -1159,14 +1159,16 @@ ABN_LINE = f"Camp Conditions · ABN {ABN}"
 BUSINESS_SMALL_PRINT = ("Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. "
                         "The site and the digest stay free whether or not you chip in.")
 SMALL_PRINT_HTML = f'<p class="small-print">{BUSINESS_SMALL_PRINT}<br>{ABN_LINE}</p>'
-# /support/ only (version A, no gift). The repeated "stay free whether or not
-# you chip in" sentence is dropped because the after-button line already says
-# the site stays free either way. Lex's refund sentence is kept, without
-# "with the download", because this page has no download.
+# /support/ version B (gift). Lex's full small print, including the Supporter
+# Pack sentences and "with the download" in the refund line.
 SUPPORT_SMALL_PRINT = (
     "Camp Conditions is a small Australian business, not a charity. "
     "Tips are voluntary and are not tax-deductible. "
-    "If something is wrong, email us and we'll help or refund you."
+    "The site and the digest stay free whether or not you chip in. "
+    "The Supporter Pack is a thank-you: a planning checklist of official links and a blank logbook. "
+    "It is not live conditions and not official advice. "
+    "Always check the official source before you go. "
+    "If something is wrong with the download, email us and we'll help or refund you."
 )
 SUPPORT_SMALL_PRINT_HTML = f'<p class="small-print">{SUPPORT_SMALL_PRINT}<br>{ABN_LINE}</p>'
 def banner(on_home=False, national=False, own_form=False):
@@ -3787,12 +3789,13 @@ TIP_CHECKOUTS = (
     ("Chip in A$20", "https://buy.stripe.com/eVqfZadAW8TN0MvfLOfQI06"),
 )
 # Each button opens its own fixed-amount Stripe checkout (no add-ons, no custom amount).
-# Version A copy (Nev, 27 Nov 2026) with Lex's tidy-ups. No gift wording.
+# Version B copy (Nev, 27 Nov 2026): live Version A plus Lex's approved gift lines.
 page("/support/", "Chip in | CampConditions.au",
  "A one-off tip to help keep CampConditions.au free. The site and the weekly digests stay free either way.",
  "<h1>Help keep CampConditions.au free for everyone</h1>\n"
  "<p>The site and the weekly digests stay free, with no paywall and no logins.</p>\n"
  "<p>If we’ve saved you a wasted drive, a one-off tip of A$5, A$10 or A$20 is a genuine help. Thank you.</p>\n"
+ "<p><strong>As a thank-you, supporters get the Supporter Pack — an All-Year Trip-Prep Kit and a printable Camp Logbook. It's our way of saying thanks.</strong> You can download it straight after you chip in.</p>\n"
  "<section class=\"pays-for\"><h2>What a tip helps with</h2>\n"
  "<ul><li>the domain</li>\n"
  "<li>hosting and email, as the site and the list grow</li>\n"
@@ -3801,7 +3804,7 @@ page("/support/", "Chip in | CampConditions.au",
  + "".join(f'<li><a class="tip-btn" href="{url}">{label}</a></li>' for label, url in TIP_CHECKOUTS) + "</ul>\n"
  "<p class=\"optional-line muted\">Totally optional. The site and the digest stay free either way.</p>\n"
  + SUPPORT_SMALL_PRINT_HTML)
-# Plain static thanks page (Nev, 27 Nov 2026). No gift, no session handling, not in the sitemap.
+# Static unpaid fallback for /support/thanks/ (Nev, 27 Nov 2026). The Pages Function adds the download only after a paid session is confirmed. Still noindex, not in the sitemap, and the static HTML does not read the session.
 page("/support/thanks/", "Thanks | CampConditions.au",
  "Thanks for a one-off tip that helps keep CampConditions.au free.",
  "<h1>Thanks for chipping in</h1>\n"

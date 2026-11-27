@@ -3361,7 +3361,7 @@ def _dataset_blocks(text):
   return [b for b in _ld_blocks(text) if b.get("@type") == "Dataset" and b.get("url") == "https://campconditions.au/status.json"]
 for _label, _text in (("home", home), ("about", about)):
   _sets = _dataset_blocks(_text)
-  if len(_sets) != 1 or _sets[0].get("license") or "about-the-data" not in str(_sets[0].get("usageInfo") or "") or "every three hours" not in _sets[0].get("description", ""):
+  if len(_sets) != 1 or _sets[0].get("license") != "https://campconditions.au/terms/" or "about-the-data" not in str(_sets[0].get("usageInfo") or "") or "every three hours" not in _sets[0].get("description", ""):
     bad.append(("seo", "status dataset", _label))
 if "/llms.txt" not in sm:
   bad.append(("sitemap", "llms.txt"))

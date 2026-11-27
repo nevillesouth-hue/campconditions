@@ -959,7 +959,7 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 @media (max-width:799px){.chip-strip{font-size:.68rem}}
 @media (max-width:720px){.chip-strip{right:0;left:calc(clamp(2.9rem,15.9vw,4.8rem) + .3rem);bottom:0;font-size:.74rem}}
 @media (max-width:370px){.chip-strip{font-size:.68rem}}
-.small-print{font-size:.85rem;color:#555}
+.small-print{font-size:.85rem;color:#555}.pays-for{max-width:40rem;margin:1.2em 0}.pays-for h2{font-size:1.15rem;margin:0 0 .4rem;color:var(--g)}.pays-for ul{margin:.2rem 0 0 1.15rem;padding:0}.pays-for li{margin:.25rem 0}.optional-line{max-width:40rem;margin:.9em 0 .4em}
 .tip-list{list-style:none;margin:1.5em 0;padding:0;display:flex;flex-direction:column;gap:1em;max-width:20em}.tip-btn{display:block;text-align:center;padding:.9em 1em;background:var(--g);color:#fff;border-radius:8px;font-weight:600;font-size:1.1em;text-decoration:none}.tip-btn:hover{background:#244a2e}.tip-btn:focus-visible{outline:3px solid var(--o);outline-offset:3px}
 .digest-icon{display:block;flex:0 0 auto;width:14px;height:14px}
 .digest-cta-short,.digest-cta-narrow{display:none}.digest-cta-mini{display:none}
@@ -1159,6 +1159,16 @@ ABN_LINE = f"Camp Conditions · ABN {ABN}"
 BUSINESS_SMALL_PRINT = ("Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. "
                         "The site and the digest stay free whether or not you chip in.")
 SMALL_PRINT_HTML = f'<p class="small-print">{BUSINESS_SMALL_PRINT}<br>{ABN_LINE}</p>'
+# /support/ only (version A, no gift). The repeated "stay free whether or not
+# you chip in" sentence is dropped because the after-button line already says
+# the site stays free either way. Lex's refund sentence is kept, without
+# "with the download", because this page has no download.
+SUPPORT_SMALL_PRINT = (
+    "Camp Conditions is a small Australian business, not a charity. "
+    "Tips are voluntary and are not tax-deductible. "
+    "If something is wrong, email us and we'll help or refund you."
+)
+SUPPORT_SMALL_PRINT_HTML = f'<p class="small-print">{SUPPORT_SMALL_PRINT}<br>{ABN_LINE}</p>'
 def banner(on_home=False, national=False, own_form=False):
     # own_form: the page carries its own #newsletter form (Queensland pages), so both digest links stay on the page with QLD ticked.
     href = "#newsletter" if (on_home or own_form) else "/#newsletter"
@@ -3783,14 +3793,25 @@ if multi_state:
 
 
 TIP_CHECKOUTS = (
-    ("Tip A$5", "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01"),
-    ("Tip A$10", "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02"),
-    ("Tip A$20", "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"),
+    ("Chip in A$5", "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01"),
+    ("Chip in A$10", "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02"),
+    ("Chip in A$20", "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"),
 )
 # Each button opens its own fixed-amount Stripe checkout (no add-ons, no custom amount).
-page("/support/", "CampConditions tip | CampConditions.au", "Optional one-off tip for CampConditions.au.",
- "<h1>Support CampConditions</h1>\n<p>The digests stay free. If you find them useful, an optional one-off tip helps cover the running costs. Thank you.</p>\n<ul class=\"tip-list\">"
- + "".join(f'<li><a class="tip-btn" href="{url}">{label}</a></li>' for label, url in TIP_CHECKOUTS) + "</ul>")
+# Version A copy (Nev, 27 Nov 2026) with Lex's tidy-ups. No gift wording.
+page("/support/", "Chip in | CampConditions.au",
+ "A one-off tip to help keep CampConditions.au free. The site and the weekly digests stay free either way.",
+ "<h1>Help keep CampConditions.au free for everyone</h1>\n"
+ "<p>The site and the weekly digests stay free, with no paywall and no logins.</p>\n"
+ "<p>If we’ve saved you a wasted drive, a one-off tip of A$5, A$10 or A$20 is a genuine help. Thank you.</p>\n"
+ "<section class=\"pays-for\"><h2>What a tip helps with</h2>\n"
+ "<ul><li>the domain</li>\n"
+ "<li>hosting and email, as the site and the list grow</li>\n"
+ "<li>the time it takes to check camp conditions and add new states</li></ul></section>\n"
+ "<ul class=\"tip-list\">"
+ + "".join(f'<li><a class="tip-btn" href="{url}">{label}</a></li>' for label, url in TIP_CHECKOUTS) + "</ul>\n"
+ "<p class=\"optional-line muted\">Totally optional. The site and the digest stay free either way.</p>\n"
+ + SUPPORT_SMALL_PRINT_HTML)
 page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",
  """<h1>Unsubscribe</h1>
 <p>Every CampConditions email has a one-click unsubscribe link. It works without an account, and you don't need to log in. Open the link in the email and you're off the list.</p>

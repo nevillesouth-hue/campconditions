@@ -2154,7 +2154,7 @@ if os.path.isfile(nsw_index):
       bad.append(("_redirects", f"removed QLD caravan park {old} must redirect to {target}"))
   if "/support" in redirects or "fZu4gs0Oafib8eX0QUfQI00" in redirects: bad.append(("_redirects", "old support redirect"))
   support = open(os.path.join(D, "support", "index.html"), encoding="utf-8").read()
-  tips = {"Chip in A$5": "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01", "Chip in A$10": "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02", "Chip in A$20": "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"}
+  tips = {"Chip in A$5": "https://buy.stripe.com/4gM00cfJ40nh3YHeHKfQI04", "Chip in A$10": "https://buy.stripe.com/dRmaEQ8gCgmfbr98jmfQI05", "Chip in A$20": "https://buy.stripe.com/eVqfZadAW8TN0MvfLOfQI06"}
   for label, url in tips.items():
     if not re.search(r'class="tip-btn" href="' + re.escape(url) + r'"[^>]*>' + re.escape(label) + '</a>', support): bad.append(("support", label))
   sitemap_xml = open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read()
@@ -2229,7 +2229,7 @@ if os.path.isfile(nsw_index):
     if os.path.isfile(sp):
       sh = open(sp, encoding="utf-8").read()
       if not re.search(r'<p class="head-counts"><span class="badge closed" id="count-closed">\d+ closed</span> <span class="badge check" id="count-check">\d+ to check</span></p>', sh): bad.append((st, "hero closed/to-check badges"))
-  if support.count('class="tip-btn"') != 3 or support.count("donate.stripe.com") != 3: bad.append(("support", "three buttons"))
+  if support.count('class="tip-btn"') != 3 or support.count("buy.stripe.com") != 3 or support.count("donate.stripe.com") != 0: bad.append(("support", "three buttons"))
   if "fZu4gs0Oafib8eX0QUfQI00" in support or "plink_" in support: bad.append(("support", "old link"))
   if "<h1>Help keep CampConditions.au free for everyone</h1>" not in support: bad.append(("support", "heading"))
   if "The site and the weekly digests stay free, with no paywall and no logins." not in support: bad.append(("support", "intro free"))

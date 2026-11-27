@@ -940,7 +940,7 @@ if "CampConditions.au is run by Camp Conditions, a registered Australian busines
 # Chip-in strip (Nev, 27 Nov 2026): no-gift wording in the header's top row on every page, linking to /support/.
 _strip_long = 'Free for everyone. Help keep it that way: <strong>Chip in</strong> ›'
 _strip_short = 'Free for everyone · <strong>Chip in</strong> if it helps ›'
-for _name, _html in (("/", home), ("404", not_found), ("about", about), ("support", open(os.path.join(D, "support", "index.html"), encoding="utf-8").read())):
+for _name, _html in (("/", home), ("404", not_found), ("about", about), ("support", open(os.path.join(D, "support", "index.html"), encoding="utf-8").read()), ("thanks", open(os.path.join(D, "support", "thanks", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "support", "thanks", "index.html")) else "")):
   _m = re.search(r'<div class="banner-row brand-row"><a class="brand" href="/">.*?</a>(<a class="chip-strip" href="/support/"[^>]*>.*?</a>)<a class="digest-cta"', _html, re.S)
   if not _m: bad.append((_name, "chip-in strip in the brand row")); continue
   if _strip_long not in _m.group(1) or _strip_short not in _m.group(1): bad.append((_name, "chip-in strip wording"))
@@ -2253,6 +2253,36 @@ if os.path.isfile(nsw_index):
   for marker in ("DataVic", "Explore Outdoors", "Parks Victoria", "DEECA", "Vicmap", "cfa.vic.gov.au", "NPWS", "QSpatial", "Rural Fire Service", 'href="/about/#vic-sources"', 'href="/about/#nsw-sources"', 'href="/about/#qld-sources"'):
     if marker in support_footer or marker in support_main: bad.append(("support", "data attribution " + marker))
   if 'class="banner-row"' not in support or 'class="tip-btn"' not in support_main: bad.append(("support", "header or tips"))
+  # Plain static /support/thanks/ (Nev, 27 Nov 2026). No gift, no session handling, not in the sitemap.
+  thanks_path = os.path.join(D, "support", "thanks", "index.html")
+  thanks = open(thanks_path, encoding="utf-8").read() if os.path.isfile(thanks_path) else ""
+  if not thanks: bad.append(("/support/thanks/", "missing"))
+  else:
+    thanks_head = thanks.split("<main>", 1)[0]
+    thanks_main = thanks.split("<main>", 1)[-1].split("</main>", 1)[0]
+    thanks_footer = thanks.split("<footer>", 1)[-1].split("</footer>", 1)[0] if "<footer>" in thanks else ""
+    if "<title>Thanks | CampConditions.au</title>" not in thanks: bad.append(("/support/thanks/", "title"))
+    if '<meta name="robots" content="noindex">' not in thanks_head: bad.append(("/support/thanks/", "noindex"))
+    if "<h1>Thanks for chipping in</h1>" not in thanks_main: bad.append(("/support/thanks/", "heading"))
+    if "Your tip helps keep CampConditions.au free for everyone. Thank you." not in thanks_main: bad.append(("/support/thanks/", "thanks line"))
+    if "If something is wrong, email us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a> and we'll help or refund you." not in thanks_main:
+      bad.append(("/support/thanks/", "help line"))
+    if '<a class="back-map" href="/">← Back to the camps</a>' not in thanks_main: bad.append(("/support/thanks/", "back to the camps"))
+    if thanks_footer.count("<p>") != 1 or "Site built" not in thanks_footer or "© 2026 Camp Conditions · ABN 35 589 319 392 · CampConditions.au" not in thanks_footer:
+      bad.append(("/support/thanks/", "ABN footer"))
+    for link in ('href="/about/"', 'href="/support/"', 'href="/faq/"', 'href="/about-the-data/"', 'href="/closures-this-weekend/"', 'href="/privacy/"', 'href="/terms/"', 'href="/status.json"', 'href="/llms.txt"'):
+      if link not in thanks_footer: bad.append(("/support/thanks/", "footer " + link))
+    for marker_name in ("DataVic", "Explore Outdoors", "Parks Victoria", "DEECA", "Vicmap", "cfa.vic.gov.au", "NPWS", "QSpatial", "Rural Fire Service"):
+      if marker_name in thanks_footer or marker_name in thanks_main: bad.append(("/support/thanks/", "data attribution " + marker_name))
+    if re.search(r"supporter pack|thank-you gift|\bdonation\b|\bdonate\b|\balways\b|\bforever\b|recurring|download|session_id|URLSearchParams|location\.search", thanks_main, re.I):
+      bad.append(("/support/thanks/", "gift, donate, session or download wording"))
+    if "<script" in thanks_main: bad.append(("/support/thanks/", "must not include a page script"))
+    if 'class="banner-row brand-row"' not in thanks_head or thanks.count('class="banner-row') != 2: bad.append(("/support/thanks/", "header rows"))
+    if "<loc>https://campconditions.au/support/thanks/</loc>" in sitemap_xml: bad.append(("sitemap", "/support/thanks/ must be omitted"))
+    if "https://campconditions.au/support/thanks/" in open(os.path.join(D, "llms.txt"), encoding="utf-8").read():
+      bad.append(("llms.txt", "/support/thanks/ must be omitted"))
+  if os.path.isdir(os.path.join(root, "functions", "support")):
+    bad.append(("/support/thanks/", "must have no Pages function"))
   for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301",
                "/tas/camp/new-pelion-hut-tas-list-cs-62194 /tas/camp/new-pelion-hut/ 301",
                "/tas/camp/waterfall-valley-hut-tas-list-cs-62192/ /tas/camp/waterfall-valley-hut/ 301",

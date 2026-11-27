@@ -11,3 +11,7 @@ __pycache__/
 data/.last-good/
 # One-list migration reports. They can list subscriber addresses.
 out/
+
+# Local wrangler Pages dev secrets. Never commit.
+.dev.vars
+node_modules/

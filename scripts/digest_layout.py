@@ -81,12 +81,15 @@ def top_line_html(share_href, include_chip_in=False):
     return f"Free every Thursday. {mate}."
 
 
+GIFT_LINE = "As a thank-you, supporters get the Supporter Pack — an All-Year Trip-Prep Kit and a printable Camp Logbook. It's our way of saying thanks."
+
 def tip_block_html():
-    """The single Chip in ask for the digest."""
+    """The single Chip in ask for the digest, with Lex's approved gift line."""
     return (
         "<strong>The digests stay free.</strong> If they’re useful and you want to chip in, "
-        "a one-off tip helps cover the running costs — coffee money is plenty.<br>"
+        "a one-off tip helps with the running costs — coffee money is plenty.<br>"
         f'<a href="{SUPPORT_URL}" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>'
+        f"{GIFT_LINE}<br>"
         "No pressure either way."
     )
 

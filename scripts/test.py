@@ -3,13 +3,14 @@ def tip_presentation(label, html_blob, txt_blob, bad):
   """Approved digest tip presentation (HTML + plain text). Chip in appears once, in the tip block."""
   if '<strong>Been somewhere lately?</strong>' not in html_blob: bad.append((label, "bold report"))
   if '<strong>The digests stay free.</strong> If they’re useful' not in html_blob or html_blob.count("<strong>The digests stay free") != 1: bad.append((label, "bold tip opener"))
-  if '<br><a href="https://campconditions.au/support/" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>No pressure either way.' not in html_blob: bad.append((label, "chip in link"))
+  if '<br><a href="https://campconditions.au/support/" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>As a thank-you, supporters get the Supporter Pack — an All-Year Trip-Prep Kit and a printable Camp Logbook. It\'s our way of saying thanks.<br>No pressure either way.' not in html_blob: bad.append((label, "chip in link"))
+  if html_blob.lower().count("supporter pack") != 1: bad.append((label, "gift line once"))
   if html_blob.count("campconditions.au/support") != 1 or ">https://campconditions.au/support" in html_blob or "→ Chip in" in html_blob: bad.append((label, "support url visible"))
   if "Chip in</a> (optional)" in html_blob: bad.append((label, "chip in twice"))
   for bit in ("Free every Thursday.", "Tell a mate about CampConditions", "What matters this weekend", "Know someone heading bush this summer?", 'href="https://campconditions.au/"', ">campconditions.au</a> to get these free updates every Thursday.", "mailto:?subject="):
     if bit not in html_blob: bad.append((label, bit))
   if txt_blob:
-    if "\nChip in $5, $10 or $20\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
+    if "\nChip in $5, $10 or $20\nAs a thank-you, supporters get the Supporter Pack — an All-Year Trip-Prep Kit and a printable Camp Logbook. It's our way of saying thanks.\nNo pressure either way." not in txt_blob or "campconditions.au/support" in txt_blob: bad.append((label + " txt", "chip in"))
     if "mailto:" in txt_blob: bad.append((label + " txt", "mailto"))
     if "Chip in (optional)" in txt_blob: bad.append((label + " txt", "chip in twice"))
     for bit in ("Free every Thursday.", "Tell a mate about CampConditions", "What matters this weekend", "Know someone heading bush this summer?", "campconditions.au (https://campconditions.au/)"):
@@ -383,10 +384,11 @@ else:
     bad.append(("digest meta", "form unsubscribe header"))
   tip_html = open(os.path.join(draft, "digest.html"), encoding="utf-8").read()
   tip_txt = open(os.path.join(draft, "digest.txt"), encoding="utf-8").read()
-  tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
+  tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps with the running costs — coffee money is plenty."
   for label, blob in (("digest.html", tip_html), ("digest.txt", tip_txt)):
     if tip_phrase not in blob: bad.append((label, "tip block"))
     if "No pressure either way." not in blob: bad.append((label, "tip close"))
+    if "As a thank-you, supporters get the Supporter Pack" not in blob: bad.append((label, "gift line"))
     if blob.count(tip_phrase) != 1: bad.append((label, "tip once"))
     report_at = blob.find("Been somewhere lately?")
     tip_at = blob.find(tip_phrase)
@@ -937,14 +939,15 @@ if "© 2026 Camp Conditions · ABN 35 589 319 392 · CampConditions.au" not in h
 if "© 2026 Camp Conditions · ABN 35 589 319 392 · CampConditions.au" not in not_found: bad.append(("404", "business-name footer"))
 if "© CampConditions.au ·" in home or "© CampConditions.au ·" in not_found: bad.append(("/", "old copyright footer"))
 if "CampConditions.au is run by Camp Conditions, a registered Australian business name." not in about: bad.append(("about", "business-name sentence"))
-# Chip-in strip (Nev, 27 Nov 2026): no-gift wording in the header's top row on every page, linking to /support/.
-_strip_long = 'Free for everyone. Help keep it that way: <strong>Chip in</strong> ›'
-_strip_short = 'Free for everyone · <strong>Chip in</strong> if it helps ›'
+# Chip-in strip (Nev, 27 Nov 2026): Lex's gift wording in the header's top row on every page, linking to /support/.
+_strip_long = 'Free for everyone. <strong>Chip in</strong> and get a thank-you gift ›'
+_strip_short = 'Free for everyone · <strong>Chip in</strong>, get a thank-you gift ›'
 for _name, _html in (("/", home), ("404", not_found), ("about", about), ("support", open(os.path.join(D, "support", "index.html"), encoding="utf-8").read()), ("thanks", open(os.path.join(D, "support", "thanks", "index.html"), encoding="utf-8").read() if os.path.isfile(os.path.join(D, "support", "thanks", "index.html")) else "")):
   _m = re.search(r'<div class="banner-row brand-row"><a class="brand" href="/">.*?</a>(<a class="chip-strip" href="/support/"[^>]*>.*?</a>)<a class="digest-cta"', _html, re.S)
   if not _m: bad.append((_name, "chip-in strip in the brand row")); continue
   if _strip_long not in _m.group(1) or _strip_short not in _m.group(1): bad.append((_name, "chip-in strip wording"))
-  if re.search(r"gift|supporter pack|donat", _m.group(1), re.I): bad.append((_name, "chip-in strip must not mention a gift or donating"))
+  if re.search(r"\bdonat", _m.group(1), re.I): bad.append((_name, "chip-in strip must not mention donating"))
+  if "thank-you gift" not in _m.group(1): bad.append((_name, "chip-in strip gift wording"))
   if _html.count('class="chip-strip"') != 1: bad.append((_name, "one chip-in strip"))
 # ABN and Lex's small print (gift-free part) on About and Privacy; ABN in the footer.
 _small = "Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. The site and the digest stay free whether or not you chip in.<br>Camp Conditions · ABN 35 589 319 392"
@@ -952,7 +955,8 @@ _privacy_html = open(os.path.join(D, "privacy", "index.html"), encoding="utf-8")
 for _name, _html in (("about", about), ("privacy", _privacy_html)):
   if _small not in _html: bad.append((_name, "business small print with ABN"))
   if "© 2026 Camp Conditions · ABN 35 589 319 392 · CampConditions.au" not in _html: bad.append((_name, "ABN footer"))
-  if re.search(r"supporter pack|thank-you gift", _html, re.I): bad.append((_name, "gift wording before the gift is live"))
+  _body = "".join(_html.split("<main>")[1:]) if "<main>" in _html else _html
+  if re.search(r"supporter pack|thank-you gift", _body, re.I): bad.append((_name, "gift wording in the page body"))
 if "Camp Conditions (ABN 35 589 319 392), a registered business name" not in _privacy_html: bad.append(("privacy", "ABN in who we are"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
@@ -2050,7 +2054,7 @@ if os.path.isfile(nsw_index):
       return int(found.group(1)) if found else -1
     qld_draft = open(os.path.join(split, "qld", "digest.html"), encoding="utf-8").read() if os.path.isdir(os.path.join(D, "qld")) else ""
     if qld_draft and ("Queensland" not in qld_draft or "Brewery Flat" in qld_draft): bad.append(("digest states", "qld copy"))
-    tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
+    tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps with the running costs — coffee money is plenty."
     for label, blob in (("digest states vic", vic_draft), ("digest states nsw", nsw_draft), ("digest states qld", qld_draft)):
       if not blob: continue
       if blob.count(tip_phrase) != 1: bad.append((label, "tip once"))
@@ -2237,14 +2241,15 @@ if os.path.isfile(nsw_index):
   if "What a tip helps with" not in support or "the domain" not in support or "hosting and email, as the site and the list grow" not in support or "the time it takes to check camp conditions and add new states" not in support:
     bad.append(("support", "what a tip helps with"))
   if "Totally optional. The site and the digest stay free either way." not in support: bad.append(("support", "optional line"))
-  if "Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. If something is wrong, email us and we'll help or refund you.<br>Camp Conditions · ABN 35 589 319 392" not in support:
+  if "Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. The site and the digest stay free whether or not you chip in. The Supporter Pack is a thank-you: a planning checklist of official links and a blank logbook. It is not live conditions and not official advice. Always check the official source before you go. If something is wrong with the download, email us and we'll help or refund you.<br>Camp Conditions · ABN 35 589 319 392" not in support:
     bad.append(("support", "small print"))
-  if "The site and the digest stay free whether or not you chip in." in support: bad.append(("support", "repeated stay-free small print"))
+  if "As a thank-you, supporters get the Supporter Pack — an All-Year Trip-Prep Kit and a printable Camp Logbook. It's our way of saying thanks." not in support or "You can download it straight after you chip in." not in support:
+    bad.append(("support", "gift lines"))
   if "<title>Chip in | CampConditions.au</title>" not in support: bad.append(("support", "title"))
   if 'content="A one-off tip to help keep CampConditions.au free. The site and the weekly digests stay free either way."' not in support: bad.append(("support", "meta"))
   support_copy = re.sub(r"https://donate\.stripe\.com/\S+", "", support)
-  if re.search(r"supporter pack|thank-you gift|\bdonation\b|\bdonate\b|\balways\b|\bforever\b|recurring", support_copy, re.I):
-    bad.append(("support", "gift, donate, always/forever or recurring wording"))
+  if re.search(r"\bdonation\b|\bdonate\b|always free|forever free|\brecurring\b", support_copy, re.I):
+    bad.append(("support", "donate, always/forever free or recurring wording"))
   support_footer = support.split("<footer>", 1)[-1].split("</footer>", 1)[0]
   support_main = support.split("<main>", 1)[-1].split("</main>", 1)[0]
   if support_footer.count("<p>") != 1 or "Site built" not in support_footer or "without warranty" not in support_footer: bad.append(("support", "standard footer"))
@@ -2253,7 +2258,7 @@ if os.path.isfile(nsw_index):
   for marker in ("DataVic", "Explore Outdoors", "Parks Victoria", "DEECA", "Vicmap", "cfa.vic.gov.au", "NPWS", "QSpatial", "Rural Fire Service", 'href="/about/#vic-sources"', 'href="/about/#nsw-sources"', 'href="/about/#qld-sources"'):
     if marker in support_footer or marker in support_main: bad.append(("support", "data attribution " + marker))
   if 'class="banner-row"' not in support or 'class="tip-btn"' not in support_main: bad.append(("support", "header or tips"))
-  # Plain static /support/thanks/ (Nev, 27 Nov 2026). No gift, no session handling, not in the sitemap.
+  # Static unpaid fallback for /support/thanks/. No gift or download in the built HTML; the function adds those only after a paid session. Not in the sitemap.
   thanks_path = os.path.join(D, "support", "thanks", "index.html")
   thanks = open(thanks_path, encoding="utf-8").read() if os.path.isfile(thanks_path) else ""
   if not thanks: bad.append(("/support/thanks/", "missing"))
@@ -2281,8 +2286,111 @@ if os.path.isfile(nsw_index):
     if "<loc>https://campconditions.au/support/thanks/</loc>" in sitemap_xml: bad.append(("sitemap", "/support/thanks/ must be omitted"))
     if "https://campconditions.au/support/thanks/" in open(os.path.join(D, "llms.txt"), encoding="utf-8").read():
       bad.append(("llms.txt", "/support/thanks/ must be omitted"))
-  if os.path.isdir(os.path.join(root, "functions", "support")):
-    bad.append(("/support/thanks/", "must have no Pages function"))
+  thanks_fn = os.path.join(root, "functions", "support", "thanks", "index.js")
+  pack_fn = os.path.join(root, "functions", "api", "supporter-pack.js")
+  pack_bin = os.path.join(root, "functions", "_lib", "supporter-pack.bin")
+  pack_lib = os.path.join(root, "functions", "_lib", "supporter-pack.js")
+  if not os.path.isfile(thanks_fn) or not os.path.isfile(pack_fn) or not os.path.isfile(pack_lib):
+    bad.append(("/support/thanks/", "pages function missing"))
+  else:
+    fn_src = open(thanks_fn, encoding="utf-8").read() + open(pack_fn, encoding="utf-8").read() + open(pack_lib, encoding="utf-8").read()
+    if "customer_details" in fn_src and "publicSessionFacts" not in fn_src:
+      bad.append(("/support/thanks/", "function must discard payer details"))
+    if "console.log" in fn_src or "console.info" in fn_src or "console.debug" in fn_src:
+      bad.append(("/support/thanks/", "function must not log"))
+    if "resend" in fn_src.lower() or "mailto:" in fn_src and "campconditions@outlook.com" not in fn_src:
+      bad.append(("/support/thanks/", "function must not send email"))
+    if 'from "../_lib/supporter-pack.bin"' not in open(pack_fn, encoding="utf-8").read():
+      bad.append(("/support/thanks/", "pack must be imported as a binary module"))
+  pack_sha = "b8bac948aa114b746957625149d284d7322e3f2e7d1d303f23ec914cd45797c7"
+  if not os.path.isfile(pack_bin):
+    bad.append(("/support/thanks/", "pack binary missing from the function sources"))
+  elif hashlib.sha256(open(pack_bin, "rb").read()).hexdigest() != pack_sha:
+    bad.append(("/support/thanks/", "pack binary hash"))
+  for rel in (
+    "supporter-pack.pdf",
+    "supporter-pack.bin",
+    os.path.join("support", "thanks", "supporter-pack.pdf"),
+    os.path.join("support", "thanks", "supporter-pack.bin"),
+    os.path.join("_lib", "supporter-pack.pdf"),
+    os.path.join("_lib", "supporter-pack.bin"),
+    os.path.join("functions", "_lib", "supporter-pack.bin"),
+  ):
+    if os.path.isfile(os.path.join(D, rel)):
+      bad.append(("/support/thanks/", "pack must not be a public static file"))
+  # The Pages Function is unit-tested below with a mocked Stripe retrieve (no live key).
+  pack_test = subprocess.run(["node", "--import", "./scripts/bin-hooks.js", "--input-type=module", "-e", r"""
+import { readFileSync } from "node:fs";
+import { PACK_TTL_SECONDS, isPaidSession, makeDownloadPath, paidThanksHtml, publicSessionFacts, readDownload, retrievePaidSession, sessionIdFromQuery, signDownload } from "./functions/_lib/supporter-pack.js";
+import { onRequestGet as thanksGet } from "./functions/support/thanks/index.js";
+import { onRequestGet as packGet } from "./functions/api/supporter-pack.js";
+
+const sid = "cs_test_paidSessionExample0001";
+const secret = "preview-signing-secret-not-used-live";
+const envBase = { STRIPE_CHECKOUT_READ_KEY: "sk_test_preview", STRIPE_LIVEMODE: "false", PACK_SIGNING_SECRET: secret };
+
+const facts = publicSessionFacts({
+  id: sid, payment_status: "paid", status: "complete", livemode: false,
+  amount_total: 500, currency: "aud",
+  customer_details: { email: "payer@example.com" }, customer_email: "payer@example.com"
+});
+if (facts.customer_details || facts.customer_email || facts.email) { console.error("pii leaked into facts"); process.exit(1); }
+if (!isPaidSession(facts, false) || isPaidSession(facts, true)) { console.error("livemode gate"); process.exit(1); }
+if (sessionIdFromQuery("not-a-session") || sessionIdFromQuery("cs_live_;drop")) { console.error("session id"); process.exit(1); }
+
+const path = await makeDownloadPath(secret, sid, Date.now());
+const params = Object.fromEntries(new URL("https://campconditions.au" + path).searchParams);
+const ok = await readDownload(secret, params);
+if (!ok || ok.sessionId !== sid) { console.error("sign/read"); process.exit(1); }
+const expired = await readDownload(secret, params, Date.now() + (PACK_TTL_SECONDS + 120) * 1000);
+if (expired) { console.error("expiry"); process.exit(1); }
+const bad = await readDownload(secret, { ...params, sig: "0".repeat(params.sig.length) });
+if (bad) { console.error("bad sig"); process.exit(1); }
+
+let seenEmail = false;
+const paidFetch = async (url, init) => {
+  if (String(init.headers.Authorization || "").includes("sk_test_preview") === false) process.exit(1);
+  return new Response(JSON.stringify({
+    id: sid, payment_status: "paid", status: "complete", livemode: false,
+    customer_details: { email: "payer@example.com" }, customer_email: "payer@example.com"
+  }), { status: 200 });
+};
+const retrieved = await retrievePaidSession({ ...envBase, }, sid, paidFetch);
+if (!retrieved.paid || retrieved.facts.email || retrieved.facts.customer_details) { console.error("retrieve pii"); process.exit(1); }
+
+const unpaidFetch = async () => new Response(JSON.stringify({ id: sid, payment_status: "unpaid", status: "open", livemode: false }), { status: 200 });
+const unpaid = await retrievePaidSession(envBase, sid, unpaidFetch);
+if (unpaid.paid) { console.error("unpaid treated paid"); process.exit(1); }
+
+const shell = "<html><head><title>Thanks | CampConditions.au</title><meta name=\"robots\" content=\"noindex\"></head><body><header><div class=\"banner-row\"></div><div class=\"banner-row\"></div></header><main><h1>Thanks for chipping in</h1><p>Your tip helps keep CampConditions.au free for everyone. Thank you.</p></main><footer><p>ABN</p></footer></body></html>";
+const paidPage = paidThanksHtml(shell, path);
+if (!paidPage.includes("Download the Supporter Pack (PDF)") || !paidPage.includes(path.replaceAll("&", "&amp;")) || paidPage.includes("payer@example.com") || paidPage.includes("customer_details")) { console.error("paid html"); process.exit(1); }
+if (!paidPage.includes("It genuinely helps keep CampConditions.au free for everyone.") || !paidPage.includes("with the download")) { console.error("paid copy"); process.exit(1); }
+
+const plain = "<html><main><h1>Thanks for chipping in</h1><p>Your tip helps keep CampConditions.au free for everyone. Thank you.</p></main></html>";
+const env = {
+  ...envBase,
+  STRIPE_FETCH: paidFetch,
+  PACK_BYTES: new Uint8Array([37, 80, 68, 70]),
+  ASSETS: { fetch: async () => new Response(plain, { status: 200, headers: { "content-type": "text/html" } }) }
+};
+const thanksPaid = await thanksGet({ request: new Request("https://campconditions.au/support/thanks/?session_id=" + sid), env });
+const thanksPaidHtml = await thanksPaid.text();
+if (thanksPaid.status !== 200 || !thanksPaidHtml.includes("Download the Supporter Pack") || thanksPaidHtml.includes("payer@example.com")) { console.error("thanks paid"); process.exit(1); }
+const thanksPlain = await thanksGet({ request: new Request("https://campconditions.au/support/thanks/?session_id=cs_test_nope"), env: { ...env, STRIPE_FETCH: unpaidFetch } });
+const thanksPlainHtml = await thanksPlain.text();
+if (!thanksPlainHtml.includes("Your tip helps keep CampConditions.au free for everyone") || thanksPlainHtml.includes("Download the Supporter Pack")) { console.error("thanks unpaid"); process.exit(1); }
+
+const packRes = await packGet({ request: new Request("https://campconditions.au" + path), env });
+if (packRes.status !== 200 || packRes.headers.get("content-type") !== "application/pdf") { console.error("pack status " + packRes.status); process.exit(1); }
+const packDenied = await packGet({ request: new Request("https://campconditions.au/api/supporter-pack?sid=" + sid + "&exp=1&sig=dead"), env });
+if (packDenied.status !== 403) { console.error("pack must reject a bad token"); process.exit(1); }
+
+const src = readFileSync("./functions/_lib/supporter-pack.js", "utf8") + readFileSync("./functions/support/thanks/index.js", "utf8") + readFileSync("./functions/api/supporter-pack.js", "utf8");
+if (src.includes("console.log") || /resend/i.test(src)) { console.error("log or email send"); process.exit(1); }
+"""], cwd=root, capture_output=True, text=True)
+  if pack_test.returncode != 0:
+    bad.append(("/support/thanks/", "function tests: " + (pack_test.stderr or pack_test.stdout)[-240:]))
   for line in ("/nsw/camp/bulahdelah-rest-area/ /nsw/camp/lions-park-bulahdelah/ 301", "/nsw/camp/red-devil-camping/ /nsw/camp/red-devils-campsite/ 301",
                "/tas/camp/new-pelion-hut-tas-list-cs-62194 /tas/camp/new-pelion-hut/ 301",
                "/tas/camp/waterfall-valley-hut-tas-list-cs-62192/ /tas/camp/waterfall-valley-hut/ 301",

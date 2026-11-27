@@ -1,5 +1,6 @@
 import { checkoutKey, readDownload, retrievePaidSession, signingSecret } from "../_lib/supporter-pack.js";
 import { PACK_FILENAME } from "../_lib/supporter-pack.js";
+import packData from "../_lib/supporter-pack.bin";
 
 function gone() {
   return new Response("This download link has expired or is not valid.", {
@@ -8,10 +9,9 @@ function gone() {
   });
 }
 
-async function packBytes() {
-  const res = await fetch(new URL("../_lib/supporter-pack.pdf", import.meta.url));
-  if (!res.ok) throw new Error("pack missing");
-  return new Uint8Array(await res.arrayBuffer());
+function packBytesFromModule() {
+  if (packData instanceof Uint8Array) return packData;
+  return new Uint8Array(packData);
 }
 
 export async function onRequestGet(context) {
@@ -33,7 +33,7 @@ export async function onRequestGet(context) {
   if (!paid) return gone();
   let bytes;
   try {
-    bytes = context.env.PACK_BYTES || (await packBytes());
+    bytes = context.env.PACK_BYTES || packBytesFromModule();
   } catch {
     return new Response("The pack is temporarily unavailable.", { status: 503, headers: { "content-type": "text/plain; charset=utf-8" } });
   }

@@ -2288,7 +2288,7 @@ if os.path.isfile(nsw_index):
       bad.append(("llms.txt", "/support/thanks/ must be omitted"))
   thanks_fn = os.path.join(root, "functions", "support", "thanks", "index.js")
   pack_fn = os.path.join(root, "functions", "api", "supporter-pack.js")
-  pack_pdf = os.path.join(root, "functions", "_lib", "supporter-pack.pdf")
+  pack_bin = os.path.join(root, "functions", "_lib", "supporter-pack.bin")
   pack_lib = os.path.join(root, "functions", "_lib", "supporter-pack.js")
   if not os.path.isfile(thanks_fn) or not os.path.isfile(pack_fn) or not os.path.isfile(pack_lib):
     bad.append(("/support/thanks/", "pages function missing"))
@@ -2300,12 +2300,26 @@ if os.path.isfile(nsw_index):
       bad.append(("/support/thanks/", "function must not log"))
     if "resend" in fn_src.lower() or "mailto:" in fn_src and "campconditions@outlook.com" not in fn_src:
       bad.append(("/support/thanks/", "function must not send email"))
-  if not os.path.isfile(pack_pdf):
-    bad.append(("/support/thanks/", "pack pdf missing from the function bundle"))
-  if os.path.isfile(os.path.join(D, "supporter-pack.pdf")) or os.path.isfile(os.path.join(D, "support", "thanks", "supporter-pack.pdf")):
-    bad.append(("/support/thanks/", "pack pdf must not be a public static file"))
+    if 'from "../_lib/supporter-pack.bin"' not in open(pack_fn, encoding="utf-8").read():
+      bad.append(("/support/thanks/", "pack must be imported as a binary module"))
+  pack_sha = "b8bac948aa114b746957625149d284d7322e3f2e7d1d303f23ec914cd45797c7"
+  if not os.path.isfile(pack_bin):
+    bad.append(("/support/thanks/", "pack binary missing from the function sources"))
+  elif hashlib.sha256(open(pack_bin, "rb").read()).hexdigest() != pack_sha:
+    bad.append(("/support/thanks/", "pack binary hash"))
+  for rel in (
+    "supporter-pack.pdf",
+    "supporter-pack.bin",
+    os.path.join("support", "thanks", "supporter-pack.pdf"),
+    os.path.join("support", "thanks", "supporter-pack.bin"),
+    os.path.join("_lib", "supporter-pack.pdf"),
+    os.path.join("_lib", "supporter-pack.bin"),
+    os.path.join("functions", "_lib", "supporter-pack.bin"),
+  ):
+    if os.path.isfile(os.path.join(D, rel)):
+      bad.append(("/support/thanks/", "pack must not be a public static file"))
   # The Pages Function is unit-tested below with a mocked Stripe retrieve (no live key).
-  pack_test = subprocess.run(["node", "--input-type=module", "-e", r"""
+  pack_test = subprocess.run(["node", "--import", "./scripts/bin-hooks.js", "--input-type=module", "-e", r"""
 import { readFileSync } from "node:fs";
 import { PACK_TTL_SECONDS, isPaidSession, makeDownloadPath, paidThanksHtml, publicSessionFacts, readDownload, retrievePaidSession, sessionIdFromQuery, signDownload } from "./functions/_lib/supporter-pack.js";
 import { onRequestGet as thanksGet } from "./functions/support/thanks/index.js";

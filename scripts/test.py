@@ -384,7 +384,7 @@ else:
     bad.append(("digest meta", "form unsubscribe header"))
   tip_html = open(os.path.join(draft, "digest.html"), encoding="utf-8").read()
   tip_txt = open(os.path.join(draft, "digest.txt"), encoding="utf-8").read()
-  tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
+  tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps with the running costs — coffee money is plenty."
   for label, blob in (("digest.html", tip_html), ("digest.txt", tip_txt)):
     if tip_phrase not in blob: bad.append((label, "tip block"))
     if "No pressure either way." not in blob: bad.append((label, "tip close"))
@@ -2054,7 +2054,7 @@ if os.path.isfile(nsw_index):
       return int(found.group(1)) if found else -1
     qld_draft = open(os.path.join(split, "qld", "digest.html"), encoding="utf-8").read() if os.path.isdir(os.path.join(D, "qld")) else ""
     if qld_draft and ("Queensland" not in qld_draft or "Brewery Flat" in qld_draft): bad.append(("digest states", "qld copy"))
-    tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps cover the running costs — coffee money is plenty."
+    tip_phrase = "If they’re useful and you want to chip in, a one-off tip helps with the running costs — coffee money is plenty."
     for label, blob in (("digest states vic", vic_draft), ("digest states nsw", nsw_draft), ("digest states qld", qld_draft)):
       if not blob: continue
       if blob.count(tip_phrase) != 1: bad.append((label, "tip once"))

@@ -87,7 +87,7 @@ def tip_block_html():
     """The single Chip in ask for the digest, with Lex's approved gift line."""
     return (
         "<strong>The digests stay free.</strong> If they’re useful and you want to chip in, "
-        "a one-off tip helps cover the running costs — coffee money is plenty.<br>"
+        "a one-off tip helps with the running costs — coffee money is plenty.<br>"
         f'<a href="{SUPPORT_URL}" style="color:#2f5d3a;">Chip in</a> $5, $10 or $20<br>'
         f"{GIFT_LINE}<br>"
         "No pressure either way."

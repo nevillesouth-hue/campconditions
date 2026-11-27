@@ -2460,7 +2460,7 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
     shared = len(statecfg.enabled()) > 1 and path in {"/", "/about/", "/privacy/", "/report/", "/terms/", "/unsubscribe/", "/faq/", "/about-the-data/", "/closures-this-weekend/", "/fire-season/"}
     # /support/ is not a data page. Leave every other page's state credit line alone.
     # /trip-check/ publishes no camp data, same as /support/.
-    show_credits = path not in {"/support/", "/trip-check/"}
+    show_credits = path not in {"/support/", "/support/thanks/", "/trip-check/"}
     og_title, og_desc = title, desc
     if path == "/":
         # Link-preview copy uses a rounded count (4,800+) so it does not go stale on
@@ -3812,6 +3812,14 @@ page("/support/", "Chip in | CampConditions.au",
  + "".join(f'<li><a class="tip-btn" href="{url}">{label}</a></li>' for label, url in TIP_CHECKOUTS) + "</ul>\n"
  "<p class=\"optional-line muted\">Totally optional. The site and the digest stay free either way.</p>\n"
  + SUPPORT_SMALL_PRINT_HTML)
+# Plain static thanks page (Nev, 27 Nov 2026). No gift, no session handling, not in the sitemap.
+page("/support/thanks/", "Thanks | CampConditions.au",
+ "Thanks for a one-off tip that helps keep CampConditions.au free.",
+ "<h1>Thanks for chipping in</h1>\n"
+ "<p>Your tip helps keep CampConditions.au free for everyone. Thank you.</p>\n"
+ "<p>If something is wrong, email us at <a href=\"mailto:campconditions@outlook.com\">campconditions@outlook.com</a> and we'll help or refund you.</p>\n"
+ "<p><a class=\"back-map\" href=\"/\">← Back to the camps</a></p>",
+ head='<meta name="robots" content="noindex">')
 page("/unsubscribe/", "Unsubscribe | CampConditions.au", "Unsubscribe from the CampConditions.au weekly digest.",
  """<h1>Unsubscribe</h1>
 <p>Every CampConditions email has a one-click unsubscribe link. It works without an account, and you don't need to log in. Open the link in the email and you're off the list.</p>

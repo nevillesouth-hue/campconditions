@@ -2154,7 +2154,7 @@ if os.path.isfile(nsw_index):
       bad.append(("_redirects", f"removed QLD caravan park {old} must redirect to {target}"))
   if "/support" in redirects or "fZu4gs0Oafib8eX0QUfQI00" in redirects: bad.append(("_redirects", "old support redirect"))
   support = open(os.path.join(D, "support", "index.html"), encoding="utf-8").read()
-  tips = {"Tip A$5": "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01", "Tip A$10": "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02", "Tip A$20": "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"}
+  tips = {"Chip in A$5": "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01", "Chip in A$10": "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02", "Chip in A$20": "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"}
   for label, url in tips.items():
     if not re.search(r'class="tip-btn" href="' + re.escape(url) + r'"[^>]*>' + re.escape(label) + '</a>', support): bad.append(("support", label))
   sitemap_xml = open(os.path.join(D, "sitemap.xml"), encoding="utf-8").read()
@@ -2231,8 +2231,20 @@ if os.path.isfile(nsw_index):
       if not re.search(r'<p class="head-counts"><span class="badge closed" id="count-closed">\d+ closed</span> <span class="badge check" id="count-check">\d+ to check</span></p>', sh): bad.append((st, "hero closed/to-check badges"))
   if support.count('class="tip-btn"') != 3 or support.count("donate.stripe.com") != 3: bad.append(("support", "three buttons"))
   if "fZu4gs0Oafib8eX0QUfQI00" in support or "plink_" in support: bad.append(("support", "old link"))
-  if "The digests stay free. If you find them useful, an optional one-off tip helps cover the running costs. Thank you." not in support: bad.append(("support", "wording"))
-  if "<title>CampConditions tip" not in support or any(w in support.lower() for w in ("tax-deductible", "charity", "donation", "recurring")): bad.append(("support", "title/claims"))
+  if "<h1>Help keep CampConditions.au free for everyone</h1>" not in support: bad.append(("support", "heading"))
+  if "The site and the weekly digests stay free, with no paywall and no logins." not in support: bad.append(("support", "intro free"))
+  if "If we’ve saved you a wasted drive, a one-off tip of A$5, A$10 or A$20 is a genuine help. Thank you." not in support: bad.append(("support", "intro we’ve"))
+  if "What a tip helps with" not in support or "the domain" not in support or "hosting and email, as the site and the list grow" not in support or "the time it takes to check camp conditions and add new states" not in support:
+    bad.append(("support", "what a tip helps with"))
+  if "Totally optional. The site and the digest stay free either way." not in support: bad.append(("support", "optional line"))
+  if "Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. If something is wrong, email us and we'll help or refund you.<br>Camp Conditions · ABN 35 589 319 392" not in support:
+    bad.append(("support", "small print"))
+  if "The site and the digest stay free whether or not you chip in." in support: bad.append(("support", "repeated stay-free small print"))
+  if "<title>Chip in | CampConditions.au</title>" not in support: bad.append(("support", "title"))
+  if 'content="A one-off tip to help keep CampConditions.au free. The site and the weekly digests stay free either way."' not in support: bad.append(("support", "meta"))
+  support_copy = re.sub(r"https://donate\.stripe\.com/\S+", "", support)
+  if re.search(r"supporter pack|thank-you gift|\bdonation\b|\bdonate\b|\balways\b|\bforever\b|recurring", support_copy, re.I):
+    bad.append(("support", "gift, donate, always/forever or recurring wording"))
   support_footer = support.split("<footer>", 1)[-1].split("</footer>", 1)[0]
   support_main = support.split("<main>", 1)[-1].split("</main>", 1)[0]
   if support_footer.count("<p>") != 1 or "Site built" not in support_footer or "without warranty" not in support_footer: bad.append(("support", "standard footer"))

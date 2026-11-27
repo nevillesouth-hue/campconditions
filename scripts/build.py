@@ -4152,9 +4152,9 @@ data_page()
 def status_feed_dataset():
     """Dataset for /status.json. Sources and cadence are the ones this build uses.
 
-    The feed mixes licences, so this does not set a single license. Attribution
-    stays on /about-the-data/. The source sentence is the one already used on
-    the FAQ, not a new claim.
+    The feed mixes source licences, so license points at the site Terms of use
+    rather than a single open licence. Attribution stays on /about-the-data/.
+    The source sentence is the one already used on the FAQ, not a new claim.
     """
     sources = (
         "Victoria: DataVic Recreation Sites and Explore Outdoors (DEECA), Parks Victoria / DEECA MapShare closures and CFA fire danger ratings. "
@@ -4182,6 +4182,7 @@ def status_feed_dataset():
         "creator": {"@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": list(ORG_SAME_AS)},
         "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": SITE + "/status.json"}],
         "usageInfo": SITE + "/about-the-data/",
+        "license": SITE + "/terms/",
         "creditText": "Attribution for each source is on " + SITE + "/about-the-data/.",
     }
 def insert_jsonld(url_path, blocks):

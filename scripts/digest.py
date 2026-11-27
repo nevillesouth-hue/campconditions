@@ -133,7 +133,7 @@ def write_digest(state, rows, prev_rows, generated, generated_text, dest, alerts
     foot = (copy["digest_footer"]
             + f'CampConditions.au · <a href="https://campconditions.au/privacy/" style="color:#666666;">Privacy</a> · '
             + f'<a href="{unsub}" style="color:#666666;">Unsubscribe from this digest</a>'
-            + '<br>Sent by Camp Conditions, the registered business behind CampConditions.au.')
+            + '<br>Sent by Camp Conditions (ABN 35 589 319 392), the registered business behind CampConditions.au.')
     body = "".join(body_rows) + f'<tr><td style="{style}font-size:12px;line-height:18px;color:#666666;padding-top:24px;">{foot}</td></tr>'
     doc = f"""<!DOCTYPE html><html lang="en-AU"><head><meta charset="utf-8"><title>{e(subject)}</title></head>
 <body style="margin:0;background:#fbfaf6;"><div style="display:none;max-height:0;overflow:hidden;">{e(preview)}</div>

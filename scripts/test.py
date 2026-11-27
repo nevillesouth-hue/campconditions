@@ -341,7 +341,7 @@ if not os.path.isfile(priv_path):
   bad.append(("/privacy/", "missing"))
 else:
   priv = open(priv_path, encoding="utf-8").read()
-  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "Camp Conditions, a registered business name", "We publish a free weekly digest", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "don't sell, rent or swap", "Changes to this policy",
+  for bit in (_priv_date, "campconditions@outlook.com", _priv_states, "Camp Conditions (ABN 35 589 319 392), a registered business name", "We publish a free weekly digest", "email address", "date and time", "tracking cookies", "Cloudflare", "IP address", "Resend", "outside Australia", "double opt-in", "unsubscribe link", "within 30 days", "OAIC", "don't sell, rent or swap", "Changes to this policy",
               "Trip Check waitlist", "first name", "camper report", "Stripe", "never your full card number", "last four digits", "don't track opens or clicks",
               "sent from Japan", "stored in the United States", "keyed hash", "6 years after the last email", "backup copies of the list",
               "date and time you confirmed", "12 months"):
@@ -370,7 +370,7 @@ if digest.returncode != 0:
 else:
   for name in ("digest.html", "digest.txt"):
     blob = open(os.path.join(draft, name), encoding="utf-8").read()
-    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe from this digest", "Sent by Camp Conditions, the registered business behind CampConditions.au."):
+    for bit in ("CampConditions.au", "https://campconditions.au/privacy/", "{{{RESEND_UNSUBSCRIBE_URL}}}", "Unsubscribe from this digest", "Sent by Camp Conditions (ABN 35 589 319 392), the registered business behind CampConditions.au."):
       if bit not in blob: bad.append((name, bit))
     if "https://campconditions.au/unsubscribe/" in blob or "https://campconditions.au/api/unsubscribe?e={{{EMAIL}}}" in blob:
       bad.append((name, "form unsubscribe link"))
@@ -897,7 +897,7 @@ for _state in ("vic", "nsw", "qld", "sa", "tas"):
     f'name="camp" value="{_sample["slug"]}"', f'name="state" value="{_state}"',
     'class="banner-row"', "flex:1 0 100%;flex-wrap:nowrap",
   )
-  if any(bit not in _html for bit in _need) or _html.count('class="banner-row"') != 2 or _html.find("</header>") > _html.find('id="visitor-report"'):
+  if any(bit not in _html for bit in _need) or _html.count('class="banner-row') != 2 or _html.find("</header>") > _html.find('id="visitor-report"'):
     bad.append((_sample["slug"], "visitor report form"))
   if not _warning_kept(_html, states.by_slug(_state).get("safety_html") or ""):
     bad.append((_sample["slug"], "state disclaimer"))
@@ -933,10 +933,27 @@ if "Victorian camp conditions and closures" in home: bad.append(("/", "old share
 not_found = open(os.path.join(D, "404.html"), encoding="utf-8").read()
 if "/site.webmanifest" not in not_found or "og-image-vic-nsw-qld-sa-tas.png?v=20261110" not in not_found: bad.append(("404", "icons"))
 if 'class="digest-cta" href="/#newsletter"' not in not_found: bad.append(("404", "newsletter button"))
-if "© 2026 Camp Conditions · CampConditions.au" not in home: bad.append(("/", "business-name footer"))
-if "© 2026 Camp Conditions · CampConditions.au" not in not_found: bad.append(("404", "business-name footer"))
+if "© 2026 Camp Conditions · ABN 35 589 319 392 · CampConditions.au" not in home: bad.append(("/", "business-name footer"))
+if "© 2026 Camp Conditions · ABN 35 589 319 392 · CampConditions.au" not in not_found: bad.append(("404", "business-name footer"))
 if "© CampConditions.au ·" in home or "© CampConditions.au ·" in not_found: bad.append(("/", "old copyright footer"))
 if "CampConditions.au is run by Camp Conditions, a registered Australian business name." not in about: bad.append(("about", "business-name sentence"))
+# Chip-in strip (Nev, 27 Nov 2026): no-gift wording in the header's top row on every page, linking to /support/.
+_strip_long = 'Free for everyone. Help keep it that way: <strong>Chip in</strong> ›'
+_strip_short = 'Free for everyone · <strong>Chip in</strong> if it helps ›'
+for _name, _html in (("/", home), ("404", not_found), ("about", about), ("support", open(os.path.join(D, "support", "index.html"), encoding="utf-8").read())):
+  _m = re.search(r'<div class="banner-row brand-row"><a class="brand" href="/">.*?</a>(<a class="chip-strip" href="/support/"[^>]*>.*?</a>)<a class="digest-cta"', _html, re.S)
+  if not _m: bad.append((_name, "chip-in strip in the brand row")); continue
+  if _strip_long not in _m.group(1) or _strip_short not in _m.group(1): bad.append((_name, "chip-in strip wording"))
+  if re.search(r"gift|supporter pack|donat", _m.group(1), re.I): bad.append((_name, "chip-in strip must not mention a gift or donating"))
+  if _html.count('class="chip-strip"') != 1: bad.append((_name, "one chip-in strip"))
+# ABN and Lex's small print (gift-free part) on About and Privacy; ABN in the footer.
+_small = "Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. The site and the digest stay free whether or not you chip in.<br>Camp Conditions · ABN 35 589 319 392"
+_privacy_html = open(os.path.join(D, "privacy", "index.html"), encoding="utf-8").read()
+for _name, _html in (("about", about), ("privacy", _privacy_html)):
+  if _small not in _html: bad.append((_name, "business small print with ABN"))
+  if "© 2026 Camp Conditions · ABN 35 589 319 392 · CampConditions.au" not in _html: bad.append((_name, "ABN footer"))
+  if re.search(r"supporter pack|thank-you gift", _html, re.I): bad.append((_name, "gift wording before the gift is live"))
+if "Camp Conditions (ABN 35 589 319 392), a registered business name" not in _privacy_html: bad.append(("privacy", "ABN in who we are"))
 logo = os.path.join(D, "assets", "brand", "logo-160.png")
 if not os.path.isfile(logo) or os.path.getsize(logo) < 1000: bad.append(("logo-160.png", os.path.getsize(logo) if os.path.isfile(logo) else "missing"))
 manifest = json.load(open(os.path.join(D, "site.webmanifest"), encoding="utf-8"))
@@ -1948,7 +1965,7 @@ nsw_index = os.path.join(D, "nsw", "index.html")
 if os.path.isfile(nsw_index):
   nsw_html = open(nsw_index, encoding="utf-8").read()
   if "NPWS Visitor Area" not in nsw_html or "CC BY" not in nsw_html: bad.append(("nsw", "attribution"))
-  if home.count('class="banner-row"') != 2 or nsw_html.count('class="banner-row"') != 2 or vic.count('class="banner-row"') != 2: bad.append(("nav", "header rows"))
+  if home.count('class="banner-row') != 2 or nsw_html.count('class="banner-row') != 2 or vic.count('class="banner-row') != 2: bad.append(("nav", "header rows"))
   if 'id="state-jump"' in home or "<strong>VIC</strong>" in home or "<strong>NSW</strong>" in home: bad.append(("/", "state jump"))
   if 'class="state-pick"' not in home or 'aria-label="All states"' not in home or ">All <" not in home: bad.append(("/", "national header"))
   if '<p class="soon">' in home or '<p class="soon">' in vic or '<p class="soon">' in nsw_html: bad.append(("/", "soon bar"))
@@ -2120,7 +2137,7 @@ if os.path.isfile(nsw_index):
   else:
     fire_head = fire_season.split("<main>", 1)[0]
     fire_main = fire_season.split("<main>", 1)[-1].split("</main>", 1)[0]
-    if fire_season.count('class="banner-row"') != 2 or 'href="/fire-season/"' in fire_head:
+    if fire_season.count('class="banner-row') != 2 or 'href="/fire-season/"' in fire_head:
       bad.append(("/fire-season/", "header"))
     if '<link rel="canonical" href="https://campconditions.au/fire-season/"' not in fire_season:
       bad.append(("/fire-season/", "canonical"))
@@ -2288,7 +2305,7 @@ if os.path.isfile(nsw_index):
     if 'name="states" value="nsw" checked' not in html_page or 'name="states" value="vic" checked' in html_page:
       bad.append((camp["slug"], "signup states")); break
     main = html_page.split("<main>", 1)[-1]
-    if html_page.count('class="banner-row"') != 2: bad.append((camp["slug"], "header rows")); break
+    if html_page.count('class="banner-row') != 2: bad.append((camp["slug"], "header rows")); break
     if "Total fire ban:" in html_page.split("<main>", 1)[0]: bad.append((camp["slug"], "fire in header")); break
     if "Total fire ban:" not in main:
       continue
@@ -2315,7 +2332,7 @@ if os.path.isfile(nsw_index):
       continue
     html_page = open(page, encoding="utf-8").read()
     main = html_page.split("<main>", 1)[-1]
-    if html_page.count('class="banner-row"') != 2: bad.append((camp["slug"], "header rows")); break
+    if html_page.count('class="banner-row') != 2: bad.append((camp["slug"], "header rows")); break
     if "Check CFA fire danger" not in main:
       continue
     cfa_pages += 1
@@ -2951,7 +2968,7 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
   for _qp in _q_pages:
     _qh = open(_qp, encoding="utf-8").read() if os.path.isfile(_qp) else ""
     if 'id="digest-form"' not in _qh or 'name="states" value="qld" checked' not in _qh or 'name="states" value="vic" checked' in _qh or 'name="states" value="nsw" checked' in _qh: bad.append((_qp[len(D):], "qld signup form"))
-    if 'class="digest-cta" href="#newsletter"' not in _qh or '<a href="#newsletter">Free digest</a>' not in _qh or _qh.count('class="banner-row"') != 2: bad.append((_qp[len(D):], "qld digest links"))
+    if 'class="digest-cta" href="#newsletter"' not in _qh or '<a href="#newsletter">Free digest</a>' not in _qh or _qh.count('class="banner-row') != 2: bad.append((_qp[len(D):], "qld digest links"))
   _priv = open(os.path.join(D, "privacy", "index.html"), encoding="utf-8").read()
   if _priv_states not in _priv or "Queensland" not in _priv: bad.append(("/privacy/", "qld digest"))
   _q_src = open(os.path.join(D, "status.json"), encoding="utf-8").read()
@@ -3008,7 +3025,7 @@ for _st in ("vic", "nsw", "qld"):
       _para = re.search(r'<p class="muted fire-line fire-unmapped"[^>]*>(.*?)</p>', _t, re.S)
       if not _para or "No fire district mapped" not in _para.group(1) or "no rating" in _para.group(1).lower():
         bad.append((_slug, "unmapped fire wording")); continue
-      if _t.count('class="banner-row"') != 2: bad.append((_slug, "header rows"))
+      if _t.count('class="banner-row') != 2: bad.append((_slug, "header rows"))
     if "Nearest official district:" in _t:
       _fallback_pages += 1
       _line = re.search(r'<p class="muted fire-line"[^>]*>(.*?)</p>', _t, re.S)

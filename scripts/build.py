@@ -952,6 +952,14 @@ nav a{color:#e8f0e9;text-decoration:none;font-weight:400;font-size:.95rem;white-
 .digest-cta{order:2;margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:.32rem;background:#f6c445;color:#1a1208;text-decoration:none;font-weight:700;font-size:.76rem;line-height:1.1;padding:.32rem .6rem;border-radius:6px;white-space:nowrap;min-height:32px}
 .digest-cta:hover{background:#ffd36a;color:#1a1208}
 .digest-cta:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.banner-row.brand-row{position:relative}
+.chip-strip{order:1;margin:0 auto;flex:0 1 auto;min-width:0;display:inline-flex;align-items:center;color:#fff;text-decoration:none;font-size:.9rem;line-height:1.2;white-space:nowrap;padding:.38rem .85rem;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(246,196,69,.75)}
+.chip-strip strong{color:#f6c445;text-decoration:underline;text-underline-offset:2px}.chip-strip:hover{background:rgba(255,255,255,.18)}.chip-strip:focus-visible{outline:3px solid #fff;outline-offset:2px}.chip-strip .cs-short{display:none}
+@media (max-width:1099px){.chip-strip{position:absolute;margin:0;left:auto;right:0;bottom:.05rem;padding:.1rem 0;border:0;border-radius:0;background:none;font-size:.78rem;line-height:1.15;color:#e8f0e9}.chip-strip .cs-long{display:none}.chip-strip .cs-short{display:inline}}
+@media (max-width:799px){.chip-strip{font-size:.68rem}}
+@media (max-width:720px){.chip-strip{right:0;left:calc(clamp(2.9rem,15.9vw,4.8rem) + .3rem);bottom:0;font-size:.74rem}}
+@media (max-width:370px){.chip-strip{font-size:.68rem}}
+.small-print{font-size:.85rem;color:#555}
 .tip-list{list-style:none;margin:1.5em 0;padding:0;display:flex;flex-direction:column;gap:1em;max-width:20em}.tip-btn{display:block;text-align:center;padding:.9em 1em;background:var(--g);color:#fff;border-radius:8px;font-weight:600;font-size:1.1em;text-decoration:none}.tip-btn:hover{background:#244a2e}.tip-btn:focus-visible{outline:3px solid var(--o);outline-offset:3px}
 .digest-icon{display:block;flex:0 0 auto;width:14px;height:14px}
 .digest-cta-short,.digest-cta-narrow{display:none}.digest-cta-mini{display:none}
@@ -1139,6 +1147,18 @@ def state_nav(national=False):
     return (f'<details class="state-pick"><summary aria-label="State: {label}">{e(abbrev)} '
             f'{caret}</summary>'
             f'<div class="state-menu">{"".join(options)}</div></details>')
+# Chip-in strip in the header's top row (Nev, 27 Nov 2026). No-gift wording from Lex's review, section 11.3.
+# It sits in space the logo already reserves, so the header does not grow. No gift is mentioned until Stripe is ready.
+CHIP_STRIP = ('<a class="chip-strip" href="/support/" aria-label="Free for everyone. Help keep it that way: Chip in">'
+              '<span class="cs-long">Free for everyone. Help keep it that way: <strong>Chip in</strong> ›</span>'
+              '<span class="cs-short">Free for everyone · <strong>Chip in</strong> if it helps ›</span></a>')
+# Business identity (Nev approved showing the ABN, 27 Nov 2026). Small print is Lex's section 11.3 text,
+# limited to the sentences that do not mention the thank-you gift.
+ABN = "35 589 319 392"
+ABN_LINE = f"Camp Conditions · ABN {ABN}"
+BUSINESS_SMALL_PRINT = ("Camp Conditions is a small Australian business, not a charity. Tips are voluntary and are not tax-deductible. "
+                        "The site and the digest stay free whether or not you chip in.")
+SMALL_PRINT_HTML = f'<p class="small-print">{BUSINESS_SMALL_PRINT}<br>{ABN_LINE}</p>'
 def banner(on_home=False, national=False, own_form=False):
     # own_form: the page carries its own #newsletter form (Queensland pages), so both digest links stay on the page with QLD ticked.
     href = "#newsletter" if (on_home or own_form) else "/#newsletter"
@@ -1150,7 +1170,7 @@ def banner(on_home=False, national=False, own_form=False):
     cover = (STATE.get("banner") or {}).get("covering") or ""
     coming = (STATE.get("banner") or {}).get("coming") or ""
     soon = "" if multi else f"""<p class="soon"><span>{cover}</span><span class="soon-sep"> · </span><span>{coming}</span></p>"""
-    return picker_css + f"""<header><div class="banner"><div class="banner-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a><a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="{nav_href}">Free digest</a><a href="/report/">Report<span class="nav-x"> conditions</span></a><a href="/closures-this-weekend/">Weekend<span class="nav-x"> closures</span></a><a href="/faq/">FAQ</a><a href="/about/">About</a><a href="/support/">Chip in</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header>""" + soon + SHARE_JS
+    return picker_css + f"""<header><div class="banner"><div class="banner-row brand-row"><a class="brand" href="/"><img class="logo" src="/assets/brand/logo-160.png" width="160" height="160" alt="CampConditions.au logo">CampConditions.au</a>{CHIP_STRIP}<a class="digest-cta" href="{href}" aria-label="Free weekly newsletter"><svg class="digest-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5L4 8V6l8 5 8-5z"/></svg><span class="digest-cta-long">Free weekly newsletter</span><span class="digest-cta-short">Free newsletter</span><span class="digest-cta-narrow">Newsletter</span><span class="digest-cta-mini">News</span></a></div><div class="banner-row"><nav>{nav_links}<a href="{nav_href}">Free digest</a><a href="/report/">Report<span class="nav-x"> conditions</span></a><a href="/closures-this-weekend/">Weekend<span class="nav-x"> closures</span></a><a href="/faq/">FAQ</a><a href="/about/">About</a><a href="/support/">Chip in</a></nav><button type="button" class="share-btn" id="share-page" aria-label="Share this page"><svg viewBox="0 0 24 24" width="11" height="11" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg><span class="share-label">Share</span></button></div></div></header>""" + soon + SHARE_JS
 ICONS = """<link rel="icon" href="/assets/brand/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="/assets/brand/favicon-32.png"><link rel="apple-touch-icon" href="/assets/brand/apple-touch-icon.png"><link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#113521">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1569,7 +1589,7 @@ def footer(shared=False, credits=True):
     # credits=False on pages that publish no camp data. /support/ is one of those.
     block = footer_credits(shared) if credits else ""
     return f"""<footer>{block}
-<p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © 2026 Camp Conditions · CampConditions.au · <a href="/about/">About</a> · <a href="/support/">Chip in</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
+<p>Site built <span id="shell-built">{STAMP}</span>. Conditions change quickly; information is provided as is without warranty. © 2026 Camp Conditions · ABN {ABN} · CampConditions.au · <a href="/about/">About</a> · <a href="/support/">Chip in</a> · <a href="/faq/">FAQ</a> · <a href="/about-the-data/">About the data</a> · <a href="/closures-this-weekend/">Closures this weekend</a> · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a> · <a href="/status.json">JSON feed</a> · <a href="/llms.txt">llms.txt</a></p></footer>
 {A2HS}
 """ + notice_phase.NOTICE_JS + f"""
 {_qpws_js(FRESH_JS) if _qld_enabled() else FRESH_JS}"""
@@ -3955,7 +3975,7 @@ def about_body():
     lead += " CampConditions.au is run by Camp Conditions, a registered Australian business name."
     about_body.plain = plain_fragment(lead)
     lead = link_plain_state_names(lead)
-    return f"""<h1>{lead}</h1><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p><p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
+    return f"""<h1>{lead}</h1><p>Feedback, corrections or questions? Email us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.</p>{SMALL_PRINT_HTML}<p>Common questions are on the <a href="/faq/">FAQ</a>. Sources, update times and coverage are on <a href="/about-the-data/">About the data</a>. This weekend's closures are on <a href="/closures-this-weekend/">Closures this weekend</a>.</p>{safety}
 <h2>Add to your home screen</h2><p>On an iPhone or iPad, open this site in Safari, tap Share, then Add to Home Screen. The icon opens CampConditions full screen. Tap Refresh under the header for the latest camp status.</p><p>On an Android phone, open this site in Chrome, tap the menu ⋮, then Add to Home screen or Install app.</p>
 <h2>Nearby toilets</h2><p>Every camp page has a Find nearby toilets button. It opens the <a href="https://toiletmap.gov.au/">National Public Toilet Map</a>, an Australian Government site.</p>{roads}
 {sources}"""
@@ -3963,14 +3983,14 @@ _about_html = about_body()
 page("/about/", about_title(about_body.plain), about_body.plain, _about_html)
 privacy_who = COPY["privacy_who"]
 if len(statecfg.enabled()) > 1:
-    privacy_who = 'CampConditions.au is operated by Camp Conditions, a registered business name. We publish a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
+    privacy_who = 'CampConditions.au is operated by Camp Conditions (ABN 35 589 319 392), a registered business name. We publish a free weekly digest of campground conditions for Victoria and New South Wales. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
     if _signup_open("sa") and _signup_open("tas"):
-        privacy_who = 'CampConditions.au is operated by Camp Conditions, a registered business name. We publish a free weekly digest of campground conditions for Victoria, New South Wales, Queensland, South Australia and Tasmania. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
+        privacy_who = 'CampConditions.au is operated by Camp Conditions (ABN 35 589 319 392), a registered business name. We publish a free weekly digest of campground conditions for Victoria, New South Wales, Queensland, South Australia and Tasmania. Contact us at <a href="mailto:campconditions@outlook.com">campconditions@outlook.com</a>.'
 # Policy text follows Lex's legal review of 25 Nov 2026 (section 5.4), trimmed to what the
 # site and the consent-retention job actually record. Change this date when the text changes.
 privacy_date = "27 November 2026"
 page("/privacy/", "Privacy | CampConditions.au", "How CampConditions.au handles your email address and other personal information.",
- f"<h1>Privacy</h1><p>Last updated {privacy_date}.</p>\n<h2>Who we are</h2><p>{privacy_who}</p>\n" + """<h2>What we collect</h2><p>If you subscribe to the digest: nothing is stored until you click the confirmation link. Then we keep your email address, the states you choose, and the date and time you confirmed. If you unsubscribe, we record the date we first see that you have unsubscribed. We don't record your IP address with your subscription.</p>
+ f"<h1>Privacy</h1><p>Last updated {privacy_date}.</p>\n<h2>Who we are</h2><p>{privacy_who}</p>\n{SMALL_PRINT_HTML}\n" + """<h2>What we collect</h2><p>If you subscribe to the digest: nothing is stored until you click the confirmation link. Then we keep your email address, the states you choose, and the date and time you confirmed. If you unsubscribe, we record the date we first see that you have unsubscribed. We don't record your IP address with your subscription.</p>
 <p>If you join the Trip Check waitlist: your email address, first name, the states you're interested in, and the date and time you confirmed.</p>
 <p>If you email us a camper report: your email address and anything in the report, including your name if you give it.</p>
 <p>If you leave a tip: Stripe collects your payment details. We receive your name, email address, country and the amount, plus your card type and last four digits, but never your full card number. If you pay with Link, Zip or Klarna, that service also handles your details under its own privacy policy.</p>
@@ -4637,7 +4657,7 @@ Built {STAMP}.
 """)
 open(os.path.join(OUT, "404.html"), "w").write(stamp_local_assets(external_blank(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
 {banner()}
-<main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer>{footer_credits(len(statecfg.enabled()) > 1)}<p>© 2026 Camp Conditions · CampConditions.au · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer></body></html>""")))
+<main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer>{footer_credits(len(statecfg.enabled()) > 1)}<p>© 2026 Camp Conditions · ABN {ABN} · CampConditions.au · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer></body></html>""")))
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)
 from collections import Counter
 n_osm = sum(c.get("source") == "osm" for c in camps)

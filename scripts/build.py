@@ -981,7 +981,7 @@ main{max-width:980px;margin:0 auto;padding:1rem}h1{font-size:1.7rem;margin:.6rem
 .inline-signup-box{background:#f3f7f1;border:1px solid #cfdcc9;border-left:4px solid #2f5d3a;border-radius:8px;padding:.7rem .9rem;margin:.8rem 0}.inline-signup-box.closed{background:#fbf1f0;border-color:#e5c6c3;border-left-color:#b71c1c}.inline-signup-box p{margin:0 0 .45rem}.inline-signup-box .inline-signup-small{margin:.35rem 0 0;font-size:.82rem}.inline-signup-box .signup-row button{min-height:44px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 .badge{display:inline-block;padding:.1rem .55rem;border-radius:1rem;font-size:.8rem;font-weight:700;color:#fff}.open{background:#2e7d32}.closed{background:#b71c1c}.check{background:#e08a00}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.8rem}.card{background:#fff;border:1px solid #e3e0d6;border-radius:10px;padding:.8rem}
-.card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}.near-table{min-width:34rem}.town-links{margin:.2rem 0 1rem;padding-left:1.2rem}.town-links li{margin:.25rem 0}.static-camps{margin:1rem 0 .4rem}.static-camps h2{font-size:1.25rem;margin:.2rem 0 .35rem}.static-camp-links{list-style:none;margin:.2rem 0 .5rem;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.15rem .9rem}.static-camp-links li{margin:0;line-height:1.35}.static-camp-links a{color:var(--g);font-weight:600}.static-camp-links .badge{margin-left:.35rem}.static-camp-more{margin:.15rem 0 .4rem}.near-camps{list-style:none;margin:.4rem 0 1rem;padding:0}.near-camps li{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.55rem .7rem;margin:0 0 .45rem}.near-camps .badge{margin:0 .35rem}.near-note{display:block;color:#444;font-size:.88rem;margin-top:.25rem}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
+.card a{color:var(--g);font-weight:600}.table-wrap{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}.near-table{min-width:34rem}.town-links{margin:.2rem 0 1rem;padding-left:1.2rem}.town-links li{margin:.25rem 0}.static-camps{margin:1rem 0 .4rem}.static-camps h2{font-size:1.25rem;margin:.2rem 0 .35rem}.static-camp-links{list-style:none;margin:.2rem 0 .5rem;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.15rem .9rem}.static-camp-links li{margin:0;line-height:1.35}.static-camp-links a{color:var(--g);font-weight:600}.static-camp-links .badge{margin-left:.35rem}.static-camp-more{margin:.15rem 0 .4rem}.browse-by-state{margin:1rem 0 .4rem}.browse-by-state h2{font-size:1.25rem;margin:.2rem 0 .35rem}.browse-by-state-links{list-style:none;margin:.2rem 0 .5rem;padding:0}.browse-by-state-links li{margin:0;line-height:1.5}.browse-by-state-links a{color:var(--g);font-weight:600;display:inline-flex;align-items:center;min-height:44px;padding:.15rem 0}.near-camps{list-style:none;margin:.4rem 0 1rem;padding:0}.near-camps li{background:#fff;border:1px solid #e3e0d6;border-radius:8px;padding:.55rem .7rem;margin:0 0 .45rem}.near-camps .badge{margin:0 .35rem}.near-note{display:block;color:#444;font-size:.88rem;margin-top:.25rem}.closure-list li{margin:.45rem 0}table{border-collapse:collapse;width:100%;background:#fff}td,th{border:1px solid #e3e0d6;padding:.35rem .5rem;text-align:left;font-size:.9rem}
 .box{background:#fff;border:2px dashed var(--o);border-radius:10px;padding:1rem;margin:1rem 0}input,textarea,select,button{font:inherit;padding:.45rem;border:1px solid #bbb;border-radius:6px}button{background:var(--o);color:#fff;border:0;cursor:pointer}
 .visitor-report{display:flex;flex-direction:column;align-items:stretch;gap:.7rem;max-width:32rem;margin:.35rem 0 0}
 .vr-field{display:flex;flex-direction:column;gap:.15rem}
@@ -3448,31 +3448,20 @@ def static_camp_section(camps):
         f"{more_html}</section>"
     )
 def national_static_section():
-    """A short cross-state list on the homepage. Closed camps come first."""
-    groups = [(state.get("name") or "", state["slug"], by_state.get(state["slug"]) or []) for state in statecfg.enabled()]
-    rows = seo.pick_home_camps(groups)
-    if not rows:
-        return ""
-    closed_flags = [camp.get("status") == "closed" for _name, camp in rows]
-    if all(closed_flags):
-        heading, intro = "Closed campgrounds", "Closed in this build. Each state page lists every campground."
-    elif any(closed_flags):
-        heading, intro = "Campgrounds", "Closed camps are listed first. Each state page lists every campground."
-    else:
-        heading, intro = "Campgrounds", "A few campgrounds from each state. Each state page lists every campground."
+    """Browse-by-state block on the homepage. One line per live state, no individual camps."""
     items = []
-    for state_name, camp in rows:
-        label = camp.get("page_name") or camp.get("name") or ""
-        bits = [f'<a href="{camp_url(camp)}">{e(label)}</a>']
-        if camp.get("status") == "closed":
-            bits.append('<span class="badge closed">Closed</span>')
-        bits.append(f'<span class="muted">{e(state_name)}</span>')
-        items.append("<li>" + " ".join(bits) + "</li>")
+    for state in statecfg.enabled():
+        camps = by_state.get(state["slug"]) or []
+        n_closed = sum(c["status"] == "closed" for c in camps)
+        name = state.get("name") or ""
+        label = f"{name}: {n_closed} closed, view all ›"
+        items.append(f'<li><a href="/{state["slug"]}/">{e(label)}</a></li>')
+    if not items:
+        return ""
     return (
-        '<section class="static-camps" data-static-camps="home" aria-labelledby="static-camps-home">'
-        f"<h2 id=\"static-camps-home\">{heading}</h2>"
-        f'<p class="muted">{e(intro)}</p>'
-        f'<ul class="static-camp-links">{"".join(items)}</ul>'
+        '<section class="browse-by-state" aria-labelledby="browse-by-state">'
+        '<h2 id="browse-by-state">Browse by state</h2>'
+        f'<ul class="browse-by-state-links">{"".join(items)}</ul>'
         "</section>"
     )
 def apply_closed_meta(camp, title, region_name):

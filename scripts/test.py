@@ -3476,21 +3476,31 @@ if "noindex" in home.split("</head>", 1)[0].lower():
   bad.append(("seo", "home noindex"))
 if 'id="camp-map"' not in home or 'id="newsletter"' not in home or 'id="digest-form"' not in home:
   bad.append(("seo", "home map or digest"))
-_home_static = re.search(r'<section class="static-camps" data-static-camps="home".*?</section>', home, re.S)
-if not _home_static:
-  bad.append(("seo", "home static camps"))
+_home_browse = re.search(r'<section class="browse-by-state".*?</section>', home, re.S)
+if not _home_browse:
+  bad.append(("seo", "home browse by state"))
 else:
-  _seen_other = False
-  for _li in re.findall(r"<li>(.*?)</li>", _home_static.group(0), re.S):
-    if "badge closed" in _li:
-      if _seen_other:
-        bad.append(("seo", "home closed after other"))
-        break
-    else:
-      _seen_other = True
-  for _slug in ("vic", "nsw", "qld", "sa", "tas"):
-    if f'href="/{_slug}/camp/' not in _home_static.group(0):
-      bad.append(("seo", "home static missing", _slug))
+  _browse_html = _home_browse.group(0)
+  if '<h2 id="browse-by-state">Browse by state</h2>' not in _browse_html:
+    bad.append(("seo", "home browse heading"))
+  if "/camp/" in _browse_html or 'data-static-camps="home"' in home:
+    bad.append(("seo", "home browse lists camps"))
+  _lines = re.findall(r"<li>(.*?)</li>", _browse_html, re.S)
+  _expected = []
+  for _state in states.enabled():
+    _slug = _state["slug"]
+    _hub = open(os.path.join(D, _slug, "index.html"), encoding="utf-8").read()
+    _count = re.search(r'id="count-closed">(\d+) closed</span>', _hub)
+    if not _count:
+      bad.append(("seo", "home browse missing state count", _slug))
+      continue
+    _label = f'{_state["name"]}: {_count.group(1)} closed, view all ›'
+    _expected.append(f'<a href="/{_slug}/">{html.escape(_label)}</a>')
+  if _lines != _expected:
+    bad.append(("seo", "home browse lines", _lines, _expected))
+  for _hidden in ("act", "nt", "wa"):
+    if f'href="/{_hidden}/"' in _browse_html:
+      bad.append(("seo", "home browse hidden", _hidden))
 _home_main = home.split("<main>", 1)[-1].split("</main>", 1)[0]
 _national = seo.national_disclaimer()
 _home_warns = re.findall(r'<div class="warn"[^>]*>.*?</div>', _home_main, re.S)

@@ -6,6 +6,8 @@ export function sitePage(title, bodyHtml, status = 200, extra) {
   const head = extra && extra.head ? extra.head : "";
   const after = extra && extra.after ? extra.after : "";
   const html = `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="verification" content="Awin">
+<!-- Awin -->
 <title>${esc(title)}</title>
 ${head}<style>
 :root{--g:#2f5d3a;--o:#c2571a;--bg:#fbfaf6}

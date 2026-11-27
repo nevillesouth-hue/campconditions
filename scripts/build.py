@@ -2472,7 +2472,10 @@ def page(path, title, desc, body, extra_ld=(), head="", foot="", on_home=None):
         og_desc = f"Camp conditions and closures for {codes}, with the rest of Australia coming soon."
         if NATIONAL_TOTAL >= 100:
             og_desc = f"Closures, fire danger ratings and camp conditions for {rounded_count(NATIONAL_TOTAL)} campgrounds across {codes}, with the rest of Australia coming soon."
-    h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
+    h = f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="verification" content="Awin">
+<!-- Awin -->
+<meta name="msvalidate.01" content="9B5113D2D0D8C52837F0DC893FCA3616" />
 <title>{e(title)}</title><meta name="description" content="{e(desc)}"><link rel="canonical" href="{canon}">
 <meta property="og:title" content="{e(og_title)}"><meta property="og:description" content="{e(og_desc)}"><meta property="og:url" content="{canon}"><meta property="og:type" content="website"><meta property="og:locale" content="en_AU">
 <meta name="twitter:title" content="{e(og_title)}"><meta name="twitter:description" content="{e(og_desc)}">
@@ -4676,7 +4679,10 @@ Built {STAMP}.
 - [Terms of use]({SITE}/terms/)
 - [Unsubscribe]({SITE}/unsubscribe/)
 """)
-open(os.path.join(OUT, "404.html"), "w").write(stamp_local_assets(external_blank(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
+open(os.path.join(OUT, "404.html"), "w").write(stamp_local_assets(external_blank(f"""<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="verification" content="Awin">
+<!-- Awin -->
+<title>Not found</title>{ICONS}<style>{CSS}</style></head><body>
 {banner()}
 <main><p>Page not found. <a href="/">Back to CampConditions.au</a></p></main><footer>{footer_credits(len(statecfg.enabled()) > 1)}<p>© 2026 Camp Conditions · ABN {ABN} · CampConditions.au · <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a></p></footer></body></html>""")))
 json.dump(SRC, open(os.path.join(OUT, "build-report.json"), "w"), indent=1)

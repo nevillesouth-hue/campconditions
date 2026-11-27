@@ -3793,9 +3793,9 @@ if multi_state:
 
 
 TIP_CHECKOUTS = (
-    ("Chip in A$5", "https://donate.stripe.com/7sYbIUbsOb1V9j17fifQI01"),
-    ("Chip in A$10", "https://donate.stripe.com/3cIeV668uc5Z9j16befQI02"),
-    ("Chip in A$20", "https://donate.stripe.com/dRm5kw9kG7PJ66PdDGfQI03"),
+    ("Chip in A$5", "https://buy.stripe.com/4gM00cfJ40nh3YHeHKfQI04"),
+    ("Chip in A$10", "https://buy.stripe.com/dRmaEQ8gCgmfbr98jmfQI05"),
+    ("Chip in A$20", "https://buy.stripe.com/eVqfZadAW8TN0MvfLOfQI06"),
 )
 # Each button opens its own fixed-amount Stripe checkout (no add-ons, no custom amount).
 # Version A copy (Nev, 27 Nov 2026) with Lex's tidy-ups. No gift wording.

@@ -229,20 +229,46 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
 dup_titles = [t for t in set(page_titles) if page_titles.count(t) > 1]
 if dup_titles: bad.append(("duplicate titles", dup_titles[:3]))
 def named(name): return [c for c in feed["camps"] if c.get("name") == name]
-if named("1 Wild Cherry Camp") or not named("Wild Cherry Camp") or named("Wild Cherry Camp")[0]["slug"] != "1-wild-cherry-camp": bad.append(("rename", "wild cherry"))
-if not named("6 Mile Flat") or not any(c["name"].startswith("82 Bend Camping Area") for c in feed["camps"]): bad.append(("rename", "kept unit name"))
-cherry = open(os.path.join(D, "vic", "camp", "1-wild-cherry-camp", "index.html"), encoding="utf-8").read()
-if "<h1>Wild Cherry Camp</h1>" not in cherry or "<h1>1 Wild Cherry" in cherry or "<title>1 Wild Cherry" in cherry: bad.append(("1-wild-cherry-camp", "display name"))
-_meridian = os.path.join(D, "nsw", "camp", "150-meridian-rest-area", "index.html")
-_eco1770 = os.path.join(D, "qld", "camp", "1770-eco-camp", "index.html")
-_trav1770 = os.path.join(D, "qld", "camp", "1770-travellers-rest-camping", "index.html")
-for _path, _name in ((_meridian, "150 Meridian Rest Area"), (_eco1770, "1770 Eco Camp"), (_trav1770, "1770 Travellers Rest Camping")):
+_cherry = named("1 Wild Cherry Camp")
+if not _cherry or named("Wild Cherry Camp") or _cherry[0]["slug"] != "1-wild-cherry-camp":
+    bad.append(("rename", "wild cherry"))
+if not named("6 Mile Flat") or not any(c["name"].startswith("82 Bend Camping Area") for c in feed["camps"]):
+    bad.append(("rename", "kept unit name"))
+if not named("7 Oaks") or named("7 Oaks")[0]["slug"] != "7-oaks":
+    bad.append(("rename", "7 oaks"))
+if not named("3 Wishes Farm") or named("3 Wishes Farm")[0]["slug"] != "3-wishes-farm":
+    bad.append(("rename", "3 wishes farm"))
+# Recorded leading numbers stay in the H1, title, and (where present) the
+# summary. The slug and URL stay on the original numbered path.
+_recorded_names = (
+    (os.path.join(D, "vic", "camp", "1-wild-cherry-camp", "index.html"), "1 Wild Cherry Camp"),
+    (os.path.join(D, "vic", "camp", "10-breakfast-creek-camp", "index.html"), "10 Breakfast Creek Camp"),
+    (os.path.join(D, "nsw", "camp", "7-oaks", "index.html"), "7 Oaks"),
+    (os.path.join(D, "nsw", "camp", "3-wishes-farm", "index.html"), "3 Wishes Farm"),
+    (os.path.join(D, "nsw", "camp", "150-meridian-rest-area", "index.html"), "150 Meridian Rest Area"),
+    (os.path.join(D, "qld", "camp", "1770-eco-camp", "index.html"), "1770 Eco Camp"),
+    (os.path.join(D, "qld", "camp", "1770-travellers-rest-camping", "index.html"), "1770 Travellers Rest Camping"),
+)
+for _path, _name in _recorded_names:
     if not os.path.isfile(_path):
         bad.append((_name, "missing page"))
         continue
     _html = open(_path, encoding="utf-8").read()
     if f"<h1>{_name}</h1>" not in _html or f"<title>{_name}" not in _html:
         bad.append((_name, "kept recorded name"))
+    _ld_names = re.findall(r'"name": "([^"]+)"', _html)
+    if not any(
+        html.unescape(n) == _name
+        or html.unescape(n).startswith(_name + ",")
+        or html.unescape(n).startswith(_name + " ")
+        for n in _ld_names
+    ):
+        bad.append((_name, "json-ld name"))
+    _sum = re.search(r'<p class="fact-summary">(.*?)</p>', _html, re.S)
+    if _sum:
+        _plain = html.unescape(re.sub(r"<[^>]+>", " ", _sum.group(1)))
+        if _name not in _plain:
+            bad.append((_name, "summary name"))
 for shore in named("Foreshore Reserve"):
   shore_html = open(os.path.join(D, "vic", "camp", shore["slug"], "index.html"), encoding="utf-8").read()
   if "<h1>Foreshore Reserve, near " not in shore_html: bad.append((shore["slug"], "near town"))

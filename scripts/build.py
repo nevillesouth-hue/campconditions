@@ -4267,7 +4267,9 @@ def data_page():
 {INFO_LINKS}"""
     dataset = {"@context": "https://schema.org", "@type": "Dataset", "name": "CampConditions.au campground status", "url": SITE + "/about-the-data/",
                "description": "Campground status and closures for " + _enabled_names() + ", Australia, from official sources and OpenStreetMap, with the rest of Australia coming soon.",
-               "inLanguage": "en-AU", "dateModified": NOW.isoformat(), "spatialCoverage": [{"@type": "Place", "name": s["name"] + ", Australia"} for s in statecfg.enabled()],
+               "inLanguage": "en-AU", "dateModified": NOW.isoformat(),
+               "creator": {"@type": "Organization", "name": "CampConditions.au", "url": SITE + "/", "sameAs": list(ORG_SAME_AS)},
+               "license": SITE + "/about-the-data/", "spatialCoverage": [{"@type": "Place", "name": s["name"] + ", Australia"} for s in statecfg.enabled()],
                "creditText": " ".join(attribution) if isinstance(attribution, list) else str(attribution),
                "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": SITE + "/status.json"}]}
     page("/about-the-data/", "About the data | CampConditions.au", "Sources, update times and coverage for " + _enabled_names() + " campground conditions on CampConditions.au, with the rest of Australia coming soon.",

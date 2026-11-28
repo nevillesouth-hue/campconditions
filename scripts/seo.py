@@ -278,3 +278,333 @@ def about_warning(state):
         return block
     label = "<strong>" + html.escape(name) + ".</strong> "
     return prefix + label + block[len(prefix):]
+
+
+TITLE_BRAND = " | CampConditions.au"
+TITLE_TARGET = 65
+TITLE_MIN_NAME = 18
+_CAMP_WORD = re.compile(r"\b(camps?|campgrounds?|camping|campsites?)\b", re.I)
+_NEAR_CLAUSE = re.compile(r",\s*near\s+", re.I)
+
+
+def has_camp_word(name):
+    """True when the name already says Camp, Camps, Campground or Camping."""
+    return bool(_CAMP_WORD.search(name or ""))
+
+
+def region_is_state(region_name, state_name="", abbrev=""):
+    """True when the region is missing or just repeats the state."""
+    region = re.sub(r"\s+", " ", str(region_name or "")).strip().casefold()
+    if not region:
+        return True
+    names = {re.sub(r"\s+", " ", str(value or "")).strip().casefold() for value in (state_name, abbrev) if value}
+    return region in names
+
+
+def clip_title_name(name, limit):
+    """Shorten a long camp name, keeping site numbers and (south)/(north)."""
+    name = re.sub(r"\s+", " ", str(name or "")).strip()
+    if len(name) <= limit:
+        return name
+    # Drop trailing park-style parentheticals. Keep short distinctive ones
+    # such as (The Point) or (tent site), and (south)/(north)/(1).
+    while len(name) > limit:
+        match = re.search(r"\s*\(([^()]{2,})\)\s*$", name)
+        if not match:
+            break
+        inner = match.group(1).strip()
+        low = inner.casefold()
+        if low in {"south", "north"} or inner.isdigit():
+            break
+        if (
+            "national park" in low
+            or "reserve" in low
+            or "forest" in low
+            or "river" in low
+            or "murray" in low
+            or len(inner.split()) >= 4
+        ):
+            name = name[: match.start()].rstrip(" ,-—")
+            continue
+        break
+    if len(name) <= limit:
+        return name
+    if _NEAR_CLAUSE.search(name):
+        left, right = re.split(r",\s*near\s+", name, maxsplit=1)
+        keep_near = ", near " + right.strip()
+        allowed_left = max(8, limit - len(keep_near))
+        if len(left) > allowed_left:
+            left = clip_title_name(left, allowed_left)
+        return (left + keep_near).strip()
+    keep = ""
+    held = re.search(
+        r"(\s*\((?:south|north|\d+)\)|\s*(?:-\s*)?(?:site|zone|area|river access)\s+\d+|\s+\d+)\s*$",
+        name,
+        re.I,
+    )
+    if held:
+        keep = held.group(1)
+        if keep.lstrip().startswith("-"):
+            keep = " " + keep.lstrip(" -")
+        head = name[: held.start()].rstrip(" ,-—")
+        combined = (head + keep).strip()
+        # Keep the site/zone label even if the name runs a little long.
+        if len(combined) <= max(limit, 40):
+            return combined
+        name = head
+        limit = max(TITLE_MIN_NAME, limit - len(keep))
+    # Prefer keeping a short distinctive segment after the first dash.
+    if " - " in name:
+        left, right = name.split(" - ", 1)
+        right = re.split(r"\s+-\s+", right)[0].strip()
+        right = re.sub(r"\s*\([^)]*\)", " ", right).strip()
+        words = [word for word in right.split() if word and not word.startswith("(") and not word.endswith(")")]
+        # One or two words on the right is usually the site name (Trewalla, Ganguddy).
+        for count in (2, 1):
+            short_right = " ".join(words[:count])
+            combo = f"{left} - {short_right}" if short_right else left
+            if 12 <= len(combo) <= max(limit, 40):
+                return (combo + keep).strip()
+        if len(left) >= 12 and len(left) <= max(limit, 40):
+            return (left + keep).strip()
+    for sep in (",", " ("):
+        if sep == "," and _NEAR_CLAUSE.search(name):
+            continue
+        cut = name.find(sep)
+        if 12 <= cut <= limit:
+            return (name[:cut].rstrip(" ,-—") + keep).strip()
+    cut = name[:limit].rsplit(" ", 1)[0].rstrip(" ,-—")
+    if len(cut) < 8:
+        cut = name.split(" ", 1)[0]
+    if "(" in cut and ")" not in cut[cut.rfind("("):]:
+        cut = cut[: cut.rfind("(")].rstrip(" ,-—") or cut
+    # A stray closing paren is left when a '(word' was stripped mid-clip.
+    cut = re.sub(r"\s*\)(?=\s|$)", "", cut).strip()
+    return (cut + keep).strip()
+
+
+def region_phrase(region, abbrev, state_name):
+    """Region plus state abbrev, without repeating the state name."""
+    region = re.sub(r"\s+", " ", str(region or "")).strip()
+    abbrev = re.sub(r"\s+", " ", str(abbrev or "")).strip()
+    state_name = re.sub(r"\s+", " ", str(state_name or "")).strip()
+    if not region:
+        return abbrev
+    if state_name and region.casefold().endswith(state_name.casefold()):
+        stem = region[: -len(state_name)].strip(" ,-&")
+        if stem and abbrev:
+            return f"{stem} {abbrev}"
+        return abbrev or region
+    if abbrev and re.search(r"\b" + re.escape(abbrev) + r"\b", region, re.I):
+        return region
+    return f"{region} {abbrev}".strip() if abbrev else region
+
+
+def _title_tail(name, abbrev, town, region, state_name, with_region=False):
+    """Location and state clause after the camp name."""
+    if town and town.casefold() in name.casefold():
+        town = ""
+    if region and (region_is_state(region, state_name, abbrev) or region.casefold() in name.casefold()):
+        region = ""
+    placed = region_phrase(region, abbrev, state_name) if region else (abbrev or "")
+    if _NEAR_CLAUSE.search(name):
+        if with_region and region and placed:
+            return f", {placed}"
+        return f" {abbrev}" if abbrev else ""
+    if town:
+        if with_region and region and placed:
+            return f", near {town}, {placed}"
+        return f", near {town} {abbrev}" if abbrev else f", near {town}"
+    if region and placed:
+        return f", {placed}"
+    if has_camp_word(name):
+        return f", {abbrev}" if abbrev else ""
+    return f", {abbrev} camping" if abbrev else " camping"
+
+
+_GENERIC_TITLE_WORDS = frozenset("""
+    a an the and or of in on at to from for with camping camp campground campgrounds
+    campsite campsites area areas site sites park parks national state forest reserve
+    river murray proposed part walk beach beachfront common island lands section
+    heritage free paid public recreation ground grounds crossing
+""".split())
+
+
+def distinctive_extra(camp, peers=None):
+    """A short label already in the camp name, used to split a title clash."""
+    full = re.sub(r"\s+", " ", str(camp.get("page_name") or camp.get("name") or "")).strip()
+    if not full:
+        return ""
+    peer_texts = []
+    if peers:
+        for peer in peers:
+            peer_texts.append(
+                re.sub(r"\s+", " ", str(peer.get("page_name") or peer.get("name") or "")).strip()
+            )
+
+    def unique_among_peers(value):
+        if not value:
+            return False
+        if not peer_texts:
+            return True
+        low = value.casefold()
+        return all(low not in text.casefold() for text in peer_texts)
+
+    if peer_texts:
+        for match in re.finditer(r"\(([^)]+)\)", full):
+            inner = re.sub(r"\s+", " ", match.group(1)).strip()
+            low = inner.casefold()
+            if "national park" in low or "reserve" in low or "forest" in low or "river" in low or "murray" in low:
+                continue
+            if 0 < len(inner.split()) <= 4 and unique_among_peers(inner):
+                return inner
+        match = re.search(r"\b((?:site|zone|area|camping area|river access)\s+\d+)\b", full, re.I)
+        if match and unique_among_peers(match.group(1)):
+            return match.group(1)
+        match = re.search(r",\s*near\s+([^,]+)$", full, re.I)
+        if match and unique_among_peers(match.group(1).strip()):
+            return match.group(1).strip()
+        other_toks = set()
+        for text in peer_texts:
+            other_toks.update(tok.casefold() for tok in re.findall(r"[A-Za-z0-9']+", text))
+        unique = []
+        for tok in re.findall(r"[A-Za-z0-9']+", full):
+            if tok.casefold() in other_toks or tok.casefold() in _GENERIC_TITLE_WORDS:
+                continue
+            if tok not in unique:
+                unique.append(tok)
+        if unique:
+            return " ".join(unique[:3])
+        # Last resort: the part of the name after the shared prefix
+        # (camping area vs Campsite vs Free Camp; Recreation Reserve vs Public).
+        words = re.findall(r"[A-Za-z0-9']+", full)
+        peer_word_lists = [re.findall(r"[A-Za-z0-9']+", text) for text in peer_texts]
+        def _shared_prefix_len(left, right):
+            index = 0
+            while index < len(left) and index < len(right) and left[index].casefold() == right[index].casefold():
+                index += 1
+            return index
+        if words and peer_word_lists:
+            shared = min(_shared_prefix_len(words, other) for other in peer_word_lists)
+            rest = words[shared:]
+            if rest:
+                return " ".join(rest[:4])
+
+    for match in re.finditer(r"\(([^)]+)\)", full):
+        inner = re.sub(r"\s+", " ", match.group(1)).strip()
+        low = inner.casefold()
+        if low in {"south", "north"} or inner.isdigit():
+            return f"({low})"
+        if "national park" in low or "reserve" in low or "forest" in low or "river" in low or "murray" in low:
+            continue
+        if 0 < len(inner.split()) <= 4:
+            return inner
+    match = re.search(r"\b((?:site|zone|area|camping area|river access)\s+\d+)\b", full, re.I)
+    if match:
+        return match.group(1)
+    match = re.search(r",\s*near\s+([^,]+)$", full, re.I)
+    if match:
+        return match.group(1).strip()
+    if " - " in full:
+        right = re.sub(r"\s*\([^)]*\)\s*$", "", full.split(" - ", 1)[1]).strip()
+        words = [word for word in right.split() if word and not word.startswith("(")]
+        if words:
+            return " ".join(words[:3])
+    match = re.search(r"(\d+)\s*(?:\([^)]*\))?\s*$", full)
+    if match:
+        return match.group(1)
+    return ""
+
+
+
+def _join_extra(head, extra):
+    """Append extra without repeating words already at the end of head."""
+    head = re.sub(r"\s+", " ", str(head or "")).strip()
+    extra = re.sub(r"\s+", " ", str(extra or "")).strip()
+    if not extra:
+        return head
+    if extra.casefold() in head.casefold():
+        return head
+    head_words = head.split()
+    extra_words = extra.split()
+    overlap = 0
+    for count in range(min(len(head_words), len(extra_words)), 0, -1):
+        if [word.casefold() for word in head_words[-count:]] == [word.casefold() for word in extra_words[:count]]:
+            overlap = count
+            break
+    rest = extra_words[overlap:]
+    return (head + (" " + " ".join(rest) if rest else "")).strip()
+
+
+def camp_page_title(name, abbrev, town="", region="", state_name="", extra="", with_region=False, target=TITLE_TARGET):
+    """Camp <title>: town within 40 km, else region, else state.
+
+    "{Name}, near {Town} {ST} | CampConditions.au" when town is set.
+    Otherwise "{Name}, {Region} {ST} | CampConditions.au".
+    When the region is just the state (SA and TAS): "{Name}, {ST} camping | ..."
+    unless the name already contains Camp, Campground or Camping.
+    extra is an optional disambiguator such as "Site 2" or "(south)".
+    with_region keeps the town and also names the region, for a title clash.
+    Long names are clipped so most titles stay near target characters.
+    """
+    name = re.sub(r"\s+", " ", str(name or "")).strip() or "Campground"
+    abbrev = re.sub(r"\s+", " ", str(abbrev or "")).strip()
+    town = re.sub(r"\s+", " ", str(town or "")).strip()
+    region = re.sub(r"\s+", " ", str(region or "")).strip()
+    extra = re.sub(r"\s+", " ", str(extra or "")).strip()
+    if extra and extra.casefold() not in name.casefold():
+        name = f"{name} {extra}".strip()
+    if _NEAR_CLAUSE.search(name):
+        left, right = re.split(r",\s*near\s+", name, maxsplit=1)
+        place = right.strip()
+        if not town or place.casefold() != town.casefold():
+            name = left.strip()
+    if town and town.casefold() == name.casefold():
+        town = ""
+    tail = _title_tail(name, abbrev, town, region, state_name, with_region=with_region)
+    budget = target - len(TITLE_BRAND)
+    allowed = budget - len(tail)
+    if allowed < TITLE_MIN_NAME:
+        allowed = TITLE_MIN_NAME
+    clipped = clip_title_name(name, allowed) if len(name) > allowed else name
+    if extra and extra.casefold() not in clipped.casefold():
+        room = max(TITLE_MIN_NAME, allowed - len(extra) - 1)
+        clipped = clip_title_name(name, room) if len(name) > room else name
+        if extra.casefold() not in clipped.casefold():
+            clipped = _join_extra(clipped, extra)
+    if clipped != name:
+        tail = _title_tail(clipped, abbrev, town, region, state_name, with_region=with_region)
+        # Don't add "camping" if we only clipped a Camp/Campground word off the name.
+        if has_camp_word(name) and tail.endswith(" camping"):
+            tail = tail[: -len(" camping")]
+    return clipped + tail + TITLE_BRAND
+
+
+def resolve_title_collisions(camps, title_of, retry):
+    """If two camps share a title, add a distinctive bit from the name, then the region."""
+    titles = [title_of(camp) for camp in camps]
+
+    def regroup():
+        groups = {}
+        for index, title in enumerate(titles):
+            groups.setdefault(title.casefold(), []).append(index)
+        return groups
+
+    for rows in regroup().values():
+        if len(rows) < 2:
+            continue
+        members = [camps[index] for index in rows]
+        for index in rows:
+            peers = [camp for camp in members if camp is not camps[index]]
+            extra = distinctive_extra(camps[index], peers=peers) or distinctive_extra(camps[index])
+            if extra:
+                titles[index] = retry(camps[index], extra=extra)
+    for rows in regroup().values():
+        if len(rows) < 2:
+            continue
+        members = [camps[index] for index in rows]
+        for index in rows:
+            peers = [camp for camp in members if camp is not camps[index]]
+            extra = distinctive_extra(camps[index], peers=peers) or distinctive_extra(camps[index])
+            titles[index] = retry(camps[index], extra=extra, with_region=True)
+    return titles

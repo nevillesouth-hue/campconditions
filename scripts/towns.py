@@ -72,6 +72,30 @@ def nearest_label(lat, lon, places, limit_km=LABEL_KM):
     return best["name"], best_d
 
 
+def nearest_title_town(lat, lon, places, limit_km=LABEL_KM):
+    """Nearest city or town within limit_km. Empty if none.
+
+    No hamlet, locality, village or suburb fallback. Titles should only say
+    "near {Town}" when this returns a name.
+    """
+    best = None
+    best_d = None
+    for place in places:
+        if place.get("place") not in LABEL_PLACES:
+            continue
+        name = place.get("name") or ""
+        if not name or place.get("lat") is None or place.get("lon") is None:
+            continue
+        dist = _km(lat, lon, place["lat"], place["lon"])
+        if dist > limit_km:
+            continue
+        if best_d is None or dist < best_d or (dist == best_d and name.casefold() < best["name"].casefold()):
+            best, best_d = place, dist
+    if best is None:
+        return "", None
+    return best["name"], best_d
+
+
 def town_record(tags, lat, lon):
     rank = place_rank(tags)
     if rank is None:

@@ -769,6 +769,27 @@ def assign_near_places(camps):
             continue
         camp["near_place"] = name
         camp["near_km"] = round(dist, 1)
+
+def assign_title_towns(camps):
+    """City or town within 40 km, for titles only.
+
+    Does not set near_place, so camp pages keep their existing Near line and
+    layout. Uses the official places file when the state has one, otherwise
+    the towns file.
+    """
+    places_path = statecfg.path(STATE, "places")
+    towns_path = statecfg.path(STATE, "towns")
+    path = places_path if places_path and os.path.isfile(places_path) else towns_path
+    if not path or not os.path.isfile(path):
+        return
+    import towns as town_mod
+    places = json.load(open(path, encoding="utf-8"))
+    for camp in camps:
+        name, dist = town_mod.nearest_title_town(camp["lat"], camp["lon"], places)
+        if not name or name.casefold() == (camp.get("name") or "").casefold():
+            continue
+        camp["title_town"] = name
+
 def assign_page_names(camps):
     """Duplicate names get a nearest-place subtitle so the title and h1 differ."""
     import towns as town_mod
@@ -887,6 +908,7 @@ for state, official, osm_rows, state_closures in loaded:
         assign_page_names(state_camps)
     else:
         disambiguate_names(state_camps)
+    assign_title_towns(state_camps)
     camps.extend(state_camps)
     closures.extend(state_closures)
     by_state[state["slug"]] = state_camps
@@ -3494,9 +3516,30 @@ def apply_closed_meta(camp, title, region_name):
     if "is it open?" in title:
         title = title.replace(" campground — is it open? Conditions today", " — Closed")
     return title, desc
+
+def assign_page_titles(camps):
+    """Set camp['page_title'] from the nearest city/town or the region."""
+    abbrev = STATE.get("abbrev") or SLUG.upper()
+    state_name = STATE.get("name") or ""
+    def make(camp, with_region=False, extra=""):
+        region_name = REGIONS.get(camp.get("region") or "", ("",))[0]
+        return seo.camp_page_title(
+            camp.get("page_name") or camp.get("name") or "",
+            abbrev,
+            town=camp.get("title_town") or "",
+            region=region_name,
+            state_name=state_name,
+            extra=extra,
+            with_region=with_region,
+        )
+    titles = seo.resolve_title_collisions(camps, lambda camp: make(camp), make)
+    for camp, title in zip(camps, titles):
+        camp["page_title"] = title
+
 def emit_state(state, camps, include_home):
     """Write one state's pages. Home is the Victoria page, so only the primary state includes it."""
     bind(state)
+    assign_page_titles(camps)
     camp_index = town_pages.CampIndex(camps)
     known_regions = set(REGIONS)
     def region_of(lon, lat):
@@ -3714,12 +3757,16 @@ def emit_state(state, camps, include_home):
             title = f"{page_name} campground — is it open? Conditions today | CampConditions.au"
             desc = COPY["official_place"].format(name=c["name"], region=rn)
             dated = f"Campground data dated {e(long_date(c.get('data_date') or ''))}"
+        # Titles use town or region and the state abbreviation. Keep the park
+        # and closed helpers for the meta description only; do not put the park
+        # or "is it open?" back into <title>.
+        title = c.get("page_title") or f"{page_name} | CampConditions.au"
         if c.get("parks"):
             import qld_conditions
-            title, desc = qld_conditions.park_title_and_description(
+            _ignored_title, desc = qld_conditions.park_title_and_description(
                 title, desc, c.get("name") or "", c.get("page_name") or c.get("name") or "", c.get("parks"))
         if c.get("status") == "closed":
-            title, closed_desc = apply_closed_meta(c, title, rn)
+            _ignored_title, closed_desc = apply_closed_meta(c, title, rn)
             if closed_desc:
                 desc = closed_desc
         camp_path = camp_url(c)

@@ -537,47 +537,59 @@ def _join_extra(head, extra):
 
 
 def camp_page_title(name, abbrev, town="", region="", state_name="", extra="", with_region=False, target=TITLE_TARGET):
-    """Camp <title>: town within 40 km, else region, else state.
+    """Camp <title>: full H1 name, then town or region, then the state.
 
     "{Name}, near {Town} {ST} | CampConditions.au" when town is set.
     Otherwise "{Name}, {Region} {ST} | CampConditions.au".
     When the region is just the state (SA and TAS): "{Name}, {ST} camping | ..."
     unless the name already contains Camp, Campground or Camping.
-    extra is an optional disambiguator such as "Site 2" or "(south)".
-    with_region keeps the town and also names the region, for a title clash.
-    Long names are clipped so most titles stay near target characters.
+    The name is never clipped. If the title would run long, the town or
+    region is dropped first, leaving "{Name} {ST} | CampConditions.au".
+    A still-long name is left in full. extra and with_region are used only
+    to disambiguate a title clash, still without cutting the name.
     """
     name = re.sub(r"\s+", " ", str(name or "")).strip() or "Campground"
     abbrev = re.sub(r"\s+", " ", str(abbrev or "")).strip()
     town = re.sub(r"\s+", " ", str(town or "")).strip()
     region = re.sub(r"\s+", " ", str(region or "")).strip()
     extra = re.sub(r"\s+", " ", str(extra or "")).strip()
-    if extra and extra.casefold() not in name.casefold():
-        name = f"{name} {extra}".strip()
-    if _NEAR_CLAUSE.search(name):
-        left, right = re.split(r",\s*near\s+", name, maxsplit=1)
-        place = right.strip()
-        if not town or place.casefold() != town.casefold():
-            name = left.strip()
+    # A clash extra is only added when it is already implied by a longer official
+    # name; it must not replace or shorten the H1. If it is not already in the
+    # name, only with_region (the location tail) should disambiguate.
+    if extra and extra.casefold() in name.casefold():
+        extra = ""
+    elif extra:
+        # Keep it only as a last-resort suffix for a clash of identical names.
+        pass
+    else:
+        extra = ""
     if town and town.casefold() == name.casefold():
         town = ""
-    tail = _title_tail(name, abbrev, town, region, state_name, with_region=with_region)
-    budget = target - len(TITLE_BRAND)
-    allowed = budget - len(tail)
-    if allowed < TITLE_MIN_NAME:
-        allowed = TITLE_MIN_NAME
-    clipped = clip_title_name(name, allowed) if len(name) > allowed else name
-    if extra and extra.casefold() not in clipped.casefold():
-        room = max(TITLE_MIN_NAME, allowed - len(extra) - 1)
-        clipped = clip_title_name(name, room) if len(name) > room else name
-        if extra.casefold() not in clipped.casefold():
-            clipped = _join_extra(clipped, extra)
-    if clipped != name:
-        tail = _title_tail(clipped, abbrev, town, region, state_name, with_region=with_region)
-        # Don't add "camping" if we only clipped a Camp/Campground word off the name.
-        if has_camp_word(name) and tail.endswith(" camping"):
-            tail = tail[: -len(" camping")]
-    return clipped + tail + TITLE_BRAND
+    # If the H1 already has ", near X", do not add a second near-clause.
+    # _title_tail already treats a name with ", near" as complete and only
+    # appends the state (or region when with_region is set).
+
+    def make(town, region, with_region, extra_suffix=""):
+        shown = name if not extra_suffix or extra_suffix.casefold() in name.casefold() else f"{name} {extra_suffix}".strip()
+        tail = _title_tail(shown, abbrev, town, region, state_name, with_region=with_region)
+        return shown + tail + TITLE_BRAND
+
+    preferred = make(town, region, with_region, extra if with_region or extra else "")
+    if len(preferred) <= target:
+        return preferred
+    # Drop town and region; keep the full name and the state abbreviation.
+    short_tail = f" {abbrev}" if abbrev else ""
+    if abbrev and re.search(r"\b" + re.escape(abbrev) + r"\s*$", name):
+        short_tail = ""
+    shown = name
+    if extra and extra.casefold() not in name.casefold() and (with_region or extra):
+        # Only attach a clash suffix when the short form would still collide;
+        # callers request that via extra. Prefer the bare name + state first.
+        short = name + short_tail + TITLE_BRAND
+        if len(preferred) > target:
+            return short
+    return name + short_tail + TITLE_BRAND
+
 
 
 def resolve_title_collisions(camps, title_of, retry):
@@ -678,7 +690,18 @@ def _suit_labels(facts, wanted):
     return [label for label, key in order if facts.get(key) is wanted]
 
 
-def _fee_noun(fee):
+def is_donation_fee(camp):
+    """True when the recorded fee type or category is donation."""
+    fee = str(camp.get("fee_type") or "").strip().lower()
+    cat = str(camp.get("category") or "").strip()
+    label = str(camp.get("fee_label") or "").strip()
+    return fee == "donation" or cat == "Donation" or label.casefold() == "donation"
+
+
+def _fee_noun(camp, facts):
+    if is_donation_fee(camp):
+        return "a donation camping area"
+    fee = facts.get("fee")
     if fee == "free":
         return "a free camping area"
     if fee == "paid":
@@ -721,7 +744,7 @@ def fact_summary(camp, region="", state_name=""):
         return ""
     name = re.sub(r"\s+", " ", str(camp.get("name") or "").strip()) or "This camping area"
     place = _place_clause(facts.get("region") or "", state_name)
-    fee = _fee_noun(facts.get("fee"))
+    fee = _fee_noun(camp, facts)
     suitable = _suit_labels(facts, True)
     unsuitable = _suit_labels(facts, False)
     suit_pos = ("recorded as suitable for " + _and_list(suitable)) if suitable else ""

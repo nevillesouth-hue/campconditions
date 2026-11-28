@@ -224,9 +224,7 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
   _name_part = re.sub(r", [^,]+$", "", _name_part).strip()
   def _title_words(value):
     return re.findall(r"[A-Za-z0-9']+", value or "")
-  _hw, _tw = _title_words(_h1), _title_words(_name_part)
-  _from_h1 = bool(_hw and _tw and _hw[0].casefold() == _tw[0].casefold() and set(w.casefold() for w in _tw) <= set(w.casefold() for w in _hw))
-  if not title_m or not h1_m or (_h1 not in _title and not _from_h1): bad.append((slug, "title"))
+  if not title_m or not h1_m or _h1 not in _title: bad.append((slug, "title"))
   else: page_titles.append(_title)
 dup_titles = [t for t in set(page_titles) if page_titles.count(t) > 1]
 if dup_titles: bad.append(("duplicate titles", dup_titles[:3]))
@@ -235,6 +233,16 @@ if named("1 Wild Cherry Camp") or not named("Wild Cherry Camp") or named("Wild C
 if not named("6 Mile Flat") or not any(c["name"].startswith("82 Bend Camping Area") for c in feed["camps"]): bad.append(("rename", "kept unit name"))
 cherry = open(os.path.join(D, "vic", "camp", "1-wild-cherry-camp", "index.html"), encoding="utf-8").read()
 if "<h1>Wild Cherry Camp</h1>" not in cherry or "<h1>1 Wild Cherry" in cherry or "<title>1 Wild Cherry" in cherry: bad.append(("1-wild-cherry-camp", "display name"))
+_meridian = os.path.join(D, "nsw", "camp", "150-meridian-rest-area", "index.html")
+_eco1770 = os.path.join(D, "qld", "camp", "1770-eco-camp", "index.html")
+_trav1770 = os.path.join(D, "qld", "camp", "1770-travellers-rest-camping", "index.html")
+for _path, _name in ((_meridian, "150 Meridian Rest Area"), (_eco1770, "1770 Eco Camp"), (_trav1770, "1770 Travellers Rest Camping")):
+    if not os.path.isfile(_path):
+        bad.append((_name, "missing page"))
+        continue
+    _html = open(_path, encoding="utf-8").read()
+    if f"<h1>{_name}</h1>" not in _html or f"<title>{_name}" not in _html:
+        bad.append((_name, "kept recorded name"))
 for shore in named("Foreshore Reserve"):
   shore_html = open(os.path.join(D, "vic", "camp", shore["slug"], "index.html"), encoding="utf-8").read()
   if "<h1>Foreshore Reserve, near " not in shore_html: bad.append((shore["slug"], "near town"))
@@ -3829,13 +3837,18 @@ for _st in ("vic", "nsw", "qld", "sa", "tas"):
         if _og != _title or _tw != _title:
             bad.append((_st + "/camp/" + _slug, "og title", _og, _tw, _title))
             break
+        if _h1 and _h1 not in _title:
+            bad.append((_st + "/camp/" + _slug, "title drops name", _h1, _title))
         _near = _near_re.search(_title)
         if _near:
             _place = _near.group(1).strip()
-            if _title_towns and _place not in _title_towns:
-                bad.append((_st + "/camp/" + _slug, "near not a city/town", _place, _title))
-            if _place in _title_localities and _place not in _title_towns:
-                bad.append((_st + "/camp/" + _slug, "near locality", _place, _title))
+            # A ", near" clause that is already in the H1 is part of the official
+            # display name and must stay. Other near-clauses must be a city or town.
+            if _place not in _h1:
+                if _title_towns and _place not in _title_towns:
+                    bad.append((_st + "/camp/" + _slug, "near not a city/town", _place, _title))
+                if _place in _title_localities and _place not in _title_towns:
+                    bad.append((_st + "/camp/" + _slug, "near locality", _place, _title))
         # Don't add "camping" when the visible name already has Camp / Campground / Camping.
         _core = _title[: -len(_TITLE_BRAND)]
         if _core.endswith(" camping"):
@@ -3854,9 +3867,11 @@ else:
     _share = 1 - (_over / len(_title_all))
     if _share < 0.70:
         bad.append(("titles", "length share", round(_share, 3), "over 65", _over, "of", len(_title_all)))
-    _too_long = [t for t in _title_all if len(t) > 120]
+    # Official names are never clipped, so a handful of titles may exceed 120.
+    # Fail only if a title is implausibly long (runaway interpolation).
+    _too_long = [t for t in _title_all if len(t) > 300]
     if _too_long:
-        bad.append(("titles", "over 120", len(_too_long), _too_long[0], len(_too_long[0])))
+        bad.append(("titles", "over 300", len(_too_long), _too_long[0], len(_too_long[0])))
     _dups = [t for t, n in __import__("collections").Counter(_title_all).items() if n > 1]
     if _dups:
         bad.append(("titles", "duplicates", len(_dups), _dups[:5]))
@@ -3888,17 +3903,35 @@ for _st in ("vic", "nsw", "qld", "sa", "tas"):
         _plain = html.unescape(re.sub(r"<[^>]+>", " ", _found[0]))
         if re.search(r"\b(No Rating| km\b|kilometre|kilometer)\b", _plain, re.I):
             _summary_banned.append((_st + "/camp/" + _slug, _plain))
+        _hm = re.search(r"<h1>(.*?)</h1>", _html)
+        _h1_text = html.unescape(_hm.group(1)).strip() if _hm else ""
+        _h1_name = re.sub(r",\s*near\s+.*$", "", _h1_text).strip() if _h1_text else ""
+        if _h1_name and _h1_name not in _plain:
+            bad.append((_st + "/camp/" + _slug, "summary drops name", _h1_name, _plain))
+        _type_m = re.search(r"<p>Type: (.*?)</p>", _html)
+        _type = html.unescape(_type_m.group(1)).strip() if _type_m else ""
+        _fee_lab = ""
+        for _fm in re.finditer(r"<p><strong>([^<]*)</strong></p>", _html):
+            _lab = html.unescape(_fm.group(1)).strip()
+            if _lab.lower() in ("free", "donation") or _lab.lower().startswith("paid"):
+                _fee_lab = _lab
+                break
+        _is_don = _type == "Donation" or _fee_lab == "Donation"
+        if _is_don and ("donation camping area" not in _plain.lower() or "free camping area" in _plain.lower()):
+            bad.append((_st + "/camp/" + _slug, "summary fee", _type, _fee_lab, _plain))
+        if (not _is_don) and _fee_lab.lower().startswith("paid") and "free camping area" in _plain.lower():
+            bad.append((_st + "/camp/" + _slug, "summary fee", _type, _fee_lab, _plain))
         _about = re.search(r"<h2>About</h2>\s*<p>(.*?)</p>", _html, re.S)
         if _about and "fact-summary" not in _about.group(0):
             _about_text = html.unescape(re.sub(r"<[^>]+>", "", _about.group(1))).strip()
             if _about_text:
                 _summary_with_prose.append(_st + "/camp/" + _slug)
-        _h1 = _html.find("<h1>")
+        _h1_pos = _html.find("<h1>")
         _map = _html.find('id="camp-map"')
         if _map < 0:
             _map = _html.find("Directions in Google Maps")
         _pos = _html.find('<p class="fact-summary">')
-        if _h1 >= 0 and _pos >= 0 and _pos < _h1:
+        if _h1_pos >= 0 and _pos >= 0 and _pos < _h1_pos:
             _summary_above.append(_st + "/camp/" + _slug)
         elif _map >= 0 and _pos >= 0 and _pos < _map:
             _summary_above.append(_st + "/camp/" + _slug)

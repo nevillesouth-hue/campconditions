@@ -208,23 +208,23 @@ def region(lon, lat):
     return statecfg.region_id(STATE, lon, lat)
 
 def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
-# A leading "12 " is an index, not part of the name, unless the next word is a
-# unit or place descriptor (6 Mile Flat, 82 Bend, 14 Creek).
-_KEEP_UNIT = {"mile", "miles", "bend", "bends", "km", "kms", "kilometre", "kilometres", "kilometer", "kilometers", "creek", "creeks"}
+# A leading "12." or "12)" is a list index, not part of the name.
+# A leading number followed by a word (1 Wild Cherry Camp, 6 Mile Flat,
+# 150 Meridian Rest Area) is the recorded source name and is kept.
+_INDEX_PREFIX = re.compile(r"^(?:#\s*\d+[.)]?\s+|\d+[.)]\s+)")
 def strip_index_name(name):
-    """Drop a short leading source index (1 Wild Cherry Camp).
+    """Keep recorded leading numbers; drop only punctuation list indexes.
 
-    Keep three-or-more-digit prefixes; they are part of the name
-    (150 Meridian Rest Area, 1770 Eco Camp). Collapse internal
-    whitespace so the H1 and <title> use the same exact string.
+    '1 Wild Cherry Camp' and '7 Oaks' stay as recorded. '12. Camp' or
+    '3) Camp' (a list index added by a source) has the prefix dropped.
+    Collapse internal whitespace so the H1 and <title> use the same exact
+    string.
     """
     name = re.sub(r"\s+", " ", name or "").strip()
-    match = re.match(r"^(\d+)\s+([A-Za-z]+)", name)
-    if not match or match.group(2).lower() in _KEEP_UNIT:
-        return name
-    if len(match.group(1)) >= 3:
-        return name
-    return name[match.start(2):]
+    match = _INDEX_PREFIX.match(name)
+    if match:
+        return name[match.end():].lstrip()
+    return name
 e = lambda s: html.escape(str(s or ""), quote=True)
 def feed_date(value):
     """Day month year in Australia/Melbourne. Empty when the feed has no date."""

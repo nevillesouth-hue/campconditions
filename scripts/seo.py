@@ -608,3 +608,172 @@ def resolve_title_collisions(camps, title_of, retry):
             extra = distinctive_extra(camps[index], peers=peers) or distinctive_extra(camps[index])
             titles[index] = retry(camps[index], extra=extra, with_region=True)
     return titles
+
+
+_SKIP_SUMMARY_SOURCES = frozenset({
+    "npws", "qpws", "tas", "parks_sa", "sa_operator", "council", "tourism", "operator",
+})
+_SKIP_SUMMARY_STATES = frozenset({"sa", "tas", "act", "nt", "wa"})
+_SUMMARY_BANNED = re.compile(r"\b(no rating|km\b|kilometres?|kilometers?|stars?\b|rated)\b", re.I)
+
+
+def has_real_description(camp):
+    """True when the camp already has official or tagged prose to show."""
+    for key in ("description", "about", "camping", "caravans", "access"):
+        if re.sub(r"\s+", " ", str(camp.get(key) or "")).strip():
+            return True
+    return False
+
+
+def _distinctive_region(region, state_name):
+    region = re.sub(r"\s+", " ", str(region or "")).strip()
+    if not region or region_is_state(region, state_name):
+        return ""
+    return region
+
+
+def recorded_facts(camp, region="", state_name=""):
+    """Confirmed fee, dogs, caravans, motorhomes, and a distinctive region."""
+    facts = {}
+    cost = str(camp.get("cost") or "").strip().lower()
+    if cost in {"free", "paid"}:
+        facts["fee"] = cost
+    for key, field in (("dogs", "fac_dogs"), ("caravans", "fac_caravans"), ("motorhomes", "fac_motorhomes")):
+        value = camp.get(field)
+        if value is True or value is False:
+            facts[key] = value
+    region = _distinctive_region(region, state_name)
+    if region:
+        facts["region"] = region
+    return facts
+
+
+def _place_clause(region, state_name):
+    region = re.sub(r"\s+", " ", str(region or "")).strip()
+    state_name = re.sub(r"\s+", " ", str(state_name or "")).strip()
+    if region and state_name and region.casefold().endswith(state_name.casefold()):
+        return f"in {region}"
+    if region and state_name:
+        return f"in {region}, {state_name}"
+    if region:
+        return f"in {region}"
+    if state_name:
+        return f"in {state_name}"
+    return ""
+
+
+def _and_list(items):
+    items = [item for item in items if item]
+    if not items:
+        return ""
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return ", ".join(items[:-1]) + ", and " + items[-1]
+
+
+def _suit_labels(facts, wanted):
+    order = (("caravans", "caravans"), ("motorhomes", "motorhomes"), ("dogs", "dogs"))
+    return [label for label, key in order if facts.get(key) is wanted]
+
+
+def _fee_noun(fee):
+    if fee == "free":
+        return "a free camping area"
+    if fee == "paid":
+        return "a paid camping area"
+    return ""
+
+
+def _variant(camp):
+    key = str(camp.get("slug") or camp.get("name") or "")
+    return sum(ord(ch) for ch in key) % 3
+
+
+def _tidy(text):
+    text = re.sub(r"\s+", " ", str(text or "")).replace(" .", ".").strip()
+    text = re.sub(r"\.{2,}", ".", text)
+    text = re.sub(r" ,", ",", text)
+    text = re.sub(r"^It is \.", "", text).strip()
+    if text and not text.endswith("."):
+        text += "."
+    return text
+
+
+def fact_summary(camp, region="", state_name=""):
+    """A short fact-only lead sentence, or empty when the camp is not eligible.
+
+    Only VIC/NSW/QLD camps with no existing real description and at least two
+    recorded facts (fee free/paid, confirmed dogs/caravans/motorhomes, or a
+    distinctive region). NPWS, QPWS, SA and TAS records are skipped. Wording
+    is tied to those facts only. Sentence shape is chosen deterministically
+    from the slug so neighbouring pages are not all identical.
+    """
+    source = str(camp.get("source") or "").strip().lower()
+    state = str(camp.get("state_slug") or "").strip().lower()
+    if source in _SKIP_SUMMARY_SOURCES or state in _SKIP_SUMMARY_STATES:
+        return ""
+    if has_real_description(camp):
+        return ""
+    facts = recorded_facts(camp, region, state_name)
+    if len(facts) < 2:
+        return ""
+    name = re.sub(r"\s+", " ", str(camp.get("name") or "").strip()) or "This camping area"
+    place = _place_clause(facts.get("region") or "", state_name)
+    fee = _fee_noun(facts.get("fee"))
+    suitable = _suit_labels(facts, True)
+    unsuitable = _suit_labels(facts, False)
+    suit_pos = ("recorded as suitable for " + _and_list(suitable)) if suitable else ""
+    suit_neg = ("recorded as not suitable for " + _and_list(unsuitable)) if unsuitable else ""
+    variant = _variant(camp)
+
+    sentences = []
+    if variant == 0:
+        if fee and place:
+            sentences.append(f"{name} is {fee} {place}.")
+        elif fee:
+            sentences.append(f"{name} is {fee}.")
+        elif place:
+            sentences.append(f"{name} is {place}.")
+        else:
+            sentences.append(f"{name}.")
+        if suit_pos:
+            sentences.append("It is " + suit_pos + ".")
+        if suit_neg:
+            sentences.append("It is " + suit_neg + ".")
+    elif variant == 1 and place:
+        sentences.append(f"{name} is {place}.")
+        mid = []
+        if fee:
+            mid.append(fee)
+        if suit_pos:
+            mid.append(suit_pos)
+        if mid:
+            sentences.append("It is " + ", ".join(mid) + ".")
+        if suit_neg:
+            sentences.append("It is " + suit_neg + ".")
+    else:
+        if suit_pos:
+            sentences.append(f"{name} is {suit_pos}.")
+            if fee and place:
+                sentences.append(f"It is {fee} {place}.")
+            elif fee:
+                sentences.append(f"It is {fee}.")
+            elif place:
+                sentences.append(f"It is {place}.")
+        elif fee and place:
+            sentences.append(f"{name} is {fee} {place}.")
+        elif place:
+            sentences.append(f"{name} is {place}.")
+        elif fee:
+            sentences.append(f"{name} is {fee}.")
+        if suit_neg:
+            if not sentences:
+                sentences.append(f"{name} is {suit_neg}.")
+            else:
+                sentences.append("It is " + suit_neg + ".")
+    text = _tidy(" ".join(sentences))
+    if not text or _SUMMARY_BANNED.search(text):
+        return ""
+    return text

@@ -179,6 +179,140 @@ expect('href="https://example.test/warn"' in linked_out and "the agency" in link
 expect(linked_out.startswith('<div class="warn"><strong>Example.</strong> '), "label position")
 expect(seo.about_warning({"name": "Victoria", "safety_html": ""}) == "", "empty warning")
 
+
+# Camp page titles: town within 40 km, else region, else state. Clip long names.
+horseshoe = seo.camp_page_title("Horseshoe Beach", "VIC", town="Cobram", region="Murray & Mallee", state_name="Victoria")
+expect(horseshoe == "Horseshoe Beach, near Cobram VIC | CampConditions.au", "horseshoe town " + horseshoe)
+expect(len(horseshoe) <= 65, "horseshoe length " + str(len(horseshoe)))
+region_only = seo.camp_page_title("Horseshoe Beach", "VIC", town="", region="Murray & Mallee", state_name="Victoria")
+expect(region_only == "Horseshoe Beach, Murray & Mallee VIC | CampConditions.au", "horseshoe region " + region_only)
+# A locality must not be passed in as town; the caller uses nearest_title_town.
+no_locality = seo.camp_page_title("Horseshoe Beach", "VIC", town="", region="Murray & Mallee", state_name="Victoria")
+expect("Scotts Beach" not in no_locality and "near " not in no_locality, "no locality " + no_locality)
+# SA/TAS: region is the state, so use ", ST camping" unless the name already has Camp.
+sa_retreat = seo.camp_page_title("Nutbush Retreat", "SA", town="", region="South Australia", state_name="South Australia")
+expect(sa_retreat == "Nutbush Retreat, SA camping | CampConditions.au", "sa camping " + sa_retreat)
+expect(sa_retreat.lower().count("south australia") == 0, "sa no repeated state " + sa_retreat)
+tas_camp = seo.camp_page_title("Musselroe Bay Campground", "TAS", town="", region="Tasmania", state_name="Tasmania")
+expect(tas_camp == "Musselroe Bay Campground, TAS | CampConditions.au", "tas no extra camping " + tas_camp)
+expect("camping" not in tas_camp.lower().replace("campground", ""), "tas camp word " + tas_camp)
+sa_town = seo.camp_page_title("Nutbush Retreat", "SA", town="Port Lincoln", region="South Australia", state_name="South Australia")
+expect(sa_town == "Nutbush Retreat, near Port Lincoln SA | CampConditions.au", "sa town " + sa_town)
+# Don't repeat a town already in the display name.
+named = seo.camp_page_title("Foreshore Reserve, near Cobram", "VIC", town="Cobram", region="Murray & Mallee", state_name="Victoria")
+expect(named == "Foreshore Reserve, near Cobram VIC | CampConditions.au", "existing near " + named)
+expect(named.lower().count("near cobram") == 1, "near once " + named)
+# Long official names drop park parentheticals, keep a short site name and the town.
+long_name = (
+    "Great South West Walk - Simsons Camping Area to Lake Mombeong Camping Area "
+    "(Nelson Streamside Reserve, Glenelg River Heritage River, Discovery Bay Coastal Park, Lower Glenelg National Park)"
+)
+clipped = seo.camp_page_title(long_name, "VIC", town="Heywood", region="Grampians & South West", state_name="Victoria")
+expect(clipped.startswith("Great South West Walk - Simsons"), "clip start " + clipped)
+expect("Nelson Streamside" not in clipped and "Glenelg" not in clipped, "clip drops the park " + clipped)
+expect(clipped.endswith(seo.TITLE_BRAND), "clip brand " + clipped)
+# A long official name may run a little over 65 so the site name stays unique.
+expect(len(clipped) <= 80, "clip length " + str(len(clipped)) + " " + clipped)
+# Numbered sites keep the number so neighbouring bends do not share a title.
+farley = seo.camp_page_title(
+    "Farley Bend Camping Area Site 2  (River Murray Reserve)",
+    "VIC", town="Echuca", region="Goldfields & Central Victoria", state_name="Victoria",
+)
+expect("Site 2" in farley and "River Murray Reserve" not in farley, "farley site " + farley)
+expect("near Echuca" in farley, "farley town " + farley)
+# Acheron with a town fits; the long region is allowed to run a little over so the name stays readable.
+acheron_town = seo.camp_page_title("Acheron Campground", "VIC", town="Healesville", region="Yarra Ranges & Central Highlands", state_name="Victoria")
+expect(acheron_town == "Acheron Campground, near Healesville VIC | CampConditions.au", "acheron town " + acheron_town)
+expect(len(acheron_town) <= 65, "acheron town length")
+# Closed wording is not part of the new title shape.
+expect("check with the operator" not in horseshoe and "is it open?" not in horseshoe, "no old stock phrases")
+
+# nearest_title_town: city/town within 40 km only, no locality fallback.
+import towns as town_mod
+_places = [
+    {"name": "Scotts Beach", "lat": -35.93, "lon": 145.70, "place": "locality"},
+    {"name": "Cobram", "lat": -35.92, "lon": 145.65, "place": "town"},
+    {"name": "Emita", "lat": -39.94, "lon": 147.88, "place": "hamlet"},
+]
+_town, _dist = town_mod.nearest_title_town(-35.928, 145.696, _places)
+expect(_town == "Cobram" and _dist is not None and _dist <= 40, "title town cobram " + str((_town, _dist)))
+_none, _none_d = town_mod.nearest_title_town(-39.94, 147.88, _places)
+expect(_none == "" and _none_d is None, "no hamlet fallback " + str((_none, _none_d)))
+# A town 50 km away is also ignored.
+_far = [{"name": "Gregory", "lat": -18.65, "lon": 139.25, "place": "town"}]
+_far_name, _far_d = town_mod.nearest_title_town(-18.0, 139.25, _far)
+expect(_far_name == "" and _far_d is None, "town beyond 40 km " + str((_far_name, _far_d)))
+
+
+
+# Distinctive bits already in the official name split a title clash. Clip must
+# keep Site N, short parentheticals, and an existing ", near" town, and must not
+# leave a stray closing parenthesis.
+def _titles_for(camps, **kwargs):
+    def retry(camp, extra="", with_region=False):
+        name = camp.get("page_name") or camp.get("name") or ""
+        return seo.camp_page_title(name, extra=extra, with_region=with_region, **kwargs)
+    return seo.resolve_title_collisions(camps, lambda camp: retry(camp), retry)
+
+_ganguddy = _titles_for(
+    [
+        {"name": "Camping Area - Ganguddy (The Point)"},
+        {"name": "Camping Area - Ganguddy (Kookaburra Bch)"},
+        {"name": "Camping Area - Ganguddy (Ngurang)"},
+    ],
+    abbrev="NSW", town="Kandos", region="Central NSW", state_name="New South Wales",
+)
+expect(len(set(title.casefold() for title in _ganguddy)) == 3, "ganguddy unique " + str(_ganguddy))
+_joined = " ".join(_ganguddy)
+expect("The Point" in _joined and "Kookaburra Bch" in _joined and "Ngurang" in _joined, "ganguddy bits " + _joined)
+expect(all("(" in title or ")" not in title.split("|")[0] for title in _ganguddy), "ganguddy parens " + str(_ganguddy))
+
+_ranch = _titles_for(
+    [
+        {"name": "The Ranch Camping Area Site 2 (River Murray Reserve, Proposed Murray River Park (part))"},
+        {"name": "The Ranch Camping Area Site 3 (River Murray Reserve, Proposed Murray River Park (part))"},
+    ],
+    abbrev="VIC", town="Barmah", region="Goldfields & Central Victoria", state_name="Victoria",
+)
+expect(len(set(_ranch)) == 2 and "Site 2" in _ranch[0] and "Site 3" in _ranch[1], "ranch sites " + str(_ranch))
+
+_richards = _titles_for(
+    [
+        {"page_name": "Richardsons Beach Campground, near Dolphin Sands", "name": "Richardsons Beach Campground"},
+        {"page_name": "Richardsons Beach Campground, near Coles Bay", "name": "Richardsons Beach Campground"},
+    ],
+    abbrev="TAS", region="Tasmania", state_name="Tasmania",
+)
+# Locality/village names in page_name are not written as ", near …" in the title.
+# They can still appear as a disambiguating extra so the two pages stay unique.
+expect("Dolphin Sands" in _richards[0] and "Coles Bay" in _richards[1], "richards bits " + str(_richards))
+expect(all(", near " not in title for title in _richards), "richards no near " + str(_richards))
+expect(len(set(title.casefold() for title in _richards)) == 2, "richards unique")
+
+
+
+_cunningham = _titles_for(
+    [
+        {"name": "Cunningham Weir camping area"},
+        {"name": "Cunningham Weir Campsite"},
+        {"name": "Cunningham Weir Free Camp"},
+    ],
+    abbrev="NSW", region="New England North West", state_name="New South Wales",
+)
+expect(len(set(title.casefold() for title in _cunningham)) == 3, "cunningham unique " + str(_cunningham))
+_cjoin = " ".join(_cunningham).casefold()
+expect("campsite" in _cjoin and "free camp" in _cjoin, "cunningham bits " + str(_cunningham))
+
+_ravens = _titles_for(
+    [
+        {"name": "Ravenswood Showground Camping & Public"},
+        {"name": "Ravenswood Showground (Recreation Reserve)"},
+    ],
+    abbrev="QLD", town="Ravenswood", region="Townsville", state_name="Queensland",
+)
+expect(len(set(title.casefold() for title in _ravens)) == 2, "ravens unique " + str(_ravens))
+
+
 if failures:
     print("\n".join(failures))
     raise SystemExit(1)

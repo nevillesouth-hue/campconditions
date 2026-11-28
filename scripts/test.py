@@ -215,8 +215,19 @@ for slug in os.listdir(os.path.join(D,"vic","camp")):
       bad.append((slug, "parks alerts"))
   title_m = re.search(r"<title>(.*?)</title>", html_page)
   h1_m = re.search(r"<h1>(.*?)</h1>", html_page)
-  if not title_m or not h1_m or h1_m.group(1) not in title_m.group(1): bad.append((slug, "title"))
-  else: page_titles.append(title_m.group(1))
+  _title = html.unescape(title_m.group(1)) if title_m else ""
+  _h1 = html.unescape(h1_m.group(1)) if h1_m else ""
+  _name_part = _title
+  if _name_part.endswith(" | CampConditions.au"):
+    _name_part = _name_part[: -len(" | CampConditions.au")]
+  _name_part = re.sub(r", near .+$", "", _name_part)
+  _name_part = re.sub(r", [^,]+$", "", _name_part).strip()
+  def _title_words(value):
+    return re.findall(r"[A-Za-z0-9']+", value or "")
+  _hw, _tw = _title_words(_h1), _title_words(_name_part)
+  _from_h1 = bool(_hw and _tw and _hw[0].casefold() == _tw[0].casefold() and set(w.casefold() for w in _tw) <= set(w.casefold() for w in _hw))
+  if not title_m or not h1_m or (_h1 not in _title and not _from_h1): bad.append((slug, "title"))
+  else: page_titles.append(_title)
 dup_titles = [t for t in set(page_titles) if page_titles.count(t) > 1]
 if dup_titles: bad.append(("duplicate titles", dup_titles[:3]))
 def named(name): return [c for c in feed["camps"] if c.get("name") == name]
@@ -3071,7 +3082,7 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
     _match = re.search(r"<p>Park: (.*?)</p>", open(_page, encoding="utf-8").read())
     return html.unescape(_match.group(1)) if _match else ""
   def _shown_parks(slug, allowed):
-    """Park names on the page. QPWS pages have a Park line. Other camps name the park in the title."""
+    """Park names on the page. QPWS pages have a Park line. Other camps name the park in the description."""
     _line = _park_line(slug)
     if _line:
       return [part.strip() for part in _line.split(";") if part.strip()]
@@ -3079,7 +3090,9 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
     _html = open(_page, encoding="utf-8").read() if os.path.isfile(_page) else ""
     _title_m = re.search(r"<title>(.*?)</title>", _html)
     _title = html.unescape(_title_m.group(1)) if _title_m else ""
-    return [name for name in allowed if name in _title]
+    _meta_m = re.search(r'<meta name="description" content="([^"]*)"', _html)
+    _meta = html.unescape(_meta_m.group(1)) if _meta_m else ""
+    return [name for name in allowed if name in _title or name in _meta]
   def _camp_hits(query, use_park):
     found = []
     for _camp in _qld_pts:
@@ -3126,7 +3139,10 @@ if os.path.isfile(os.path.join(D, "qld", "index.html")):
   if any("girramay" in (_park_line(s) + s).lower() or "girringun" in (_park_line(s) + s).lower() for s in _girr_after):
     bad.append(("qld search", "girraween mixed with girramay or girringun"))
   _castle = open(os.path.join(D, "qld", "camp", "castle-rock-camp-area", "index.html"), encoding="utf-8").read()
-  if "<title>Castle Rock Camp Area, Girraween National Park | CampConditions.au</title>" not in _castle: bad.append(("castle-rock-camp-area", "title"))
+  _castle_title = html.unescape(re.search(r"<title>(.*?)</title>", _castle).group(1)) if re.search(r"<title>", _castle) else ""
+  if not re.fullmatch(r"Castle Rock Camp Area, (near .+|Southern Queensland Country) QLD \| CampConditions.au", _castle_title):
+    bad.append(("castle-rock-camp-area", "title", _castle_title))
+  if "<h1>Castle Rock Camp Area</h1>" not in _castle: bad.append(("castle-rock-camp-area", "h1-kept"))
   if '<meta name="description" content="Castle Rock Camp Area, Girraween National Park in Southern Queensland Country, Queensland. QPWS camping ground in the QSpatial tourist points layer. Closed only where a QPWS park alert applies. Fees and facilities are not in this layer.">' not in _castle:
     bad.append(("castle-rock-camp-area", "meta"))
   if "<h1>Castle Rock Camp Area</h1>" not in _castle: bad.append(("castle-rock-camp-area", "h1"))
@@ -3750,6 +3766,101 @@ check_npws_reserves_budget(bad)
 # A problem with one camp (for example an override that clashes with the feed) is a warning:
 # that camp should not hold back every other update. Site-wide problems still block, and so do
 # camp problems on more than CAMP_WARN_LIMIT camps, which point to a broken source or template.
+
+# Camp <title> shape: "{Name}, near {Town} ST" or "{Name}, {Region} ST", clipped, unique.
+_TITLE_BRAND = " | CampConditions.au"
+_TITLE_ABBREV = {"vic": "VIC", "nsw": "NSW", "qld": "QLD", "sa": "SA", "tas": "TAS"}
+_title_all = []
+_title_paths = []
+_CAMP_WORD_RE = re.compile(r"\b(camps?|campgrounds?|camping|campsites?)\b", re.I)
+# City and town names from the files the build uses for title_town.
+_title_towns = set()
+_title_localities = set()
+for _st, _fname, _is_places in (
+    ("vic", "vic-towns.json", False),
+    ("nsw", "nsw-place-points.json", True),
+    ("qld", "qld-place-points.json", True),
+    ("sa", "sa-towns.json", False),
+    ("tas", "tas-towns.json", False),
+):
+    _path = os.path.join(D, _fname)
+    if not os.path.isfile(_path):
+        # Build copies towns/places into dist when present.
+        continue
+    for _row in json.load(open(_path, encoding="utf-8")):
+        _nm = (_row.get("name") or "").strip()
+        _pl = (_row.get("place") or "").strip().lower()
+        if not _nm:
+            continue
+        if _pl in ("city", "town"):
+            _title_towns.add(_nm)
+        elif _pl:
+            _title_localities.add(_nm)
+_near_re = re.compile(r", near ([^,]+)(?:, .+)? (VIC|NSW|QLD|SA|TAS) \| CampConditions\.au$")
+_camp_dirs = []
+for _st in ("vic", "nsw", "qld", "sa", "tas"):
+    _dir = os.path.join(D, _st, "camp")
+    if not os.path.isdir(_dir):
+        bad.append(("titles", "missing state", _st))
+        continue
+    _camp_dirs.append(_st)
+    for _slug in os.listdir(_dir):
+        _page = os.path.join(_dir, _slug, "index.html")
+        if not os.path.isfile(_page):
+            continue
+        _html = open(_page, encoding="utf-8").read()
+        _tm = re.search(r"<title>(.*?)</title>", _html)
+        _hm = re.search(r"<h1>(.*?)</h1>", _html)
+        if not _tm:
+            bad.append((_st + "/camp/" + _slug, "no title"))
+            continue
+        _title = html.unescape(_tm.group(1))
+        _h1 = html.unescape(_hm.group(1)) if _hm else ""
+        _title_all.append(_title)
+        _title_paths.append((_st, _slug, _title, _h1))
+        if not _title.endswith(_TITLE_BRAND):
+            bad.append((_st + "/camp/" + _slug, "title brand", _title))
+        _abbr = _TITLE_ABBREV[_st]
+        if _abbr not in _title:
+            bad.append((_st + "/camp/" + _slug, "title state", _title))
+        # og/twitter titles should match <title> on camp pages.
+        _og = html.unescape(re.search(r'property="og:title" content="([^"]*)"', _html).group(1)) if re.search(r'property="og:title"', _html) else ""
+        _tw = html.unescape(re.search(r'name="twitter:title" content="([^"]*)"', _html).group(1)) if re.search(r'name="twitter:title"', _html) else ""
+        if _og != _title or _tw != _title:
+            bad.append((_st + "/camp/" + _slug, "og title", _og, _tw, _title))
+            break
+        _near = _near_re.search(_title)
+        if _near:
+            _place = _near.group(1).strip()
+            if _title_towns and _place not in _title_towns:
+                bad.append((_st + "/camp/" + _slug, "near not a city/town", _place, _title))
+            if _place in _title_localities and _place not in _title_towns:
+                bad.append((_st + "/camp/" + _slug, "near locality", _place, _title))
+        # Don't add "camping" when the visible name already has Camp / Campground / Camping.
+        _core = _title[: -len(_TITLE_BRAND)]
+        if _core.endswith(" camping"):
+            _head = _core[: -len(" camping")]
+            # ", SA camping" / ", TAS camping" — the name is before the last comma+state.
+            _name_bit = re.sub(r", (SA|TAS)$", "", _head)
+            if _CAMP_WORD_RE.search(_name_bit):
+                bad.append((_st + "/camp/" + _slug, "extra camping", _title))
+for _off in ("act", "nt", "wa"):
+    if os.path.isdir(os.path.join(D, _off)):
+        bad.append(("titles", "disabled state built", _off))
+if len(_title_all) < 1000:
+    bad.append(("titles", "too few camp titles", len(_title_all)))
+else:
+    _over = sum(1 for t in _title_all if len(t) > 65)
+    _share = 1 - (_over / len(_title_all))
+    if _share < 0.70:
+        bad.append(("titles", "length share", round(_share, 3), "over 65", _over, "of", len(_title_all)))
+    _too_long = [t for t in _title_all if len(t) > 120]
+    if _too_long:
+        bad.append(("titles", "over 120", len(_too_long), _too_long[0], len(_too_long[0])))
+    _dups = [t for t, n in __import__("collections").Counter(_title_all).items() if n > 1]
+    if _dups:
+        bad.append(("titles", "duplicates", len(_dups), _dups[:5]))
+
 CAMP_WARN_LIMIT = 25
 _camp_keys = {c.get("slug") for c in feed["camps"] if c.get("slug")} | {c.get("name") for c in feed["camps"] if c.get("name")}
 _camp_bad = [b for b in bad if isinstance(b, tuple) and b and isinstance(b[0], str) and b[0] in _camp_keys]

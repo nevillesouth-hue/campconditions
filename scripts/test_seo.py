@@ -313,6 +313,69 @@ _ravens = _titles_for(
 expect(len(set(title.casefold() for title in _ravens)) == 2, "ravens unique " + str(_ravens))
 
 
+
+# Fact-only summaries: only when there is no real description and at least two
+# recorded facts. NPWS, QPWS, SA and TAS are skipped. No invented distances or ratings.
+_sum_ok = seo.fact_summary(
+    {"name": "Horseshoe Beach", "slug": "horseshoe-beach", "source": "osm", "state_slug": "vic",
+     "cost": "free", "fac_caravans": True, "fac_dogs": True},
+    "Gippsland", "Victoria",
+)
+expect(_sum_ok and "Horseshoe Beach" in _sum_ok and "Gippsland" in _sum_ok and "Victoria" in _sum_ok, "summary place " + repr(_sum_ok))
+expect("free" in _sum_ok and "caravans" in _sum_ok and "dogs" in _sum_ok, "summary facts " + repr(_sum_ok))
+expect("No Rating" not in _sum_ok and "km" not in _sum_ok.lower(), "summary invented " + repr(_sum_ok))
+expect(seo.fact_summary(
+    {"name": "Has prose", "slug": "has-prose", "source": "osm", "state_slug": "vic",
+     "cost": "free", "fac_dogs": True, "description": "A shady riverside camp."},
+    "Gippsland", "Victoria",
+) == "", "skip real description")
+expect(seo.fact_summary(
+    {"name": "NPWS camp", "slug": "npws-camp", "source": "npws", "state_slug": "nsw",
+     "cost": "free", "fac_dogs": True, "fac_caravans": True},
+    "North Coast", "New South Wales",
+) == "", "skip npws")
+expect(seo.fact_summary(
+    {"name": "QPWS camp", "slug": "qpws-camp", "source": "qpws", "state_slug": "qld",
+     "cost": "free", "fac_dogs": True, "fac_caravans": True},
+    "Capricorn", "Queensland",
+) == "", "skip qpws")
+expect(seo.fact_summary(
+    {"name": "SA camp", "slug": "sa-camp", "source": "osm", "state_slug": "sa",
+     "cost": "free", "fac_dogs": True, "fac_caravans": True},
+    "South Australia", "South Australia",
+) == "", "skip sa")
+expect(seo.fact_summary(
+    {"name": "TAS camp", "slug": "tas-camp", "source": "tas", "state_slug": "tas",
+     "cost": "free", "fac_dogs": True, "fac_caravans": True},
+    "Tasmania", "Tasmania",
+) == "", "skip tas")
+expect(seo.fact_summary(
+    {"name": "Thin", "slug": "thin", "source": "osm", "state_slug": "nsw", "cost": "free"},
+    "New South Wales", "New South Wales",
+) == "", "need two facts")
+_variants = {
+    seo.fact_summary(
+        {"name": "Alpha Camp", "slug": slug, "source": "osm", "state_slug": "vic",
+         "cost": "free", "fac_caravans": True, "fac_dogs": True},
+        "High Country", "Victoria",
+    )
+    for slug in ("aaa", "alpha", "bravo")
+}
+expect(len(_variants) >= 2 and all(_variants), "deterministic variants " + repr(_variants))
+# Same slug always yields the same wording.
+_first = seo.fact_summary(
+    {"name": "Alpha Camp", "slug": "alpha", "source": "osm", "state_slug": "vic",
+     "cost": "free", "fac_caravans": True, "fac_dogs": True},
+    "High Country", "Victoria",
+)
+_again = seo.fact_summary(
+    {"name": "Alpha Camp", "slug": "alpha", "source": "osm", "state_slug": "vic",
+     "cost": "free", "fac_caravans": True, "fac_dogs": True},
+    "High Country", "Victoria",
+)
+expect(_first == _again and _first, "stable wording " + repr(_first))
+
+
 if failures:
     print("\n".join(failures))
     raise SystemExit(1)

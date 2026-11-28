@@ -3225,6 +3225,8 @@ def osm_blocks(c):
     elif "follow signs on site" in desc.lower() or unknown_overnight:
         bits.append("<p><strong>Follow signs on site.</strong> Overnight stays are not confirmed.</p>")
     if desc: bits.append(f"<p>{e(desc)}</p>")
+    elif c.get("fact_summary"):
+        bits.append(f'<p class="fact-summary">{e(c["fact_summary"])}</p>')
     bits.append(facts_html(c, fill_unknown=True))
     if c.get("category"): bits.append(f"<p>Type: {e(c['category'])}</p>")
     if c.get("managed_by"): bits.append(f"<p>Operator: {e(c['managed_by'])}</p>")
@@ -3300,6 +3302,8 @@ def datavic_facts(c):
     if not c.get("enriched"): return ""
     bits = []
     if c.get("description"): bits.append(f"<p>{e(c['description'])}</p>")
+    elif c.get("fact_summary"):
+        bits.append(f'<p class="fact-summary">{e(c["fact_summary"])}</p>')
     bits.append(facts_html(c, fill_unknown=False))
     if c.get("overlay_operator"): bits.append(f"<p>Operator: {e(c['overlay_operator'])}</p>")
     return "".join(bits)
@@ -3536,10 +3540,25 @@ def assign_page_titles(camps):
     for camp, title in zip(camps, titles):
         camp["page_title"] = title
 
+
+def assign_fact_summaries(camps):
+    """Short fact-only lead on pages with no real description and at least two facts."""
+    state_name = STATE.get("name") or ""
+    count = 0
+    for camp in camps:
+        region_name = REGIONS.get(camp.get("region") or "", ("",))[0]
+        text = seo.fact_summary(camp, region_name, state_name)
+        if text:
+            camp["fact_summary"] = text
+            count += 1
+    print(f"Fact summaries ({STATE.get('slug')}): {count}")
+    return count
+
 def emit_state(state, camps, include_home):
     """Write one state's pages. Home is the Victoria page, so only the primary state includes it."""
     bind(state)
     assign_page_titles(camps)
+    assign_fact_summaries(camps)
     camp_index = town_pages.CampIndex(camps)
     known_regions = set(REGIONS)
     def region_of(lon, lat):

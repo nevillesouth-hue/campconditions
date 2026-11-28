@@ -3861,6 +3861,70 @@ else:
     if _dups:
         bad.append(("titles", "duplicates", len(_dups), _dups[:5]))
 
+
+# Fact-only summaries live in the existing lead/About slot, never above the fold,
+# and only on VIC/NSW/QLD pages with no real description.
+_SUMMARY_EXPECTED = (650, 1300)
+_summary_pages = []
+_summary_bad_state = []
+_summary_with_prose = []
+_summary_above = []
+_summary_banned = []
+_summary_re = re.compile(r'<p class="fact-summary">(.*?)</p>', re.S)
+for _st in ("vic", "nsw", "qld", "sa", "tas"):
+    _dir = os.path.join(D, _st, "camp")
+    if not os.path.isdir(_dir):
+        continue
+    for _slug in os.listdir(_dir):
+        _page = os.path.join(_dir, _slug, "index.html")
+        if not os.path.isfile(_page):
+            continue
+        _html = open(_page, encoding="utf-8").read()
+        _found = _summary_re.findall(_html)
+        if not _found:
+            continue
+        if _st in ("sa", "tas"):
+            _summary_bad_state.append(_st + "/camp/" + _slug)
+        _plain = html.unescape(re.sub(r"<[^>]+>", " ", _found[0]))
+        if re.search(r"\b(No Rating| km\b|kilometre|kilometer)\b", _plain, re.I):
+            _summary_banned.append((_st + "/camp/" + _slug, _plain))
+        _about = re.search(r"<h2>About</h2>\s*<p>(.*?)</p>", _html, re.S)
+        if _about and "fact-summary" not in _about.group(0):
+            _about_text = html.unescape(re.sub(r"<[^>]+>", "", _about.group(1))).strip()
+            if _about_text:
+                _summary_with_prose.append(_st + "/camp/" + _slug)
+        _h1 = _html.find("<h1>")
+        _map = _html.find('id="camp-map"')
+        if _map < 0:
+            _map = _html.find("Directions in Google Maps")
+        _pos = _html.find('<p class="fact-summary">')
+        if _h1 >= 0 and _pos >= 0 and _pos < _h1:
+            _summary_above.append(_st + "/camp/" + _slug)
+        elif _map >= 0 and _pos >= 0 and _pos < _map:
+            _summary_above.append(_st + "/camp/" + _slug)
+        _summary_pages.append((_st, _slug, _plain))
+# NPWS/QPWS pages say Source: NPWS / QPWS or official layer — they must not get a summary.
+for _st, _slug, _plain in _summary_pages:
+    _html = open(os.path.join(D, _st, "camp", _slug, "index.html"), encoding="utf-8").read()
+    if "Source: NPWS Visitor Area layer" in _html or "QSpatial tourist points layer" in _html or "Source: NPWS" in _html:
+        # QPWS official pages include QSpatial; skip flagging if it's only in a footer of an OSM page? OSM uses osm_source_line.
+        if "Visitor Area layer (camping areas)" in _html or "QSpatial tourist points layer" in _html:
+            bad.append((_st + "/camp/" + _slug, "summary on official npws/qpws page"))
+            break
+if _summary_bad_state:
+    bad.append(("summaries", "sa/tas", _summary_bad_state[:5]))
+if _summary_banned:
+    bad.append(("summaries", "invented", _summary_banned[:3]))
+if _summary_with_prose:
+    bad.append(("summaries", "on page with about", _summary_with_prose[:5]))
+if _summary_above:
+    bad.append(("summaries", "above the fold", _summary_above[:5]))
+if not (_SUMMARY_EXPECTED[0] <= len(_summary_pages) <= _SUMMARY_EXPECTED[1]):
+    bad.append(("summaries", "count", len(_summary_pages), "expected", _SUMMARY_EXPECTED[0], "to", _SUMMARY_EXPECTED[1]))
+else:
+    print(f"Fact summaries: {len(_summary_pages)}")
+
+
 CAMP_WARN_LIMIT = 25
 _camp_keys = {c.get("slug") for c in feed["camps"] if c.get("slug")} | {c.get("name") for c in feed["camps"] if c.get("name")}
 _camp_bad = [b for b in bad if isinstance(b, tuple) and b and isinstance(b[0], str) and b[0] in _camp_keys]

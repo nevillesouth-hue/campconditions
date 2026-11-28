@@ -180,7 +180,7 @@ expect(linked_out.startswith('<div class="warn"><strong>Example.</strong> '), "l
 expect(seo.about_warning({"name": "Victoria", "safety_html": ""}) == "", "empty warning")
 
 
-# Camp page titles: town within 40 km, else region, else state. Clip long names.
+# Camp page titles: town within 40 km, else region, else state. Never cut the name.
 horseshoe = seo.camp_page_title("Horseshoe Beach", "VIC", town="Cobram", region="Murray & Mallee", state_name="Victoria")
 expect(horseshoe == "Horseshoe Beach, near Cobram VIC | CampConditions.au", "horseshoe town " + horseshoe)
 expect(len(horseshoe) <= 65, "horseshoe length " + str(len(horseshoe)))
@@ -202,24 +202,29 @@ expect(sa_town == "Nutbush Retreat, near Port Lincoln SA | CampConditions.au", "
 named = seo.camp_page_title("Foreshore Reserve, near Cobram", "VIC", town="Cobram", region="Murray & Mallee", state_name="Victoria")
 expect(named == "Foreshore Reserve, near Cobram VIC | CampConditions.au", "existing near " + named)
 expect(named.lower().count("near cobram") == 1, "near once " + named)
-# Long official names drop park parentheticals, keep a short site name and the town.
+# Long official names are never cut. Town/region is dropped first if the title is long.
 long_name = (
     "Great South West Walk - Simsons Camping Area to Lake Mombeong Camping Area "
     "(Nelson Streamside Reserve, Glenelg River Heritage River, Discovery Bay Coastal Park, Lower Glenelg National Park)"
 )
-clipped = seo.camp_page_title(long_name, "VIC", town="Heywood", region="Grampians & South West", state_name="Victoria")
-expect(clipped.startswith("Great South West Walk - Simsons"), "clip start " + clipped)
-expect("Nelson Streamside" not in clipped and "Glenelg" not in clipped, "clip drops the park " + clipped)
-expect(clipped.endswith(seo.TITLE_BRAND), "clip brand " + clipped)
-# A long official name may run a little over 65 so the site name stays unique.
-expect(len(clipped) <= 80, "clip length " + str(len(clipped)) + " " + clipped)
-# Numbered sites keep the number so neighbouring bends do not share a title.
+full = seo.camp_page_title(long_name, "VIC", town="Heywood", region="Grampians & South West", state_name="Victoria")
+expect(long_name in full, "full name kept " + full)
+expect(full.endswith(seo.TITLE_BRAND), "full brand " + full)
+expect(full.startswith(long_name + " VIC") or ", near Heywood" in full, "state or town kept " + full)
+# Numbered sites keep the number and the rest of the official name.
+farley_name = "Farley Bend Camping Area Site 2 (River Murray Reserve)"
 farley = seo.camp_page_title(
     "Farley Bend Camping Area Site 2  (River Murray Reserve)",
     "VIC", town="Echuca", region="Goldfields & Central Victoria", state_name="Victoria",
 )
-expect("Site 2" in farley and "River Murray Reserve" not in farley, "farley site " + farley)
-expect("near Echuca" in farley, "farley town " + farley)
+expect(farley_name in farley, "farley full name " + farley)
+# A short name still keeps the town when the title fits.
+macarthur = seo.camp_page_title(
+    "Macarthur Recreation Reserve", "VIC", town="Penshurst",
+    region="Grampians & South West", state_name="Victoria",
+)
+expect("Macarthur Recreation Reserve" in macarthur, "macarthur name " + macarthur)
+expect("Macarthur Recreation," not in macarthur, "macarthur not clipped " + macarthur)
 # Acheron with a town fits; the long region is allowed to run a little over so the name stays readable.
 acheron_town = seo.camp_page_title("Acheron Campground", "VIC", town="Healesville", region="Yarra Ranges & Central Highlands", state_name="Victoria")
 expect(acheron_town == "Acheron Campground, near Healesville VIC | CampConditions.au", "acheron town " + acheron_town)
@@ -283,10 +288,9 @@ _richards = _titles_for(
     ],
     abbrev="TAS", region="Tasmania", state_name="Tasmania",
 )
-# Locality/village names in page_name are not written as ", near …" in the title.
-# They can still appear as a disambiguating extra so the two pages stay unique.
-expect("Dolphin Sands" in _richards[0] and "Coles Bay" in _richards[1], "richards bits " + str(_richards))
-expect(all(", near " not in title for title in _richards), "richards no near " + str(_richards))
+# The H1 already has ", near …"; the title must keep that full name.
+expect("Richardsons Beach Campground, near Dolphin Sands" in _richards[0], "richards dolphin " + str(_richards))
+expect("Richardsons Beach Campground, near Coles Bay" in _richards[1], "richards coles " + str(_richards))
 expect(len(set(title.casefold() for title in _richards)) == 2, "richards unique")
 
 
@@ -374,7 +378,22 @@ _again = seo.fact_summary(
     "High Country", "Victoria",
 )
 expect(_first == _again and _first, "stable wording " + repr(_first))
-
+# Donation fee type is worded as donation, never as free.
+_don = seo.fact_summary(
+    {"name": "Macarthur Recreation Reserve", "slug": "macarthur-recreation-reserve",
+     "source": "osm", "state_slug": "vic", "cost": "free", "category": "Donation",
+     "fee_type": "donation", "fee_label": "Donation", "fac_caravans": True},
+    "Grampians & South West", "Victoria",
+)
+expect(_don and "Macarthur Recreation Reserve" in _don, "donation name " + repr(_don))
+expect("donation camping area" in _don and "free camping area" not in _don, "donation wording " + repr(_don))
+# Summary uses the full recorded name, including a leading 150.
+_mer = seo.fact_summary(
+    {"name": "150 Meridian Rest Area", "slug": "150-meridian-rest-area",
+     "source": "osm", "state_slug": "nsw", "cost": "free", "fac_caravans": True},
+    "New England North West", "New South Wales",
+)
+expect(_mer.startswith("150 Meridian Rest Area"), "meridian name " + repr(_mer))
 
 if failures:
     print("\n".join(failures))

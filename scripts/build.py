@@ -212,8 +212,18 @@ def slug(s): return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
 # unit or place descriptor (6 Mile Flat, 82 Bend, 14 Creek).
 _KEEP_UNIT = {"mile", "miles", "bend", "bends", "km", "kms", "kilometre", "kilometres", "kilometer", "kilometers", "creek", "creeks"}
 def strip_index_name(name):
-    match = re.match(r"^(\d+)\s+([A-Za-z]+)", name or "")
-    if not match or match.group(2).lower() in _KEEP_UNIT: return name
+    """Drop a short leading source index (1 Wild Cherry Camp).
+
+    Keep three-or-more-digit prefixes; they are part of the name
+    (150 Meridian Rest Area, 1770 Eco Camp). Collapse internal
+    whitespace so the H1 and <title> use the same exact string.
+    """
+    name = re.sub(r"\s+", " ", name or "").strip()
+    match = re.match(r"^(\d+)\s+([A-Za-z]+)", name)
+    if not match or match.group(2).lower() in _KEEP_UNIT:
+        return name
+    if len(match.group(1)) >= 3:
+        return name
     return name[match.start(2):]
 e = lambda s: html.escape(str(s or ""), quote=True)
 def feed_date(value):
@@ -901,6 +911,10 @@ for state, official, osm_rows, state_closures in loaded:
             % (counted["amber"], counted["closed"], counted["campfire"], " (last good)" if fetched.get("stale") else "")
         )
     for camp in state_camps:
+        shown = re.sub(r"\s+", " ", camp.get("name") or "").strip()
+        if shown and shown != camp.get("name"):
+            camp.setdefault("former_name", camp["name"])
+            camp["name"] = shown
         assign_filters(camp)
     town_path = statecfg.path(state, "towns")
     if town_path and os.path.isfile(town_path):
